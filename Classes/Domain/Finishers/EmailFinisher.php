@@ -146,18 +146,21 @@ class EmailFinisher extends AbstractFinisher
             $this->options['addHtmlPart'] = false;
         }
 
-        $subject = (string)$this->parseOption('subject');
+        $subjectOption = $this->parseOptionAsDisplayValue('subject');
+        $subject = is_array($subjectOption)
+            ? implode(', ', $subjectOption)
+            : (string)$subjectOption;
         $recipients = $this->getRecipients('recipients');
         $senderAddress = $this->parseOption('senderAddress');
         $senderAddress = is_string($senderAddress) ? $senderAddress : '';
-        $senderName = $this->parseOption('senderName');
+        $senderName = $this->parseOptionAsDisplayValue('senderName');
         $senderName = is_string($senderName) ? $senderName : '';
         $replyToRecipients = $this->getRecipients('replyToRecipients');
         $carbonCopyRecipients = $this->getRecipients('carbonCopyRecipients');
         $blindCarbonCopyRecipients = $this->getRecipients('blindCarbonCopyRecipients');
         $addHtmlPart = (bool)$this->parseOption('addHtmlPart');
         $attachUploads = $this->parseOption('attachUploads');
-        $title = (string)$this->parseOption('title') ?: $subject;
+        $title = (string)$this->parseOptionAsDisplayValue('title') ?: $subject;
 
         if ($subject === '') {
             throw new FinisherException('The option "subject" must be set for the EmailFinisher.', 1327060320);
@@ -225,7 +228,7 @@ class EmailFinisher extends AbstractFinisher
             }
         }
 
-        $message = $this->parseOption('message');
+        $message = $this->parseOptionAsDisplayValue('message');
         if (is_string($message) && $message !== '') {
             // Remove whitespace between HTML tags to prevent lib.parseFunc_RTE
             // from converting newlines into additional blank lines in the email output
@@ -247,7 +250,10 @@ class EmailFinisher extends AbstractFinisher
         // (split around the {formValues} placeholder, just like the HTML body).
         // If it is empty, the plain-text template falls back to the stripped
         // HTML "message" (legacy behaviour) — so existing forms are unaffected.
-        $plainMessage = $this->parseOption('plainMessage');
+        // Read as a display value like the HTML "message" above: the two are the
+        // same text for the same reader, so a select's option key in one and its
+        // translated label in the other would contradict each other inside one mail.
+        $plainMessage = $this->parseOptionAsDisplayValue('plainMessage');
         if (is_string($plainMessage) && $plainMessage !== '') {
             $mail->assign('plainMessageProvided', true);
             $placeholderPos = strpos($plainMessage, '{formValues}');
