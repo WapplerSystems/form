@@ -15,6 +15,9 @@ imports:
   - { resource: 'EXT:form/Configuration/Form/Base/Validators/FileSize.yaml' }
   - { resource: 'EXT:form/Configuration/Form/Base/Validators/DateRange.yaml' }
 
+  # WapplerSystems fork additions
+  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Validators/EntropySpam.yaml' }
+
   # Form elements
   - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Form.yaml' }
   - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Page.yaml' }

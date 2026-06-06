@@ -102,6 +102,39 @@ All fork-added events live in `TYPO3\CMS\Form\WapplerSystems\Event\` and are dis
 
 The Before/After finisher events fire generically for every finisher inheriting `AbstractFinisher` — Email, Redirect, Confirmation, SaveToDatabase, FlashMessage, DeleteUploads, Closure and any custom finishers. No need to subclass per finisher type.
 
+## Cross-field (form-level) validators
+
+Validators that need access to more than a single field's value implement
+`TYPO3\CMS\Form\WapplerSystems\Validation\FormAwareValidatorInterface` (or extend
+`AbstractFormAwareValidator`). They are declared on the form root, not on an
+individual element:
+
+```yaml
+type: Form
+identifier: contact
+renderingOptions:
+  formLevelValidators:
+    -
+      identifier: EntropySpam
+      options:
+        minimumEntropy: 2.0
+        maximumEntropy: 5.5
+        textFieldIdentifiers: ['message', 'subject']
+        minimumLength: 30
+```
+
+The validator identifier must be registered in the prototype's
+`validatorsDefinition` (the standard prototype already registers `EntropySpam`).
+The internal listener `RunFormLevelValidators` consumes `AfterFormIsValidatedEvent`
+and invokes each declared validator after per-element validation has finished;
+errors merge into the form's aggregate `Result`.
+
+`EntropySpamValidator` ships as the first concrete cross-field validator and
+uses a Shannon-entropy band to reject submissions that look either repetitive
+(`aaaaaaa`, `hahaha`) or uniform-random (bot brute-force). Human-written text
+in most languages falls between roughly 3.5 and 5.0 bits/character; the default
+band 1.8-5.8 is intentionally wide to avoid false positives.
+
 ## Conventions for additions
 
 * Code added on top of upstream **must live in a separate subnamespace** —
