@@ -1,0 +1,106 @@
+# WapplerSystems Fork of typo3/cms-form
+
+This repository is a hard fork of the TYPO3 system extension `form` — the read-only
+subtree split at <https://github.com/TYPO3-CMS/form>, which is itself derived from
+`typo3/sysext/form/` in <https://github.com/TYPO3/typo3>.
+
+It is installed via Composer as `wapplersystems/form` and **transparently replaces
+`typo3/cms-form`** through Composer's `replace` mechanism. The Composer package
+name and the TYPO3 extension key on disk are deliberately different (`wapplersystems/form`
+vs. `form`) so that the extension remains a drop-in for `EXT:form` — everything that
+references `\TYPO3\CMS\Form\…`, the YAML mixins, the form editor JavaScript, the
+Fluid template paths and the FAL config continues to work without changes.
+
+## Why fork?
+
+The TYPO3 core `form` sysext is intentionally minimal in places where editor
+workflows benefit from more depth:
+
+1. **More events** — make finisher pipelines, variant evaluation and form rendering
+   pluggable from outside via PSR-14 events instead of class extension.
+2. **Backend editor parity** — features that exist today only via YAML hand-editing
+   (variants/conditions, complex validators, finisher options) become editable in
+   the form editor.
+3. **Cross-field validators** — validators that need access to more than a single
+   field's value (entropy/spam filtering across all submitted text, conditional
+   `required`, sums of numeric fields, etc.).
+4. **Variants/Conditions editor** — visual editor for the existing `variants` mechanism
+   so integrators can express conditional behavior without writing YAML.
+5. **Consolidate `wapplersystems/form_extended`** — the patches and additions that
+   currently live in `form_extended` (multi-upload, sender-address config in site
+   settings, country/date/time fields, custom finishers) migrate into this fork
+   step by step; `form_extended` is then deprecated.
+
+## Branch layout
+
+| Branch        | Purpose                                                     |
+| ------------- | ----------------------------------------------------------- |
+| `release/v14` | Active dev branch tracking TYPO3 14.x. **Default branch.**  |
+| `release/v15` | Will be created when TYPO3 v15 ships.                       |
+| `main`        | Mirror of upstream `main` — never patched, sync-only.       |
+| `14.3`, …     | Mirrors of upstream major branches — sync-only.             |
+
+## Upstream sync workflow
+
+Upstream is registered as the `upstream` remote
+(`https://github.com/TYPO3-CMS/form.git`). The flow for picking up new upstream
+work is:
+
+```bash
+# Update upstream branches
+git fetch upstream --prune --tags
+
+# Mirror upstream/14.3 onto our read-only mirror branch
+git push origin "refs/remotes/upstream/14.3:refs/heads/14.3" --force-with-lease
+git push origin "refs/remotes/upstream/main:refs/heads/main"   --force-with-lease
+git push origin --tags
+
+# Cherry-pick relevant commits onto release/v14
+git checkout release/v14
+git log --oneline release/v14..upstream/14.3      # what's new upstream
+git cherry-pick <sha>                              # pick what we want
+```
+
+**Never merge `upstream/14.3` directly into `release/v14`.** Use cherry-pick so
+the fork history stays linear and grep-able; we want to see *our* changes
+without upstream noise mixed in.
+
+When a new TYPO3 minor (e.g. 14.4) lands upstream, we cherry-pick the relevant
+commits up to that tag and adjust the `branch-alias` in `composer.json`.
+
+## Local development inside the dev14 monorepo
+
+The `dev14` Composer project loads this directory via the `packages/*/*` path
+repository. To require it, replace the line
+
+```json
+"typo3/cms-form": "14.3.*@dev",
+```
+
+in the project's `composer.json` with
+
+```json
+"wapplersystems/form": "dev-release/v14 as 14.3",
+```
+
+The path repo provides `wapplersystems/form`; the `replace` clause in our
+`composer.json` makes Composer treat `typo3/cms-form` as already satisfied so
+no second copy is downloaded.
+
+## Conventions for additions
+
+* Code added on top of upstream **must live in a separate subnamespace** —
+  `\TYPO3\CMS\Form\WapplerSystems\…` — so that future upstream cherry-picks
+  never touch our files. The PSR-4 prefix stays `\TYPO3\CMS\Form\` because we
+  *are* the `form` extension; the WapplerSystems-only subdir is just an
+  organizational convention.
+* Every public API surface we add gets a PSR-14 event so downstream extensions
+  (including `wapplersystems/form_extended` during the migration period) can
+  consume it.
+* New editor UI is implemented as TYPO3 Lit web components under
+  `Resources/Public/JavaScript/Backend/FormEditor/WapplerSystems/`, registered
+  through the editor's existing extension points rather than by patching
+  upstream templates.
+* Commits that touch upstream files must explain *why* the upstream file
+  needed to change — almost always preferable to add a hook/event upstream
+  separately and contribute it back instead.

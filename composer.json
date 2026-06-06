@@ -1,32 +1,26 @@
 {
-	"name": "typo3/cms-form",
+	"name": "wapplersystems/form",
 	"type": "typo3-cms-framework",
-	"description": "TYPO3 CMS Form - Flexible TYPO3 frontend form framework that comes with a backend editor interface.",
-	"homepage": "https://typo3.community/",
-	"funding": [
-		{
-			"type": "membership",
-			"url": "https://typo3.org/membership"
-		}
-	],
+	"description": "WapplerSystems fork of typo3/cms-form — extended backend editor (variants/conditions UI), additional events, cross-field validators (e.g. entropy spam filter).",
+	"homepage": "https://github.com/WapplerSystems/form",
 	"license": [
 		"GPL-2.0-or-later"
 	],
 	"authors": [
 		{
+			"name": "Sven Wappler",
+			"email": "typo3@wappler.systems",
+			"role": "Maintainer of fork"
+		},
+		{
 			"name": "TYPO3 Core Team",
 			"email": "typo3cms@typo3.org",
-			"role": "Developer"
+			"role": "Upstream developer"
 		}
 	],
 	"support": {
-		"issues": "https://forge.typo3.org/issues/",
-		"forum": "https://talk.typo3.org/",
-		"source": "https://github.com/TYPO3/typo3/",
-		"docs": "https://docs.typo3.org/c/typo3/cms-form/main/en-us/",
-		"rss": "https://news.typo3.com/rss/",
-		"chat": "https://typo3.community/meet/slack/",
-		"security": "https://typo3.org/security/"
+		"issues": "https://github.com/WapplerSystems/form/issues",
+		"source": "https://github.com/WapplerSystems/form"
 	},
 	"config": {
 		"sort-packages": true
@@ -36,6 +30,9 @@
 		"symfony/expression-language": "^7.4.8",
 		"typo3/cms-core": "14.3.*@dev",
 		"typo3/cms-frontend": "14.3.*@dev"
+	},
+	"replace": {
+		"typo3/cms-form": "self.version"
 	},
 	"suggest": {
 		"typo3/cms-filelist": "Listing of files in the directory",
@@ -47,6 +44,7 @@
 	},
 	"extra": {
 		"branch-alias": {
+			"dev-release/v14": "14.3.x-dev",
 			"dev-main": "14.3.x-dev"
 		},
 		"typo3/cms": {
