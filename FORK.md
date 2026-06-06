@@ -87,6 +87,21 @@ The path repo provides `wapplersystems/form`; the `replace` clause in our
 `composer.json` makes Composer treat `typo3/cms-form` as already satisfied so
 no second copy is downloaded.
 
+## Fork-added PSR-14 events
+
+All fork-added events live in `TYPO3\CMS\Form\WapplerSystems\Event\` and are dispatched from patched upstream call-sites. They do not overlap with the events shipped by upstream EXT:form under `TYPO3\CMS\Form\Event\`.
+
+| Event | Fired from | Carries | Use-case |
+| --- | --- | --- | --- |
+| `BeforeFormPageProcessedEvent` | `FormRuntime::processSubmittedFormValues()` | `Page`, `FormRuntime`, `RequestInterface` | Preprocess submitted request args, snapshot for analytics, early-exit hooks |
+| `BeforeFormIsValidatedEvent` | `FormRuntime::mapAndValidatePage()` (start) | `Page`, `FormRuntime`, `RequestInterface` | Setup before cross-field validators run (precompute shared values) |
+| `AfterFormIsValidatedEvent` | `FormRuntime::mapAndValidatePage()` (end) | `Page`, `FormRuntime`, `RequestInterface`, **mutable** `Result` | Cross-field validators add errors via `$event->result->forProperty(...)->addError(...)`. Also the hook for validation-failure logging. |
+| `AfterVariantAppliedEvent` | `FormRuntime::processVariants()` | `VariableRenderableInterface`, `RenderableVariantInterface`, `FormRuntime` | React to dynamic form structure changes (cache invalidation, condition-match analytics) |
+| `BeforeFinisherExecutedEvent` | `AbstractFinisher::execute()` | `FinisherInterface`, `FinisherContext` | Inject runtime values, log finisher invocations, call `$context->cancel()` to skip the rest of the chain |
+| `AfterFinisherExecutedEvent` | `AbstractFinisher::execute()` | `FinisherInterface`, `FinisherContext`, `mixed` (executeInternal result) | Post-finisher logging, output transformation, follow-up actions. Does **not** fire on FinisherException. |
+
+The Before/After finisher events fire generically for every finisher inheriting `AbstractFinisher` — Email, Redirect, Confirmation, SaveToDatabase, FlashMessage, DeleteUploads, Closure and any custom finishers. No need to subclass per finisher type.
+
 ## Conventions for additions
 
 * Code added on top of upstream **must live in a separate subnamespace** —

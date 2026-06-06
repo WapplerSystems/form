@@ -61,6 +61,11 @@ use TYPO3\CMS\Form\Domain\Runtime\FormRuntime\Lifecycle\AfterFormStateInitialize
 use TYPO3\CMS\Form\Event\AfterCurrentPageIsResolvedEvent;
 use TYPO3\CMS\Form\Event\BeforeRenderableIsValidatedEvent;
 use TYPO3\CMS\Form\Exception as FormException;
+// WapplerSystems fork additions:
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterFormIsValidatedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterVariantAppliedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\BeforeFormIsValidatedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\BeforeFormPageProcessedEvent;
 use TYPO3\CMS\Form\Mvc\Validation\EmptyValidator;
 use TYPO3\CMS\Form\Security\HashScope;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
@@ -475,6 +480,10 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 foreach ($variants as $variant) {
                     if ($variant->conditionMatches($conditionResolver)) {
                         $variant->apply();
+                        // WapplerSystems fork: notify listeners after each applied variant
+                        $this->eventDispatcher->dispatch(
+                            new AfterVariantAppliedEvent($renderable, $variant, $this)
+                        );
                     }
                 }
             }
@@ -524,6 +533,14 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
      */
     protected function processSubmittedFormValues()
     {
+        // WapplerSystems fork: dispatched before a submitted page is mapped and validated
+        $this->eventDispatcher->dispatch(
+            new BeforeFormPageProcessedEvent(
+                $this->lastDisplayedPage,
+                $this,
+                $this->request,
+            )
+        );
         $result = $this->mapAndValidatePage($this->lastDisplayedPage);
         if ($result->hasErrors() && !$this->userWentBackToPreviousStep()) {
             $this->currentPage = $this->lastDisplayedPage;
@@ -549,6 +566,11 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
     {
         $result = GeneralUtility::makeInstance(Result::class);
         $requestArguments = $this->request->getArguments();
+
+        // WapplerSystems fork: aggregate-level companion to BeforeRenderableIsValidatedEvent
+        $this->eventDispatcher->dispatch(
+            new BeforeFormIsValidatedEvent($page, $this, $this->request)
+        );
 
         $propertyPathsForWhichPropertyMappingShouldHappen = [];
         $registerPropertyPaths = static function ($propertyPath) use (&$propertyPathsForWhichPropertyMappingShouldHappen) {
@@ -619,6 +641,12 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 $this->formState->setFormValue($propertyPath, $value);
             }
         }
+
+        // WapplerSystems fork: cross-field validators and validation-logging listeners hook here.
+        // Listeners can mutate $result via forProperty(...)->addError(...).
+        $this->eventDispatcher->dispatch(
+            new AfterFormIsValidatedEvent($page, $this, $this->request, $result)
+        );
 
         return $result;
     }

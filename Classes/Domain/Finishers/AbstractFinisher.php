@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Domain\Finishers;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -32,6 +33,9 @@ use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Model\FormElements\StringableFormElementInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Service\TranslationService;
+// WapplerSystems fork additions:
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterFinisherExecutedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\BeforeFinisherExecutedEvent;
 
 /**
  * Finisher base class.
@@ -79,6 +83,12 @@ abstract class AbstractFinisher implements FinisherInterface, LoggerAwareInterfa
 
     private TranslationService $translationService;
 
+    /**
+     * WapplerSystems fork: optional. Null-safe so finishers instantiated
+     * outside the DI container (legacy tests, manual makeInstance) still work.
+     */
+    private ?EventDispatcherInterface $eventDispatcher = null;
+
     public function injectViewFactory(ViewFactoryInterface $viewFactory)
     {
         $this->viewFactory = $viewFactory;
@@ -87,6 +97,11 @@ abstract class AbstractFinisher implements FinisherInterface, LoggerAwareInterfa
     public function injectTranslationService(TranslationService $translationService)
     {
         $this->translationService = $translationService;
+    }
+
+    public function injectEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -136,8 +151,14 @@ abstract class AbstractFinisher implements FinisherInterface, LoggerAwareInterfa
             return null;
         }
 
+        // WapplerSystems fork: notify listeners before any finisher executes
+        $this->eventDispatcher?->dispatch(new BeforeFinisherExecutedEvent($this, $finisherContext));
+
         try {
-            return $this->executeInternal();
+            $result = $this->executeInternal();
+            // WapplerSystems fork: notify only on successful execution (no exception)
+            $this->eventDispatcher?->dispatch(new AfterFinisherExecutedEvent($this, $finisherContext, $result));
+            return $result;
         } catch (FinisherException $e) {
             $this->logger->error('Failed to execute finisher', ['exception' => $e]);
             $this->finisherContext->cancel();
