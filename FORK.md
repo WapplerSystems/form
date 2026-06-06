@@ -102,6 +102,18 @@ All fork-added events live in `TYPO3\CMS\Form\WapplerSystems\Event\` and are dis
 
 The Before/After finisher events fire generically for every finisher inheriting `AbstractFinisher` — Email, Redirect, Confirmation, SaveToDatabase, FlashMessage, DeleteUploads, Closure and any custom finishers. No need to subclass per finisher type.
 
+## Form elements added on top of upstream
+
+| Element | Class | Notes |
+| --- | --- | --- |
+| `Time` | `TYPO3\CMS\Form\WapplerSystems\Domain\Model\FormElements\Time` | HTML5 `<input type="time">`. Backed by `\DateTimeImmutable` parsed with format `H:i`; the date portion is "today" — only the time portion is meaningful. Fills a real gap (core ships `Date` but no `Time`). |
+
+## View helpers added on top of upstream
+
+| Helper | Class | Use case |
+| --- | --- | --- |
+| `<formvh:remoteAddress />` | `TYPO3\CMS\Form\WapplerSystems\ViewHelpers\RemoteAddressViewHelper` | Renders client IP via `GeneralUtility::getIndpEnv('REMOTE_ADDR')` (respects trusted-proxy config). Useful for audit-trailing email finishers / confirmation pages. |
+
 ## Cross-field (form-level) validators
 
 Validators that need access to more than a single field's value implement

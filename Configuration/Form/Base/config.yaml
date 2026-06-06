@@ -17,6 +17,7 @@ imports:
 
   # WapplerSystems fork additions
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Validators/EntropySpam.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/FormElements/Time.yaml' }
 
   # Form elements
   - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Form.yaml' }

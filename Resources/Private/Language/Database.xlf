@@ -1164,6 +1164,13 @@
       <trans-unit id="formEditor.elements.Date.editor.validators.DateRange.label">
         <source>Date range</source>
       </trans-unit>
+      <!-- WapplerSystems fork: Time form element labels -->
+      <trans-unit id="formEditor.elements.Time.label">
+        <source>Time</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Time.description">
+        <source>A text field for inputting a time in HH:MM format</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.header.label">
         <source>Date range</source>
       </trans-unit>
