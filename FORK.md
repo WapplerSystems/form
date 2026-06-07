@@ -159,6 +159,50 @@ uses a Shannon-entropy band to reject submissions that look either repetitive
 in most languages falls between roughly 3.5 and 5.0 bits/character; the default
 band 1.8-5.8 is intentionally wide to avoid false positives.
 
+## Site-sender feature (opt-in via extension flag)
+
+Lets site administrators maintain a list of email sender addresses
+in the BE Site Configuration module; the form plugin's FlexForm then
+offers a dropdown to pick one per content element. The actual
+sender on outgoing emails is resolved at runtime from the selection.
+
+Enable in `Admin Tools → Settings → Extension Configuration → form`:
+
+```
+form.featureSiteEmail = 1
+```
+
+After flushing caches and updating the schema, a new "Form senders"
+group appears in each site's BE configuration with `email` and
+`name` fields per entry.
+
+Architecture (all classes under `TYPO3\CMS\Form\WapplerSystems\…`):
+
+- `Configuration/SiteConfiguration/site_sender.php` — TCA for the
+  sub-site-entity with `email` and `name` columns.
+- `Configuration/SiteConfiguration/Overrides/site.php` — adds an
+  inline `senders` collection to the `site` configuration. Only
+  active when `featureSiteEmail` is on.
+- `Form/FormDataProvider/SiteTcaInline` + `SiteDatabaseEditRow` —
+  Symfony-DI decorators of the core providers; they add `site_sender`
+  to the allowed inline tables. Registered in `Configuration/Services.yaml`.
+- `EventListener/InjectSenderDropdownIntoFormPluginFlexForm` —
+  inserts a `settings.sender` Select into the form-plugin FlexForm
+  whose items are populated by `Hooks/SiteSenderItemsProcFunc`.
+- `EventListener/HideStaticSenderFieldsInFormPluginFlexForm` —
+  hides the EmailToReceiver finisher's `senderAddress` / `senderName`
+  fields in the form-plugin FlexForm so editors aren't asked to fill
+  in values that the site-sender will override anyway.
+- `EventListener/ApplySiteSenderToEmailFinisher` — consumes the
+  upstream `BeforeEmailFinisherInitializedEvent`, reads the selected
+  sender from the plugin's FlexForm, and rewrites the finisher's
+  `senderAddress` / `senderName` options. Cleaner than form_extended's
+  EmailFinisher subclass-override.
+
+When the feature flag is OFF, all listeners early-return and the
+decorators behave like the plain core data providers — zero runtime
+cost.
+
 ## Validation-failure logging (opt-in per form)
 
 Enable per form to track which fields fail validation most often — useful
