@@ -117,6 +117,7 @@ The Before/After finisher events fire generically for every finisher inheriting 
 | `RedirectToUri` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\RedirectToUriFinisher` | Redirect to **any** URI (external too). Core's `Redirect` only handles TYPO3 pages via t3-page IDs. Options: `uri`, `statusCode` (default 303). |
 | `FeUser` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\FeUserFinisher` | Insert/update `fe_users` rows from form values. Built on core's `SaveToDatabase`. Per-element `hashPassword: true` runs the value through `PasswordHashFactory::getDefaultHashInstance('FE')`. Requires `pid` option for the storage page. |
 | `CopyToSenderEmail` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\CopyToSenderEmailFinisher` | Conditional `EmailFinisher` — only fires when the form field named in `conditionFieldName` is truthy. Use case: "send me a copy" checkbox. |
+| `AttachUploadsToObject` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\AttachUploadsToObjectFinisher` | Attaches uploaded files to an arbitrary DB record via new `sys_file_reference` rows. Pair with `SaveToDatabase` and reference the inserted UID via `{SaveToDatabase.insertedUids.<index>}`. Rebuild of the legacy form_extended finisher: direct ConnectionPool inserts, no fake backend user, no `bypassAccessCheck` hack, supports multiple files per element. |
 
 ## View helpers added on top of upstream
 

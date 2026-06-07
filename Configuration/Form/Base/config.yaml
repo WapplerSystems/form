@@ -21,6 +21,7 @@ imports:
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/RedirectToUri.yaml' }
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/FeUser.yaml' }
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/CopyToSenderEmail.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/AttachUploadsToObject.yaml' }
 
   # Form elements
   - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Form.yaml' }
