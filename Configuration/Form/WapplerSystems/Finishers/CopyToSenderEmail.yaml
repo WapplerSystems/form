@@ -1,0 +1,24 @@
+prototypes:
+  standard:
+    finishersDefinition:
+      CopyToSenderEmail:
+        implementationClassName: TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\CopyToSenderEmailFinisher
+        formEditor:
+          iconIdentifier: form-finisher
+          label: 'Email copy to sender (conditional)'
+          predefinedDefaults:
+            options:
+              conditionFieldName: ''
+              recipients: {}
+              subject: ''
+              senderAddress: ''
+              senderName: ''
+              templateName: 'Default'
+              templateRootPaths:
+                10: 'EXT:form/Resources/Private/Frontend/Templates/Finishers/Email/'
+              partialRootPaths: {}
+              layoutRootPaths: {}
+              addHtmlPart: true
+              attachUploads: true
+              translation:
+                language: ''

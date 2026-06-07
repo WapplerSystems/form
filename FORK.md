@@ -110,6 +110,14 @@ The Before/After finisher events fire generically for every finisher inheriting 
 | --- | --- | --- |
 | `Time` | `TYPO3\CMS\Form\WapplerSystems\Domain\Model\FormElements\Time` | HTML5 `<input type="time">`. Backed by `\DateTimeImmutable` parsed with format `H:i`; the date portion is "today" — only the time portion is meaningful. Fills a real gap (core ships `Date` but no `Time`). |
 
+## Finishers added on top of upstream
+
+| Identifier | Class | Purpose |
+| --- | --- | --- |
+| `RedirectToUri` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\RedirectToUriFinisher` | Redirect to **any** URI (external too). Core's `Redirect` only handles TYPO3 pages via t3-page IDs. Options: `uri`, `statusCode` (default 303). |
+| `FeUser` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\FeUserFinisher` | Insert/update `fe_users` rows from form values. Built on core's `SaveToDatabase`. Per-element `hashPassword: true` runs the value through `PasswordHashFactory::getDefaultHashInstance('FE')`. Requires `pid` option for the storage page. |
+| `CopyToSenderEmail` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\CopyToSenderEmailFinisher` | Conditional `EmailFinisher` — only fires when the form field named in `conditionFieldName` is truthy. Use case: "send me a copy" checkbox. |
+
 ## View helpers added on top of upstream
 
 | Helper | Class | Use case |
