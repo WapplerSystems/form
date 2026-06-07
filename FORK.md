@@ -149,6 +149,43 @@ uses a Shannon-entropy band to reject submissions that look either repetitive
 in most languages falls between roughly 3.5 and 5.0 bits/character; the default
 band 1.8-5.8 is intentionally wide to avoid false positives.
 
+## Validation-failure logging (opt-in per form)
+
+Enable per form to track which fields fail validation most often — useful
+for drop-off analysis without storing any user-submitted values:
+
+```yaml
+type: Form
+identifier: contact
+renderingOptions:
+  recordValidationFailures: true
+```
+
+The `RecordValidationFailures` listener (consumes `AfterFormIsValidatedEvent`)
+writes one row to `tx_form_validation_log` per validation error with:
+
+- `form_identifier`, `element_identifier`, `property_path`
+- `error_code`, `error_message` (already translated, safe to store)
+- `page_uid`, `language_uid`, `page_index`
+- `session_hash` — SHA-256 of the `FormSession` identifier so multi-attempt
+  patterns from one visitor can be aggregated without identifying them
+- `crdate`
+
+What is **NOT** stored: submitted field values, raw inputs, IPs, user
+agents. The table is engineered to be GDPR-defensible by default. Operators
+should set up a Scheduler task that prunes rows older than the local
+retention window; a built-in cleanup command may ship in a later phase.
+
+Sample analytics query:
+
+```sql
+SELECT element_identifier, error_code, COUNT(*) AS hits
+FROM tx_form_validation_log
+WHERE form_identifier = 'contact' AND crdate > UNIX_TIMESTAMP() - 86400*30
+GROUP BY element_identifier, error_code
+ORDER BY hits DESC;
+```
+
 ## Conventions for additions
 
 * Code added on top of upstream **must live in a separate subnamespace** —
