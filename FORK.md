@@ -159,6 +159,41 @@ uses a Shannon-entropy band to reject submissions that look either repetitive
 in most languages falls between roughly 3.5 and 5.0 bits/character; the default
 band 1.8-5.8 is intentionally wide to avoid false positives.
 
+## Password policy JSON endpoint
+
+A frontend middleware at `/_form/password-policy/` exposes TYPO3's
+configured FE password policy (`$GLOBALS['TYPO3_CONF_VARS']['FE']['passwordPolicy']`)
+as a structured JSON document. Client-side JavaScript can fetch it once
+and render a live "is your password strong enough yet?" indicator next
+to a form's password field, in lockstep with the same `CorePasswordValidator`
+that will validate the submission server-side.
+
+Response shape:
+
+```json
+{
+  "policy": "default",
+  "rules": [
+    {"id": "minimumLength",            "label": "…", "value": 8},
+    {"id": "upperCaseCharacterRequired","label": "…"},
+    {"id": "lowerCaseCharacterRequired","label": "…"},
+    {"id": "digitCharacterRequired",    "label": "…"},
+    {"id": "specialCharacterRequired",  "label": "…"}
+  ]
+}
+```
+
+Only rules the configured `CorePasswordValidator` actually enforces are
+emitted; a policy that disables `specialCharacterRequired` simply won't
+return that rule, so the UI stays consistent with the validator.
+
+Labels are translated against the active site default language.
+
+The middleware is registered in `Configuration/RequestMiddlewares.php`
+after `cms-frontend/site` (so the site context is available) and before
+`cms-frontend/page-resolver` (so the JSON URL never enters page-not-found
+lookup).
+
 ## Site-sender feature (opt-in via extension flag)
 
 Lets site administrators maintain a list of email sender addresses

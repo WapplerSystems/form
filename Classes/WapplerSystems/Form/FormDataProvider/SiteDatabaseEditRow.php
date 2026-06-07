@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\WapplerSystems\Form\FormDataProvider;
 
+use TYPO3\CMS\Backend\Configuration\SiteTcaConfiguration;
 use TYPO3\CMS\Core\Configuration\Processor\Placeholder\EnvPlaceholderProcessor;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Core\Site\SiteTcaConfiguration;
 
 /**
  * Decorator for the core SiteDatabaseEditRow FormDataProvider that loads
