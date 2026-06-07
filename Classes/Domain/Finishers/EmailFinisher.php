@@ -33,6 +33,8 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Event\BeforeEmailFinisherInitializedEvent;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
+// WapplerSystems fork additions:
+use TYPO3\CMS\Form\WapplerSystems\Event\MailBeforeSendingEvent;
 
 /**
  * This finisher sends an email to one recipient
@@ -187,6 +189,13 @@ class EmailFinisher extends AbstractFinisher
                 }
             }
         }
+
+        // WapplerSystems fork: listeners can mutate the FluidEmail (recipients,
+        // headers, attachments) before transport. Dispatched after FluidEmail
+        // is fully populated, before the mailer transport runs.
+        $this->eventDispatcher->dispatch(
+            new MailBeforeSendingEvent($mail, $this->finisherContext, $this),
+        );
 
         try {
             $this->mailer->send($mail);

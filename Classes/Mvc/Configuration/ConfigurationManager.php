@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Mvc\Configuration;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -25,6 +26,8 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Form\Mvc\Configuration\ConfigurationManagerInterface as ExtFormConfigurationManagerInterface;
 use TYPO3\CMS\Form\Service\FormDefinitionMigrationService;
+// WapplerSystems fork additions:
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterYamlConfigurationLoadedEvent;
 
 /**
  * Extend the ExtbaseConfigurationManager to read YAML configurations.
@@ -45,6 +48,8 @@ readonly class ConfigurationManager implements ExtFormConfigurationManagerInterf
         private TypoScriptService $typoScriptService,
         private FormDefinitionMigrationService $migrationService,
         private FormYamlCollector $formYamlCollector,
+        // WapplerSystems fork: dispatcher for AfterYamlConfigurationLoadedEvent
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     /**
@@ -90,6 +95,13 @@ readonly class ConfigurationManager implements ExtFormConfigurationManagerInterf
             $yamlSettings = $this->migrationService->migrate($yamlSettings);
             $this->cache->set($cacheKey, $yamlSettings);
         }
+
+        // WapplerSystems fork: dispatched on every load (NOT cache-gated) so
+        // listeners can keep YAML live against external state (site languages,
+        // file mounts, ...). Listeners are expected to be cheap.
+        $yamlSettings = $this->eventDispatcher
+            ->dispatch(new AfterYamlConfigurationLoadedEvent($yamlSettings))
+            ->yamlConfiguration;
 
         $this->applySiteSettingsOverrides($yamlSettings, $request);
 
