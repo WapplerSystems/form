@@ -124,6 +124,7 @@ The Before/After finisher events fire generically for every finisher inheriting 
 | Helper | Class | Use case |
 | --- | --- | --- |
 | `<formvh:remoteAddress />` | `TYPO3\CMS\Form\WapplerSystems\ViewHelpers\RemoteAddressViewHelper` | Renders client IP via `GeneralUtility::getIndpEnv('REMOTE_ADDR')` (respects trusted-proxy config). Useful for audit-trailing email finishers / confirmation pages. |
+| `<formvh:translate />` | `TYPO3\CMS\Form\WapplerSystems\ViewHelpers\TranslateViewHelper` | Form-aware translation wrapper that hits `TYPO3\CMS\Form\Service\TranslationService` (with its form-element overlay logic) instead of `LocalizationUtility`. Use inside form-rendering templates; outside use Fluid's `f:translate`. |
 
 ## Cross-field (form-level) validators
 
