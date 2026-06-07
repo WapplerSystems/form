@@ -194,6 +194,19 @@ GROUP BY element_identifier, error_code
 ORDER BY hits DESC;
 ```
 
+### Periodic cleanup
+
+A native TYPO3 v14 scheduler task ships with the fork:
+`TYPO3\CMS\Form\WapplerSystems\Task\CleanupValidationLogTask`. Configure
+it in `Administration → Scheduler → Create task` and select
+**Form: clean up validation log**. The `tx_form_retention_days` TCA field
+controls how old rows must be before they are deleted (default 90 days,
+range 1–3650). Schedule it daily for production sites with active
+validation logging — without it the table grows indefinitely.
+
+Manual run from CLI: `ddev typo3 scheduler:execute --task=<uid>` after
+the task instance is created.
+
 ## Conventions for additions
 
 * Code added on top of upstream **must live in a separate subnamespace** —

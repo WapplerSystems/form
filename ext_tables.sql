@@ -16,6 +16,15 @@ CREATE TABLE sys_refindex (
 # error codes, the (already translated) error message, and an HMAC of
 # the FormSession identifier for cross-submission aggregation.
 #
+#
+# WapplerSystems fork: column for the CleanupValidationLogTask scheduler task
+# (configured via TCA in Configuration/TCA/Overrides/scheduler_form_cleanup_validation_log_task.php).
+# Only one column is needed; further task settings reuse standard scheduler fields.
+#
+CREATE TABLE tx_scheduler_task (
+	tx_form_retention_days SMALLINT(5) UNSIGNED DEFAULT 90 NOT NULL
+);
+
 CREATE TABLE tx_form_validation_log (
 	uid                INT(11) UNSIGNED        NOT NULL AUTO_INCREMENT,
 	crdate             INT(11) UNSIGNED        DEFAULT 0 NOT NULL,
