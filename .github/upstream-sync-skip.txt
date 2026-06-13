@@ -1,0 +1,7 @@
+# Subject-line regex patterns for commits that should NOT be proposed as PRs.
+# One ERE per line. Lines starting with '#' and empty lines are ignored.
+# Patterns are matched against the upstream commit subject (first line).
+
+# TYPO3 release tagging commits — only meaningful on the upstream patch level
+^\[RELEASE\] Release of TYPO3
+^\[TASK\] Set TYPO3 version to
