@@ -59,6 +59,11 @@ jobs:
       - name: Ensure labels exist (and visible to the workflow token)
         env:
           GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          # Pin gh to the fork — without this, gh follows the upstream remote
+          # via its fork-parent heuristic and ends up calling
+          # https://api.github.com/repos/TYPO3-CMS/form/... where the GITHUB_TOKEN
+          # has no permissions (403 Resource not accessible by integration).
+          GH_REPO: ${{ github.repository }}
         run: |
           set -e
           declare -a labels=(
@@ -89,6 +94,7 @@ jobs:
       - name: Propose upstream commits as PRs
         env:
           GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           BASE: ${{ inputs.base || 'release/v14' }}
           UPSTREAM_BRANCH: ${{ inputs.upstream_branch || '14.3' }}
           MAX_PRS: ${{ inputs.max_prs || '10' }}
