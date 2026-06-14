@@ -114,20 +114,6 @@ for sha in "${pending[@]}"; do
     rm -f "$git_dir/CHERRY_PICK_HEAD" "$git_dir/MERGE_MSG" 2>/dev/null || true
   fi
 
-  if [[ "$DRY_RUN" == "true" ]]; then
-    echo "DRY-RUN — would push $branch and open PR."
-    git checkout --detach >/dev/null 2>&1 || true
-    git branch -D "$branch" >/dev/null 2>&1 || true
-    echo "::endgroup::"
-    continue
-  fi
-
-  if (( orphan_branch )); then
-    git push --force-with-lease --set-upstream origin "$branch"
-  else
-    git push --set-upstream origin "$branch"
-  fi
-
   # Build label set
   declare -a labels=("upstream-sync")
   (( conflict )) && labels+=("needs-conflict-resolution")
@@ -166,7 +152,9 @@ for sha in "${pending[@]}"; do
     printf '\n## Commit-Message\n\n<details><summary>Upstream-Commit-Message anzeigen</summary>\n\n```\n'
     git log -1 --format='%B' "$sha"
     printf '```\n\n</details>\n\n'
-    printf '---\n'
+    # bash 5.2's printf builtin treats `---` (and `--`) as an option, so wrap
+    # any dash-leading literal in `%s\n`.
+    printf '%s\n' '---'
     printf 'Erzeugt von `.github/workflows/upstream-sync.yml`.\n'
     printf 'Um diesen Commit künftig nicht erneut vorzuschlagen, schließe die PR ohne Merge — der Marker unten bleibt erhalten.\n\n'
     printf '<!-- DO NOT EDIT — upstream-sha:%s -->\n' "$sha"
@@ -174,6 +162,24 @@ for sha in "${pending[@]}"; do
 
   draft_args=()
   (( conflict )) && draft_args=(--draft)
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    echo "DRY-RUN — would push $branch and open PR with labels: ${labels[*]}"
+    echo "--- PR body preview (first 25 lines) ---"
+    head -n 25 "$body_file" | sed 's/^/    /'
+    echo "----------------------------------------"
+    rm -f "$body_file"
+    git checkout --detach >/dev/null 2>&1 || true
+    git branch -D "$branch" >/dev/null 2>&1 || true
+    echo "::endgroup::"
+    continue
+  fi
+
+  if (( orphan_branch )); then
+    git push --force-with-lease --set-upstream origin "$branch"
+  else
+    git push --set-upstream origin "$branch"
+  fi
 
   if gh pr create \
         --base "$BASE" \
