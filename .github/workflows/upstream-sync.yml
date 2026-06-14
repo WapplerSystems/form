@@ -56,7 +56,7 @@ jobs:
             git remote set-url upstream https://github.com/TYPO3-CMS/form.git
           git fetch --no-tags upstream "+refs/heads/${UPSTREAM_BRANCH}:refs/remotes/upstream/${UPSTREAM_BRANCH}"
 
-      - name: Ensure labels exist
+      - name: Ensure labels exist (and visible to the workflow token)
         env:
           GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
@@ -68,13 +68,23 @@ jobs:
             "bugfix:5319e7:Bugfix from upstream"
             "breaking-change:e99695:Upstream marked [!!!] — review carefully"
           )
+          echo "--- creating labels ---"
           for spec in "${labels[@]}"; do
             name="${spec%%:*}"; rest="${spec#*:}"
             color="${rest%%:*}"; desc="${rest#*:}"
-            gh label create "$name" --color "$color" --description "$desc" >/dev/null 2>&1 \
-              || gh label edit "$name" --color "$color" --description "$desc" >/dev/null 2>&1 \
-              || true
+            if out=$(gh label create "$name" --color "$color" --description "$desc" 2>&1); then
+              echo "  created: $name"
+            else
+              if echo "$out" | grep -qi 'already exists'; then
+                gh label edit "$name" --color "$color" --description "$desc" >/dev/null
+                echo "  exists, edited: $name"
+              else
+                echo "::warning::label '$name' create failed: $out"
+              fi
+            fi
           done
+          echo "--- labels visible to this token ---"
+          gh label list --limit 100 | awk '{print "  "$0}'
 
       - name: Propose upstream commits as PRs
         env:
