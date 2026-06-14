@@ -87,9 +87,12 @@ for sha in "${pending[@]}"; do
     echo "skip $short  (PR already exists)  — $subject"
     skipped=$((skipped+1)); continue
   fi
+  # Branch exists on origin but no PR carries the marker → orphan from a
+  # previous failed run. Overwrite it instead of skipping (self-healing).
+  orphan_branch=0
   if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
-    echo "skip $short  (branch origin/$branch already exists)  — $subject"
-    skipped=$((skipped+1)); continue
+    orphan_branch=1
+    echo "info $short  (orphan branch origin/$branch will be overwritten — no PR carries its marker)"
   fi
 
   echo "::group::Process $short — $subject"
@@ -119,7 +122,11 @@ for sha in "${pending[@]}"; do
     continue
   fi
 
-  git push --set-upstream origin "$branch"
+  if (( orphan_branch )); then
+    git push --force-with-lease --set-upstream origin "$branch"
+  else
+    git push --set-upstream origin "$branch"
+  fi
 
   # Build label set
   declare -a labels=("upstream-sync")
@@ -147,13 +154,15 @@ for sha in "${pending[@]}"; do
       printf '> Bitte lokal auschecken, manuell auflösen, dann das Label `needs-conflict-resolution` entfernen und die PR aus dem Draft-Status nehmen.\n\n'
     fi
     printf '## Upstream-Commit\n\n'
-    printf -- '- **SHA**: [`%s`](%s)\n' "$sha" "$upstream_url"
-    printf -- '- **Author**: %s\n' "$(git log -1 --format='%an' "$sha")"
-    printf -- '- **Date**: %s\n'   "$(git log -1 --format='%ai' "$sha")"
-    [[ -n "$reviewed_on" ]] && printf -- '- **Reviewed-on (Gerrit)**: %s\n' "$reviewed_on"
-    [[ -n "$resolves" ]]    && printf -- '- **Resolves**: %s\n'             "$resolves"
-    [[ -n "$bulletin" ]]    && printf -- '- **Security-Bulletin**: %s\n'    "$bulletin"
-    [[ -n "$cve" ]]         && printf -- '- **Security-References**: %s\n'  "$cve"
+    # bash 5.2 printf builtin (on github-runners) rejects `--`. Pass the
+    # leading dash inside the data argument with a `%s\n` format instead.
+    printf '%s\n' "- **SHA**: [\`$sha\`]($upstream_url)"
+    printf '%s\n' "- **Author**: $(git log -1 --format='%an' "$sha")"
+    printf '%s\n' "- **Date**: $(git log -1 --format='%ai' "$sha")"
+    [[ -n "$reviewed_on" ]] && printf '%s\n' "- **Reviewed-on (Gerrit)**: $reviewed_on"
+    [[ -n "$resolves" ]]    && printf '%s\n' "- **Resolves**: $resolves"
+    [[ -n "$bulletin" ]]    && printf '%s\n' "- **Security-Bulletin**: $bulletin"
+    [[ -n "$cve" ]]         && printf '%s\n' "- **Security-References**: $cve"
     printf '\n## Commit-Message\n\n<details><summary>Upstream-Commit-Message anzeigen</summary>\n\n```\n'
     git log -1 --format='%B' "$sha"
     printf '```\n\n</details>\n\n'
