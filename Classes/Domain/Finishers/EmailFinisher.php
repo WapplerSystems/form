@@ -34,6 +34,7 @@ use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Event\BeforeEmailFinisherInitializedEvent;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
 // WapplerSystems fork additions:
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterMailSentEvent;
 use TYPO3\CMS\Form\WapplerSystems\Event\MailBeforeSendingEvent;
 
 /**
@@ -166,6 +167,26 @@ class EmailFinisher extends AbstractFinisher
             }
         }
 
+        // WapplerSystems fork (Feature 3): dedicated plain-text body.
+        // If "plainMessage" is set, the plain-text mail part uses it verbatim
+        // (split around the {formValues} placeholder, just like the HTML body).
+        // If it is empty, the plain-text template falls back to the stripped
+        // HTML "message" (legacy behaviour) — so existing forms are unaffected.
+        $plainMessage = $this->parseOption('plainMessage');
+        if (is_string($plainMessage) && $plainMessage !== '') {
+            $mail->assign('plainMessageProvided', true);
+            $placeholderPos = strpos($plainMessage, '{formValues}');
+            if ($placeholderPos !== false) {
+                $mail->assign('plainMessageBefore', substr($plainMessage, 0, $placeholderPos));
+                $mail->assign('plainMessageAfter', substr($plainMessage, $placeholderPos + strlen('{formValues}')));
+            } else {
+                // No placeholder - show plain message only, no form values
+                $mail->assign('plainMessageBefore', $plainMessage);
+                $mail->assign('plainMessageAfter', '');
+                $mail->assign('hidePlainFormValues', true);
+            }
+        }
+
         if ($attachUploads) {
             foreach ($formRuntime->getFormDefinition()->getRenderablesRecursively() as $element) {
                 if (!$element instanceof FileUpload) {
@@ -206,6 +227,12 @@ class EmailFinisher extends AbstractFinisher
                 $e
             );
         }
+
+        // WapplerSystems fork: fires only after a successful transport — the
+        // reliable hook for "delivered" audit logging / post-delivery actions.
+        $this->eventDispatcher->dispatch(
+            new AfterMailSentEvent($mail, $this->finisherContext, $this),
+        );
     }
 
     protected function initializeFluidEmail(FormRuntime $formRuntime): FluidEmail

@@ -63,7 +63,12 @@ use TYPO3\CMS\Form\Event\BeforeRenderableIsValidatedEvent;
 use TYPO3\CMS\Form\Exception as FormException;
 // WapplerSystems fork additions:
 use TYPO3\CMS\Form\WapplerSystems\Event\AfterFormIsValidatedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterFormStateInitializedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterFormRenderedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterFormSubmittedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterRenderableIsValidatedEvent;
 use TYPO3\CMS\Form\WapplerSystems\Event\AfterVariantAppliedEvent;
+use TYPO3\CMS\Form\WapplerSystems\Event\BeforeFinishersInvokedEvent;
 use TYPO3\CMS\Form\WapplerSystems\Event\BeforeFormIsValidatedEvent;
 use TYPO3\CMS\Form\WapplerSystems\Event\BeforeFormPageProcessedEvent;
 use TYPO3\CMS\Form\Mvc\Validation\EmptyValidator;
@@ -264,6 +269,11 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 $hookObj->afterFormStateInitialized($this);
             }
         }
+
+        // WapplerSystems fork: PSR-14 replacement for the legacy hook above.
+        // Canonical point to prefill form values (fe_user, GET/POST, session)
+        // via the FormRuntime ArrayAccess API.
+        $this->eventDispatcher->dispatch(new AfterFormStateInitializedEvent($this));
     }
 
     /**
@@ -491,6 +501,50 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
     }
 
     /**
+     * WapplerSystems fork: apply condition-based variants defined ON A FINISHER.
+     *
+     * Finishers are not renderables, so {@see processVariants()} cannot reach
+     * them. A finisher may carry a `variants` list inside its options, each entry
+     * being `{condition: <expr>, ...overrides}`. Every variant whose condition
+     * matches (evaluated with the same resolver as element variants — formValues,
+     * stepType, finisherIdentifier are in scope) is merged into the finisher
+     * options before execution. The primary use case is toggling
+     * `renderingOptions.enabled` based on a submitted form value (e.g. a
+     * "send me a copy" checkbox), replacing the dedicated CopyToSenderEmail finisher.
+     */
+    protected function processFinisherVariants(FinisherInterface $finisher): void
+    {
+        $options = $finisher->getOptions();
+        $variants = $options['variants'] ?? null;
+        if (!is_array($variants) || $variants === []) {
+            return;
+        }
+
+        $conditionResolver = $this->getConditionResolver();
+        $changed = false;
+        foreach ($variants as $variant) {
+            if (!is_array($variant)) {
+                continue;
+            }
+            $condition = (string)($variant['condition'] ?? '');
+            if ($condition === '' || !(bool)$conditionResolver->evaluate($condition, [])) {
+                continue;
+            }
+            $overrides = $variant;
+            unset($overrides['condition'], $overrides['identifier']);
+            if ($overrides === []) {
+                continue;
+            }
+            ArrayUtility::mergeRecursiveWithOverrule($options, $overrides);
+            $changed = true;
+        }
+
+        if ($changed) {
+            $finisher->setOptions($options);
+        }
+    }
+
+    /**
      * Returns TRUE if the last page of the form has been submitted, otherwise FALSE
      */
     protected function isAfterLastPage(): bool
@@ -639,6 +693,22 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 }
                 $result->forProperty($this->getIdentifier() . '.' . $propertyPath)->merge($processingRule->getProcessingMessages());
                 $this->formState->setFormValue($propertyPath, $value);
+
+                // WapplerSystems fork: per-renderable companion to BeforeRenderableIsValidatedEvent.
+                // Fires after this field's processing rule ran; listeners can inspect or add
+                // field-scoped errors via $event->validationResult->addError(...).
+                $validatedRenderable = $this->formDefinition->getElementByIdentifier($propertyPath);
+                if ($validatedRenderable instanceof RenderableInterface) {
+                    $this->eventDispatcher->dispatch(
+                        new AfterRenderableIsValidatedEvent(
+                            $validatedRenderable,
+                            $value,
+                            $this,
+                            $this->request,
+                            $result->forProperty($this->getIdentifier() . '.' . $propertyPath)
+                        )
+                    );
+                }
             }
         }
 
@@ -677,6 +747,13 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         }
         $this->processVariants();
 
+        // WapplerSystems fork (Feature 6): elements whose visibility is driven by a
+        // same-page condition must be rendered so the frontend module can toggle them
+        // live. processVariants() may have disabled them for the initial state; re-enable
+        // those client-managed ones for rendering (the client applies the initial state,
+        // the server re-evaluates authoritatively on submit).
+        $this->reEnableClientConditionElements();
+
         $this->formState->setLastDisplayedPageIndex($this->currentPage->getIndex());
 
         if ($this->formDefinition->getRendererClassName() === '') {
@@ -689,7 +766,59 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         }
 
         $renderer->setFormRuntime($this);
-        return $renderer->render();
+
+        // WapplerSystems fork: markup post-processing hook (tracking pixel, JSON
+        // island for client-side logic, CSP nonces). Listeners may rewrite the markup.
+        $event = $this->eventDispatcher->dispatch(
+            new AfterFormRenderedEvent($this, (string)$renderer->render())
+        );
+        return $event->renderedContent;
+    }
+
+    /**
+     * WapplerSystems fork (Feature 6): re-enable elements that a same-page variant
+     * disabled, so the frontend live-conditions module can show/hide them. Only
+     * elements with a variant that (a) sets renderingOptions.enabled and (b) has a
+     * client-evaluable condition (references traverse(formValues, …) and no
+     * server-only context like stepType/finisherIdentifier) are touched. Server-only
+     * conditional fields keep their server-decided visibility.
+     */
+    protected function reEnableClientConditionElements(): void
+    {
+        foreach ($this->formDefinition->getRenderablesRecursively() as $renderable) {
+            if (!$renderable instanceof VariableRenderableInterface) {
+                continue;
+            }
+            if (($renderable->getRenderingOptions()['enabled'] ?? true) !== false) {
+                continue;
+            }
+            foreach ($renderable->getVariants() as $variant) {
+                $condition = $variant->getCondition();
+                $options = $variant->getOptions();
+                $setsEnabled = array_key_exists('enabled', $options['renderingOptions'] ?? []);
+                if ($setsEnabled && $this->isClientEvaluableCondition($condition)) {
+                    $renderable->setRenderingOption('enabled', true);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * A condition is client-evaluable if it reads submitted values via
+     * traverse(formValues, …) and uses no server-only context.
+     */
+    protected function isClientEvaluableCondition(string $condition): bool
+    {
+        if (!str_contains($condition, 'traverse(formValues')) {
+            return false;
+        }
+        foreach (['stepType', 'finisherIdentifier', 'previousPage', 'currentPage', 'finisher'] as $serverOnly) {
+            if (str_contains($condition, $serverOnly)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -707,9 +836,21 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         $this->response->getBody()->rewind();
         $originalContent = $this->response->getBody()->getContents();
         $this->response->getBody()->write('');
-        foreach ($this->formDefinition->getFinishers() as $finisher) {
+
+        // WapplerSystems fork: fires once before the chain. Listeners may
+        // reorder/filter/inject finishers (mutable $finishers) or cancel the
+        // whole chain via the FinisherContext.
+        $beforeEvent = $this->eventDispatcher->dispatch(
+            new BeforeFinishersInvokedEvent($this, $this->formDefinition->getFinishers(), $finisherContext)
+        );
+
+        foreach ($beforeEvent->finishers as $finisher) {
+            if ($finisherContext->isCancelled()) {
+                break;
+            }
             $this->currentFinisher = $finisher;
             $this->processVariants();
+            $this->processFinisherVariants($finisher);
 
             $finisherOutput = $finisher->execute($finisherContext);
             if (is_string($finisherOutput) && !empty($finisherOutput)) {
@@ -726,6 +867,18 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         }
         $this->response->getBody()->rewind();
         $this->response->getBody()->write($originalContent);
+
+        // WapplerSystems fork: fires exactly once after the whole finisher
+        // chain — the hook for "submission complete" actions (conversion /
+        // analytics tracking, CRM sync, single follow-up action).
+        $this->eventDispatcher->dispatch(
+            new AfterFormSubmittedEvent(
+                $this,
+                $this->getFormState()?->getFormValues() ?? [],
+                $output,
+                $finisherContext->isCancelled()
+            )
+        );
 
         return $output;
     }

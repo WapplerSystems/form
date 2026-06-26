@@ -25,6 +25,8 @@ prototypes:
                 language: ''
               title: ''
               message: ''
+              plainMessage: ''
+              templateName: 'Default'
               errorMessage: ''
         FormEngine:
           label: tt_content.finishersDefinition.EmailToReceiver.label

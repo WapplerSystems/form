@@ -105,6 +105,16 @@ abstract class AbstractFinisher implements FinisherInterface, LoggerAwareInterfa
     }
 
     /**
+     * WapplerSystems fork: lets subclasses (e.g. SaveToDatabaseFinisher) dispatch
+     * their own events without redeclaring the private $eventDispatcher property
+     * (EmailFinisher promotes its own readonly one, so the property can't be protected).
+     */
+    protected function getEventDispatcher(): ?EventDispatcherInterface
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
      * @param string $finisherIdentifier The identifier for this finisher
      */
     public function setFinisherIdentifier(string $finisherIdentifier): void
@@ -124,6 +134,16 @@ abstract class AbstractFinisher implements FinisherInterface, LoggerAwareInterfa
     public function setOptions(array $options)
     {
         $this->options = $options;
+    }
+
+    /**
+     * Returns the raw (unparsed) finisher options.
+     *
+     * @return array<string, mixed>
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
     }
 
     /**

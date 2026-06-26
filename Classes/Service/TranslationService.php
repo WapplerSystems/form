@@ -181,6 +181,19 @@ class TranslationService implements SingletonInterface
             return $optionValue;
         }
 
+        // WapplerSystems fork (Feature 7): per-site-language overlay for finisher options,
+        // stored in the form definition under finisher.options.translation.overrides.<lang>.<optionKey>
+        // ($renderingOptions here IS the finisher's options.translation sub-array). Wins over the
+        // XLF chain for the active language; runtime placeholders ({name} …) are resolved by the
+        // caller (AbstractFinisher::parseOption) afterwards. Also works for DB-stored forms.
+        $languageCode = $formRuntime->getCurrentSiteLanguage()?->getLocale()->getLanguageCode() ?? '';
+        if ($languageCode !== '') {
+            $override = $renderingOptions['overrides'][$languageCode][$optionKey] ?? null;
+            if (is_string($override) && $override !== '') {
+                return $override;
+            }
+        }
+
         $finisherIdentifier = preg_replace('/Finisher$/', '', $finisherIdentifier);
         $translationFiles = $renderingOptions['translationFiles'] ?? [];
         if (empty($translationFiles)) {
@@ -266,6 +279,31 @@ class TranslationService implements SingletonInterface
                 } catch (MissingArrayPathException $exception) {
                     $defaultValue = null;
                 }
+            }
+        }
+
+        // WapplerSystems fork (Feature 7): in-definition translation overlay. Editors
+        // maintain per-site-language translations in the form definition under
+        // renderingOptions.translation.overrides.<languageCode>; these win over the XLF
+        // chain (and work for DB-stored forms). Applies to label, placeholder
+        // (fluidAdditionalAttributes) and options.
+        $languageCode = $formRuntime->getCurrentSiteLanguage()?->getLocale()->getLanguageCode() ?? '';
+        $overrides = $renderingOptions['translation']['overrides'][$languageCode] ?? null;
+        if (is_array($overrides)) {
+            if ($property === 'label' && isset($overrides['label']) && $overrides['label'] !== '') {
+                return (string)$overrides['label'];
+            }
+            if ($property === 'fluidAdditionalAttributes' && is_array($defaultValue) && isset($overrides['placeholder']) && $overrides['placeholder'] !== '') {
+                $defaultValue['placeholder'] = (string)$overrides['placeholder'];
+                return $defaultValue;
+            }
+            if ($property === 'options' && is_array($defaultValue) && is_array($overrides['options'] ?? null)) {
+                foreach ($overrides['options'] as $optionValue => $optionLabel) {
+                    if ($optionLabel !== '' && array_key_exists($optionValue, $defaultValue)) {
+                        $defaultValue[$optionValue] = (string)$optionLabel;
+                    }
+                }
+                return $defaultValue;
             }
         }
 
@@ -390,6 +428,22 @@ class TranslationService implements SingletonInterface
         }
 
         if ($element instanceof FormElementInterface) {
+            // WapplerSystems fork (Feature 7): per-site-language overlay for custom
+            // validation error messages, stored in the form definition under
+            // renderingOptions.translation.overrides.<languageCode>.validationErrorMessages.c<code>
+            // (the "c" prefix keeps the key non-numeric so the form editor model does not
+            // turn it into a sparse array). This wins over the element's default custom
+            // message and the XLF chain for the currently rendered language and also works
+            // for DB-stored forms.
+            $languageCode = $formRuntime->getCurrentSiteLanguage()?->getLocale()->getLanguageCode() ?? '';
+            $overrideMessages = $element->getRenderingOptions()['translation']['overrides'][$languageCode]['validationErrorMessages'] ?? null;
+            if (is_array($overrideMessages)) {
+                $overrideMessage = $overrideMessages['c' . $code] ?? '';
+                if (is_string($overrideMessage) && $overrideMessage !== '') {
+                    return sprintf($overrideMessage, ...$arguments);
+                }
+            }
+
             $validationErrors = $element->getProperties()['validationErrorMessages'] ?? null;
             if (is_array($validationErrors)) {
                 foreach ($validationErrors as $validationError) {

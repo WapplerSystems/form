@@ -10,4 +10,26 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import t from"@typo3/core/document-service.js";import o from"@typo3/core/event/regular-event.js";class a{constructor(){t.ready().then(()=>{const e=document.getElementById("search_field");if(e!==null){const r=e.value!=="";new o("search",()=>{e.value===""&&r&&e.closest("form").requestSubmit()}).bindTo(e)}})}}var n=new a;export{n as default};
+import DocumentService from '@typo3/core/document-service.js';
+import RegularEvent from '@typo3/core/event/regular-event.js';
+/**
+ * Module: @typo3/form/backend/form-manager/main
+ * JavaScript for form manager
+ * @exports @typo3/form/backend/form-manager/main
+ */
+class FormManager {
+    constructor() {
+        DocumentService.ready().then(() => {
+            const searchField = document.getElementById('search_field');
+            if (searchField !== null) {
+                const searchResultShown = searchField.value !== '';
+                new RegularEvent('search', () => {
+                    if (searchField.value === '' && searchResultShown) {
+                        searchField.closest('form').requestSubmit();
+                    }
+                }).bindTo(searchField);
+            }
+        });
+    }
+}
+export default new FormManager();

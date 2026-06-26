@@ -1,0 +1,16 @@
+{
+  "name": "@wapplersystems/form-build",
+  "private": true,
+  "description": "Build pipeline for the wapplersystems/form editor JavaScript (TypeScript -> ESM).",
+  "type": "module",
+  "scripts": {
+    "compile": "tsc --project tsconfig.json",
+    "rewrite": "node rewrite-imports.mjs JavaScript",
+    "deploy": "cp -r JavaScript/backend JavaScript/frontend ../Resources/Public/JavaScript/",
+    "build": "npm run compile && npm run rewrite && npm run deploy"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  },
+  "comment": "node_modules is symlinked to ../../../../source/Build/node_modules during development (reuse of the TYPO3 monorepo toolchain & @typo3/* type surface). Making this build fully self-contained is a later step (see plan V0 'Vollständiger Plan')."
+}

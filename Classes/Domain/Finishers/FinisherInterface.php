@@ -45,6 +45,16 @@ interface FinisherInterface
     public function setOptions(array $options);
 
     /**
+     * Returns the raw (unparsed) finisher options.
+     *
+     * WapplerSystems fork: needed so the runtime can read per-finisher `variants`
+     * and apply condition-based overrides before execution.
+     *
+     * @return array<string, mixed>
+     */
+    public function getOptions(): array;
+
+    /**
      * Sets a single finisher option (@see setOptions())
      *
      * @param string $optionName name of the option to be set

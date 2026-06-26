@@ -120,7 +120,7 @@ readonly class FormEditorEnrichmentService implements SingletonInterface
      */
     protected function shouldEnrichEditorWithRichText(array $editor): bool
     {
-        return ($editor['templateName'] ?? '') === 'Inspector-TextareaEditor'
+        return in_array($editor['templateName'] ?? '', ['Inspector-TextareaEditor', 'Inspector-EmailContentEditor'], true)
             && ($editor['enableRichtext'] ?? false) === true;
     }
 

@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterDatabaseRecordPersistedEvent;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 
 /**
@@ -334,6 +335,10 @@ class SaveToDatabaseFinisher extends AbstractFinisher
                     $databaseData,
                     $whereClause
                 );
+                // WapplerSystems fork: record-persisted hook (CRM sync, workflow triggers, …).
+                $this->getEventDispatcher()?->dispatch(
+                    new AfterDatabaseRecordPersistedEvent($table, 0, $databaseData, 'update', $this, $this->finisherContext)
+                );
             } else {
                 $this->databaseConnection->insert($table, $databaseData);
                 try {
@@ -348,6 +353,10 @@ class SaveToDatabaseFinisher extends AbstractFinisher
                     $this->shortFinisherIdentifier,
                     'insertedUids.' . $iterationCount,
                     $insertedUid
+                );
+                // WapplerSystems fork: record-persisted hook with the freshly inserted uid.
+                $this->getEventDispatcher()?->dispatch(
+                    new AfterDatabaseRecordPersistedEvent($table, $insertedUid, $databaseData, 'insert', $this, $this->finisherContext)
                 );
             }
         }

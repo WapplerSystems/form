@@ -10,4 +10,185 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import{LitElement as c,html as s,nothing as f}from"lit";import{property as n,customElement as u}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/form/backend/form-editor/component/form-element-stage-item-toolbar.js";import{stripTags as v}from"@typo3/form/backend/form-editor/utility/string-utility.js";var o=function(d,e,i,r){var a=arguments.length,l=a<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,i):r,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(d,e,i,r);else for(var p=d.length-1;p>=0;p--)(m=d[p])&&(l=(a<3?m(l):a>3?m(e,i,l):m(e,i))||l);return a>3&&l&&Object.defineProperty(e,i,l),l};let t=class extends c{constructor(){super(...arguments),this.elementType="",this.elementIdentifier="",this.elementLabel="",this.elementIconIdentifier="",this.isRequired=!1,this.isHidden=!1,this.invalid=!1,this.validators=[],this.options=[]}createRenderRoot(){return this}render(){return s`<typo3-form-form-element-stage-item-toolbar active icon-identifier=${this.elementIconIdentifier} element-type=${this.elementType} element-identifier=${this.elementIdentifier} ?is-hidden=${this.isHidden} ?is-invalid=${this.invalid}></typo3-form-form-element-stage-item-toolbar><div class=formeditor-element-body><div class=formeditor-element-info><div class=formeditor-element-info-label><span>${v(this.elementLabel)}</span> ${this.isRequired?s`<span>*</span>`:f}</div>${this.renderInfoContent()}</div>${this.renderValidators()}</div>`}renderInfoContent(){const e=this.renderContentItems();return e.length?s`<div class=formeditor-element-info-content>${e}</div>`:f}renderContentItems(){const e=[];if(this.content&&e.push(s`<div class=formeditor-element-info-text>${v(this.content)}</div>`),this.options?.length){const i=this.options.map(r=>({label:r.label,className:r.selected?"selected":void 0}));e.push(this.renderMultivalue(i))}if(this.allowedMimeTypes?.length){const i=this.allowedMimeTypes.map(r=>({label:r}));e.push(this.renderMultivalue(i))}return e}renderMultivalue(e){return s`<div class=formeditor-element-info-multivalue>${e.map(i=>s`<div class=formeditor-element-info-multivalue-item${i.className?` ${i.className}`:""}>${i.label}</div>`)}</div>`}renderValidators(){return this.validators?.length?s`<div class=formeditor-element-validator><div class=formeditor-element-validator-icon><typo3-backend-icon identifier=form-validator size=small></typo3-backend-icon></div><div class=formeditor-element-validator-list>${this.validators.map(e=>s`<div class=formeditor-element-validator-list-item>${e.label}</div>`)}</div></div>`:f}};o([n({type:String,attribute:"element-type"})],t.prototype,"elementType",void 0),o([n({type:String,attribute:"element-identifier"})],t.prototype,"elementIdentifier",void 0),o([n({type:String,attribute:"element-label"})],t.prototype,"elementLabel",void 0),o([n({type:String,attribute:"element-icon-identifier"})],t.prototype,"elementIconIdentifier",void 0),o([n({type:Boolean,attribute:"is-required"})],t.prototype,"isRequired",void 0),o([n({type:Boolean,attribute:"is-hidden"})],t.prototype,"isHidden",void 0),o([n({type:Boolean,reflect:!0})],t.prototype,"invalid",void 0),o([n({type:Array})],t.prototype,"validators",void 0),o([n({type:Array})],t.prototype,"options",void 0),o([n({type:Array})],t.prototype,"allowedMimeTypes",void 0),o([n({type:String})],t.prototype,"content",void 0),t=o([u("typo3-form-form-element-stage-item")],t);export{t as FormElementStageItem};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { html, LitElement, nothing } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import '@typo3/form/backend/form-editor/component/form-element-stage-item-toolbar.js';
+import { stripTags } from '../utility/string-utility.js';
+/**
+ * Module: @typo3/form/backend/form-editor/component/form-element-stage-item
+ *
+ * Functionality for the form element stage item element
+ *
+ * @example
+ * <typo3-form-form-element-stage-item
+ *   element-type="Text"
+ *   element-identifier="element-1"
+ *   element-label="My Label"
+ *   element-icon="form-text"
+ *   is-required="false">
+ * </typo3-form-form-element-stage-item>
+ */
+let FormElementStageItem = class FormElementStageItem extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.elementType = '';
+        this.elementIdentifier = '';
+        this.elementLabel = '';
+        this.elementIconIdentifier = '';
+        this.isRequired = false;
+        this.isHidden = false;
+        this.invalid = false;
+        this.validators = [];
+        this.options = [];
+    }
+    createRenderRoot() {
+        // Avoid Shadow DOM so global styles apply to the element contents
+        return this;
+    }
+    render() {
+        return html `
+      <typo3-form-form-element-stage-item-toolbar
+        active
+        icon-identifier="${this.elementIconIdentifier}"
+        element-type="${this.elementType}"
+        element-identifier="${this.elementIdentifier}"
+        ?is-hidden="${this.isHidden}"
+        ?is-invalid="${this.invalid}">
+      </typo3-form-form-element-stage-item-toolbar>
+      <div class="formeditor-element-body">
+        <div class="formeditor-element-info">
+          <div class="formeditor-element-info-label">
+            <span>${stripTags(this.elementLabel)}</span>
+            ${this.isRequired ? html `<span>*</span>` : nothing}
+          </div>
+          ${this.renderInfoContent()}
+        </div>
+        ${this.renderValidators()}
+      </div>
+    `;
+    }
+    /**
+     * Renders the info content section if content items are present
+     */
+    renderInfoContent() {
+        const contentItems = this.renderContentItems();
+        if (!contentItems.length) {
+            return nothing;
+        }
+        return html `
+      <div class="formeditor-element-info-content">
+        ${contentItems}
+      </div>
+    `;
+    }
+    /**
+     * Collects all content items to be rendered in the info section
+     */
+    renderContentItems() {
+        const items = [];
+        // Render text (for elements with text property)
+        if (this.content) {
+            items.push(html `
+        <div class="formeditor-element-info-text">
+          ${stripTags(this.content)}
+        </div>
+      `);
+        }
+        // Render options (for select elements)
+        if (this.options?.length) {
+            const multivalueItems = this.options.map(option => ({
+                label: option.label,
+                className: option.selected ? 'selected' : undefined,
+            }));
+            items.push(this.renderMultivalue(multivalueItems));
+        }
+        // Render allowed mime types (for file upload elements)
+        if (this.allowedMimeTypes?.length) {
+            const multivalueItems = this.allowedMimeTypes.map(mimeType => ({
+                label: mimeType,
+            }));
+            items.push(this.renderMultivalue(multivalueItems));
+        }
+        return items;
+    }
+    /**
+     * Renders a multivalue list with items
+     */
+    renderMultivalue(items) {
+        return html `
+      <div class="formeditor-element-info-multivalue">
+        ${items.map(item => html `
+          <div class="formeditor-element-info-multivalue-item${item.className ? ` ${item.className}` : ''}">
+            ${item.label}
+          </div>
+        `)}
+      </div>
+    `;
+    }
+    /**
+     * Renders the validator section if validators are present
+     */
+    renderValidators() {
+        if (!this.validators?.length) {
+            return nothing;
+        }
+        return html `
+      <div class="formeditor-element-validator">
+        <div class="formeditor-element-validator-icon">
+          <typo3-backend-icon identifier="form-validator" size="small"></typo3-backend-icon>
+        </div>
+        <div class="formeditor-element-validator-list">
+          ${this.validators.map(validator => html `
+            <div class="formeditor-element-validator-list-item">
+              ${validator.label}
+            </div>
+          `)}
+        </div>
+      </div>
+    `;
+    }
+};
+__decorate([
+    property({ type: String, attribute: 'element-type' })
+], FormElementStageItem.prototype, "elementType", void 0);
+__decorate([
+    property({ type: String, attribute: 'element-identifier' })
+], FormElementStageItem.prototype, "elementIdentifier", void 0);
+__decorate([
+    property({ type: String, attribute: 'element-label' })
+], FormElementStageItem.prototype, "elementLabel", void 0);
+__decorate([
+    property({ type: String, attribute: 'element-icon-identifier' })
+], FormElementStageItem.prototype, "elementIconIdentifier", void 0);
+__decorate([
+    property({ type: Boolean, attribute: 'is-required' })
+], FormElementStageItem.prototype, "isRequired", void 0);
+__decorate([
+    property({ type: Boolean, attribute: 'is-hidden' })
+], FormElementStageItem.prototype, "isHidden", void 0);
+__decorate([
+    property({ type: Boolean, reflect: true })
+], FormElementStageItem.prototype, "invalid", void 0);
+__decorate([
+    property({ type: Array })
+], FormElementStageItem.prototype, "validators", void 0);
+__decorate([
+    property({ type: Array })
+], FormElementStageItem.prototype, "options", void 0);
+__decorate([
+    property({ type: Array })
+], FormElementStageItem.prototype, "allowedMimeTypes", void 0);
+__decorate([
+    property({ type: String })
+], FormElementStageItem.prototype, "content", void 0);
+FormElementStageItem = __decorate([
+    customElement('typo3-form-form-element-stage-item')
+], FormElementStageItem);
+export { FormElementStageItem };

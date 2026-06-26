@@ -47,7 +47,13 @@ use TYPO3\CMS\Extbase\Mvc\View\JsonView;
 use TYPO3\CMS\Form\Domain\Configuration\ConfigurationService;
 use TYPO3\CMS\Form\Domain\Configuration\FormDefinitionConversionService;
 use TYPO3\CMS\Form\Domain\Exception\RenderingException;
+use Symfony\Component\Mime\Address;
+use TYPO3\CMS\Core\Mail\FluidEmail;
+use TYPO3\CMS\Core\Mail\MailerInterface;
+use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
+use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Form\Domain\Factory\ArrayFormFactory;
+use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
 use TYPO3\CMS\Form\Event\BeforeFormIsSavedEvent;
 use TYPO3\CMS\Form\Exception;
 use TYPO3\CMS\Form\Mvc\Configuration\ConfigurationManagerInterface as ExtFormConfigurationManagerInterface;
@@ -150,6 +156,11 @@ class FormEditorController extends ActionController
         $addInlineSettings = [
             'FormEditor' => [
                 'typo3WinBrowserUrl' => (string)$this->coreUriBuilder->buildUriFromRoute('wizard_element_browser'),
+                // WapplerSystems fork (Feature 3): endpoint for the server-side email content preview
+                'emailPreviewUrl' => $this->uriBuilder->uriFor('renderEmailPreview'),
+                // WapplerSystems fork (editor helper): test-send endpoint + default recipient (BE user mail)
+                'sendTestEmailUrl' => $this->uriBuilder->uriFor('sendTestEmail'),
+                'testEmailRecipient' => (string)($GLOBALS['BE_USER']->user['email'] ?? ''),
                 'dateEditor' => [
                     'absolutePattern' => DateRangeValidatorPatterns::RFC3339_FULL_DATE,
                 ],
@@ -264,6 +275,257 @@ class FormEditorController extends ActionController
         $form->setCurrentSiteLanguage($this->buildFakeSiteLanguage(0, 0));
         $form->overrideCurrentPage($pageIndex);
         return $this->htmlResponse($form->render());
+    }
+
+    /**
+     * WapplerSystems fork (Feature 3): render a faithful preview of an email finisher's
+     * message using the REAL Fluid email template (SystemEmail layout chrome + the
+     * form-values table), so the editor preview matches the actual email. Returns
+     * JSON { html, plain }. Renders in preview mode with empty submitted values
+     * (the form-values table shows the field labels with "-").
+     */
+    protected function renderEmailPreviewAction(
+        FormDefinitionArray $formDefinition,
+        string $finisherIdentifier = '',
+        string $message = '',
+        string $plainMessage = '',
+        string $emailTemplateName = 'Default',
+        ?string $prototypeName = null
+    ): ResponseInterface {
+        $html = '';
+        $plain = '';
+        try {
+            $sampleMap = [];
+            $fluidEmail = $this->prepareSampleEmail(
+                $formDefinition,
+                $finisherIdentifier,
+                $message,
+                $plainMessage,
+                $emailTemplateName,
+                $prototypeName,
+                $sampleMap
+            );
+            $fluidEmail->assign('title', 'Email preview');
+            $html = (string)$fluidEmail->getHtmlBody(true);
+            $plain = (string)$fluidEmail->getTextBody(true);
+        } catch (\Throwable $e) {
+            $html = '<p style="font-family:sans-serif;color:#a94442">Preview could not be rendered: '
+                . htmlspecialchars($e->getMessage()) . '</p>';
+        }
+
+        return $this->jsonResponse((string)json_encode(['html' => $html, 'plain' => $plain]));
+    }
+
+    /**
+     * WapplerSystems fork (Feature 3 / editor helper): send a TEST email of the
+     * finisher's content (with sample values + real layout) to the given recipient,
+     * so editors can see the actual mail in their inbox without submitting the form.
+     * Returns JSON { status: success|error, message }.
+     */
+    protected function sendTestEmailAction(
+        FormDefinitionArray $formDefinition,
+        string $recipient = '',
+        string $finisherIdentifier = '',
+        string $message = '',
+        string $plainMessage = '',
+        string $emailTemplateName = 'Default',
+        ?string $prototypeName = null
+    ): ResponseInterface {
+        $recipient = trim($recipient);
+        if ($recipient === '' || !GeneralUtility::validEmail($recipient)) {
+            return $this->jsonResponse((string)json_encode([
+                'status' => 'error',
+                'message' => 'Please enter a valid recipient email address.',
+            ]));
+        }
+
+        // Subject from the posted finisher options, resolved with the sample values.
+        $subject = 'Test email';
+        foreach (($formDefinition['finishers'] ?? []) as $finisher) {
+            if (is_array($finisher) && ($finisher['identifier'] ?? '') === $finisherIdentifier) {
+                $subject = (string)($finisher['options']['subject'] ?? $subject);
+                break;
+            }
+        }
+
+        try {
+            $sampleMap = [];
+            $fluidEmail = $this->prepareSampleEmail(
+                $formDefinition,
+                $finisherIdentifier,
+                $message,
+                $plainMessage,
+                $emailTemplateName,
+                $prototypeName,
+                $sampleMap
+            );
+            $subject = $subject !== '' ? strtr($subject, $sampleMap) : 'Test email';
+            $fluidEmail->assign('title', $subject);
+            $fluidEmail->subject('[Test] ' . $subject);
+            $fluidEmail->to(new Address($recipient));
+
+            $fromAddress = MailUtility::getSystemFromAddress();
+            if (is_string($fromAddress) && $fromAddress !== '') {
+                $fluidEmail->from(new Address($fromAddress, (string)(MailUtility::getSystemFromName() ?? '')));
+            }
+
+            GeneralUtility::makeInstance(MailerInterface::class)->send($fluidEmail);
+        } catch (\Throwable $e) {
+            return $this->jsonResponse((string)json_encode([
+                'status' => 'error',
+                'message' => 'Could not send the test email: ' . $e->getMessage(),
+            ]));
+        }
+
+        return $this->jsonResponse((string)json_encode([
+            'status' => 'success',
+            'message' => 'Test email sent to ' . $recipient . '.',
+        ]));
+    }
+
+    /**
+     * WapplerSystems fork: build a FluidEmail for the email content preview / test-send.
+     * Builds the form in preview mode, fills type-appropriate sample values (form state
+     * for the {formValues} table + a {field}-placeholder map returned via $sampleMap),
+     * and assigns the split message/plain body. The caller renders or sends it.
+     */
+    protected function prepareSampleEmail(
+        FormDefinitionArray $formDefinition,
+        string $finisherIdentifier,
+        string $message,
+        string $plainMessage,
+        string $emailTemplateName,
+        ?string $prototypeName,
+        array &$sampleMap
+    ): FluidEmail {
+        $prototypeName = $prototypeName ?: ($formDefinition['prototypeName'] ?? 'standard');
+        $formDefinitionArray = $formDefinition->getArrayCopy();
+        $formDefinitionArray['renderingOptions']['previewMode'] = true;
+
+        $builtForm = $this->arrayFormFactory->build($formDefinitionArray, $prototypeName, $this->request);
+        $formRuntime = $builtForm->bind($this->request);
+        $formRuntime->setCurrentSiteLanguage($this->buildFakeSiteLanguage(0, 0));
+
+        $sampleMap = [];
+        foreach ($formRuntime->getFormDefinition()->getRenderablesRecursively() as $renderable) {
+            $identifier = $renderable->getIdentifier();
+            if ($identifier === '' || $identifier === 'formValues') {
+                continue;
+            }
+            $sample = $this->buildSampleFormValue($renderable);
+            if ($sample === null) {
+                continue;
+            }
+            $formRuntime->getFormState()->setFormValue($identifier, $sample);
+            $sampleMap['{' . $identifier . '}'] = is_array($sample) ? implode(', ', $sample) : (string)$sample;
+        }
+        if ($sampleMap !== []) {
+            $message = strtr($message, $sampleMap);
+            $plainMessage = strtr($plainMessage, $sampleMap);
+        }
+
+        $prototypeConfiguration = $this->configurationService->getPrototypeConfiguration($prototypeName);
+        $finisherOptions = $prototypeConfiguration['finishersDefinition'][$finisherIdentifier]['options'] ?? [];
+        $templateRootPaths = is_array($finisherOptions['templateRootPaths'] ?? null) ? $finisherOptions['templateRootPaths'] : [];
+
+        $fluidEmail = GeneralUtility::makeInstance(TemplatedEmailFactory::class)->createWithOverrides(
+            $templateRootPaths,
+            [],
+            [],
+            $this->request
+        );
+        $fluidEmail->setTemplate($emailTemplateName !== '' ? $emailTemplateName : 'Default');
+
+        // Mirror EmailFinisher: split the HTML body around the {formValues} placeholder.
+        if ($message !== '') {
+            $message = (string)preg_replace('/>\s+</', '><', $message);
+            $placeholderPos = strpos($message, '{formValues}');
+            if ($placeholderPos !== false) {
+                $fluidEmail->assign('messageBefore', substr($message, 0, $placeholderPos));
+                $fluidEmail->assign('messageAfter', substr($message, $placeholderPos + strlen('{formValues}')));
+            } else {
+                $fluidEmail->assign('messageBefore', $message);
+                $fluidEmail->assign('messageAfter', '');
+                $fluidEmail->assign('hideFormValues', true);
+            }
+        }
+        if ($plainMessage !== '') {
+            $fluidEmail->assign('plainMessageProvided', true);
+            $placeholderPos = strpos($plainMessage, '{formValues}');
+            if ($placeholderPos !== false) {
+                $fluidEmail->assign('plainMessageBefore', substr($plainMessage, 0, $placeholderPos));
+                $fluidEmail->assign('plainMessageAfter', substr($plainMessage, $placeholderPos + strlen('{formValues}')));
+            } else {
+                $fluidEmail->assign('plainMessageBefore', $plainMessage);
+                $fluidEmail->assign('plainMessageAfter', '');
+                $fluidEmail->assign('hidePlainFormValues', true);
+            }
+        }
+
+        $fluidEmail->assign('form', $formRuntime);
+        $fluidEmail->getViewHelperVariableContainer()->addOrUpdate(
+            RenderRenderableViewHelper::class,
+            'formRuntime',
+            $formRuntime
+        );
+
+        return $fluidEmail;
+    }
+
+    /**
+     * WapplerSystems fork (Feature 3): build a type-appropriate sample value for the
+     * email preview. Returns null for elements that carry no submittable value
+     * (Form/Page/Fieldset/StaticText/Honeypot/Hidden/Password …), which are skipped.
+     *
+     * @return array<int, string>|string|null
+     */
+    protected function buildSampleFormValue(mixed $renderable): array|string|null
+    {
+        if (!is_object($renderable) || !method_exists($renderable, 'getType')) {
+            return null;
+        }
+        $type = (string)$renderable->getType();
+        $properties = method_exists($renderable, 'getProperties') ? (array)$renderable->getProperties() : [];
+        $options = is_array($properties['options'] ?? null) ? $properties['options'] : [];
+        $optionKeys = array_map('strval', array_keys($options));
+
+        return match ($type) {
+            'Text' => $this->pickSample(['Alex Johnson', 'Maria García', 'Sam Becker']),
+            'Textarea' => 'This is a sample answer shown only in the preview.',
+            'Email' => 'jane.doe@example.com',
+            'Telephone' => '+49 151 23456789',
+            'Url' => 'https://example.com',
+            'Number' => (string)random_int(1, 20),
+            'Date', 'DatePicker' => date('Y-m-d'),
+            'Time' => '14:30',
+            'Checkbox' => '1',
+            'SingleSelect', 'RadioButton' => $optionKeys !== [] ? $optionKeys[array_rand($optionKeys)] : 'option-1',
+            'MultiSelect', 'MultiCheckbox' => $this->pickSampleOptions($optionKeys),
+            'CountrySelect' => $this->pickSample(['DE', 'AT', 'CH', 'ES']),
+            'FileUpload', 'ImageUpload' => 'document.pdf',
+            default => null,
+        };
+    }
+
+    /**
+     * @param array<int, string> $samples
+     */
+    protected function pickSample(array $samples): string
+    {
+        return $samples[array_rand($samples)];
+    }
+
+    /**
+     * @param array<int, string> $optionKeys
+     * @return array<int, string>
+     */
+    protected function pickSampleOptions(array $optionKeys): array
+    {
+        if ($optionKeys === []) {
+            return ['option-1'];
+        }
+        shuffle($optionKeys);
+        return array_slice($optionKeys, 0, min(2, count($optionKeys)));
     }
 
     protected function getFormSettings(): array

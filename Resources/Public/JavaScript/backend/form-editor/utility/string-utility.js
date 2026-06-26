@@ -10,4 +10,22 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-function n(t){if(!t)return t;const e=document.createElement("div");return e.innerHTML=t,e.textContent||e.innerText||""}export{n as stripTags};
+/**
+ * Module: @typo3/form/backend/form-editor/utility/string-utility
+ *
+ * String utility functions for the form editor
+ */
+/**
+ * Strip HTML tags from a string
+ *
+ * @param value - String potentially containing HTML tags
+ * @returns Plain text without HTML tags
+ */
+export function stripTags(value) {
+    if (!value) {
+        return value;
+    }
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = value;
+    return tempElement.textContent || tempElement.innerText || '';
+}

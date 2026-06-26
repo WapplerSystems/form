@@ -10,4 +10,260 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import*as y from"@typo3/form/backend/form-editor/helper.js";import{merge as A}from"lodash-es";import d from"@typo3/backend/modal.js";import h from"@typo3/backend/severity.js";let w=null;const M={domElementClassNames:{buttonDefault:"btn-default",buttonInfo:"btn-info",buttonWarning:"btn-warning"},domElementDataAttributeNames:{elementType:"element-type",fullElementType:"data-element-type"},domElementDataAttributeValues:{rowItem:"rowItem",rowLink:"rowLink",rowsContainer:"rowsContainer",templateInsertElements:"Modal-InsertElements",templateInsertPages:"Modal-InsertPages",templateValidationErrors:"Modal-ValidationErrors"}};let D=null;function f(){return D}function r(e){return p().isUndefinedOrNull(e)?y.setConfiguration(w):y.setConfiguration(e)}function p(){return f().getUtility()}function u(e,t,n){return f().assert(e,t,n)}function i(){return f().getRootFormElement()}function b(){return f().getPublisherSubscriber()}function m(e,t){return f().getFormElementDefinition(e,t)}function I(e,t){const n=[];u(p().isNonEmptyString(e),'Invalid parameter "publisherTopicName"',1478889049),u(Array.isArray(t),'Invalid parameter "formElement"',1478889044),n.push({text:m(i(),"modalRemoveElementCancelButton"),active:!0,btnClass:r().getDomElementClassName("buttonDefault"),name:"cancel",trigger:(o,l)=>{l.hideModal()}}),n.push({text:m(i(),"modalRemoveElementConfirmButton"),active:!0,btnClass:r().getDomElementClassName("buttonWarning"),name:"confirm",trigger:(o,l)=>{b().publish(e,t),l.hideModal()}}),d.show(m(i(),"modalRemoveElementDialogTitle"),m(i(),"modalRemoveElementDialogMessage"),h.warning,n)}function C(e,t,n){if(u(p().isNonEmptyString(t),'Invalid parameter "publisherTopicName"',1478910954),typeof n=="object"&&n!==null&&!Array.isArray(n))for(const o of Object.keys(n)){if(o==="disableElementTypes"&&Array.isArray(n[o]))for(let l=0,E=n[o].length;l<E;++l)e.querySelectorAll(r().getDomElementDataAttribute("fullElementType","bracesWithKeyValue",[n[o][l]])).forEach(a=>a.classList.add(r().getDomElementClassName("disabled")));o==="onlyEnableElementTypes"&&Array.isArray(n[o])&&e.querySelectorAll(r().getDomElementDataAttribute("fullElementType","bracesWithKey")).forEach(l=>{const E=l.getAttribute(r().getDomElementDataAttribute("elementType"));n[o].some(c=>c===E)||l.classList.add(r().getDomElementClassName("disabled"))})}[...e.children].forEach(o=>o.addEventListener("typo3:form:insert-element-click",function(l){b().publish(t,[l.detail.item.identifier])}))}function S(e,t){let n,o;u(Array.isArray(t),'Invalid parameter "validationResults"',1479161268);const l=r().getDomElementDataIdentifierSelector("rowItem"),E=e.querySelector(l)?.cloneNode(!0);e.querySelectorAll(l).forEach(a=>a.remove());for(let a=0,c=t.length;a<c;++a){let v=!1;for(let s=0,g=t[a].validationResults.length;s<g;++s)if(t[a].validationResults[s].validationResults&&t[a].validationResults[s].validationResults.length>0){v=!0;break}if(v){n=f().getFormElementByIdentifierPath(t[a].formElementIdentifierPath),o=E?.cloneNode(!0);const s=o?.querySelector(r().getDomElementDataIdentifierSelector("rowLink"));s&&(s.setAttribute(r().getDomElementDataAttribute("elementIdentifier"),t[a].formElementIdentifierPath),s.replaceChildren(N(n)));const g=e.querySelector(r().getDomElementDataIdentifierSelector("rowsContainer"));g&&o&&g.append(o)}}e.querySelectorAll("a").forEach(a=>{a.addEventListener("click",function(){b().publish("view/modal/validationErrors/element/clicked",[a.getAttribute(r().getDomElementDataAttribute("elementIdentifier"))]),e.querySelectorAll("a").forEach(c=>c.replaceWith(c.cloneNode(!0))),d.currentModal.hideModal()})})}function N(e){u(typeof e=="object"&&e!==null&&!Array.isArray(e),'Invalid parameter "formElement"',1479162557);const t=document.createElement("span");return t.textContent=e.get("label")?e.get("label"):e.get("identifier"),t}function T(e){I("view/modal/removeFormElement/perform",[e])}function B(e,t,n){u(p().isNonEmptyString(e),'Invalid parameter "collectionElementIdentifier"',1478894420),u(p().isNonEmptyString(t),'Invalid parameter "collectionName"',1478894421),I("view/modal/removeCollectionElement/perform",[e,t,n])}function P(){const e=[];e.push({text:m(i(),"modalCloseCancelButton"),active:!0,btnClass:r().getDomElementClassName("buttonDefault"),name:"cancel",trigger:(t,n)=>{n.hideModal()}}),e.push({text:m(i(),"modalCloseConfirmButton"),active:!0,btnClass:r().getDomElementClassName("buttonWarning"),name:"confirm",trigger:(t,n)=>{b().publish("view/modal/close/perform",[]),n.hideModal()}}),d.show(m(i(),"modalCloseDialogTitle"),m(i(),"modalCloseDialogMessage"),h.warning,e)}function R(e,t){const n=r().getTemplateElement("templateInsertElements");if(n){const o=document.importNode(n.content,!0);C(o,e,t),d.advanced({title:m(i(),"modalInsertElementsDialogTitle"),size:d.sizes.large,content:o})}}function k(e){const t=r().getTemplateElement("templateInsertPages");if(t){const n=document.importNode(t.content,!0);C(n,e),d.advanced({title:m(i(),"modalInsertPagesDialogTitle"),size:d.sizes.small,content:n})}}function F(e){const t=[];t.push({text:m(i(),"modalValidationErrorsConfirmButton"),active:!0,btnClass:r().getDomElementClassName("buttonDefault"),name:"confirm",trigger:function(o,l){l.hideModal()}});const n=r().getTemplateElement("templateValidationErrors");if(n){const o=document.importNode(n.content,!0);S(o,e),d.show(m(i(),"modalValidationErrorsDialogTitle"),o,h.error,t)}}function q(e,t){return D=e,w=A({},M,t??{}),y.bootstrap(D),this}export{q as bootstrap,P as showCloseConfirmationModal,R as showInsertElementsModal,k as showInsertPagesModal,B as showRemoveCollectionElementModal,T as showRemoveFormElementModal,F as showValidationErrorsModal};
+/**
+ * Module: @typo3/form/backend/form-editor/modals-component
+ */
+import * as Helper from '@typo3/form/backend/form-editor/helper.js';
+import { merge } from 'lodash-es';
+import Modal, {} from '@typo3/backend/modal.js';
+import Severity from '@typo3/backend/severity.js';
+let configuration = null;
+const defaultConfiguration = {
+    domElementClassNames: {
+        buttonDefault: 'btn-default',
+        buttonInfo: 'btn-info',
+        buttonWarning: 'btn-warning'
+    },
+    domElementDataAttributeNames: {
+        elementType: 'element-type',
+        fullElementType: 'data-element-type'
+    },
+    domElementDataAttributeValues: {
+        rowItem: 'rowItem',
+        rowLink: 'rowLink',
+        rowsContainer: 'rowsContainer',
+        templateInsertElements: 'Modal-InsertElements',
+        templateInsertPages: 'Modal-InsertPages',
+        templateValidationErrors: 'Modal-ValidationErrors'
+    }
+};
+let formEditorApp = null;
+function getFormEditorApp() {
+    return formEditorApp;
+}
+function getHelper(_configuration) {
+    if (getUtility().isUndefinedOrNull(_configuration)) {
+        return Helper.setConfiguration(configuration);
+    }
+    return Helper.setConfiguration(_configuration);
+}
+function getUtility() {
+    return getFormEditorApp().getUtility();
+}
+function assert(test, message, messageCode) {
+    return getFormEditorApp().assert(test, message, messageCode);
+}
+function getRootFormElement() {
+    return getFormEditorApp().getRootFormElement();
+}
+function getPublisherSubscriber() {
+    return getFormEditorApp().getPublisherSubscriber();
+}
+function getFormElementDefinition(formElement, formElementDefinitionKey) {
+    return getFormEditorApp().getFormElementDefinition(formElement, formElementDefinitionKey);
+}
+/**
+ * @throws 1478889044
+ * @throws 1478889049
+ */
+function showRemoveElementModal(publisherTopicName, publisherTopicArguments) {
+    const modalButtons = [];
+    assert(getUtility().isNonEmptyString(publisherTopicName), 'Invalid parameter "publisherTopicName"', 1478889049);
+    assert(Array.isArray(publisherTopicArguments), 'Invalid parameter "formElement"', 1478889044);
+    modalButtons.push({
+        text: getFormElementDefinition(getRootFormElement(), 'modalRemoveElementCancelButton'),
+        active: true,
+        btnClass: getHelper().getDomElementClassName('buttonDefault'),
+        name: 'cancel',
+        trigger: (e, modal) => {
+            modal.hideModal();
+        }
+    });
+    modalButtons.push({
+        text: getFormElementDefinition(getRootFormElement(), 'modalRemoveElementConfirmButton'),
+        active: true,
+        btnClass: getHelper().getDomElementClassName('buttonWarning'),
+        name: 'confirm',
+        trigger: (e, modal) => {
+            getPublisherSubscriber().publish(publisherTopicName, publisherTopicArguments);
+            modal.hideModal();
+        }
+    });
+    Modal.show(getFormElementDefinition(getRootFormElement(), 'modalRemoveElementDialogTitle'), getFormElementDefinition(getRootFormElement(), 'modalRemoveElementDialogMessage'), Severity.warning, modalButtons);
+}
+/**
+ * @publish mixed
+ * @throws 1478910954
+ */
+function insertElementsModalSetup(modalContent, publisherTopicName, configuration) {
+    assert(getUtility().isNonEmptyString(publisherTopicName), 'Invalid parameter "publisherTopicName"', 1478910954);
+    if (typeof configuration === 'object' && configuration !== null && !Array.isArray(configuration)) {
+        for (const key of Object.keys(configuration)) {
+            if (key === 'disableElementTypes'
+                && Array.isArray(configuration[key])) {
+                for (let i = 0, len = configuration[key].length; i < len; ++i) {
+                    modalContent.querySelectorAll(getHelper().getDomElementDataAttribute('fullElementType', 'bracesWithKeyValue', [configuration[key][i]])).forEach((el) => el.classList.add(getHelper().getDomElementClassName('disabled')));
+                }
+            }
+            if (key === 'onlyEnableElementTypes'
+                && Array.isArray(configuration[key])) {
+                modalContent.querySelectorAll(getHelper().getDomElementDataAttribute('fullElementType', 'bracesWithKey')).forEach((el) => {
+                    const elementType = el.getAttribute(getHelper().getDomElementDataAttribute('elementType'));
+                    const isEnabled = configuration[key].some((type) => type === elementType);
+                    if (!isEnabled) {
+                        el.classList.add(getHelper().getDomElementClassName('disabled'));
+                    }
+                });
+            }
+        }
+    }
+    [...modalContent.children].forEach(el => el.addEventListener('typo3:form:insert-element-click', function (e) {
+        getPublisherSubscriber().publish(publisherTopicName, [e.detail.item.identifier]);
+    }));
+}
+/**
+ * @publish view/modal/validationErrors/element/clicked
+ * @throws 1479161268
+ */
+function _validationErrorsModalSetup(modalContent, validationResults) {
+    let formElement, newRowItem;
+    assert(Array.isArray(validationResults), 'Invalid parameter "validationResults"', 1479161268);
+    const rowItemSelector = getHelper().getDomElementDataIdentifierSelector('rowItem');
+    const rowItemTemplate = modalContent.querySelector(rowItemSelector)?.cloneNode(true);
+    modalContent.querySelectorAll(rowItemSelector).forEach((el) => el.remove());
+    for (let i = 0, len = validationResults.length; i < len; ++i) {
+        let hasError = false;
+        for (let j = 0, len2 = validationResults[i].validationResults.length; j < len2; ++j) {
+            if (validationResults[i].validationResults[j].validationResults
+                && validationResults[i].validationResults[j].validationResults.length > 0) {
+                hasError = true;
+                break;
+            }
+        }
+        if (hasError) {
+            formElement = getFormEditorApp()
+                .getFormElementByIdentifierPath(validationResults[i].formElementIdentifierPath);
+            newRowItem = rowItemTemplate?.cloneNode(true);
+            const rowLink = newRowItem?.querySelector(getHelper().getDomElementDataIdentifierSelector('rowLink'));
+            if (rowLink) {
+                rowLink.setAttribute(getHelper().getDomElementDataAttribute('elementIdentifier'), validationResults[i].formElementIdentifierPath);
+                rowLink.replaceChildren(_buildTitleByFormElement(formElement));
+            }
+            const rowsContainer = modalContent.querySelector(getHelper().getDomElementDataIdentifierSelector('rowsContainer'));
+            if (rowsContainer && newRowItem) {
+                rowsContainer.append(newRowItem);
+            }
+        }
+    }
+    modalContent.querySelectorAll('a').forEach((a) => {
+        a.addEventListener('click', function () {
+            getPublisherSubscriber().publish('view/modal/validationErrors/element/clicked', [
+                a.getAttribute(getHelper().getDomElementDataAttribute('elementIdentifier'))
+            ]);
+            modalContent.querySelectorAll('a').forEach((link) => link.replaceWith(link.cloneNode(true)));
+            Modal.currentModal.hideModal();
+        });
+    });
+}
+/**
+ * @throws 1479162557
+ */
+function _buildTitleByFormElement(formElement) {
+    assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1479162557);
+    const span = document.createElement('span');
+    span.textContent = formElement.get('label') ? formElement.get('label') : formElement.get('identifier');
+    return span;
+}
+/* *************************************************************
+ * Public Methods
+ * ************************************************************/
+/**
+ * @publish view/modal/removeFormElement/perform
+ */
+export function showRemoveFormElementModal(formElement) {
+    showRemoveElementModal('view/modal/removeFormElement/perform', [formElement]);
+}
+/**
+ * @publish view/modal/removeCollectionElement/perform
+ * @throws 1478894420
+ * @throws 1478894421
+ */
+export function showRemoveCollectionElementModal(collectionElementIdentifier, collectionName, formElement) {
+    assert(getUtility().isNonEmptyString(collectionElementIdentifier), 'Invalid parameter "collectionElementIdentifier"', 1478894420);
+    assert(getUtility().isNonEmptyString(collectionName), 'Invalid parameter "collectionName"', 1478894421);
+    showRemoveElementModal('view/modal/removeCollectionElement/perform', [collectionElementIdentifier, collectionName, formElement]);
+}
+/**
+ * @publish view/modal/close/perform
+ */
+export function showCloseConfirmationModal() {
+    const modalButtons = [];
+    modalButtons.push({
+        text: getFormElementDefinition(getRootFormElement(), 'modalCloseCancelButton'),
+        active: true,
+        btnClass: getHelper().getDomElementClassName('buttonDefault'),
+        name: 'cancel',
+        trigger: (e, modal) => {
+            modal.hideModal();
+        }
+    });
+    modalButtons.push({
+        text: getFormElementDefinition(getRootFormElement(), 'modalCloseConfirmButton'),
+        active: true,
+        btnClass: getHelper().getDomElementClassName('buttonWarning'),
+        name: 'confirm',
+        trigger: (e, modal) => {
+            getPublisherSubscriber().publish('view/modal/close/perform', []);
+            modal.hideModal();
+        }
+    });
+    Modal.show(getFormElementDefinition(getRootFormElement(), 'modalCloseDialogTitle'), getFormElementDefinition(getRootFormElement(), 'modalCloseDialogMessage'), Severity.warning, modalButtons);
+}
+export function showInsertElementsModal(publisherTopicName, configuration) {
+    const template = getHelper().getTemplateElement('templateInsertElements');
+    if (template) {
+        const content = document.importNode(template.content, true);
+        insertElementsModalSetup(content, publisherTopicName, configuration);
+        Modal.advanced({
+            title: getFormElementDefinition(getRootFormElement(), 'modalInsertElementsDialogTitle'),
+            size: Modal.sizes.large,
+            content,
+        });
+    }
+}
+export function showInsertPagesModal(publisherTopicName) {
+    const template = getHelper().getTemplateElement('templateInsertPages');
+    if (template) {
+        const content = document.importNode(template.content, true);
+        insertElementsModalSetup(content, publisherTopicName);
+        Modal.advanced({
+            title: getFormElementDefinition(getRootFormElement(), 'modalInsertPagesDialogTitle'),
+            size: Modal.sizes.small,
+            content,
+        });
+    }
+}
+export function showValidationErrorsModal(validationResults) {
+    const modalButtons = [];
+    modalButtons.push({
+        text: getFormElementDefinition(getRootFormElement(), 'modalValidationErrorsConfirmButton'),
+        active: true,
+        btnClass: getHelper().getDomElementClassName('buttonDefault'),
+        name: 'confirm',
+        trigger: function (e, modal) {
+            modal.hideModal();
+        }
+    });
+    const template = getHelper().getTemplateElement('templateValidationErrors');
+    if (template) {
+        const content = document.importNode(template.content, true);
+        _validationErrorsModalSetup(content, validationResults);
+        Modal.show(getFormElementDefinition(getRootFormElement(), 'modalValidationErrorsDialogTitle'), content, Severity.error, modalButtons);
+    }
+}
+export function bootstrap(_formEditorApp, customConfiguration) {
+    formEditorApp = _formEditorApp;
+    configuration = merge({}, defaultConfiguration, customConfiguration ?? {});
+    Helper.bootstrap(formEditorApp);
+    return this;
+}

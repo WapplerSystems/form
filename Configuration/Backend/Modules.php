@@ -39,7 +39,7 @@ return [
         'extensionName' => 'Form',
         'controllerActions' => [
             FormEditorController::class => [
-                'index', 'saveForm', 'renderFormPage',
+                'index', 'saveForm', 'renderFormPage', 'renderEmailPreview', 'sendTestEmail',
             ],
         ],
     ],

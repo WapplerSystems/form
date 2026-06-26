@@ -10,4 +10,192 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import l from"@typo3/backend/modal.js";import h from"@typo3/backend/severity.js";import v from"@typo3/backend/icons.js";import b from"@typo3/backend/notification.js";import z from"@typo3/core/security-utility.js";import M from"@typo3/core/ajax/ajax-request.js";import{AjaxResponse as L}from"@typo3/core/ajax/ajax-response.js";import{SeverityEnum as w}from"@typo3/backend/enum/severity.js";import{topLevelModuleImport as y}from"@typo3/backend/utility/top-level-module-import.js";import{html as k}from"lit";import t from"~labels/form.form_manager_javascript";const u=new z;var f;(function(e){e.newFormModalTrigger='[data-identifier="newForm"]',e.duplicateFormModalTrigger='[data-identifier="duplicateForm"]',e.removeFormModalTrigger='[data-identifier="removeForm"]',e.showReferences='[data-identifier="showReferences"]',e.referenceLink='[data-identifier="referenceLink"]'})(f||(f={}));function S(e){document.querySelectorAll(f.newFormModalTrigger).forEach(r=>{r.addEventListener("click",async c=>{c.preventDefault(),await y("@typo3/form/backend/form-wizard/form-wizard.js");const n=k`<typo3-backend-form-wizard .formManager=${e}></typo3-backend-form-wizard>`;l.advanced({title:t.get("formManager.newFormWizard.step1.title"),content:n,severity:w.notice,size:l.sizes.medium,staticBackdrop:!0,buttons:[]})})})}function T(e){document.querySelectorAll(f.removeFormModalTrigger).forEach(r=>{r.addEventListener("click",async c=>{const n=[];c.preventDefault(),n.push({text:t.get("formManager.cancel"),active:!0,btnClass:"btn-default",name:"cancel",trigger:function(i,o){o.hideModal()}}),n.push({text:t.get("formManager.remove_form"),active:!0,btnClass:"btn-danger",name:"createform",trigger:function(i,o){new M(e.getAjaxEndpoint("delete")).post({formPersistenceIdentifier:r.dataset.formPersistenceIdentifier}).then(async s=>{const d=await s.resolve();d.status==="success"?document.location=d.url:b.error(d.title,d.message),o.hideModal()})}}),l.show(t.get("formManager.remove_form_title"),t.get("formManager.remove_form_message",{0:r.dataset.formName}),h.error,n)})})}function x(e){document.querySelectorAll(f.duplicateFormModalTrigger).forEach(r=>{r.addEventListener("click",async c=>{c.preventDefault(),await y("@typo3/form/backend/form-wizard/form-wizard.js");const n={name:r.dataset.formName,persistenceIdentifier:r.dataset.formPersistenceIdentifier},i=k`<typo3-backend-form-wizard .formManager=${e} .duplicateForm=${n}></typo3-backend-form-wizard>`;l.advanced({title:t.get("formManager.duplicateFormWizard.step1.title",{0:r.dataset.formName}),content:i,severity:w.notice,size:l.sizes.medium,staticBackdrop:!0,buttons:[]})})})}function I(e){document.querySelectorAll(f.showReferences).forEach(r=>{r.addEventListener("click",c=>{c.preventDefault();const n=e.getAjaxEndpoint("references")+"&formPersistenceIdentifier="+r.dataset.formPersistenceIdentifier;new M(n).get().then(async i=>{const o=await i.resolve();let s;const d=[];d.push({text:t.get("formManager.cancel"),active:!0,btnClass:"btn-default",name:"cancel",trigger:function(a,m){m.hideModal()}});const E=o.references.length,F=await v.getIcon("actions-open",v.sizes.small);if(E>0){s='<h2 class="h3">'+t.get("formManager.references.headline")+'</h2><div class="table-fit"><table id="forms" class="table table-striped table-hover"><thead><tr><th class="col-icon"></th><th class="col-recordtitle">'+t.get("formManager.table.field.title")+"</th><th>"+t.get("formManager.table.field.uid")+'</th><th class="col-control nowrap"><span class="visually-hidden">'+t.get("formManager.table.field.control")+"</span></th></tr></thead><tbody>";for(let a=0,m=o.references.length;a<m;++a)s+='<tr><td class="col-icon">'+o.references[a].recordIcon+'</td><td class="col-recordtitle"><a href="'+u.encodeHtml(o.references[a].recordEditUrl)+'" data-identifier="referenceLink">'+u.encodeHtml(o.references[a].recordTitle)+"</a></td><td>"+u.encodeHtml(o.references[a].recordUid)+'</td><td class="col-control"><div class="btn-group" role="group"><a href="'+u.encodeHtml(o.references[a].recordEditUrl)+'" data-identifier="referenceLink" class="btn btn-default" title="'+t.get("formManager.btn.edit.title")+'">'+F+"</a></div></td></tr>";s+="</tbody></table></div>"}else s="<div><h1>"+t.get("formManager.references.title",{0:u.encodeHtml(o.formPersistenceIdentifier)})+"</h1></div><div>"+t.get("formManager.no_references")+"</div>";const g=document.createElement("template");g.innerHTML=s;const p=g.content;p.querySelectorAll(f.referenceLink).forEach(a=>{a.addEventListener("click",m=>{m.preventDefault(),l.currentModal.hideModal(),document.location=m.currentTarget.href})}),l.show(t.get("formManager.references.title",{0:r.dataset.formName}),p,h.notice,d)}).catch(i=>{i instanceof L&&b.error(i.response.statusText,String(i.response.status),2)})})})}function j(e){T(e),S(e),x(e),I(e)}export{j as bootstrap};
+/**
+ * Module: @typo3/form/backend/form-manager/view-model
+ */
+import Modal, {} from '@typo3/backend/modal.js';
+import Severity from '@typo3/backend/severity.js';
+import Icons from '@typo3/backend/icons.js';
+import Notification from '@typo3/backend/notification.js';
+import SecurityUtility from '@typo3/core/security-utility.js';
+import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
+import { AjaxResponse } from '@typo3/core/ajax/ajax-response.js';
+import { SeverityEnum } from '@typo3/backend/enum/severity.js';
+import { topLevelModuleImport } from '@typo3/backend/utility/top-level-module-import.js';
+import { html } from 'lit';
+import formManagerLabels from '~labels/form.form_manager_javascript';
+const securityUtility = new SecurityUtility();
+var Identifiers;
+(function (Identifiers) {
+    Identifiers["newFormModalTrigger"] = "[data-identifier=\"newForm\"]";
+    Identifiers["duplicateFormModalTrigger"] = "[data-identifier=\"duplicateForm\"]";
+    Identifiers["removeFormModalTrigger"] = "[data-identifier=\"removeForm\"]";
+    Identifiers["showReferences"] = "[data-identifier=\"showReferences\"]";
+    Identifiers["referenceLink"] = "[data-identifier=\"referenceLink\"]";
+})(Identifiers || (Identifiers = {}));
+function newFormSetup(formManagerApp) {
+    document.querySelectorAll(Identifiers.newFormModalTrigger).forEach((element) => {
+        element.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await topLevelModuleImport('@typo3/form/backend/form-wizard/form-wizard.js');
+            const content = html `<typo3-backend-form-wizard .formManager="${formManagerApp}"
+      ></typo3-backend-form-wizard>`;
+            Modal.advanced({
+                title: formManagerLabels.get('formManager.newFormWizard.step1.title'),
+                content: content,
+                severity: SeverityEnum.notice,
+                size: Modal.sizes.medium,
+                staticBackdrop: true,
+                buttons: []
+            });
+        });
+    });
+}
+function removeFormSetup(formManagerApp) {
+    document.querySelectorAll(Identifiers.removeFormModalTrigger).forEach((element) => {
+        element.addEventListener('click', async (e) => {
+            const modalButtons = [];
+            e.preventDefault();
+            modalButtons.push({
+                text: formManagerLabels.get('formManager.cancel'),
+                active: true,
+                btnClass: 'btn-default',
+                name: 'cancel',
+                trigger: function (e, modal) {
+                    modal.hideModal();
+                }
+            });
+            modalButtons.push({
+                text: formManagerLabels.get('formManager.remove_form'),
+                active: true,
+                btnClass: 'btn-danger',
+                name: 'createform',
+                trigger: function (e, modal) {
+                    new AjaxRequest(formManagerApp.getAjaxEndpoint('delete')).post({
+                        formPersistenceIdentifier: element.dataset.formPersistenceIdentifier,
+                    }).then(async (response) => {
+                        const data = await response.resolve();
+                        if (data.status === 'success') {
+                            document.location = data.url;
+                        }
+                        else {
+                            Notification.error(data.title, data.message);
+                        }
+                        modal.hideModal();
+                    });
+                }
+            });
+            Modal.show(formManagerLabels.get('formManager.remove_form_title'), formManagerLabels.get('formManager.remove_form_message', { '0': element.dataset.formName }), Severity.error, modalButtons);
+        });
+    });
+}
+function duplicateFormSetup(formManagerApp) {
+    document.querySelectorAll(Identifiers.duplicateFormModalTrigger).forEach((element) => {
+        element.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await topLevelModuleImport('@typo3/form/backend/form-wizard/form-wizard.js');
+            const duplicateForm = {
+                name: element.dataset.formName,
+                persistenceIdentifier: element.dataset.formPersistenceIdentifier
+            };
+            const content = html `
+          <typo3-backend-form-wizard
+            .formManager="${formManagerApp}"
+            .duplicateForm="${duplicateForm}"
+          ></typo3-backend-form-wizard>
+      `;
+            Modal.advanced({
+                title: formManagerLabels.get('formManager.duplicateFormWizard.step1.title', { '0': element.dataset.formName }),
+                content: content,
+                severity: SeverityEnum.notice,
+                size: Modal.sizes.medium,
+                staticBackdrop: true,
+                buttons: []
+            });
+        });
+    });
+}
+function showReferencesSetup(formManagerApp) {
+    document.querySelectorAll(Identifiers.showReferences).forEach((element) => {
+        element.addEventListener('click', (e) => {
+            e.preventDefault();
+            const url = formManagerApp.getAjaxEndpoint('references') + '&formPersistenceIdentifier=' + element.dataset.formPersistenceIdentifier;
+            new AjaxRequest(url).get().then(async (response) => {
+                const data = await response.resolve();
+                let htmlString;
+                const modalButtons = [];
+                modalButtons.push({
+                    text: formManagerLabels.get('formManager.cancel'),
+                    active: true,
+                    btnClass: 'btn-default',
+                    name: 'cancel',
+                    trigger: function (e, modal) {
+                        modal.hideModal();
+                    }
+                });
+                const referencesLength = data.references.length;
+                const editIconMarkup = await Icons.getIcon('actions-open', Icons.sizes.small);
+                if (referencesLength > 0) {
+                    htmlString = '<h2 class="h3">' + formManagerLabels.get('formManager.references.headline') + '</h2>'
+                        + '<div class="table-fit">'
+                        + '<table id="forms" class="table table-striped table-hover">'
+                        + '<thead>'
+                        + '<tr>'
+                        + '<th class="col-icon"></th>'
+                        + '<th class="col-recordtitle">' + formManagerLabels.get('formManager.table.field.title') + '</th>'
+                        + '<th>' + formManagerLabels.get('formManager.table.field.uid') + '</th>'
+                        + '<th class="col-control nowrap"><span class="visually-hidden">' + formManagerLabels.get('formManager.table.field.control') + '</span></th>'
+                        + '</tr>'
+                        + '</thead>'
+                        + '<tbody>';
+                    for (let i = 0, len = data.references.length; i < len; ++i) {
+                        htmlString += '<tr>'
+                            + '<td class="col-icon">' + data.references[i].recordIcon + '</td>'
+                            + '<td class="col-recordtitle">'
+                            + '<a href="' + securityUtility.encodeHtml(data.references[i].recordEditUrl) + '" data-identifier="referenceLink">' + securityUtility.encodeHtml(data.references[i].recordTitle) + '</a>'
+                            + '</td>'
+                            + '<td>' + securityUtility.encodeHtml(data.references[i].recordUid) + '</td>'
+                            + '<td class="col-control">'
+                            + '<div class="btn-group" role="group">'
+                            + '<a href="' + securityUtility.encodeHtml(data.references[i].recordEditUrl) + '" data-identifier="referenceLink" class="btn btn-default" title="' + formManagerLabels.get('formManager.btn.edit.title') + '">'
+                            + editIconMarkup
+                            + '</a>'
+                            + '</div>'
+                            + '</td>'
+                            + '</tr>';
+                    }
+                    htmlString += '</tbody>'
+                        + '</table>'
+                        + '</div>';
+                }
+                else {
+                    htmlString = '<div>'
+                        + '<h1>' + formManagerLabels.get('formManager.references.title', { '0': securityUtility.encodeHtml(data.formPersistenceIdentifier) }) + '</h1>'
+                        + '</div>'
+                        + '<div>' + formManagerLabels.get('formManager.no_references') + '</div>';
+                }
+                const template = document.createElement('template');
+                template.innerHTML = htmlString;
+                const fragment = template.content;
+                fragment.querySelectorAll(Identifiers.referenceLink).forEach((link) => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        Modal.currentModal.hideModal();
+                        document.location = e.currentTarget.href;
+                    });
+                });
+                Modal.show(formManagerLabels.get('formManager.references.title', { '0': element.dataset.formName }), fragment, Severity.notice, modalButtons);
+            }).catch((error) => {
+                if (error instanceof AjaxResponse) {
+                    Notification.error(error.response.statusText, String(error.response.status), 2);
+                }
+            });
+        });
+    });
+}
+export function bootstrap(formManagerApp) {
+    removeFormSetup(formManagerApp);
+    newFormSetup(formManagerApp);
+    duplicateFormSetup(formManagerApp);
+    showReferencesSetup(formManagerApp);
+}

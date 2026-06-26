@@ -334,7 +334,7 @@ readonly class FormDefinitionConversionService
      */
     protected function isRteEditor(array $editor): bool
     {
-        return ($editor['templateName'] ?? '') === 'Inspector-TextareaEditor'
+        return in_array($editor['templateName'] ?? '', ['Inspector-TextareaEditor', 'Inspector-EmailContentEditor'], true)
             && ($editor['enableRichtext'] ?? false) === true;
     }
 
@@ -418,6 +418,13 @@ readonly class FormDefinitionConversionService
                     // This ensures sanitization even for form definitions from external sources
                     $presetBuild = $this->resolveSanitizerBuildFromPreset($elementRtePaths[$propertyPath]);
                     $result[$key] = $this->sanitizeWithBuild($stringValue, $presetBuild ?? $defaultBuild);
+                } elseif ($key === 'condition') {
+                    // WapplerSystems fork: variant "condition" values are TYPO3
+                    // ExpressionLanguage expressions, not HTML. They legitimately
+                    // contain "<", ">", "<=", ">=" — strip_tags() would corrupt
+                    // them (e.g. "x <= 5" -> "x "). They are never rendered as HTML
+                    // (only evaluated server-side), so keep them verbatim.
+                    $result[$key] = $stringValue;
                 } else {
                     // Non-RTE field: strip ALL HTML tags for security
                     $result[$key] = strip_tags($stringValue);

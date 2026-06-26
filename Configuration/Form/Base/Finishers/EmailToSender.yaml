@@ -23,6 +23,8 @@ prototypes:
               attachUploads: true
               title: ''
               message: ''
+              plainMessage: ''
+              templateName: 'Default'
               translation:
                 language: ''
               errorMessage: ''

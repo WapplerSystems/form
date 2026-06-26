@@ -99,6 +99,26 @@ class RenderableVariant implements RenderableVariantInterface
         return $this->identifier;
     }
 
+    /**
+     * WapplerSystems fork: expose the raw condition expression (e.g. for the
+     * frontend live-conditions feature, which mirrors the evaluation client-side).
+     */
+    public function getCondition(): string
+    {
+        return $this->condition;
+    }
+
+    /**
+     * WapplerSystems fork: the override options carried by this variant
+     * (condition/identifier/variants already stripped).
+     *
+     * @return array<string, mixed>
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
     public function isApplied(): bool
     {
         return $this->applied;

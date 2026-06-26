@@ -10,4 +10,31 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import{loadModule as a}from"@typo3/core/java-script-item-processor.js";import r from"@typo3/core/document-service.js";class l{static dispatchFormEditor(o,t){r.ready().then(()=>{Promise.all([a(o.app),a(o.mediator),a(o.viewModel)]).then(e=>((d,i,n)=>{window.TYPO3.FORMEDITOR_APP=d.getInstance(t,i,n).run()})(...e))})}static dispatchFormManager(o,t){r.ready().then(()=>{Promise.all([a(o.app),a(o.viewModel)]).then(e=>((d,i)=>{window.TYPO3.FORMMANAGER_APP=d.getInstance(t,i).run()})(...e))})}}export{l as Helper};
+import { loadModule } from '@typo3/core/java-script-item-processor.js';
+import DocumentService from '@typo3/core/document-service.js';
+/**
+ * @exports @typo3/form/backend/helper
+ */
+export class Helper {
+    static dispatchFormEditor(requirements, options) {
+        DocumentService.ready().then(() => {
+            Promise.all([
+                loadModule(requirements.app),
+                loadModule(requirements.mediator),
+                loadModule(requirements.viewModel),
+            ]).then((modules) => ((app, mediator, viewModel) => {
+                window.TYPO3.FORMEDITOR_APP = app.getInstance(options, mediator, viewModel).run();
+            })(...modules));
+        });
+    }
+    static dispatchFormManager(requirements, options) {
+        DocumentService.ready().then(() => {
+            Promise.all([
+                loadModule(requirements.app),
+                loadModule(requirements.viewModel)
+            ]).then((modules) => ((formManager, viewModel) => {
+                window.TYPO3.FORMMANAGER_APP = formManager.getInstance(options, viewModel).run();
+            })(...modules));
+        });
+    }
+}

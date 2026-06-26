@@ -10,4 +10,43 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import i from"@typo3/core/ajax/ajax-request.js";import r from"~labels/form.form_manager_javascript";class o{constructor(e,s){this.context=e,this.formPersistenceIdentifier=s}async execute(){const e=this.context.getDataStore(),s=this.context.formManager.getAjaxEndpoint("duplicate"),t=await(await new i(s).post({formName:e.settings.formName,storage:e.storage.typeIdentifier,storageLocation:e.settings.storageLocation,formPersistenceIdentifier:this.formPersistenceIdentifier})).resolve();return t?.status==="success"?{success:!0,finisher:{identifier:"redirect",module:"@typo3/backend/wizard/finisher/redirect-finisher.js",data:{url:t.url},labels:{successTitle:r.get("formManager.finisher.redirect.success.title"),successDescription:r.get("formManager.finisher.redirect.success.description")}}}:{success:!1,errors:[t?.message]}}}export{o as DuplicateFormSubmissionService};
+import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
+import formManagerLabels from '~labels/form.form_manager_javascript';
+export class DuplicateFormSubmissionService {
+    constructor(context, formPersistenceIdentifier) {
+        this.context = context;
+        this.formPersistenceIdentifier = formPersistenceIdentifier;
+    }
+    async execute() {
+        const dataStore = this.context.getDataStore();
+        const requestUrl = this.context.formManager.getAjaxEndpoint('duplicate');
+        const response = await new AjaxRequest(requestUrl)
+            .post({
+            formName: dataStore.settings.formName,
+            storage: dataStore.storage.typeIdentifier,
+            storageLocation: dataStore.settings.storageLocation,
+            formPersistenceIdentifier: this.formPersistenceIdentifier
+        });
+        const data = await response.resolve();
+        if (data?.status === 'success') {
+            return {
+                success: true,
+                finisher: {
+                    identifier: 'redirect',
+                    module: '@typo3/backend/wizard/finisher/redirect-finisher.js',
+                    data: {
+                        url: data.url,
+                    },
+                    labels: {
+                        successTitle: formManagerLabels.get('formManager.finisher.redirect.success.title'),
+                        successDescription: formManagerLabels.get('formManager.finisher.redirect.success.description'),
+                    }
+                }
+            };
+        }
+        return {
+            success: false,
+            errors: [data?.message]
+        };
+    }
+}

@@ -101,8 +101,33 @@ All fork-added events live in `TYPO3\CMS\Form\WapplerSystems\Event\` and are dis
 | `AfterFinisherExecutedEvent` | `AbstractFinisher::execute()` | `FinisherInterface`, `FinisherContext`, `mixed` (executeInternal result) | Post-finisher logging, output transformation, follow-up actions. Does **not** fire on FinisherException. |
 | `AfterYamlConfigurationLoadedEvent` | `ConfigurationManager::getYamlConfiguration()` | mutable `array $yamlConfiguration` | Inject runtime-computed values into the form-editor configuration (site languages, file mounts, dynamic option lists). Fires on every load, not cache-gated — listeners must be cheap. |
 | `MailBeforeSendingEvent` | `EmailFinisher::executeInternal()` | `FluidEmail` (mutable), `FinisherContext`, `EmailFinisher` | Mutate the email immediately before transport — extra recipients, custom headers, conditional attachments, audit logging. Does **not** fire if EmailFinisher throws before reaching the transport step. |
+| `AfterMailSentEvent` | `EmailFinisher::executeInternal()` | `FluidEmail`, `FinisherContext`, `EmailFinisher` | Fires **only after a successful** `MailerInterface::send()` — the reliable "delivered" hook for audit logging / post-delivery follow-ups (unlike `MailBeforeSendingEvent`, which can't tell success from a later transport failure). |
+| `AfterFormStateInitializedEvent` | `FormRuntime::triggerAfterFormStateInitialized()` | `FormRuntime` | PSR-14 replacement for the legacy `SC_OPTIONS['ext/form']['afterFormStateInitialized']` hook (still fired alongside). Canonical point to **prefill** form values from fe_user / GET-POST / session via the FormRuntime ArrayAccess API (`$event->formRuntime['email'] = …`). Fires every request, so guard first-display-only prefills. |
+| `AfterFormSubmittedEvent` | `FormRuntime::invokeFinishers()` (after the chain) | `FormRuntime`, `array $formValues`, `string $renderedOutput`, `bool $wasCancelled` | Fires **exactly once** per submission after the whole finisher chain (Before/AfterFinisherExecuted fire per finisher). The hook for "submission complete" actions: conversion / analytics tracking, CRM sync, a single follow-up. `wasCancelled` reflects a finisher having called `FinisherContext::cancel()`. |
+| `BeforeFinishersInvokedEvent` | `FormRuntime::invokeFinishers()` (before the chain) | `FormRuntime`, **mutable** `FinisherInterface[] $finishers`, `FinisherContext` | Fires once before the chain. Listeners may reorder / filter / inject finishers (FormRuntime iterates the modified `$finishers`), cancel the whole chain via `$finisherContext->cancel()`, or seed the shared FinisherVariableProvider. Counterpart to `AfterFormSubmittedEvent`. |
+| `AfterDatabaseRecordPersistedEvent` | `SaveToDatabaseFinisher::saveToDatabase()` (also covers `FeUserFinisher`) | `string $table`, `int $uid`, `array $data`, `'insert'\|'update' $mode`, `FinisherInterface`, `FinisherContext` | Fires after a row was inserted/updated by a form. Hook for "record persisted" follow-ups (workflow on new fe_user, CRM push) with the inserted `uid` in hand. For `update` there is no single uid → `$uid` is `0`; use `$mode`/`$data`. |
+| `AfterFileUploadedEvent` | `UploadedFileReferenceConverter::importUploadedResource()` | `File $file`, `array $uploadInfo` | Fires right after an uploaded file is stored in FAL (before the FileReference is built). Use for virus scanning, EXIF/metadata stripping, content policy. A listener that **throws** aborts property mapping and thereby rejects the upload. |
+| `AfterRenderableIsValidatedEvent` | `FormRuntime::mapAndValidatePage()` (per field) | `RenderableInterface`, `mixed $value`, `FormRuntime`, `RequestInterface`, `Result $validationResult` | Per-renderable companion to upstream `BeforeRenderableIsValidatedEvent`; fires after a field's processing rule ran. Inspect or add field-scoped errors via `$event->validationResult->addError(...)`. Fires only for renderables that have a processing rule. For the page aggregate use `AfterFormIsValidatedEvent`. |
+| `AfterFormRenderedEvent` | `FormRuntime::render()` | `FormRuntime`, **mutable** `string $renderedContent` | Fires after the renderer produced the form markup (page-render path only, not finisher output). Listeners may rewrite/wrap the markup — tracking pixel, JSON island for client-side logic, CSP nonces. FormRuntime returns the modified `$renderedContent`. |
 
 The Before/After finisher events fire generically for every finisher inheriting `AbstractFinisher` — Email, Redirect, Confirmation, SaveToDatabase, FlashMessage, DeleteUploads, Closure and any custom finishers. No need to subclass per finisher type.
+
+## Frontend live-conditions (same-page variants)
+
+Variants whose condition references a field on the **same page** are applied live in the browser (show/hide via `renderingOptions.enabled`, required via a `NotEmpty` validator) — not just on the server at page/step transitions. Pieces:
+
+- `InjectFrontendConditions` (listener on `AfterFormRenderedEvent`) emits a JSON island `<script type="application/json" data-wsform-conditions>` inside the `<form>` carrying each element's `{condition, enabled?, required?}` rules, and loads `Resources/Public/JavaScript/frontend/form-conditions.js` via `AssetCollector`. Forms without such variants get neither.
+- `FormRuntime::render()` re-enables (`reEnableClientConditionElements()`) elements that a *client-evaluable* variant disabled, so they are present in the DOM for the client to toggle. A condition is client-evaluable when it uses `traverse(formValues, …)` and no server-only context (`stepType`, `finisherIdentifier`, …). The server re-evaluates authoritatively on submit; without JS the fields stay visible and validation still holds.
+- `frontend/form-conditions.js` evaluates a subset of the ExpressionLanguage (`traverse(formValues,"id")`, `== != < <= > >= in "not in" && || ()`) against the live form values and toggles the field container (`[data-wsform-element]`), `disabled` (so hidden fields are not submitted) and `required`. Unparseable conditions are skipped.
+- `RenderableVariant::getCondition()` / `getOptions()` expose the raw condition + override options for this.
+
+## In-editor localization (per-site-language translations)
+
+Each element has a **“Translate…”** button opening a modal with one section per non-default site language and inputs for the element's **label, placeholder and options**. Translations are stored in the form definition under `renderingOptions.translation.overrides.<languageCode>` (round-trip via `MultiValuePropertiesExtractor`, so no XLF files are required — works for DB-stored forms too) and applied at render time: `TranslationService::translateFormElementValue()` checks the current site language's overrides before the XLF chain. `InjectTranslationEditorIntoFormElements` injects the editor + the available site languages (`SiteFinder`, `languageId !== 0`); the inspector shows a per-language completeness badge.
+
+## Visual condition builder (form editor)
+
+The variants editor's condition field has a **“Build…”** button (`Build/Sources/TypeScript/form/backend/form-editor/condition-builder.ts`) opening a modal to click together rules (field / operator / value) with AND/OR groups and nesting. It serializes the rule tree to an ExpressionLanguage condition and parses existing ones back (raw-textarea fallback when unparseable). Pure editor JS.
 
 ## Form elements added on top of upstream
 
@@ -116,8 +141,16 @@ The Before/After finisher events fire generically for every finisher inheriting 
 | --- | --- | --- |
 | `RedirectToUri` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\RedirectToUriFinisher` | Redirect to **any** URI (external too). Core's `Redirect` only handles TYPO3 pages via t3-page IDs. Options: `uri`, `statusCode` (default 303). |
 | `FeUser` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\FeUserFinisher` | Insert/update `fe_users` rows from form values. Built on core's `SaveToDatabase`. Per-element `hashPassword: true` runs the value through `PasswordHashFactory::getDefaultHashInstance('FE')`. Requires `pid` option for the storage page. |
-| `CopyToSenderEmail` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\CopyToSenderEmailFinisher` | Conditional `EmailFinisher` — only fires when the form field named in `conditionFieldName` is truthy. Use case: "send me a copy" checkbox. |
 | `AttachUploadsToObject` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\AttachUploadsToObjectFinisher` | Attaches uploaded files to an arbitrary DB record via new `sys_file_reference` rows. Pair with `SaveToDatabase` and reference the inserted UID via `{SaveToDatabase.insertedUids.<index>}`. Rebuild of the legacy form_extended finisher: direct ConnectionPool inserts, no fake backend user, no `bypassAccessCheck` hack, supports multiple files per element. |
+
+> **Conditional finishers via variants** (replaces the removed `CopyToSenderEmail`):
+> any finisher can carry a `variants` list inside its `options`, each entry being
+> `{ condition: <ExpressionLanguage>, ...overrides }`. Before a finisher runs,
+> `FormRuntime::processFinisherVariants()` merges every matching variant into the
+> finisher options (formValues / stepType / finisherIdentifier are in scope).
+> A "send me a copy" email is just a second `EmailToSender` with
+> `renderingOptions.enabled: false` and a variant
+> `{ condition: 'traverse(formValues, "sendCopy") == 1', renderingOptions: { enabled: true } }`.
 
 ## View helpers added on top of upstream
 

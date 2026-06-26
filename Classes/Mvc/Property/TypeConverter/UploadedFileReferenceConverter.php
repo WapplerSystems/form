@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Mvc\Property\TypeConverter;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Crypto\HashService;
@@ -42,6 +43,7 @@ use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\TypeConverter\AbstractTypeConverter;
 use TYPO3\CMS\Form\Mvc\Property\Exception\TypeConverterException;
 use TYPO3\CMS\Form\Security\HashScope;
+use TYPO3\CMS\Form\WapplerSystems\Event\AfterFileUploadedEvent;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Form\Slot\ResourcePublicationSlot;
 
@@ -89,6 +91,8 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
     protected HashService $hashService;
     protected PersistenceManagerInterface $persistenceManager;
     protected StorageRepository $storageRepository;
+    // WapplerSystems fork: nullable so manual instantiation (without DI) keeps working.
+    protected ?EventDispatcherInterface $eventDispatcher = null;
 
     /**
      * @internal
@@ -96,6 +100,14 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
     public function injectResourceFactory(ResourceFactory $resourceFactory): void
     {
         $this->resourceFactory = $resourceFactory;
+    }
+
+    /**
+     * @internal
+     */
+    public function injectEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -486,6 +498,10 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
         $this->skipResourceConsistencyCheckForUploads($uploadFolder->getStorage(), $uploadInfo);
         /** @var File $uploadedFile */
         $uploadedFile = $uploadFolder->addUploadedFile($uploadInfo, $conflictMode);
+
+        // WapplerSystems fork: file-uploaded hook (virus scan, EXIF stripping,
+        // content policy). A listener that throws rejects the upload.
+        $this->eventDispatcher?->dispatch(new AfterFileUploadedEvent($uploadedFile, $uploadInfo));
 
         $resourcePointer = isset($uploadInfo['submittedFile']['resourcePointer']) && !str_contains($uploadInfo['submittedFile']['resourcePointer'], 'file:')
             ? (int)$this->hashService->validateAndStripHmac($uploadInfo['submittedFile']['resourcePointer'], HashScope::ResourcePointer->prefix())

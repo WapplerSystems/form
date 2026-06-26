@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\WapplerSystems\EventListener;
 
-use Symfony\Component\DependencyInjection\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Configuration\Event\AfterFlexFormDataStructureParsedEvent;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 

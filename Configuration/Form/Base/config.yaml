@@ -20,7 +20,6 @@ imports:
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/FormElements/Time.yaml' }
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/RedirectToUri.yaml' }
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/FeUser.yaml' }
-  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/CopyToSenderEmail.yaml' }
   - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/AttachUploadsToObject.yaml' }
 
   # Form elements
@@ -124,6 +123,14 @@ prototypes:
         Inspector-MaximumFileSizeEditor: Inspector/MaximumFileSizeEditor
         Inspector-CountrySelectEditor: Inspector/CountrySelectEditor
         Inspector-DateEditor: Inspector/DateEditor
+        # WapplerSystems fork: visual variants/conditions editor
+        Inspector-VariantsEditor: Inspector/VariantsEditor
+        # WapplerSystems fork: email content modal editor (HTML + plain + template + preview)
+        Inspector-EmailContentEditor: Inspector/EmailContentEditor
+        # WapplerSystems fork: per-site-language translation editor (labels/placeholders/options)
+        Inspector-TranslationEditor: Inspector/TranslationEditor
+        # WapplerSystems fork: form-wide translation overview (all fields × all languages)
+        Inspector-TranslationOverviewEditor: Inspector/TranslationOverviewEditor
 
       formElementPropertyValidatorsDefinition:
         NotEmpty:

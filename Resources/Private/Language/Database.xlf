@@ -726,6 +726,48 @@
       <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.1">
         <source>EN</source>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.language.option.frontend">
+        <source>Same as frontend rendering</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.translations.label">
+        <source>Translations</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.translationsOverview.label">
+        <source>Form translations</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.editButton">
+        <source>Edit email content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.modalTitle">
+        <source>Email content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.template">
+        <source>Template</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.html">
+        <source>HTML</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.plain">
+        <source>Plain text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.preview">
+        <source>Preview</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.refreshPreview">
+        <source>Refresh preview</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.close">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.plainHint">
+        <source>Leave empty to derive the plain-text part from the HTML body automatically. Use {formValues} to position the submitted values.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.insertMarker">
+        <source>Insert field marker…</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.allValuesMarker">
+        <source>All form values (table)</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.title.label">
         <source>Title</source>
       </trans-unit>
@@ -878,6 +920,9 @@
       </trans-unit>
       <trans-unit id="formEditor.elements.FormElement.editor.enabled.label">
         <source>Field visible</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.variants.label">
+        <source>Variants &amp; conditions</source>
       </trans-unit>
       <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.label">
         <source>Autocomplete</source>

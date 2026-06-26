@@ -10,4 +10,375 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import{LitElement as f,html as d,nothing as h}from"lit";import{repeat as v}from"lit/directives/repeat.js";import{classMap as g}from"lit/directives/class-map.js";import{live as b}from"lit/directives/live.js";import{property as s,state as u,customElement as y}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/form/backend/form-editor/component/form-element-selector.js";var a=function(p,e,t,l){var i=arguments.length,o=i<3?e:l===null?l=Object.getOwnPropertyDescriptor(e,t):l,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(p,e,t,l);else for(var c=p.length-1;c>=0;c--)(r=p[c])&&(o=(i<3?r(o):i>3?r(e,t,o):r(e,t))||o);return i>3&&o&&Object.defineProperty(e,t,o),o};class m extends Event{static{this.eventName="typo3:backend:form-editor:component:property-grid-editor:update"}constructor(e){super(m.eventName),this.data=e}}let n=class extends f{constructor(){super(...arguments),this.entries=[],this.formElements=[],this.labelLabel="Label",this.labelValue="Value",this.labelSelected="Selected",this.labelAdd="Add",this.labelRemove="Remove",this.labelMove="Move",this.enableAddRow=!1,this.enableDeleteRow=!1,this.enableSelection=!0,this.enableMultiSelection=!1,this.enableSorting=!1,this.enableLabelAsFallbackValue=!1,this.enableLabelFormElementSelectionButton=!1,this.enableValueFormElementSelectionButton=!1,this.draggedEntry=null,this.movedEntry=null,this.activeElementRef=null}createRenderRoot(){return this}updated(e){if(this.activeElementRef&&(this.activeElementRef.focus(),this.activeElementRef=null),e.has("entries")){const t=e.get("entries");t!==void 0&&JSON.stringify(t)!==JSON.stringify(this.entries)&&this.dispatchEvent(new m(this.entries))}}render(){return d`<div class=property-grid-editor>${this.entries?.length?d`<div class=property-grid-editor__entries>${v(this.entries,e=>e.id,e=>this.renderEntry(e))}</div>`:h} ${this.enableAddRow?d`<div class=property-grid-editor__actions><button class="btn btn-sm btn-default" title=${this.labelAdd} @click=${this.handleCreate}><typo3-backend-icon identifier=actions-plus size=small></typo3-backend-icon><span class=btn-label>${this.labelAdd}</span></button></div>`:h}</div>`}renderEntry(e){return d`<div class=${g({"property-grid-editor__entry":!0,moving:this.movedEntry===e,dragging:this.draggedEntry===e})} @dragover=${t=>this.handleDragOver(t)} @dragenter=${t=>this.handleDragEnter(t,e)} @drop=${t=>this.handleDrop(t)} @dragend=${t=>this.handleDragEnd(t)}><div class=property-grid-editor__entry-inputs><div class=form-group><label for=${e.id}-label class=form-label>${this.labelLabel}</label><div class="input-group form-control-wrap"><input id=${e.id}-label class="form-control form-control-sm" type=text @change=${t=>this.handleChange(t,"label",e)} @keyup=${t=>this.handleChange(t,"label",e)} @focusout=${()=>this.handleFocusOut(e)} .value=${b(e.label)}> ${this.renderFormElementSelectionButton(this.enableLabelFormElementSelectionButton,"label",e)}</div></div><div class=form-group><label for=${e.id}-value class=form-label>${this.labelValue}</label><div class="input-group form-control-wrap"><input id=${e.id}-value class="form-control form-control-sm" type=text @change=${t=>this.handleChange(t,"value",e)} @keyup=${t=>this.handleChange(t,"value",e)} .value=${b(e.value)}> ${this.renderFormElementSelectionButton(this.enableValueFormElementSelectionButton,"value",e)}</div></div>${this.enableSelection||this.enableMultiSelection?d`<div class=form-check><input id=${e.id}-selected class=form-check-input type=checkbox @change=${t=>this.handleChange(t,"selected",e)} .checked=${b(e.selected)}> <label for=${e.id}-selected class=form-check-label>${this.labelSelected}</label></div>`:h}</div>${this.enableSorting||this.enableDeleteRow?d`<div class=property-grid-editor__entry-buttons>${this.enableSorting?d`<button class="btn btn-sm btn-default" title=${this.labelMove} draggable=true @click=${t=>this.handleMoveClick(t,e)} @keydown=${this.handleMoveKeyDown} @dragstart=${t=>this.handleDragStart(t,e)}><typo3-backend-icon identifier=${this.movedEntry===e?"actions-thumbtack":"actions-move-move"} size=small></typo3-backend-icon></button>`:h} ${this.enableDeleteRow?d`<button class="btn btn-sm btn-default" title=${this.labelRemove} @click=${()=>this.handleRemove(e)}><typo3-backend-icon identifier=actions-delete size=small></typo3-backend-icon></button>`:h}</div>`:h}</div>`}renderFormElementSelectionButton(e,t,l){return!e||!this.formElements?.length?d`${h}`:d`<typo3-form-element-selector @typo3:backend:form-editor:component:form-element-selector:selected=${i=>this.handleFormElementSelection(i,t,l)} elements=${JSON.stringify(this.formElements)} size=small></typo3-form-element-selector>`}handleFormElementSelection(e,t,l){const i=l[t];i?this.setEntryProperty(l,t,`${i} {${e.value}}`):this.setEntryProperty(l,t,`{${e.value}}`)}handleFocusOut(e){this.enableLabelAsFallbackValue&&e.value===""&&this.setEntryProperty(e,"value",e.label)}handleChange(e,t,l){const i=e.target,o=i.type==="checkbox"?i.checked:i.value;this.setEntryProperty(l,t,o)}handleRemove(e){this.entries=this.entries.filter(t=>t!==e)}handleCreate(){const e={id:"fe"+Math.floor(Math.random()*42)+Date.now(),label:"",value:"",selected:!1};this.entries=[...this.entries,e]}handleDragStart(e,t){e.stopImmediatePropagation(),this.draggedEntry=t,e.dataTransfer?.setData("text/plain","dragging"),e.dataTransfer?.setDragImage(new Image,0,0)}handleDragOver(e){e.preventDefault(),e.stopImmediatePropagation()}handleDragEnter(e,t){if(e.preventDefault(),e.stopImmediatePropagation(),!this.draggedEntry||this.draggedEntry===t)return;const l=[...this.entries],i=l.indexOf(this.draggedEntry),o=l.indexOf(t);l.splice(i,1);const r=(i<o,o);l.splice(r,0,this.draggedEntry),this.entries=l}handleDrop(e){e.preventDefault(),e.stopImmediatePropagation(),this.draggedEntry=null}handleDragEnd(e){e.stopImmediatePropagation(),this.draggedEntry=null}handleMoveClick(e,t){this.movedEntry===t?this.movedEntry=null:this.movedEntry=t}handleMoveKeyDown(e){if(this.movedEntry===null||!["ArrowDown","ArrowUp","Home","End","Enter","Space","Escape","Tab"].includes(e.code)||e.altKey||e.ctrlKey)return;e.preventDefault();let l;switch(e.code){case"Escape":case"Enter":case"Space":this.movedEntry=null;return;case"ArrowUp":l=-1;break;case"ArrowDown":l=1;break;default:return}const i=[...this.entries],o=i.indexOf(this.movedEntry),r=o+l;if(r<0||r>=i.length)return;i.splice(o,1);const c=(o<r,r);i.splice(c,0,this.movedEntry),this.entries=i,this.activeElementRef=e.target.closest("button")}setEntryProperty(e,t,l){const i=this.entries.indexOf(e);if(i===-1)return;const o={...e};if(t==="label"&&(o.label=String(l)),t==="value"&&(o.value=String(l)),t==="selected"&&(o.selected=!!l,o.selected===!0&&!this.enableMultiSelection)){this.entries=this.entries.map((r,c)=>c===i?o:{...r,selected:!1});return}this.entries=this.entries.map((r,c)=>c===i?o:r)}};a([s({type:Array,attribute:"entries"})],n.prototype,"entries",void 0),a([s({type:Array,attribute:"form-elements"})],n.prototype,"formElements",void 0),a([s({type:String,attribute:"label-label"})],n.prototype,"labelLabel",void 0),a([s({type:String,attribute:"label-value"})],n.prototype,"labelValue",void 0),a([s({type:String,attribute:"label-selected"})],n.prototype,"labelSelected",void 0),a([s({type:String,attribute:"label-add"})],n.prototype,"labelAdd",void 0),a([s({type:String,attribute:"label-remove"})],n.prototype,"labelRemove",void 0),a([s({type:String,attribute:"label-move"})],n.prototype,"labelMove",void 0),a([s({type:Boolean})],n.prototype,"enableAddRow",void 0),a([s({type:Boolean})],n.prototype,"enableDeleteRow",void 0),a([s({type:Boolean})],n.prototype,"enableSelection",void 0),a([s({type:Boolean})],n.prototype,"enableMultiSelection",void 0),a([s({type:Boolean})],n.prototype,"enableSorting",void 0),a([s({type:Boolean})],n.prototype,"enableLabelAsFallbackValue",void 0),a([s({type:Boolean})],n.prototype,"enableLabelFormElementSelectionButton",void 0),a([s({type:Boolean})],n.prototype,"enableValueFormElementSelectionButton",void 0),a([u()],n.prototype,"draggedEntry",void 0),a([u()],n.prototype,"movedEntry",void 0),n=a([y("typo3-form-property-grid-editor")],n);export{n as PropertyGridEditor,m as PropertyGridEditorUpdateEvent};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { html, LitElement, nothing } from 'lit';
+import { repeat } from 'lit/directives/repeat.js';
+import { classMap } from 'lit/directives/class-map.js';
+import { live } from 'lit/directives/live.js';
+import { customElement, property, state } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import '@typo3/form/backend/form-editor/component/form-element-selector.js';
+import { FormElementSelectorSelectedEvent } from '@typo3/form/backend/form-editor/component/form-element-selector.js';
+export class PropertyGridEditorUpdateEvent extends Event {
+    static { this.eventName = 'typo3:backend:form-editor:component:property-grid-editor:update'; }
+    constructor(data) {
+        super(PropertyGridEditorUpdateEvent.eventName);
+        this.data = data;
+    }
+}
+/**
+ * Module: @typo3/form/backend/form-editor/component/property-grid-editor
+ */
+let PropertyGridEditor = class PropertyGridEditor extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.entries = [];
+        this.formElements = [];
+        this.labelLabel = 'Label';
+        this.labelValue = 'Value';
+        this.labelSelected = 'Selected';
+        this.labelAdd = 'Add';
+        this.labelRemove = 'Remove';
+        this.labelMove = 'Move';
+        this.enableAddRow = false;
+        this.enableDeleteRow = false;
+        this.enableSelection = true;
+        this.enableMultiSelection = false;
+        this.enableSorting = false;
+        this.enableLabelAsFallbackValue = false;
+        this.enableLabelFormElementSelectionButton = false;
+        this.enableValueFormElementSelectionButton = false;
+        this.draggedEntry = null;
+        this.movedEntry = null;
+        this.activeElementRef = null;
+    }
+    createRenderRoot() {
+        return this;
+    }
+    updated(changedProperties) {
+        if (this.activeElementRef) {
+            this.activeElementRef.focus();
+            this.activeElementRef = null;
+        }
+        if (changedProperties.has('entries')) {
+            const oldEntries = changedProperties.get('entries');
+            if (oldEntries !== undefined && JSON.stringify(oldEntries) !== JSON.stringify(this.entries)) {
+                this.dispatchEvent(new PropertyGridEditorUpdateEvent(this.entries));
+            }
+        }
+    }
+    render() {
+        return html `
+      <div class="property-grid-editor">
+        ${this.entries?.length ? html `
+          <div class="property-grid-editor__entries">
+            ${repeat(this.entries, entry => entry.id, entry => this.renderEntry(entry))}
+          </div>
+        ` : nothing}
+        ${this.enableAddRow ? html `
+          <div class="property-grid-editor__actions">
+            <button
+              class="btn btn-sm btn-default"
+              title=${this.labelAdd}
+              @click=${this.handleCreate}
+            >
+              <typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>
+              <span class="btn-label">${this.labelAdd}</span>
+            </button>
+          </div>
+        ` : nothing}
+      </div>
+    `;
+    }
+    renderEntry(entry) {
+        return html `
+      <div
+        class=${classMap({ 'property-grid-editor__entry': true, moving: this.movedEntry === entry, dragging: this.draggedEntry === entry })}
+        @dragover=${(event) => this.handleDragOver(event)}
+        @dragenter=${(event) => this.handleDragEnter(event, entry)}
+        @drop=${(event) => this.handleDrop(event)}
+        @dragend=${(event) => this.handleDragEnd(event)}
+      >
+        <div class="property-grid-editor__entry-inputs">
+          <div class="form-group">
+            <label for="${entry.id}-label" class="form-label">${this.labelLabel}</label>
+            <div class="input-group form-control-wrap">
+              <input
+                id="${entry.id}-label"
+                class="form-control form-control-sm"
+                type="text"
+                @change=${(event) => this.handleChange(event, 'label', entry)}
+                @keyup=${(event) => this.handleChange(event, 'label', entry)}
+                @focusout=${() => this.handleFocusOut(entry)}
+                .value=${live(entry.label)}
+              />
+              ${this.renderFormElementSelectionButton(this.enableLabelFormElementSelectionButton, 'label', entry)}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="${entry.id}-value" class="form-label">${this.labelValue}</label>
+            <div class="input-group form-control-wrap">
+              <input
+                id="${entry.id}-value"
+                class="form-control form-control-sm"
+                type="text"
+                @change=${(event) => this.handleChange(event, 'value', entry)}
+                @keyup=${(event) => this.handleChange(event, 'value', entry)}
+                .value=${live(entry.value)}
+              />
+              ${this.renderFormElementSelectionButton(this.enableValueFormElementSelectionButton, 'value', entry)}
+            </div>
+          </div>
+          ${(this.enableSelection || this.enableMultiSelection) ? html `
+            <div class="form-check">
+              <input
+                id="${entry.id}-selected"
+                class="form-check-input"
+                type="checkbox"
+                @change=${(event) => this.handleChange(event, 'selected', entry)}
+                .checked=${live(entry.selected)}
+              />
+              <label for="${entry.id}-selected" class="form-check-label">${this.labelSelected}</label>
+            </div>
+          ` : nothing}
+        </div>
+        ${(this.enableSorting || this.enableDeleteRow) ? html `
+          <div class="property-grid-editor__entry-buttons">
+            ${this.enableSorting ? html `
+              <button
+                class="btn btn-sm btn-default"
+                title=${this.labelMove}
+                draggable="true"
+                @click=${(e) => this.handleMoveClick(e, entry)}
+                @keydown=${this.handleMoveKeyDown}
+                @dragstart=${(e) => this.handleDragStart(e, entry)}
+              >
+                <typo3-backend-icon identifier=${this.movedEntry === entry ? 'actions-thumbtack' : 'actions-move-move'} size="small"></typo3-backend-icon>
+              </button>
+            ` : nothing}
+            ${this.enableDeleteRow ? html `
+              <button
+                class="btn btn-sm btn-default"
+                title=${this.labelRemove}
+                @click=${() => this.handleRemove(entry)}
+              >
+                <typo3-backend-icon identifier="actions-delete" size="small"></typo3-backend-icon>
+              </button>
+            ` : nothing}
+          </div>
+        ` : nothing}
+      </div>
+    `;
+    }
+    renderFormElementSelectionButton(enabled, property, entry) {
+        if (!enabled || !this.formElements?.length) {
+            return html `${nothing}`;
+        }
+        return html `
+      <typo3-form-element-selector @typo3:backend:form-editor:component:form-element-selector:selected=${(e) => this.handleFormElementSelection(e, property, entry)} elements=${JSON.stringify(this.formElements)} size="small"></typo3-form-element-selector>
+    `;
+    }
+    handleFormElementSelection(event, property, entry) {
+        const currentValue = entry[property];
+        if (currentValue) {
+            this.setEntryProperty(entry, property, `${currentValue} {${event.value}}`);
+        }
+        else {
+            this.setEntryProperty(entry, property, `{${event.value}}`);
+        }
+    }
+    handleFocusOut(entry) {
+        if (this.enableLabelAsFallbackValue && entry.value === '') {
+            this.setEntryProperty(entry, 'value', entry.label);
+        }
+    }
+    handleChange(event, property, entry) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        this.setEntryProperty(entry, property, value);
+    }
+    handleRemove(entry) {
+        this.entries = this.entries.filter(item => item !== entry);
+    }
+    handleCreate() {
+        const newEntry = {
+            id: 'fe' + Math.floor(Math.random() * 42) + Date.now(),
+            label: '',
+            value: '',
+            selected: false,
+        };
+        this.entries = [...this.entries, newEntry];
+    }
+    handleDragStart(event, entry) {
+        event.stopImmediatePropagation();
+        this.draggedEntry = entry;
+        event.dataTransfer?.setData('text/plain', 'dragging');
+        event.dataTransfer?.setDragImage(new Image(), 0, 0);
+    }
+    handleDragOver(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+    handleDragEnter(event, targetEntry) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!this.draggedEntry || this.draggedEntry === targetEntry) {
+            return;
+        }
+        const entriesCopy = [...this.entries];
+        const fromIndex = entriesCopy.indexOf(this.draggedEntry);
+        const toIndex = entriesCopy.indexOf(targetEntry);
+        entriesCopy.splice(fromIndex, 1);
+        const insertIndex = fromIndex < toIndex ? toIndex : toIndex;
+        entriesCopy.splice(insertIndex, 0, this.draggedEntry);
+        this.entries = entriesCopy;
+    }
+    handleDrop(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        this.draggedEntry = null;
+    }
+    handleDragEnd(event) {
+        event.stopImmediatePropagation();
+        this.draggedEntry = null;
+    }
+    handleMoveClick(event, entry) {
+        if (this.movedEntry === entry) {
+            this.movedEntry = null;
+        }
+        else {
+            this.movedEntry = entry;
+        }
+    }
+    handleMoveKeyDown(event) {
+        if (this.movedEntry === null) {
+            return;
+        }
+        const handledKeys = [
+            'ArrowDown',
+            'ArrowUp',
+            'Home',
+            'End',
+            'Enter',
+            'Space',
+            'Escape',
+            'Tab',
+        ];
+        if (!handledKeys.includes(event.code) || event.altKey || event.ctrlKey) {
+            return;
+        }
+        event.preventDefault();
+        let direction;
+        switch (event.code) {
+            case 'Escape':
+            case 'Enter':
+            case 'Space':
+                this.movedEntry = null;
+                return;
+            case 'ArrowUp':
+                direction = -1;
+                break;
+            case 'ArrowDown':
+                direction = 1;
+                break;
+            default:
+                return;
+        }
+        const entriesCopy = [...this.entries];
+        const fromIndex = entriesCopy.indexOf(this.movedEntry);
+        const toIndex = fromIndex + direction;
+        if (toIndex < 0 || toIndex >= entriesCopy.length) {
+            return;
+        }
+        entriesCopy.splice(fromIndex, 1);
+        const insertIndex = fromIndex < toIndex ? toIndex : toIndex;
+        entriesCopy.splice(insertIndex, 0, this.movedEntry);
+        this.entries = entriesCopy;
+        this.activeElementRef = event.target.closest('button');
+    }
+    setEntryProperty(entry, property, value) {
+        const index = this.entries.indexOf(entry);
+        if (index === -1) {
+            return;
+        }
+        const updatedEntry = { ...entry };
+        if (property === 'label') {
+            updatedEntry.label = String(value);
+        }
+        if (property === 'value') {
+            updatedEntry.value = String(value);
+        }
+        if (property === 'selected') {
+            updatedEntry.selected = !!value;
+            if (updatedEntry.selected === true && !this.enableMultiSelection) {
+                // Deselect others
+                this.entries = this.entries.map((item, i) => i === index ? updatedEntry : { ...item, selected: false });
+                return;
+            }
+        }
+        this.entries = this.entries.map((item, i) => (i === index ? updatedEntry : item));
+    }
+};
+__decorate([
+    property({ type: Array, attribute: 'entries' })
+], PropertyGridEditor.prototype, "entries", void 0);
+__decorate([
+    property({ type: Array, attribute: 'form-elements' })
+], PropertyGridEditor.prototype, "formElements", void 0);
+__decorate([
+    property({ type: String, attribute: 'label-label' })
+], PropertyGridEditor.prototype, "labelLabel", void 0);
+__decorate([
+    property({ type: String, attribute: 'label-value' })
+], PropertyGridEditor.prototype, "labelValue", void 0);
+__decorate([
+    property({ type: String, attribute: 'label-selected' })
+], PropertyGridEditor.prototype, "labelSelected", void 0);
+__decorate([
+    property({ type: String, attribute: 'label-add' })
+], PropertyGridEditor.prototype, "labelAdd", void 0);
+__decorate([
+    property({ type: String, attribute: 'label-remove' })
+], PropertyGridEditor.prototype, "labelRemove", void 0);
+__decorate([
+    property({ type: String, attribute: 'label-move' })
+], PropertyGridEditor.prototype, "labelMove", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableAddRow", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableDeleteRow", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableSelection", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableMultiSelection", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableSorting", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableLabelAsFallbackValue", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableLabelFormElementSelectionButton", void 0);
+__decorate([
+    property({ type: Boolean })
+], PropertyGridEditor.prototype, "enableValueFormElementSelectionButton", void 0);
+__decorate([
+    state()
+], PropertyGridEditor.prototype, "draggedEntry", void 0);
+__decorate([
+    state()
+], PropertyGridEditor.prototype, "movedEntry", void 0);
+PropertyGridEditor = __decorate([
+    customElement('typo3-form-property-grid-editor')
+], PropertyGridEditor);
+export { PropertyGridEditor };

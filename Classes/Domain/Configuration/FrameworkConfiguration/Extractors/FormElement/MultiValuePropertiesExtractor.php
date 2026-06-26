@@ -38,6 +38,16 @@ class MultiValuePropertiesExtractor extends AbstractExtractor
             && $value !== 'Inspector-CountrySelectEditor'
             && $value !== 'Inspector-ValidationErrorMessageEditor'
             && $value !== 'Inspector-RequiredValidatorEditor'
+            // WapplerSystems fork: the variants editor's propertyPath ("variants")
+            // is registered as a multi-value prefix so every nested variant path
+            // (variants.<n>.condition, variants.<n>.renderingOptions.enabled,
+            // variants.<n>.validators.<n>.identifier, …) survives the editor save.
+            && $value !== 'Inspector-VariantsEditor'
+            // WapplerSystems fork: the translation editor's propertyPath
+            // ("renderingOptions.translation.overrides") as a multi-value prefix, so
+            // every per-language override (….<lang>.label / .placeholder / .options.*)
+            // survives the editor save.
+            && $value !== 'Inspector-TranslationEditor'
         ) {
             return;
         }

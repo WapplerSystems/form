@@ -10,4 +10,47 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import{LitElement as f,html as c}from"lit";import{property as s,customElement as g}from"lit/decorators.js";import u from"~labels/form.form_editor_javascript";var a=function(o,e,r,p){var i=arguments.length,t=i<3?e:p===null?p=Object.getOwnPropertyDescriptor(e,r):p,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(o,e,r,p);else for(var m=o.length-1;m>=0;m--)(l=o[m])&&(t=(i<3?l(t):i>3?l(e,r,t):l(e,r))||t);return i>3&&t&&Object.defineProperty(e,r,t),t};let n=class extends f{constructor(){super(...arguments),this.pageTitle=""}createRenderRoot(){return this}render(){const e=this.pageTitle||u.get("formEditor.step.name.empty");return c`<h2 class=formeditor-page-title>${e}</h2>`}};a([s({type:String,attribute:"page-title"})],n.prototype,"pageTitle",void 0),n=a([g("typo3-form-page-stage-item")],n);export{n as PageStageItem};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { html, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import labels from '~labels/form.form_editor_javascript';
+/**
+ * Module: @typo3/form/backend/form-editor/component/page-stage-item
+ *
+ * Functionality for the page stage item element (top-level form elements)
+ *
+ * @example
+ * <typo3-form-page-stage-item
+ *   page-title="Step 1">
+ * </typo3-form-page-stage-item>
+ */
+let PageStageItem = class PageStageItem extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.pageTitle = '';
+    }
+    createRenderRoot() {
+        // Avoid Shadow DOM so global styles apply to the element contents
+        return this;
+    }
+    render() {
+        const displayTitle = this.pageTitle || labels.get('formEditor.step.name.empty');
+        return html `
+      <h2 class="formeditor-page-title">
+        ${displayTitle}
+      </h2>
+    `;
+    }
+};
+__decorate([
+    property({ type: String, attribute: 'page-title' })
+], PageStageItem.prototype, "pageTitle", void 0);
+PageStageItem = __decorate([
+    customElement('typo3-form-page-stage-item')
+], PageStageItem);
+export { PageStageItem };

@@ -10,4 +10,21 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-const e={NODE_CLICKED:"typo3:form-editor-tree:node-clicked",NODE_EDIT:"typo3:form-editor-tree:node-edit",NODE_DELETE:"typo3:form-editor-tree:node-delete",DND_UPDATE:"typo3:form-editor-tree:dnd-update",DND_CHANGE:"typo3:form-editor-tree:dnd-change"};export{e as FORM_EDITOR_TREE_EVENTS};
+/**
+ * Form Editor Tree Event Names
+ *
+ * Centralized event name constants to prevent typos and enable
+ * type-safe event handling across the tree component and adapter.
+ */
+export const FORM_EDITOR_TREE_EVENTS = {
+    /** Dispatched when a tree node is clicked/selected */
+    NODE_CLICKED: 'typo3:form-editor-tree:node-clicked',
+    /** Dispatched when a tree node is double-clicked for editing */
+    NODE_EDIT: 'typo3:form-editor-tree:node-edit',
+    /** Dispatched when a tree node is requested to be deleted */
+    NODE_DELETE: 'typo3:form-editor-tree:node-delete',
+    /** Dispatched when a node is reordered within the same parent */
+    DND_UPDATE: 'typo3:form-editor-tree:dnd-update',
+    /** Dispatched when a node is moved to a different parent */
+    DND_CHANGE: 'typo3:form-editor-tree:dnd-change',
+};

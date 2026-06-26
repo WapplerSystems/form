@@ -84,12 +84,29 @@ prototypes:
                       20: FormElementIdentifierWithinCurlyBracesInclusive
                   250:
                     identifier: message
-                    templateName: Inspector-TextareaEditor
+                    templateName: Inspector-EmailContentEditor
                     label: formEditor.elements.Form.finisher.EmailToSender.editor.message.label
                     propertyPath: options.message
+                    plainMessagePropertyPath: options.plainMessage
+                    templateNamePropertyPath: options.templateName
+                    editButtonLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.editButton
+                    modalTitle: formEditor.elements.Form.finisher.Email.editor.emailContent.modalTitle
+                    templateLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.template
+                    htmlTabLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.tab.html
+                    plainTabLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.tab.plain
+                    previewTabLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.tab.preview
+                    refreshPreviewLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.refreshPreview
+                    closeLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.close
+                    plainHintLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.plainHint
+                    insertMarkerLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.insertMarker
+                    allValuesMarkerLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.allValuesMarker
                     description: formEditor.elements.Form.finisher.EmailToSender.editor.message.description
                     enableRichtext: true
                     richtextConfiguration: form-content
+                    plainMessageConfig:
+                      propertyPath: options.plainMessage
+                    templateNameConfig:
+                      propertyPath: options.templateName
                   350:
                     identifier: recipients
                     templateName: Inspector-PropertyGridEditor
@@ -238,12 +255,29 @@ prototypes:
                       20: FormElementIdentifierWithinCurlyBracesInclusive
                   250:
                     identifier: message
-                    templateName: Inspector-TextareaEditor
+                    templateName: Inspector-EmailContentEditor
                     label: formEditor.elements.Form.finisher.EmailToReceiver.editor.message.label
                     propertyPath: options.message
+                    plainMessagePropertyPath: options.plainMessage
+                    templateNamePropertyPath: options.templateName
+                    editButtonLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.editButton
+                    modalTitle: formEditor.elements.Form.finisher.Email.editor.emailContent.modalTitle
+                    templateLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.template
+                    htmlTabLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.tab.html
+                    plainTabLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.tab.plain
+                    previewTabLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.tab.preview
+                    refreshPreviewLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.refreshPreview
+                    closeLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.close
+                    plainHintLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.plainHint
+                    insertMarkerLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.insertMarker
+                    allValuesMarkerLabel: formEditor.elements.Form.finisher.Email.editor.emailContent.allValuesMarker
                     description: formEditor.elements.Form.finisher.EmailToReceiver.editor.message.description
                     enableRichtext: true
                     richtextConfiguration: form-content
+                    plainMessageConfig:
+                      propertyPath: options.plainMessage
+                    templateNameConfig:
+                      propertyPath: options.templateName
                   350:
                     identifier: recipients
                     templateName: Inspector-PropertyGridEditor
