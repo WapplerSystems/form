@@ -27,7 +27,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Form\Mvc\Configuration\ConfigurationManagerInterface as ExtFormConfigurationManagerInterface;
 use TYPO3\CMS\Form\Service\FormDefinitionMigrationService;
 // WapplerSystems fork additions:
-use TYPO3\CMS\Form\WapplerSystems\Event\AfterYamlConfigurationLoadedEvent;
+use TYPO3\CMS\Form\Event\AfterYamlConfigurationLoadedEvent;
 
 /**
  * Extend the ExtbaseConfigurationManager to read YAML configurations.

@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
-use TYPO3\CMS\Form\WapplerSystems\Event\AfterDatabaseRecordPersistedEvent;
+use TYPO3\CMS\Form\Event\AfterDatabaseRecordPersistedEvent;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 
 /**

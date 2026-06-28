@@ -43,7 +43,7 @@ use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\TypeConverter\AbstractTypeConverter;
 use TYPO3\CMS\Form\Mvc\Property\Exception\TypeConverterException;
 use TYPO3\CMS\Form\Security\HashScope;
-use TYPO3\CMS\Form\WapplerSystems\Event\AfterFileUploadedEvent;
+use TYPO3\CMS\Form\Event\AfterFileUploadedEvent;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Form\Slot\ResourcePublicationSlot;
 

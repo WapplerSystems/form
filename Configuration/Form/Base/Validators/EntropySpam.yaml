@@ -1,0 +1,11 @@
+prototypes:
+  standard:
+    validatorsDefinition:
+      EntropySpam:
+        implementationClassName: TYPO3\CMS\Form\Validation\EntropySpamValidator
+        options:
+          minimumEntropy: 1.8
+          maximumEntropy: 5.8
+          textFieldIdentifiers: []
+          minimumLength: 20
+          errorMessage: 'Your submission could not be accepted. Please rephrase and try again.'

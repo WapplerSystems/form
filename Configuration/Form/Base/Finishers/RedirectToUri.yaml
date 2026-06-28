@@ -1,0 +1,12 @@
+prototypes:
+  standard:
+    finishersDefinition:
+      RedirectToUri:
+        implementationClassName: TYPO3\CMS\Form\Domain\Finishers\RedirectToUriFinisher
+        formEditor:
+          iconIdentifier: form-finisher
+          label: 'Redirect to URI'
+          predefinedDefaults:
+            options:
+              uri: ''
+              statusCode: 303

@@ -34,8 +34,8 @@ use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Event\BeforeEmailFinisherInitializedEvent;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
 // WapplerSystems fork additions:
-use TYPO3\CMS\Form\WapplerSystems\Event\AfterMailSentEvent;
-use TYPO3\CMS\Form\WapplerSystems\Event\MailBeforeSendingEvent;
+use TYPO3\CMS\Form\Event\AfterMailSentEvent;
+use TYPO3\CMS\Form\Event\MailBeforeSendingEvent;
 
 /**
  * This finisher sends an email to one recipient

@@ -16,11 +16,11 @@ imports:
   - { resource: 'EXT:form/Configuration/Form/Base/Validators/DateRange.yaml' }
 
   # WapplerSystems fork additions
-  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Validators/EntropySpam.yaml' }
-  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/FormElements/Time.yaml' }
-  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/RedirectToUri.yaml' }
-  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/FeUser.yaml' }
-  - { resource: 'EXT:form/Configuration/Form/WapplerSystems/Finishers/AttachUploadsToObject.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/EntropySpam.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Time.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/RedirectToUri.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/FeUser.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/AttachUploadsToObject.yaml' }
 
   # Form elements
   - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Form.yaml' }

@@ -152,9 +152,9 @@ npm run build      # tsc → rewrite-imports → deploy
 
 ### Fork-added PSR-14 events
 
-All fork-added events live in `TYPO3\CMS\Form\WapplerSystems\Event\` and are dispatched
-from patched upstream call-sites. They do not overlap with the events shipped by upstream
-EXT:form under `TYPO3\CMS\Form\Event\`.
+All fork-added events live in `TYPO3\CMS\Form\Event\`, alongside the events shipped by
+upstream EXT:form, and are dispatched from patched upstream call-sites. Their class names
+are distinct from the upstream ones, so the two sets never collide.
 
 | Event | Fired from | Carries | Use-case |
 | --- | --- | --- | --- |
@@ -234,15 +234,15 @@ serializes the rule tree to an ExpressionLanguage condition and parses existing 
 
 | Element | Class | Notes |
 | --- | --- | --- |
-| `Time` | `TYPO3\CMS\Form\WapplerSystems\Domain\Model\FormElements\Time` | HTML5 `<input type="time">`. Backed by `\DateTimeImmutable` parsed with format `H:i`; the date portion is "today" — only the time portion is meaningful. Fills a real gap (core ships `Date` but no `Time`). |
+| `Time` | `TYPO3\CMS\Form\Domain\Model\FormElements\Time` | HTML5 `<input type="time">`. Backed by `\DateTimeImmutable` parsed with format `H:i`; the date portion is "today" — only the time portion is meaningful. Fills a real gap (core ships `Date` but no `Time`). |
 
 ### Finishers added on top of upstream
 
 | Identifier | Class | Purpose |
 | --- | --- | --- |
-| `RedirectToUri` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\RedirectToUriFinisher` | Redirect to **any** URI (external too). Core's `Redirect` only handles TYPO3 pages via t3-page IDs. Options: `uri`, `statusCode` (default 303). |
-| `FeUser` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\FeUserFinisher` | Insert/update `fe_users` rows from form values. Built on core's `SaveToDatabase`. Per-element `hashPassword: true` runs the value through `PasswordHashFactory::getDefaultHashInstance('FE')`. Requires `pid` option for the storage page. |
-| `AttachUploadsToObject` | `TYPO3\CMS\Form\WapplerSystems\Domain\Finishers\AttachUploadsToObjectFinisher` | Attaches uploaded files to an arbitrary DB record via new `sys_file_reference` rows. Pair with `SaveToDatabase` and reference the inserted UID via `{SaveToDatabase.insertedUids.<index>}`. Rebuild of the legacy form_extended finisher: direct ConnectionPool inserts, no fake backend user, no `bypassAccessCheck` hack, supports multiple files per element. |
+| `RedirectToUri` | `TYPO3\CMS\Form\Domain\Finishers\RedirectToUriFinisher` | Redirect to **any** URI (external too). Core's `Redirect` only handles TYPO3 pages via t3-page IDs. Options: `uri`, `statusCode` (default 303). |
+| `FeUser` | `TYPO3\CMS\Form\Domain\Finishers\FeUserFinisher` | Insert/update `fe_users` rows from form values. Built on core's `SaveToDatabase`. Per-element `hashPassword: true` runs the value through `PasswordHashFactory::getDefaultHashInstance('FE')`. Requires `pid` option for the storage page. |
+| `AttachUploadsToObject` | `TYPO3\CMS\Form\Domain\Finishers\AttachUploadsToObjectFinisher` | Attaches uploaded files to an arbitrary DB record via new `sys_file_reference` rows. Pair with `SaveToDatabase` and reference the inserted UID via `{SaveToDatabase.insertedUids.<index>}`. Rebuild of the legacy form_extended finisher: direct ConnectionPool inserts, no fake backend user, no `bypassAccessCheck` hack, supports multiple files per element. |
 
 > **Conditional finishers via variants** (replaces the removed `CopyToSenderEmail`): any
 > finisher can carry a `variants` list inside its `options`, each entry being
@@ -256,13 +256,13 @@ serializes the rule tree to an ExpressionLanguage condition and parses existing 
 
 | Helper | Class | Use case |
 | --- | --- | --- |
-| `<formvh:remoteAddress />` | `TYPO3\CMS\Form\WapplerSystems\ViewHelpers\RemoteAddressViewHelper` | Renders client IP via `GeneralUtility::getIndpEnv('REMOTE_ADDR')` (respects trusted-proxy config). Useful for audit-trailing email finishers / confirmation pages. |
-| `<formvh:translate />` | `TYPO3\CMS\Form\WapplerSystems\ViewHelpers\TranslateViewHelper` | Form-aware translation wrapper that hits `TYPO3\CMS\Form\Service\TranslationService` (with its form-element overlay logic) instead of `LocalizationUtility`. Use inside form-rendering templates; outside use Fluid's `f:translate`. |
+| `<formvh:remoteAddress />` | `TYPO3\CMS\Form\ViewHelpers\RemoteAddressViewHelper` | Renders client IP via `GeneralUtility::getIndpEnv('REMOTE_ADDR')` (respects trusted-proxy config). Useful for audit-trailing email finishers / confirmation pages. |
+| `<formvh:translate />` | `TYPO3\CMS\Form\ViewHelpers\TranslateViewHelper` | Form-aware translation wrapper that hits `TYPO3\CMS\Form\Service\TranslationService` (with its form-element overlay logic) instead of `LocalizationUtility`. Use inside form-rendering templates; outside use Fluid's `f:translate`. |
 
 ### Cross-field (form-level) validators
 
 Validators that need access to more than a single field's value implement
-`TYPO3\CMS\Form\WapplerSystems\Validation\FormAwareValidatorInterface` (or extend
+`TYPO3\CMS\Form\Validation\FormAwareValidatorInterface` (or extend
 `AbstractFormAwareValidator`). They are declared on the form root, not on an individual
 element:
 
@@ -338,7 +338,7 @@ form.featureSiteEmail = 1
 After flushing caches and updating the schema, a new "Form senders" group appears in each
 site's BE configuration with `email` and `name` fields per entry.
 
-Architecture (all classes under `TYPO3\CMS\Form\WapplerSystems\…`):
+Architecture (classes follow the standard `TYPO3\CMS\Form\…` layout):
 
 - `Configuration/SiteConfiguration/site_sender.php` — TCA for the sub-site-entity with
   `email` and `name` columns.
@@ -396,7 +396,7 @@ ORDER BY hits DESC;
 ```
 
 **Periodic cleanup.** A native TYPO3 v14 scheduler task ships with the fork:
-`TYPO3\CMS\Form\WapplerSystems\Task\CleanupValidationLogTask`. Configure it in
+`TYPO3\CMS\Form\Task\CleanupValidationLogTask`. Configure it in
 `Administration → Scheduler → Create task` and select **Form: clean up validation log**.
 The `tx_form_retention_days` TCA field controls how old rows must be before deletion
 (default 90 days, range 1–3650). Schedule it daily for production sites with active
@@ -443,10 +443,12 @@ commits up to that tag and adjust the `branch-alias` in `composer.json`.
 
 ### Conventions for additions
 
-- Code added on top of upstream **must live in a separate subnamespace** —
-  `\TYPO3\CMS\Form\WapplerSystems\…` — so future upstream cherry-picks never touch our
-  files. The PSR-4 prefix stays `\TYPO3\CMS\Form\` because we *are* the `form` extension;
-  the WapplerSystems-only subdir is just an organizational convention.
+- Code added on top of upstream lives in the **standard `\TYPO3\CMS\Form\…` layout**,
+  mirroring upstream's own directory structure (`Event/`, `Validation/`, `Domain/Finishers/`, …).
+  Fork-added classes use **distinct class names** so they never collide with upstream files,
+  and an eventual switch to an official package stays painless. The trade-off vs. a separate
+  subnamespace: upstream cherry-picks can land in the same directories, so watch for conflicts
+  when syncing.
 - Every public API surface we add gets a PSR-14 event so downstream extensions (including
   `wapplersystems/form_extended` during the migration period) can consume it.
 - New editor UI is implemented through the form editor's existing extension points

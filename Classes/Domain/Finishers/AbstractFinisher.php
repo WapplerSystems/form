@@ -34,8 +34,8 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\StringableFormElementInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Service\TranslationService;
 // WapplerSystems fork additions:
-use TYPO3\CMS\Form\WapplerSystems\Event\AfterFinisherExecutedEvent;
-use TYPO3\CMS\Form\WapplerSystems\Event\BeforeFinisherExecutedEvent;
+use TYPO3\CMS\Form\Event\AfterFinisherExecutedEvent;
+use TYPO3\CMS\Form\Event\BeforeFinisherExecutedEvent;
 
 /**
  * Finisher base class.

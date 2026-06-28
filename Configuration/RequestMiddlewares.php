@@ -8,7 +8,7 @@ declare(strict_types=1);
  * so any entry here is fork-added. Document each entry inline.
  */
 
-use TYPO3\CMS\Form\WapplerSystems\Middleware\PasswordPolicyEndpoint;
+use TYPO3\CMS\Form\Middleware\PasswordPolicyEndpoint;
 
 return [
     'frontend' => [

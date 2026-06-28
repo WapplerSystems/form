@@ -42,7 +42,7 @@ services:
   # WapplerSystems fork: site-sender feature — decorate the core
   # FormDataProviders so the BE Site Configuration module knows about
   # `site_sender` as an additional inline child table.
-  TYPO3\CMS\Form\WapplerSystems\Form\FormDataProvider\SiteTcaInline:
+  TYPO3\CMS\Form\Form\FormDataProvider\SiteTcaInline:
     decorates: TYPO3\CMS\Backend\Form\FormDataProvider\SiteTcaInline
-  TYPO3\CMS\Form\WapplerSystems\Form\FormDataProvider\SiteDatabaseEditRow:
+  TYPO3\CMS\Form\Form\FormDataProvider\SiteDatabaseEditRow:
     decorates: TYPO3\CMS\Backend\Form\FormDataProvider\SiteDatabaseEditRow
