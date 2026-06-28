@@ -38,6 +38,20 @@ benefit from more depth:
 
 ## New features
 
+### Screenshots
+
+The fork's backend editor, shown here with the German interface language (labels
+are shipped in `Resources/Private/Language/de.Database.xlf`):
+
+| | |
+| --- | --- |
+| ![Inspector: variants & conditions and in-editor translation](Documentation/Images/01-inspector-variants-translations-de.png) | ![Whole-form translation overview](Documentation/Images/02-whole-form-translation-de.png) |
+| Variants & conditions plus per-element and whole-form translation, right in the inspector. | The whole-form translation matrix (every translatable string × every site language). |
+| ![E-mail content editor – HTML body](Documentation/Images/03-email-content-html-de.png) | ![E-mail content editor – plain text](Documentation/Images/04-email-content-plaintext-de.png) |
+| Rich-text **HTML** body of an e-mail finisher, with field-marker insertion. | Separate **plain-text** body (left empty it is derived from the HTML automatically). |
+| ![E-mail content editor – preview](Documentation/Images/05-email-content-preview-de.png) | ![Visual condition builder](Documentation/Images/06-condition-builder-de.png) |
+| Server-rendered **preview** (real Fluid e-mail layout, filled with sample values) and a test-send action. | The visual **condition builder** with a live expression preview. |
+
 ### Backend editor
 
 - **Variant / condition editor** — Variants (conditions) are editable directly in the
