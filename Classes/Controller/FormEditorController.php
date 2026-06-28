@@ -153,6 +153,38 @@ class FormEditorController extends ActionController
             label: $formDefinition['label'],
             icon: 'content-form',
         ));
+        // WapplerSystems fork: server-resolved labels for the editor JavaScript
+        // (variants, condition builder, email content, translations). Delivered via
+        // TYPO3.settings.FormEditor.labels and localized through Database.xlf /
+        // de.Database.xlf, so the editor UI follows the backend user's language.
+        $ll = fn(string $key): string => (string)$this->getLanguageService()->sL(
+            'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.js.' . $key
+        );
+        $jsLabelKeys = [
+            'conditionBuilder.title', 'conditionBuilder.cancel', 'conditionBuilder.apply',
+            'conditionBuilder.addRule', 'conditionBuilder.addGroup', 'conditionBuilder.removeGroup',
+            'conditionBuilder.removeRule', 'conditionBuilder.value', 'conditionBuilder.fieldPlaceholder',
+            'conditionBuilder.valuePlaceholder', 'conditionBuilder.and', 'conditionBuilder.or',
+            'conditionBuilder.unparsed', 'conditionBuilder.alwaysTrue',
+            'conditionBuilder.op.eq', 'conditionBuilder.op.neq', 'conditionBuilder.op.lt',
+            'conditionBuilder.op.lte', 'conditionBuilder.op.gt', 'conditionBuilder.op.gte',
+            'conditionBuilder.op.in', 'conditionBuilder.op.notIn',
+            'variants.add', 'variants.variantPrefix', 'variants.build',
+            'variants.conditionPlaceholder', 'variants.requiredWhen',
+            'email.editButton', 'email.html', 'email.plainText', 'email.templatePrefix',
+            'email.plainLabel', 'email.plainCustom', 'email.plainAuto', 'email.sendTest',
+            'email.loadingPreview', 'email.testTitle', 'email.testEndpointUnavailable',
+            'email.testSent', 'email.testFailed',
+            'translation.edit', 'translation.editWholeForm', 'translation.translationsLabel',
+            'translation.completenessLabel', 'translation.noLanguages', 'translation.elementNothing',
+            'translation.field', 'translation.modalTitle', 'translation.formModalTitle',
+            'translation.nothingHere', 'translation.noLanguagesForSite',
+            'common.close',
+        ];
+        $jsLabels = [];
+        foreach ($jsLabelKeys as $jsLabelKey) {
+            $jsLabels[$jsLabelKey] = $ll($jsLabelKey);
+        }
         $addInlineSettings = [
             'FormEditor' => [
                 'typo3WinBrowserUrl' => (string)$this->coreUriBuilder->buildUriFromRoute('wizard_element_browser'),
@@ -164,6 +196,8 @@ class FormEditorController extends ActionController
                 'dateEditor' => [
                     'absolutePattern' => DateRangeValidatorPatterns::RFC3339_FULL_DATE,
                 ],
+                // WapplerSystems fork: localized labels for hardcoded editor JS strings
+                'labels' => $jsLabels,
             ],
         ];
         $addInlineSettings = array_replace_recursive(

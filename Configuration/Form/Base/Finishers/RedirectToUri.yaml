@@ -5,7 +5,7 @@ prototypes:
         implementationClassName: TYPO3\CMS\Form\Domain\Finishers\RedirectToUriFinisher
         formEditor:
           iconIdentifier: form-finisher
-          label: 'Redirect to URI'
+          label: formEditor.elements.Form.finisher.RedirectToUri.editor.header.label
           predefinedDefaults:
             options:
               uri: ''

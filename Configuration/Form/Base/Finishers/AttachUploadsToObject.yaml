@@ -5,7 +5,7 @@ prototypes:
         implementationClassName: TYPO3\CMS\Form\Domain\Finishers\AttachUploadsToObjectFinisher
         formEditor:
           iconIdentifier: form-finisher
-          label: 'Attach uploads to a database record (FAL)'
+          label: formEditor.elements.Form.finisher.AttachUploadsToObject.editor.header.label
           predefinedDefaults:
             options:
               elements: {}

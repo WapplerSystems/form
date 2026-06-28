@@ -24,6 +24,16 @@ const ckeditor = await import('@typo3/rte-ckeditor/ckeditor5.js').catch(() => nu
 import '@typo3/form/backend/form-editor/component/date-editor.js';
 import { DateEditorChangeEvent } from '@typo3/form/backend/form-editor/component/date-editor.js';
 import { FormElementSelectorSelectedEvent } from '@typo3/form/backend/form-editor/component/form-element-selector.js';
+/**
+ * WapplerSystems fork: resolve a localized editor label delivered server-side via
+ * TYPO3.settings.FormEditor.labels (Database.xlf / de.Database.xlf). Falls back to
+ * the English literal when the label bag or key is unavailable.
+ */
+function lll(key, fallback) {
+    const labels = TYPO3?.settings?.FormEditor?.labels;
+    const value = labels && labels[key];
+    return typeof value === 'string' && value.length > 0 ? value : fallback;
+}
 const defaultConfiguration = {
     domElementClassNames: {
         buttonFormElementRemove: 'formeditor-inspector-element-remove-button',
@@ -1477,7 +1487,7 @@ export function renderVariantsEditor(editorConfiguration, editorHtml, collection
     const addButton = editorHtml.querySelector('[data-identifier="variantsAddButton"]');
     const addButtonLabelEl = editorHtml.querySelector('[data-template-property="addButtonLabel"]');
     if (addButtonLabelEl) {
-        addButtonLabelEl.append(document.createTextNode('Add variant'));
+        addButtonLabelEl.append(document.createTextNode(lll('variants.add', 'Add variant')));
     }
     if (!container) {
         return;
@@ -1505,7 +1515,7 @@ export function renderVariantsEditor(editorConfiguration, editorHtml, collection
         heading.style.justifyContent = 'space-between';
         heading.style.alignItems = 'center';
         const title = document.createElement('strong');
-        title.append(document.createTextNode('Variant ' + (index + 1)));
+        title.append(document.createTextNode(lll('variants.variantPrefix', 'Variant') + ' ' + (index + 1)));
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
         removeButton.className = 'btn btn-link btn-sm';
@@ -1524,7 +1534,7 @@ export function renderVariantsEditor(editorConfiguration, editorHtml, collection
         conditionInput.type = 'text';
         conditionInput.className = 'form-control';
         conditionInput.value = variant.condition ?? '';
-        conditionInput.placeholder = 'e.g. traverse(formValues, "fieldId") == 1';
+        conditionInput.placeholder = lll('variants.conditionPlaceholder', 'e.g. traverse(formValues, "fieldId") == 1');
         const writeCondition = function () {
             if (this.value === '') {
                 formElement.unset(base + '.condition');
@@ -1541,7 +1551,7 @@ export function renderVariantsEditor(editorConfiguration, editorHtml, collection
         const buildButton = document.createElement('button');
         buildButton.type = 'button';
         buildButton.className = 'btn btn-default';
-        buildButton.append(document.createTextNode('Build…'));
+        buildButton.append(document.createTextNode(lll('variants.build', 'Build…')));
         buildButton.addEventListener('click', () => {
             openConditionBuilderModal({
                 initialExpression: conditionInput.value,
@@ -1588,7 +1598,7 @@ export function renderVariantsEditor(editorConfiguration, editorHtml, collection
         requiredInput.checked = hasRequired;
         const requiredLabel = document.createElement('label');
         requiredLabel.className = 'form-check-label';
-        requiredLabel.append(document.createTextNode('Required when condition matches'));
+        requiredLabel.append(document.createTextNode(lll('variants.requiredWhen', 'Required when condition matches')));
         requiredInput.addEventListener('change', function () {
             const variants = getVariants();
             const current = variants[index] ?? {};
@@ -1716,7 +1726,7 @@ export function renderEmailContentEditor(editorConfiguration, editorHtml, collec
     renderDescription(editorConfiguration, editorHtml);
     const editButtonLabelEl = editorHtml.querySelector('[data-template-property="editButtonLabel"]');
     if (editButtonLabelEl) {
-        editButtonLabelEl.append(document.createTextNode(editorConfiguration.editButtonLabel ?? 'Edit email content'));
+        editButtonLabelEl.append(document.createTextNode(editorConfiguration.editButtonLabel ?? lll('email.editButton', 'Edit email content')));
     }
     const formElement = getCurrentlySelectedFormElement();
     const app = getFormEditorApp();
@@ -1735,7 +1745,7 @@ export function renderEmailContentEditor(editorConfiguration, editorHtml, collec
         }
         const templateName = formElement.get(templatePath) || Object.keys(availableTemplates)[0] || 'Default';
         const hasPlain = typeof formElement.get(plainPath) === 'string' && formElement.get(plainPath) !== '';
-        summaryEl.textContent = 'Template: ' + templateName + ' · plain text: ' + (hasPlain ? 'custom' : 'auto (from HTML)');
+        summaryEl.textContent = lll('email.templatePrefix', 'Template') + ': ' + templateName + ' · ' + lll('email.plainLabel', 'plain text') + ': ' + (hasPlain ? lll('email.plainCustom', 'custom') : lll('email.plainAuto', 'auto (from HTML)'));
     };
     updateSummary();
     const labels = {
@@ -2046,14 +2056,14 @@ function openEmailContentModal(options) {
     refreshButton.className = 'btn btn-default btn-sm';
     refreshButton.append(document.createTextNode(labels.refreshPreview));
     const previewHtmlHeading = document.createElement('h5');
-    previewHtmlHeading.append(document.createTextNode('HTML'));
+    previewHtmlHeading.append(document.createTextNode(lll('email.html', 'HTML')));
     const previewFrame = document.createElement('iframe');
     previewFrame.style.width = '100%';
     previewFrame.style.minHeight = '260px';
     previewFrame.style.border = '1px solid var(--typo3-component-border-color, #ccc)';
     previewFrame.setAttribute('sandbox', '');
     const previewPlainHeading = document.createElement('h5');
-    previewPlainHeading.append(document.createTextNode('Plain text'));
+    previewPlainHeading.append(document.createTextNode(lll('email.plainText', 'Plain text')));
     const previewPlain = document.createElement('pre');
     previewPlain.style.whiteSpace = 'pre-wrap';
     previewPlain.style.padding = '0.5em';
@@ -2074,7 +2084,7 @@ function openEmailContentModal(options) {
     const testButton = document.createElement('button');
     testButton.type = 'button';
     testButton.className = 'btn btn-default btn-sm';
-    testButton.append(document.createTextNode('Send test email'));
+    testButton.append(document.createTextNode(lll('email.sendTest', 'Send test email')));
     testButton.addEventListener('click', () => sendTestEmail(testInput.value, testButton));
     testRow.append(testInput, testButton);
     previewPane.append(refreshButton, testRow, previewHtmlHeading, previewFrame, previewPlainHeading, previewPlain);
@@ -2132,7 +2142,7 @@ function openEmailContentModal(options) {
             clientPreviewFallback();
             return;
         }
-        previewPlain.textContent = 'Loading preview…';
+        previewPlain.textContent = lll('email.loadingPreview', 'Loading preview…');
         new AjaxRequest(url).post(payload).then(async (response) => {
             const data = await response.resolve();
             previewFrame.srcdoc = data.html ?? '';
@@ -2146,7 +2156,7 @@ function openEmailContentModal(options) {
         const url = getEndpoints().sendTestEmailUrl;
         const payload = url ? buildEmailPayload() : null;
         if (!url || !payload) {
-            Notification.error('Test email', 'The test-send endpoint is not available.');
+            Notification.error(lll('email.testTitle', 'Test email'), lll('email.testEndpointUnavailable', 'The test-send endpoint is not available.'));
             return;
         }
         payload.recipient = recipient;
@@ -2154,13 +2164,13 @@ function openEmailContentModal(options) {
         new AjaxRequest(url).post(payload).then(async (response) => {
             const data = await response.resolve();
             if (data.status === 'success') {
-                Notification.success('Test email', data.message ?? 'Test email sent.');
+                Notification.success(lll('email.testTitle', 'Test email'), data.message ?? lll('email.testSent', 'Test email sent.'));
             }
             else {
-                Notification.error('Test email', data.message ?? 'Could not send the test email.');
+                Notification.error(lll('email.testTitle', 'Test email'), data.message ?? lll('email.testFailed', 'Could not send the test email.'));
             }
         }).catch(() => {
-            Notification.error('Test email', 'Could not send the test email.');
+            Notification.error(lll('email.testTitle', 'Test email'), lll('email.testFailed', 'Could not send the test email.'));
         }).finally(() => {
             button.disabled = false;
         });
@@ -2257,7 +2267,7 @@ export function renderTranslationEditor(editorConfiguration, editorHtml, collect
         ?.append(document.createTextNode(editorConfiguration.label ?? 'Translations'));
     renderDescription(editorConfiguration, editorHtml);
     editorHtml.querySelector('[data-template-property="editButtonLabel"]')
-        ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? 'Translate…'));
+        ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? lll('translation.edit', 'Translate…')));
     const languages = editorConfiguration.availableLanguages ?? [];
     const formElement = getCurrentlySelectedFormElement();
     // For finishers (collection editors) the property path is resolved against the
@@ -2279,7 +2289,7 @@ export function renderTranslationEditor(editorConfiguration, editorHtml, collect
         }
         const items = collectItems();
         if (items.length === 0 || languages.length === 0) {
-            summaryEl.textContent = languages.length === 0 ? 'No additional site languages configured.' : 'Nothing translatable here.';
+            summaryEl.textContent = languages.length === 0 ? lll('translation.noLanguages', 'No additional site languages configured.') : lll('translation.nothingHere', 'Nothing translatable here.');
             return;
         }
         const overrides = formElement.get(basePath) || {};
@@ -2288,7 +2298,7 @@ export function renderTranslationEditor(editorConfiguration, editorHtml, collect
             const filled = items.filter((item) => readOverrideValue(languageOverride, item) !== '').length;
             return language.code.toUpperCase() + ' ' + filled + '/' + items.length;
         });
-        summaryEl.textContent = 'Translations: ' + parts.join(' · ');
+        summaryEl.textContent = lll('translation.translationsLabel', 'Translations') + ': ' + parts.join(' · ');
     };
     updateSummary();
     editButton?.addEventListener('click', () => {
@@ -2308,7 +2318,7 @@ function openTranslationModal(options) {
     if (items.length === 0) {
         const info = document.createElement('div');
         info.className = 'alert alert-info';
-        info.append(document.createTextNode('This element has no label, placeholder, options or custom validation messages to translate.'));
+        info.append(document.createTextNode(lll('translation.elementNothing', 'This element has no label, placeholder, options or custom validation messages to translate.')));
         content.append(info);
     }
     const itemLabel = (item) => {
@@ -2368,12 +2378,12 @@ function openTranslationModal(options) {
     });
     Modal.advanced({
         type: Modal.types.default,
-        title: 'Translations',
+        title: lll('translation.modalTitle', 'Translations'),
         content: content,
         size: Modal.sizes.large,
         buttons: [
             {
-                text: 'Close',
+                text: lll('common.close', 'Close'),
                 btnClass: 'btn-primary',
                 trigger: (_event, modal) => {
                     modal.hideModal();
@@ -2473,7 +2483,7 @@ export function renderTranslationOverviewEditor(editorConfiguration, editorHtml)
         ?.append(document.createTextNode(editorConfiguration.label ?? 'Form translations'));
     renderDescription(editorConfiguration, editorHtml);
     editorHtml.querySelector('[data-template-property="editButtonLabel"]')
-        ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? 'Translate whole form…'));
+        ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? lll('translation.editWholeForm', 'Translate whole form…')));
     const languages = editorConfiguration.availableLanguages ?? [];
     const summaryEl = editorHtml.querySelector('[data-identifier="translationOverviewSummary"]');
     const button = editorHtml.querySelector('[data-identifier="translationOverviewButton"]');
@@ -2482,7 +2492,7 @@ export function renderTranslationOverviewEditor(editorConfiguration, editorHtml)
             return;
         }
         if (languages.length === 0) {
-            summaryEl.textContent = 'No additional site languages configured.';
+            summaryEl.textContent = lll('translation.noLanguages', 'No additional site languages configured.');
             return;
         }
         const entries = collectTranslatableElements();
@@ -2504,7 +2514,7 @@ export function renderTranslationOverviewEditor(editorConfiguration, editorHtml)
             const stat = perLanguage[language.code];
             return language.code.toUpperCase() + ' ' + stat.filled + '/' + stat.total;
         });
-        summaryEl.textContent = 'Completeness: ' + parts.join(' · ');
+        summaryEl.textContent = lll('translation.completenessLabel', 'Completeness') + ': ' + parts.join(' · ');
     };
     updateSummary();
     button?.addEventListener('click', () => openTranslationOverviewModal(languages, updateSummary));
@@ -2517,7 +2527,7 @@ function openTranslationOverviewModal(languages, onClose) {
         const info = document.createElement('div');
         info.className = 'alert alert-info';
         info.append(document.createTextNode(languages.length === 0
-            ? 'No additional site languages are configured for this site.'
+            ? lll('translation.noLanguagesForSite', 'No additional site languages are configured for this site.')
             : 'This form has nothing translatable yet.'));
         content.append(info);
     }
@@ -2555,7 +2565,7 @@ function openTranslationOverviewModal(languages, onClose) {
         const headRow = document.createElement('tr');
         const thItem = document.createElement('th');
         thItem.style.width = '20%';
-        thItem.append(document.createTextNode('Field'));
+        thItem.append(document.createTextNode(lll('translation.field', 'Field')));
         headRow.append(thItem);
         languages.forEach((language) => {
             const th = document.createElement('th');
@@ -2605,12 +2615,12 @@ function openTranslationOverviewModal(languages, onClose) {
     });
     Modal.advanced({
         type: Modal.types.default,
-        title: 'Form translations',
+        title: lll('translation.formModalTitle', 'Form translations'),
         content: content,
         size: Modal.sizes.full,
         buttons: [
             {
-                text: 'Close',
+                text: lll('common.close', 'Close'),
                 btnClass: 'btn-primary',
                 trigger: (_event, modal) => {
                     modal.hideModal();

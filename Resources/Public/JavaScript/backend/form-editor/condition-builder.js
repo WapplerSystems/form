@@ -20,15 +20,25 @@
  * server-side condition resolver.
  */
 import Modal from '@typo3/backend/modal.js';
+/**
+ * WapplerSystems fork: resolve a localized editor label delivered server-side via
+ * TYPO3.settings.FormEditor.labels (Database.xlf / de.Database.xlf). Falls back to
+ * the English literal when the label bag or key is unavailable.
+ */
+function lll(key, fallback) {
+    const labels = TYPO3?.settings?.FormEditor?.labels;
+    const value = labels && labels[key];
+    return typeof value === 'string' && value.length > 0 ? value : fallback;
+}
 const OPERATORS = [
-    { value: '==', label: 'equals' },
-    { value: '!=', label: 'not equals' },
-    { value: '<', label: 'less than' },
-    { value: '<=', label: 'less than or equal' },
-    { value: '>', label: 'greater than' },
-    { value: '>=', label: 'greater than or equal' },
-    { value: 'in', label: 'is one of' },
-    { value: 'not in', label: 'is not one of' },
+    { value: '==', labelKey: 'conditionBuilder.op.eq', fallback: 'equals' },
+    { value: '!=', labelKey: 'conditionBuilder.op.neq', fallback: 'not equals' },
+    { value: '<', labelKey: 'conditionBuilder.op.lt', fallback: 'less than' },
+    { value: '<=', labelKey: 'conditionBuilder.op.lte', fallback: 'less than or equal' },
+    { value: '>', labelKey: 'conditionBuilder.op.gt', fallback: 'greater than' },
+    { value: '>=', labelKey: 'conditionBuilder.op.gte', fallback: 'greater than or equal' },
+    { value: 'in', labelKey: 'conditionBuilder.op.in', fallback: 'is one of' },
+    { value: 'not in', labelKey: 'conditionBuilder.op.notIn', fallback: 'is not one of' },
 ];
 function isRule(node) {
     return node.field !== undefined;
@@ -279,7 +289,7 @@ export function openConditionBuilderModal(options) {
     if (rawMode) {
         const hint = document.createElement('div');
         hint.className = 'alert alert-info';
-        hint.append(document.createTextNode('This condition could not be parsed into the visual builder and is shown as raw expression. Edit it directly below.'));
+        hint.append(document.createTextNode(lll('conditionBuilder.unparsed', 'This condition could not be parsed into the visual builder and is shown as raw expression. Edit it directly below.')));
         rawTextarea = document.createElement('textarea');
         rawTextarea.className = 'form-control';
         rawTextarea.rows = 4;
@@ -293,7 +303,7 @@ export function openConditionBuilderModal(options) {
         preview.style.marginTop = '1em';
         preview.style.whiteSpace = 'pre-wrap';
         const updatePreview = () => {
-            preview.textContent = serializeNode(root) || '(always true — no rules)';
+            preview.textContent = serializeNode(root) || lll('conditionBuilder.alwaysTrue', '(always true — no rules)');
         };
         const rerender = () => {
             tree.innerHTML = '';
@@ -308,17 +318,17 @@ export function openConditionBuilderModal(options) {
     }
     Modal.advanced({
         type: Modal.types.default,
-        title: 'Condition builder',
+        title: lll('conditionBuilder.title', 'Condition builder'),
         content: content,
         size: Modal.sizes.large,
         buttons: [
             {
-                text: 'Cancel',
+                text: lll('conditionBuilder.cancel', 'Cancel'),
                 btnClass: 'btn-default',
                 trigger: (_e, modal) => modal.hideModal(),
             },
             {
-                text: 'Apply',
+                text: lll('conditionBuilder.apply', 'Apply'),
                 btnClass: 'btn-primary',
                 trigger: (_e, modal) => {
                     const expression = rawMode && rawTextarea ? rawTextarea.value : serializeNode(root);
@@ -345,7 +355,7 @@ function renderGroup(group, root, rerender, fields) {
     const combinatorSelect = document.createElement('select');
     combinatorSelect.className = 'form-select form-select-sm';
     combinatorSelect.style.width = 'auto';
-    [['&&', 'AND — all must match'], ['||', 'OR — any may match']].forEach(([value, label]) => {
+    [['&&', lll('conditionBuilder.and', 'AND — all must match')], ['||', lll('conditionBuilder.or', 'OR — any may match')]].forEach(([value, label]) => {
         combinatorSelect.append(new Option(label, value, false, group.combinator === value));
     });
     combinatorSelect.addEventListener('change', function () {
@@ -357,7 +367,7 @@ function renderGroup(group, root, rerender, fields) {
         const removeGroup = document.createElement('button');
         removeGroup.type = 'button';
         removeGroup.className = 'btn btn-default btn-sm';
-        removeGroup.append(document.createTextNode('Remove group'));
+        removeGroup.append(document.createTextNode(lll('conditionBuilder.removeGroup', 'Remove group')));
         removeGroup.addEventListener('click', () => {
             removeNode(root, group);
             rerender();
@@ -382,7 +392,7 @@ function renderGroup(group, root, rerender, fields) {
     const addRule = document.createElement('button');
     addRule.type = 'button';
     addRule.className = 'btn btn-default btn-sm';
-    addRule.append(document.createTextNode('+ Add rule'));
+    addRule.append(document.createTextNode(lll('conditionBuilder.addRule', '+ Add rule')));
     addRule.addEventListener('click', () => {
         group.children.push({ field: fields[0]?.identifier ?? '', operator: '==', value: '' });
         rerender();
@@ -390,7 +400,7 @@ function renderGroup(group, root, rerender, fields) {
     const addGroup = document.createElement('button');
     addGroup.type = 'button';
     addGroup.className = 'btn btn-default btn-sm';
-    addGroup.append(document.createTextNode('+ Add group'));
+    addGroup.append(document.createTextNode(lll('conditionBuilder.addGroup', '+ Add group')));
     addGroup.addEventListener('click', () => {
         group.children.push({ combinator: '&&', children: [] });
         rerender();
@@ -410,7 +420,7 @@ function renderRule(rule, parent, root, rerender, fields) {
     fieldSelect.className = 'form-select form-select-sm';
     if (fields.length === 0 || !fields.some((f) => f.identifier === rule.field)) {
         // keep an unknown/free identifier selectable
-        fieldSelect.append(new Option(rule.field || '— field —', rule.field, true, true));
+        fieldSelect.append(new Option(rule.field || lll('conditionBuilder.fieldPlaceholder', '— field —'), rule.field, true, true));
     }
     fields.forEach((f) => {
         fieldSelect.append(new Option(f.label + ' (' + f.identifier + ')', f.identifier, false, f.identifier === rule.field));
@@ -420,7 +430,7 @@ function renderRule(rule, parent, root, rerender, fields) {
     operatorSelect.className = 'form-select form-select-sm';
     operatorSelect.style.width = 'auto';
     OPERATORS.forEach((op) => {
-        operatorSelect.append(new Option(op.label, op.value, false, op.value === rule.operator));
+        operatorSelect.append(new Option(lll(op.labelKey, op.fallback), op.value, false, op.value === rule.operator));
     });
     // value control — a <select> of options when the field has them, else text input
     const valueWrapper = document.createElement('span');
@@ -432,7 +442,7 @@ function renderRule(rule, parent, root, rerender, fields) {
             const valueSelect = document.createElement('select');
             valueSelect.className = 'form-select form-select-sm';
             if (!fieldDef.options.some((o) => o.value === rule.value)) {
-                valueSelect.append(new Option(rule.value === '' ? '— value —' : rule.value, rule.value, true, true));
+                valueSelect.append(new Option(rule.value === '' ? lll('conditionBuilder.valuePlaceholder', '— value —') : rule.value, rule.value, true, true));
             }
             fieldDef.options.forEach((o) => {
                 valueSelect.append(new Option(o.label + ' (' + o.value + ')', o.value, false, o.value === rule.value));
@@ -447,7 +457,7 @@ function renderRule(rule, parent, root, rerender, fields) {
             valueInput.type = 'text';
             valueInput.className = 'form-control form-control-sm';
             valueInput.value = rule.value;
-            valueInput.placeholder = 'value';
+            valueInput.placeholder = lll('conditionBuilder.value', 'value');
             valueInput.addEventListener('keyup', function () {
                 rule.value = this.value;
             });
@@ -469,7 +479,7 @@ function renderRule(rule, parent, root, rerender, fields) {
     removeRule.type = 'button';
     removeRule.className = 'btn btn-default btn-sm';
     removeRule.append(document.createTextNode('×'));
-    removeRule.title = 'Remove rule';
+    removeRule.title = lll('conditionBuilder.removeRule', 'Remove rule');
     removeRule.addEventListener('click', () => {
         const index = parent.children.indexOf(rule);
         if (index > -1) {

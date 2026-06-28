@@ -5,7 +5,7 @@ prototypes:
         implementationClassName: TYPO3\CMS\Form\Domain\Finishers\FeUserFinisher
         formEditor:
           iconIdentifier: form-finisher
-          label: 'Frontend user registration (fe_users)'
+          label: formEditor.elements.Form.finisher.FeUser.editor.header.label
           predefinedDefaults:
             options:
               mode: 'insert'

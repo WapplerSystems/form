@@ -39,3 +39,10 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tce']['formevals'][EmailOrFormElement
 
 // Register FE plugin
 ExtensionUtility::configurePlugin('Form', 'Formframework', [FormFrontendController::class => ['render', 'perform']], [FormFrontendController::class => ['perform']]);
+
+// WapplerSystems fork: ship the fork's own German labels (de.Database.xlf) as an
+// override so they are merged even when a downloaded "form" language pack
+// (var/labels/de/form/...) is present — the pack would otherwise win and the
+// fork's backend-editor labels would fall back to English.
+$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/Database.xlf'][]
+    = 'EXT:form/Resources/Private/Language/de.Database.xlf';
