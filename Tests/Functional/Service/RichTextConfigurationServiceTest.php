@@ -15,7 +15,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Form\Tests\Unit\Service;
+namespace TYPO3\CMS\Form\Tests\Functional\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -26,7 +26,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface;
 use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
 use TYPO3\CMS\Form\Service\RichTextConfigurationService;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * Test case for RichTextConfigurationService
@@ -34,9 +34,9 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * Note: RichTextConfigurationService is a final class, so we test only the public API.
  * Private methods are tested indirectly through the public resolveCkEditorConfiguration method.
  */
-final class RichTextConfigurationServiceTest extends UnitTestCase
+final class RichTextConfigurationServiceTest extends FunctionalTestCase
 {
-    protected bool $resetSingletonInstances = true;
+    protected array $coreExtensionsToLoad = ['form', 'rte_ckeditor'];
 
     #[Test]
     public function resolveCkEditorConfigurationReturnsArrayWithBasicStructure(): void

@@ -13,16 +13,6 @@
     <testsuites>
         <testsuite name="form-unit">
             <directory>../../Tests/Unit/</directory>
-            <!--
-                Excluded: these resolve "EXT:form/..." paths (YAML fixtures /
-                extension configuration) and therefore require a registered
-                extension, i.e. a functional context. They pass in the TYPO3
-                mono-repo but cannot run as plain unit tests in a standalone
-                checkout. TODO: migrate to Tests/Functional/.
-            -->
-            <exclude>../../Tests/Unit/Mvc/Configuration/YamlSourceTest.php</exclude>
-            <exclude>../../Tests/Unit/Service/RichTextConfigurationServiceTest.php</exclude>
-            <exclude>../../Tests/Unit/Service/FormEditorEnrichmentServiceTest.php</exclude>
         </testsuite>
     </testsuites>
     <source>

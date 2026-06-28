@@ -15,16 +15,16 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Form\Tests\Unit\Service;
+namespace TYPO3\CMS\Form\Tests\Functional\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Form\Service\FormEditorEnrichmentService;
 use TYPO3\CMS\Form\Service\RichTextConfigurationService;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
-final class FormEditorEnrichmentServiceTest extends UnitTestCase
+final class FormEditorEnrichmentServiceTest extends FunctionalTestCase
 {
-    protected bool $resetSingletonInstances = true;
+    protected array $coreExtensionsToLoad = ['form', 'rte_ckeditor'];
 
     #[Test]
     public function shouldEnrichEditorWithRichTextReturnsTrueForTextareaEditorWithEnableRichtext(): void
@@ -184,9 +184,6 @@ final class FormEditorEnrichmentServiceTest extends UnitTestCase
             ],
         ];
 
-        // Manually set extension as loaded for this test
-        $GLOBALS['TYPO3_LOADED_EXT']['rte_ckeditor'] = ['type' => 'S'];
-
         $result = $subject->enrichFormEditorDefinitions($input);
 
         self::assertArrayHasKey('rteOptions', $result['formElementsDefinition']['StaticText']['editors'][0]);
@@ -228,9 +225,6 @@ final class FormEditorEnrichmentServiceTest extends UnitTestCase
                 ],
             ],
         ];
-
-        // Manually set extension as loaded for this test
-        $GLOBALS['TYPO3_LOADED_EXT']['rte_ckeditor'] = ['type' => 'S'];
 
         $result = $subject->enrichFormEditorDefinitions($input);
 

@@ -15,7 +15,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Form\Tests\Unit\Mvc\Configuration;
+namespace TYPO3\CMS\Form\Tests\Functional\Mvc\Configuration;
 
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Log\LoggerInterface;
@@ -25,11 +25,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Form\Mvc\Configuration\Exception\ParseErrorException;
 use TYPO3\CMS\Form\Mvc\Configuration\YamlSource;
 use TYPO3\CMS\Form\Slot\FilePersistenceSlot;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
-final class YamlSourceTest extends UnitTestCase
+final class YamlSourceTest extends FunctionalTestCase
 {
-    protected bool $resetSingletonInstances = true;
+    protected array $coreExtensionsToLoad = ['form'];
 
     #[Test]
     public function loadThrowsExceptionIfFileToLoadNotExists(): void
@@ -58,7 +58,7 @@ final class YamlSourceTest extends UnitTestCase
             [new FilePersistenceSlot(new HashService()), new YamlFileLoader($this->createMock(LoggerInterface::class))]
         );
         $input = [
-            'EXT:form/Tests/Unit/Mvc/Configuration/Fixtures/Invalid.yaml',
+            'EXT:form/Tests/Functional/Mvc/Configuration/Fixtures/Invalid.yaml',
         ];
         $mockYamlSource->_call('load', $input);
     }
@@ -71,7 +71,7 @@ final class YamlSourceTest extends UnitTestCase
             null,
             [new FilePersistenceSlot(new HashService()), new YamlFileLoader($this->createMock(LoggerInterface::class))],
         );
-        $input = GeneralUtility::getFileAbsFileName('EXT:form/Tests/Unit/Mvc/Configuration/Fixtures/Header.yaml');
+        $input = GeneralUtility::getFileAbsFileName('EXT:form/Tests/Functional/Mvc/Configuration/Fixtures/Header.yaml');
         $expected
 = '# Header 1
 # Header 2
@@ -88,8 +88,8 @@ final class YamlSourceTest extends UnitTestCase
             [new FilePersistenceSlot(new HashService()), new YamlFileLoader($this->createMock(LoggerInterface::class))],
         );
         $input = [
-            'EXT:form/Tests/Unit/Mvc/Configuration/Fixtures/OverruleNonArrayValuesOverArrayValues1.yaml',
-            'EXT:form/Tests/Unit/Mvc/Configuration/Fixtures/OverruleNonArrayValuesOverArrayValues2.yaml',
+            'EXT:form/Tests/Functional/Mvc/Configuration/Fixtures/OverruleNonArrayValuesOverArrayValues1.yaml',
+            'EXT:form/Tests/Functional/Mvc/Configuration/Fixtures/OverruleNonArrayValuesOverArrayValues2.yaml',
         ];
         $expected = [
             'Form' => [
@@ -109,9 +109,9 @@ final class YamlSourceTest extends UnitTestCase
             [new FilePersistenceSlot(new HashService()), new YamlFileLoader($this->createMock(LoggerInterface::class))],
         );
         $input = [
-            'EXT:form/Tests/Unit/Mvc/Configuration/Fixtures/ConfigurationWithVendorNamespacePrefix1.yaml',
-            'EXT:form/Tests/Unit/Mvc/Configuration/Fixtures/ConfigurationWithoutVendorNamespacePrefix1.yaml',
-            'EXT:form/Tests/Unit/Mvc/Configuration/Fixtures/ConfigurationWithVendorNamespacePrefix2.yaml',
+            'EXT:form/Tests/Functional/Mvc/Configuration/Fixtures/ConfigurationWithVendorNamespacePrefix1.yaml',
+            'EXT:form/Tests/Functional/Mvc/Configuration/Fixtures/ConfigurationWithoutVendorNamespacePrefix1.yaml',
+            'EXT:form/Tests/Functional/Mvc/Configuration/Fixtures/ConfigurationWithVendorNamespacePrefix2.yaml',
         ];
         $expected = [
             'klaus01' => [

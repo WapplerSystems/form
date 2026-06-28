@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+    Functional test suite for the fork, driven by typo3/testing-framework.
+    Needs a database; SQLite is enough and avoids a service container:
+        typo3DatabaseDriver=pdo_sqlite vendor/bin/phpunit -c Build/phpunit/FunctionalTests.xml
+-->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.2/phpunit.xsd"
+    bootstrap="../../vendor/typo3/testing-framework/Resources/Core/Build/FunctionalTestsBootstrap.php"
+    cacheDirectory="../../.cache/phpunit-functional"
+    colors="true"
+>
+    <testsuites>
+        <testsuite name="form-functional">
+            <directory>../../Tests/Functional/</directory>
+            <!--
+                Excluded: these import TYPO3 mono-repo test infrastructure
+                (e.g. TYPO3\CMS\Core\Tests\Functional\SiteHandling\SiteBasedTestTrait)
+                which is not autoloadable in a standalone Composer checkout, so
+                the suite cannot even be discovered with them present.
+                TODO: provide/replace the missing test helpers, then re-include.
+            -->
+            <exclude>../../Tests/Functional/RequestHandling/RequestHandlingTest.php</exclude>
+            <exclude>../../Tests/Functional/RequestHandling/DatabaseStoredFormTest.php</exclude>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>../../Classes/</directory>
+        </include>
+    </source>
+    <php>
+        <env name="TYPO3_CONTEXT" value="Testing"/>
+        <!-- Default to SQLite; CI may override these via the environment. -->
+        <env name="typo3DatabaseDriver" value="pdo_sqlite"/>
+    </php>
+</phpunit>
