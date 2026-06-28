@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+    Unit test suite for the fork, driven by typo3/testing-framework.
+    Run from the package root:  vendor/bin/phpunit -c Build/phpunit/UnitTests.xml
+-->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.2/phpunit.xsd"
+    bootstrap="../../vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php"
+    cacheDirectory="../../.cache/phpunit"
+    colors="true"
+>
+    <testsuites>
+        <testsuite name="form-unit">
+            <directory>../../Tests/Unit/</directory>
+            <!--
+                Excluded: these resolve "EXT:form/..." paths (YAML fixtures /
+                extension configuration) and therefore require a registered
+                extension, i.e. a functional context. They pass in the TYPO3
+                mono-repo but cannot run as plain unit tests in a standalone
+                checkout. TODO: migrate to Tests/Functional/.
+            -->
+            <exclude>../../Tests/Unit/Mvc/Configuration/YamlSourceTest.php</exclude>
+            <exclude>../../Tests/Unit/Service/RichTextConfigurationServiceTest.php</exclude>
+            <exclude>../../Tests/Unit/Service/FormEditorEnrichmentServiceTest.php</exclude>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>../../Classes/</directory>
+        </include>
+    </source>
+    <php>
+        <env name="TYPO3_CONTEXT" value="Testing"/>
+    </php>
+</phpunit>

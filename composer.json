@@ -22,14 +22,23 @@
 		"issues": "https://github.com/WapplerSystems/form/issues",
 		"source": "https://github.com/WapplerSystems/form"
 	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"config": {
-		"sort-packages": true
+		"sort-packages": true,
+		"allow-plugins": {
+			"typo3/class-alias-loader": true,
+			"typo3/cms-composer-installers": true
+		}
 	},
 	"require": {
 		"psr/http-message": "^1.1 || ^2.0",
 		"symfony/expression-language": "^7.4.8",
 		"typo3/cms-core": "14.3.*@dev",
 		"typo3/cms-frontend": "14.3.*@dev"
+	},
+	"require-dev": {
+		"typo3/testing-framework": "^9.5.0"
 	},
 	"replace": {
 		"typo3/cms-form": "self.version"
@@ -57,6 +66,11 @@
 	"autoload": {
 		"psr-4": {
 			"TYPO3\\CMS\\Form\\": "Classes/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"TYPO3\\CMS\\Form\\Tests\\": "Tests/"
 		}
 	}
 }
