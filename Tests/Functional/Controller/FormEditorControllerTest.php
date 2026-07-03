@@ -25,6 +25,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\EventDispatcher\ListenerProvider;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
@@ -43,14 +44,23 @@ use TYPO3\CMS\Form\Service\DatabaseService;
 use TYPO3\CMS\Form\Service\FormEditorEnrichmentService;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Form\Type\FormDefinitionArray;
+use TYPO3\CMS\Form\Tests\Functional\SetsUpAdminBackendUserTrait;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class FormEditorControllerTest extends FunctionalTestCase
 {
+    use SetsUpAdminBackendUserTrait;
+
     protected array $coreExtensionsToLoad = [
         'form',
         'rte_ckeditor',
     ];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->setUpAdminBackendUser();
+    }
 
     #[Test]
     public function getInsertRenderablesPanelConfigurationReturnsGroupedAndSortedConfiguration(): void
@@ -557,6 +567,16 @@ final class FormEditorControllerTest extends FunctionalTestCase
         $this->setUpBackendUser(1);
         $GLOBALS['LANG'] = $this->get(\TYPO3\CMS\Core\Localization\LanguageServiceFactory::class)
             ->createFromUserPreferences($GLOBALS['BE_USER']);
+
+        // RTE enrichment resolves EXT: resource paths to public URLs via core's
+        // system resource publisher, which reads "normalizedParams" from the
+        // current request. Provide a backend request carrying that attribute.
+        $request = (new ServerRequest('https://example.com/typo3/', 'GET'))
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
+        $GLOBALS['TYPO3_REQUEST'] = $request->withAttribute(
+            'normalizedParams',
+            NormalizedParams::createFromRequest($request)
+        );
 
         $translationServiceMock = $this->createMock(TranslationService::class);
         $translationServiceMock->method('translateValuesRecursive')->willReturnArgument(0);
