@@ -27,6 +27,7 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Form\Mvc\Property\TypeConverter\UploadedFileReferenceConverter;
 use TYPO3\CMS\Form\Security\HashScope;
+use TYPO3\CMS\Form\Tests\Functional\SetsUpAdminBackendUserTrait;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
@@ -34,11 +35,14 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  */
 final class MultipleFileUploadTest extends FunctionalTestCase
 {
+    use SetsUpAdminBackendUserTrait;
+
     protected array $coreExtensionsToLoad = ['form'];
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->setUpAdminBackendUser();
 
         $uploadPath = $this->instancePath . '/fileadmin/user_upload/';
         GeneralUtility::mkdir_deep($uploadPath);

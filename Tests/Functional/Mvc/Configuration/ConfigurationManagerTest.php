@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Form\Tests\Functional\Mvc\Configuration;
 
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
 use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
@@ -27,10 +28,19 @@ use TYPO3\CMS\Form\Mvc\Configuration\FormYamlCollector;
 use TYPO3\CMS\Form\Mvc\Configuration\TypoScriptService;
 use TYPO3\CMS\Form\Mvc\Configuration\YamlSource;
 use TYPO3\CMS\Form\Service\FormDefinitionMigrationService;
+use TYPO3\CMS\Form\Tests\Functional\SetsUpAdminBackendUserTrait;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class ConfigurationManagerTest extends FunctionalTestCase
 {
+    use SetsUpAdminBackendUserTrait;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->setUpAdminBackendUser();
+    }
+
     #[Test]
     #[IgnoreDeprecations]
     public function getYamlConfigurationTriggersDeprecationForLegacyTypoScriptYamlConfigurations(): void
@@ -44,12 +54,15 @@ final class ConfigurationManagerTest extends FunctionalTestCase
         $cacheMock = $this->createMock(FrontendInterface::class);
         $cacheMock->method('has')->willReturn(true);
         $cacheMock->method('get')->willReturn([]);
+        $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcherMock->method('dispatch')->willReturnArgument(0);
         $configurationManager = new ConfigurationManager(
             $this->createMock(YamlSource::class),
             $cacheMock,
             $this->createMock(TypoScriptService::class),
             $this->createMock(FormDefinitionMigrationService::class),
             new FormYamlCollector(),
+            $eventDispatcherMock,
         );
         $configurationManager->getYamlConfiguration(
             ['yamlConfigurations' => [10 => 'EXT:my_extension/Configuration/Yaml/MySetup.yaml']],
@@ -99,12 +112,15 @@ final class ConfigurationManagerTest extends FunctionalTestCase
         $cacheMock = $this->createMock(FrontendInterface::class);
         $cacheMock->method('has')->willReturn(true);
         $cacheMock->method('get')->willReturn($yamlSettings);
+        $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcherMock->method('dispatch')->willReturnArgument(0);
         $configurationManagerMock = new ConfigurationManager(
             $this->createMock(YamlSource::class),
             $cacheMock,
             $this->createMock(TypoScriptService::class),
             $this->createMock(FormDefinitionMigrationService::class),
             new FormYamlCollector(),
+            $eventDispatcherMock,
         );
         $result = $configurationManagerMock->getYamlConfiguration([], true);
         self::assertSame($expected, $result);
