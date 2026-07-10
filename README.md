@@ -200,7 +200,7 @@ browser (show/hide via `renderingOptions.enabled`, required via a `NotEmpty` val
 not just on the server at page/step transitions. Pieces:
 
 - `InjectFrontendConditions` (listener on `AfterFormRenderedEvent`) emits a JSON island
-  `<script type="application/json" data-wsform-conditions>` inside the `<form>` carrying
+  `<script type="application/json" data-form-conditions>` inside the `<form>` carrying
   each element's `{condition, enabled?, required?}` rules, and loads
   `Resources/Public/JavaScript/frontend/form-conditions.js` via `AssetCollector`. Forms
   without such variants get neither.
@@ -211,7 +211,7 @@ not just on the server at page/step transitions. Pieces:
   authoritatively on submit; without JS the fields stay visible and validation still holds.
 - `frontend/form-conditions.js` evaluates a subset of the ExpressionLanguage
   (`traverse(formValues,"id")`, `== != < <= > >= in "not in" && || ()`) against the live
-  form values and toggles the field container (`[data-wsform-element]`), `disabled` (so
+  form values and toggles the field container (`[data-form-element]`), `disabled` (so
   hidden fields are not submitted) and `required`. Unparseable conditions are skipped.
 - `RenderableVariant::getCondition()` / `getOptions()` expose the raw condition + override
   options for this.

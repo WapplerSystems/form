@@ -265,7 +265,7 @@
         const apply = () => {
             const values = collectValues(form);
             Object.keys(elements).forEach((identifier) => {
-                const container = form.querySelector('[data-wsform-element="' + (window.CSS && CSS.escape ? CSS.escape(identifier) : identifier) + '"]');
+                const container = form.querySelector('[data-form-element="' + (window.CSS && CSS.escape ? CSS.escape(identifier) : identifier) + '"]');
                 if (container) {
                     applyElement(container, elements[identifier], values);
                 }
@@ -276,7 +276,7 @@
         apply();
     }
     function init() {
-        document.querySelectorAll('script[type="application/json"][data-wsform-conditions]').forEach((island) => {
+        document.querySelectorAll('script[type="application/json"][data-form-conditions]').forEach((island) => {
             const form = island.closest('form');
             if (!(form instanceof HTMLFormElement)) {
                 return;
