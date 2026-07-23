@@ -43,7 +43,13 @@ use TYPO3\CMS\Form\Event\AfterFormIsValidatedEvent;
  *    up a Scheduler command that prunes rows older than N days. A
  *    cleanup command may ship in a later phase.
  */
-#[AsEventListener('wapplersystems-form/record-validation-failures')]
+// Must run AFTER the form-level validators so cross-field errors (e.g. the
+// EntropySpam filter) added on AfterFormIsValidatedEvent are already merged
+// into the Result and get recorded too — not just per-element errors.
+#[AsEventListener(
+    identifier: 'wapplersystems-form/record-validation-failures',
+    after: 'wapplersystems-form/run-form-level-validators',
+)]
 final class RecordValidationFailures
 {
     private const TABLE_NAME = 'tx_form_validation_log';

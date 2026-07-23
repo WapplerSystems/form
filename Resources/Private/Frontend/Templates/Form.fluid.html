@@ -12,6 +12,20 @@
         additionalParams="{form.renderingOptions.additionalParams}"
         additionalAttributes="{formvh:translateElementProperty(element: form, property: 'fluidAdditionalAttributes')}"
     >
+        <f:comment>
+            Form-level (cross-field) validator errors are attached to the form-root
+            property path and would otherwise render nowhere. Surface them here as a
+            summary above the page so users see e.g. the EntropySpam rejection message.
+        </f:comment>
+        <f:form.validationResults for="{form.identifier}">
+            <f:if condition="{validationResults.errors}">
+                <div class="form-error-summary alert alert-danger" role="alert">
+                    <f:for each="{validationResults.errors}" as="error">
+                        <p class="form-error-summary-item">{error -> f:format.htmlspecialchars()}</p>
+                    </f:for>
+                </div>
+            </f:if>
+        </f:form.validationResults>
         <f:render partial="{form.currentPage.templateName}" arguments="{page: form.currentPage}" />
         <div class="{form.renderingOptions.formNavigation.navigationWrapperClassAttribute}">
             <f:render partial="Form/Navigation" arguments="{form: form}" />
