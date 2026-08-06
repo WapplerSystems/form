@@ -1,77 +1,77 @@
 {
-	"name": "wapplersystems/form",
-	"type": "typo3-cms-framework",
-	"description": "WapplerSystems fork of typo3/cms-form — extended backend editor (variants/conditions UI), additional events, cross-field validators (e.g. entropy spam filter).",
-	"homepage": "https://github.com/WapplerSystems/form",
-	"license": [
-		"GPL-2.0-or-later"
-	],
-	"authors": [
-		{
-			"name": "Sven Wappler",
-			"email": "typo3@wappler.systems",
-			"role": "Maintainer of fork"
-		},
-		{
-			"name": "TYPO3 Core Team",
-			"email": "typo3cms@typo3.org",
-			"role": "Upstream developer"
-		}
-	],
-	"support": {
-		"issues": "https://github.com/WapplerSystems/form/issues",
-		"source": "https://github.com/WapplerSystems/form"
-	},
-	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"config": {
-		"sort-packages": true,
-		"allow-plugins": {
-			"typo3/class-alias-loader": true,
-			"typo3/cms-composer-installers": true
-		}
-	},
-	"require": {
-		"psr/http-message": "^1.1 || ^2.0",
-		"symfony/expression-language": "^7.4.8",
-		"typo3/cms-core": "14.3.*@dev",
-		"typo3/cms-frontend": "14.3.*@dev"
-	},
-	"require-dev": {
-		"typo3/cms-rte-ckeditor": "14.3.*@dev",
-		"typo3/testing-framework": "^9.5.0"
-	},
-	"replace": {
-		"typo3/cms-form": "self.version"
-	},
-	"suggest": {
-		"typo3/cms-filelist": "Listing of files in the directory",
-		"typo3/cms-impexp": "Import and Export of records from TYPO3 in a custom serialized format (.T3D) for data exchange with other TYPO3 systems.",
-		"typo3/cms-lowlevel": "To display the YAML configuration in the configuration module"
-	},
-	"conflict": {
-		"typo3/cms": "*"
-	},
-	"extra": {
-		"branch-alias": {
-			"dev-release/v14": "14.3.x-dev",
-			"dev-main": "14.3.x-dev"
-		},
-		"typo3/cms": {
-			"Package": {
-				"partOfFactoryDefault": true
-			},
-			"extension-key": "form"
-		}
-	},
-	"autoload": {
-		"psr-4": {
-			"TYPO3\\CMS\\Form\\": "Classes/"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"TYPO3\\CMS\\Form\\Tests\\": "Tests/"
-		}
-	}
+    "name": "wapplersystems/form",
+    "type": "typo3-cms-framework",
+    "description": "WapplerSystems fork of typo3/cms-form — extended backend editor (variants/conditions UI), additional events, cross-field validators (e.g. entropy spam filter).",
+    "homepage": "https://github.com/WapplerSystems/form",
+    "license": [
+        "GPL-2.0-or-later"
+    ],
+    "authors": [
+        {
+            "name": "Sven Wappler",
+            "email": "typo3@wappler.systems",
+            "role": "Maintainer of fork"
+        },
+        {
+            "name": "TYPO3 Core Team",
+            "email": "typo3cms@typo3.org",
+            "role": "Upstream developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/WapplerSystems/form/issues",
+        "source": "https://github.com/WapplerSystems/form"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        }
+    },
+    "require": {
+        "psr/http-message": "^1.1 || ^2.0",
+        "symfony/expression-language": "^7.4.8",
+        "typo3/cms-core": "14.3.*@dev",
+        "typo3/cms-frontend": "14.3.*@dev"
+    },
+    "require-dev": {
+        "typo3/cms-rte-ckeditor": "14.3.*@dev",
+        "typo3/testing-framework": "^9.5.0"
+    },
+    "replace": {
+        "typo3/cms-form": "self.version"
+    },
+    "suggest": {
+        "typo3/cms-filelist": "Listing of files in the directory",
+        "typo3/cms-impexp": "Import and Export of records from TYPO3 in a custom serialized format (.T3D) for data exchange with other TYPO3 systems.",
+        "typo3/cms-lowlevel": "To display the YAML configuration in the configuration module"
+    },
+    "conflict": {
+        "typo3/cms": "*"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-release/v14": "14.3.x-dev",
+            "dev-main": "14.3.x-dev"
+        },
+        "typo3/cms": {
+            "Package": {
+                "partOfFactoryDefault": true
+            },
+            "extension-key": "form"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "TYPO3\\CMS\\Form\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TYPO3\\CMS\\Form\\Tests\\": "Tests/"
+        }
+    }
 }
