@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Tests\Functional\Mvc\Property;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface as ExtbaseConfigurationManagerInterface;
@@ -45,6 +46,12 @@ final class FileUploadMimeTypeValidatorRegistrationTest extends FunctionalTestCa
     protected function setUp(): void
     {
         parent::setUp();
+
+        // The WapplerSystems fork's FileUpload::initializeFormElement() validates
+        // the saveToFileMount via FAL, which requires a backend user in BE context.
+        $backendUser = new BackendUserAuthentication();
+        $backendUser->user = ['uid' => 1, 'admin' => 1];
+        $GLOBALS['BE_USER'] = $backendUser;
 
         // ArrayFormFactory resolves the prototype configuration via the Extbase
         // ConfigurationManager, which requires a request to be set.
