@@ -225,7 +225,7 @@ final class DatabaseStorageAdapterFunctionalTest extends FunctionalTestCase
         $request = (new ServerRequest())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
 
         $this->expectException(PersistenceManagerException::class);
-        $this->expectExceptionCode(1767199423);
+        $this->expectExceptionCode(1767199444);
 
         $subject->read(new FormIdentifier('100'), $request);
     }
