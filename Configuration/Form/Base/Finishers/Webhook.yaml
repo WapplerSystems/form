@@ -1,0 +1,141 @@
+prototypes:
+  standard:
+    finishersDefinition:
+      Webhook:
+        implementationClassName: TYPO3\CMS\Form\Domain\Finishers\WebhookFinisher
+        formEditor:
+          iconIdentifier: form-finisher
+          label: formEditor.elements.Form.finisher.Webhook.editor.header.label
+          predefinedDefaults:
+            options:
+              url: ''
+              method: 'POST'
+              format: 'json'
+              payloadMode: 'all'
+              includeMetadata: true
+              includeUploads: true
+              authType: 'none'
+              authToken: ''
+              authUser: ''
+              authPassword: ''
+              hmacSecret: ''
+              signatureHeader: 'X-Form-Signature'
+              timeout: 10
+              retries: 2
+              retryDelayMs: 500
+              failOnError: false
+          editors:
+            100:
+              identifier: header
+              templateName: Inspector-FormElementHeaderEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.header.label
+            200:
+              identifier: url
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.url.label
+              propertyPath: options.url
+              enableFormelementSelectionButton: false
+              propertyValidators:
+                10: NotEmpty
+            300:
+              identifier: method
+              templateName: Inspector-SingleSelectEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.method.label
+              propertyPath: options.method
+              selectOptions:
+                10: { value: 'POST', label: 'POST' }
+                20: { value: 'PUT', label: 'PUT' }
+                30: { value: 'PATCH', label: 'PATCH' }
+            400:
+              identifier: format
+              templateName: Inspector-SingleSelectEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.format.label
+              propertyPath: options.format
+              selectOptions:
+                10: { value: 'json', label: 'JSON' }
+                20: { value: 'form', label: 'Form-encoded' }
+            500:
+              identifier: payloadMode
+              templateName: Inspector-SingleSelectEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.payloadMode.label
+              propertyPath: options.payloadMode
+              selectOptions:
+                10: { value: 'all', label: 'formEditor.elements.Form.finisher.Webhook.editor.payloadMode.all' }
+                20: { value: 'custom', label: 'formEditor.elements.Form.finisher.Webhook.editor.payloadMode.custom' }
+            600:
+              identifier: includeMetadata
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.includeMetadata.label
+              propertyPath: options.includeMetadata
+            700:
+              identifier: includeUploads
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.includeUploads.label
+              propertyPath: options.includeUploads
+            800:
+              identifier: authType
+              templateName: Inspector-SingleSelectEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.authType.label
+              propertyPath: options.authType
+              selectOptions:
+                10: { value: 'none', label: 'formEditor.elements.Form.finisher.Webhook.editor.authType.none' }
+                20: { value: 'bearer', label: 'Bearer' }
+                30: { value: 'basic', label: 'Basic' }
+            900:
+              identifier: authToken
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.authToken.label
+              propertyPath: options.authToken
+              enableFormelementSelectionButton: false
+            1000:
+              identifier: authUser
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.authUser.label
+              propertyPath: options.authUser
+              enableFormelementSelectionButton: false
+            1100:
+              identifier: authPassword
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.authPassword.label
+              propertyPath: options.authPassword
+              enableFormelementSelectionButton: false
+            1200:
+              identifier: hmacSecret
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.hmacSecret.label
+              propertyPath: options.hmacSecret
+              enableFormelementSelectionButton: false
+            1300:
+              identifier: failOnError
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.Form.finisher.Webhook.editor.failOnError.label
+              propertyPath: options.failOnError
+            9999:
+              identifier: removeButton
+              templateName: Inspector-RemoveElementEditor
+        FormEngine:
+          label: tt_content.finishersDefinition.Webhook.label
+          elements:
+            url:
+              label: tt_content.finishersDefinition.Webhook.url.label
+              config:
+                type: input
+                required: true
+            method:
+              label: tt_content.finishersDefinition.Webhook.method.label
+              config:
+                type: select
+                renderType: selectSingle
+                items:
+                  - { label: 'POST', value: 'POST' }
+                  - { label: 'PUT', value: 'PUT' }
+                  - { label: 'PATCH', value: 'PATCH' }
+            authToken:
+              label: tt_content.finishersDefinition.Webhook.authToken.label
+              config:
+                type: input
+            failOnError:
+              label: tt_content.finishersDefinition.Webhook.failOnError.label
+              config:
+                type: check
+                default: 0

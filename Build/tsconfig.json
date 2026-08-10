@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": [
+      "es2023",
+      "dom",
+      "esnext.collection"
+    ],
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "noUncheckedSideEffectImports": false,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": false,
+    "removeComments": false,
+    "alwaysStrict": true,
+    "strict": false,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "useUnknownInCatchVariables": true,
+    "verbatimModuleSyntax": true,
+    "pretty": true,
+    "paths": {
+      "@typo3/form/*": ["./Sources/TypeScript/form/*"],
+      "@typo3/*": ["../../../../source/Build/.dts/*"],
+      "*": ["../../../../source/Build/types/*"]
+    },
+    "rootDir": "./Sources/TypeScript/form",
+    "outDir": "./JavaScript",
+    "types": [
+      "TYPO3",
+      "bootstrap-src",
+      "ckeditor5-bundle",
+      "jquery"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "../../../../source/Build/types",
+      "./types"
+    ]
+  },
+  "include": [
+    "Sources/TypeScript/form/**/*.ts",
+    "types/**/*.d.ts"
+  ]
+}

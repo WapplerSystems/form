@@ -1,0 +1,2 @@
+# cat=Backend; type=boolean; label=Site sender feature: lets site administrators maintain email sender addresses in site configuration, and the form plugin's FlexForm provides a dropdown to pick one. When off the standard form-YAML senderAddress option is used.
+featureSiteEmail = 0

@@ -1,3 +1,0 @@
-persistenceManager:
-  allowedExtensionPaths:
-    10: EXT:form/Tests/Functional/RequestHandling/Fixtures/Forms/

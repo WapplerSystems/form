@@ -22,12 +22,14 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\ViewHelpers\Form;
 
 use TYPO3\CMS\Core\Page\AssetCollector;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFieldViewHelper;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
+use TYPO3Fluid\Fluid\Core\Parser\ParsingState;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
+use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperNodeInitializedEventInterface;
 
 /**
  * Display a jQuery date picker.
@@ -37,19 +39,20 @@ use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
  * Scope: frontend
  *
  * @see https://docs.typo3.org/permalink/t3viewhelper:typo3-form-form-datepicker
+ * @deprecated since v14, will be removed in v15. Use the native HTML5 date input (Date form element) instead.
  */
-final class DatePickerViewHelper extends AbstractFormFieldViewHelper
+final class DatePickerViewHelper extends AbstractFormFieldViewHelper implements ViewHelperNodeInitializedEventInterface
 {
     /**
      * @var string
      */
     protected $tagName = 'input';
 
-    protected PropertyMapper $propertyMapper;
-
-    public function injectPropertyMapper(PropertyMapper $propertyMapper)
-    {
-        $this->propertyMapper = $propertyMapper;
+    public function __construct(
+        private readonly PropertyMapper $propertyMapper,
+        private readonly AssetCollector $assetCollector,
+    ) {
+        parent::__construct();
     }
 
     /**
@@ -100,7 +103,7 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
                 $this->tag->addAttribute('data-format', $datePickerDateFormat);
                 $this->tag->addAttribute('data-t3-form-datepicker', '');
                 if (!empty($this->arguments['datePickerInitializationJavaScriptFile'])) {
-                    GeneralUtility::makeInstance(AssetCollector::class)
+                    $this->assetCollector
                         ->addJavaScript(
                             't3-form-datepicker',
                             $this->arguments['datePickerInitializationJavaScriptFile'],
@@ -123,7 +126,7 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
         return $content;
     }
 
-    protected function getSelectedDate(): ?\DateTime
+    private function getSelectedDate(): ?\DateTime
     {
         /** @var FormRuntime $formRuntime */
         $formRuntime = $this->renderingContext
@@ -148,7 +151,7 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
         return null;
     }
 
-    protected function convertDateFormatToDatePickerFormat(string $dateFormat): string
+    private function convertDateFormatToDatePickerFormat(string $dateFormat): string
     {
         $replacements = [
             'd' => 'dd',
@@ -165,5 +168,13 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
             'y' => 'y',
         ];
         return strtr($dateFormat, $replacements);
+    }
+
+    public static function nodeInitializedEvent(ViewHelperNode $node, array $arguments, ParsingState $parsingState): void
+    {
+        trigger_error(
+            'The DatePickerViewHelper is deprecated since TYPO3 v14 and will be removed in v15. Use the native HTML5 date input (Date form element) instead.',
+            E_USER_DEPRECATED
+        );
     }
 }

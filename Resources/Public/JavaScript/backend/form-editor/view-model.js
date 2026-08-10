@@ -10,4 +10,967 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import o from"jquery";import*as L from"@typo3/form/backend/form-editor/tree-component.js";import*as _ from"@typo3/form/backend/form-editor/modals-component.js";import*as R from"@typo3/form/backend/form-editor/inspector-component.js";import*as me from"@typo3/form/backend/form-editor/stage-component.js";import*as M from"@typo3/form/backend/form-editor/helper.js";import A from"@typo3/backend/icons.js";import F from"@typo3/backend/notification.js";import{loadModule as de}from"@typo3/core/java-script-item-processor.js";const j={domElementClassNames:{formElementIsComposit:"formeditor-element-composit",formElementIsTopLevel:"formeditor-element-toplevel",hasError:"has-error",selectedCompositFormElement:"selected",selectedFormElement:"selected",selectedRootFormElement:"selected",selectedStagePanel:"t3-form-form-stage-selected",sortableHover:"sortable-hover",viewModeAbstract:"formeditor-module-viewmode-abstract",viewModePreview:"formeditor-module-viewmode-preview",validationErrors:"formeditor-validation-errors",validationChildHasErrors:"formeditor-validation-child-has-error"},domElementDataAttributeNames:{abstractType:"data-element-abstract-type"},domElementDataAttributeValues:{buttonHeaderClose:"closeButton",buttonHeaderPaginationNext:"buttonPaginationNext",buttonHeaderPaginationPrevious:"buttonPaginationPrevious",buttonHeaderRedo:"redoButton",buttonHeaderSave:"saveButton",buttonHeaderUndo:"undoButton",buttonHeaderViewModeAbstract:"buttonViewModeAbstract",buttonHeaderViewModePreview:"buttonViewModePreview",buttonStageNewElementBottom:"stageNewElementBottom",buttonFormSettings:"formSettings",buttonToggleStructure:"formeditorStructureToggle",buttonToggleInspector:"formeditorInspectorToggle",buttonNewPage:"newPage",iconMailform:"content-form",iconSave:"actions-document-save",iconSaveSpinner:"spinner-circle",inspectorSection:"inspectorSection",moduleLoadingIndicator:"moduleLoadingIndicator",moduleWrapper:"moduleWrapper",stageArea:"stageArea",stageContainer:"stageContainer",stageContainerInner:"stageContainerInner",stageNewElementRow:"stageNewElementRow",stagePanelHeading:"panelHeading",stageSection:"stageSection",structure:"structure-element",structureSection:"structureSection",structureRootContainer:"treeRootContainer",structureRootElement:"treeRootElement"}};let K=!1,H=null,z=null,$=null,q=null,G=null;function c(){return a().getRootFormElement()}function D(e,t,r){return a().assert(e,t,r)}function u(){return a().getUtility()}function v(){return a().getCurrentlySelectedFormElement()}function s(){return a().getPublisherSubscriber()}function ue(){a().addPropertyValidationValidator("NotEmpty",function(e,t){const r=e.get(t);if(!r||r===""||o.isArray(r)&&!r.length)return a().getFormElementPropertyValidatorDefinition("NotEmpty").errorMessage||"invalid value"}),a().addPropertyValidationValidator("Integer",function(e,t){if(!o.isNumeric(e.get(t)))return a().getFormElementPropertyValidatorDefinition("Integer").errorMessage||"invalid value"}),a().addPropertyValidationValidator("IntegerOrEmpty",function(e,t){if(!u().isUndefinedOrNull(e.get(t))&&e.get(t).length>0&&!o.isNumeric(e.get(t)))return a().getFormElementPropertyValidatorDefinition("Integer").errorMessage||"invalid value"}),a().addPropertyValidationValidator("NaiveEmail",function(e,t){if(!u().isUndefinedOrNull(e.get(t))&&!e.get(t).match(/\S+@\S+\.\S+/))return a().getFormElementPropertyValidatorDefinition("NaiveEmail").errorMessage||"invalid value"}),a().addPropertyValidationValidator("NaiveEmailOrEmpty",function(e,t){if(!u().isUndefinedOrNull(e.get(t))&&e.get(t).length>0&&!e.get(t).match(/\S+@\S+\.\S+/))return a().getFormElementPropertyValidatorDefinition("NaiveEmailOrEmpty").errorMessage||"invalid value"}),a().addPropertyValidationValidator("FormElementIdentifierWithinCurlyBracesInclusive",function(e,t){if(u().isUndefinedOrNull(e.get(t)))return;const l=/\{([a-z0-9-_]+)?\}/gi.exec(e.get(t));if(l&&(l[1]&&l[1]!=="__currentTimestamp"&&!a().isFormElementIdentifierUsed(l[1])||!l[1]))return a().getFormElementPropertyValidatorDefinition("FormElementIdentifierWithinCurlyBracesInclusive").errorMessage||"invalid value"}),a().addPropertyValidationValidator("FormElementIdentifierWithinCurlyBracesExclusive",function(e,t){if(u().isUndefinedOrNull(e.get(t)))return;const l=/^\{([a-z0-9-_]+)?\}$/i.exec(e.get(t));if(!l||l[1]&&l[1]!=="__currentTimestamp"&&!a().isFormElementIdentifierUsed(l[1])||!l[1])return a().getFormElementPropertyValidatorDefinition("FormElementIdentifierWithinCurlyBracesInclusive").errorMessage||"invalid value"}),a().addPropertyValidationValidator("FileSize",function(e,t){if(!u().isUndefinedOrNull(e.get(t))&&!e.get(t).match(/^(\d*\.?\d+)(B|K|M|G)$/i))return a().getFormElementPropertyValidatorDefinition("FileSize").errorMessage||"invalid value"}),a().addPropertyValidationValidator("RFC3339FullDate",function(e,t){if(!u().isUndefinedOrNull(e.get(t))&&!e.get(t).match(/^([0-9]{4})-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])$/i))return a().getFormElementPropertyValidatorDefinition("RFC3339FullDate").errorMessage||"invalid value"}),a().addPropertyValidationValidator("RFC3339FullDateOrEmpty",function(e,t){if(!u().isUndefinedOrNull(e.get(t))&&e.get(t).length>0&&!e.get(t).match(/^([0-9]{4})-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])$/i))return a().getFormElementPropertyValidatorDefinition("RFC3339FullDate").errorMessage||"invalid value"}),a().addPropertyValidationValidator("RegularExpressionPattern",function(e,t){const r=e.get(t);let l=!0;if(!u().isNonEmptyString(r))return a().getFormElementPropertyValidatorDefinition("RegularExpressionPattern").errorMessage||"invalid value";try{const i=r.match(/^\/(.*)\/[gmixsuUAJD]*$/);i!==null?new RegExp(i[1]):l=!1}catch{l=!1}if(!l)return a().getFormElementPropertyValidatorDefinition("RegularExpressionPattern").errorMessage||"invalid value"})}function ce(e){let t=[];if(typeof e=="object"&&!Array.isArray(e))for(const l of Object.keys(e))t.push(e[l]);else t=e;if(o.type(t)!=="array"){s().publish("view/ready");return}const r=t.length;if(r>0){let l=0;for(let i=0;i<r;++i)de(t[i]).then(function(m){D(o.type(m.bootstrap)==="function",'The module "'+t[i].name+'" does not implement the method "bootstrap"',1475425785),m.bootstrap(a()),l++,r===l&&s().publish("view/ready")})}else s().publish("view/ready")}function ge(){D(o.type(L.bootstrap)==="function",'The structure component does not implement the method "bootstrap"',1478268639),z=L.bootstrap(a(),o(n().getDomElementDataAttribute("identifier","bracesWithKeyValue",[n().getDomElementDataAttributeValue("structure")]))),o(n().getDomElementDataIdentifierSelector("iconMailform"),o(n().getDomElementDataIdentifierSelector("structureRootContainer"))).attr("title","identifier: "+c().get("identifier"))}function fe(){D(o.type(_.bootstrap)==="function",'The modals component does not implement the method "bootstrap"',1478895106),$=_.bootstrap(a())}function Ee(){D(o.type(R.bootstrap)==="function",'The inspector component does not implement the method "bootstrap"',1478895106),q=R.bootstrap(a())}function pe(){D(o.type(R.bootstrap)==="function",'The stage component does not implement the method "bootstrap"',1478986610),G=me.bootstrap(a(),o(n().getDomElementDataAttribute("identifier","bracesWithKeyValue",[n().getDomElementDataAttributeValue("stageArea")]))),d().getStagePanelDomElement().on("click",function(e){(o(e.target).attr(n().getDomElementDataAttribute("identifier"))===n().getDomElementDataAttributeValue("stagePanelHeading")||o(e.target).attr(n().getDomElementDataAttribute("identifier"))===n().getDomElementDataAttributeValue("stageSection")||o(e.target).attr(n().getDomElementDataAttribute("identifier"))===n().getDomElementDataAttributeValue("stageArea"))&&ie(a().getCurrentlySelectedPageIndex()),s().publish("view/stage/panel/clicked",[])})}function De(){o(n().getDomElementDataIdentifierSelector("buttonHeaderSave")).on("click",function(){s().publish("view/header/button/save/clicked",[])}),o(n().getDomElementDataIdentifierSelector("buttonStageNewElementBottom")).on("click",function(){s().publish("view/stage/abstract/button/newElement/clicked",["view/insertElements/perform/bottom"])}),o(n().getDomElementDataIdentifierSelector("buttonToggleStructure")).on("click",function(){o(n().getDomElementDataIdentifierSelector("structureSection")).toggleClass("formeditor-sidebar-expanded")}),o(n().getDomElementDataIdentifierSelector("buttonToggleInspector")).on("click",function(){o(n().getDomElementDataIdentifierSelector("inspectorSection")).toggleClass("formeditor-sidebar-expanded")}),o(n().getDomElementDataIdentifierSelector("buttonFormSettings")).on("click",function(){s().publish("view/header/formSettings/clicked",[])}),o(n().getDomElementDataIdentifierSelector("buttonNewPage")).on("click",function(){s().publish("view/structure/button/newPage/clicked",["view/insertPages/perform"])}),o(n().getDomElementDataIdentifierSelector("buttonHeaderClose")).on("click",function(e){a().getUnsavedContent()&&(e.preventDefault(),s().publish("view/header/button/close/clicked",[]))}),o(n().getDomElementDataIdentifierSelector("buttonHeaderUndo")).on("click",function(){s().publish("view/undoButton/clicked",[])}),o(n().getDomElementDataIdentifierSelector("buttonHeaderRedo")).on("click",function(){s().publish("view/redoButton/clicked",[])}),o(n().getDomElementDataIdentifierSelector("buttonHeaderViewModeAbstract")).on("click",function(){s().publish("view/viewModeButton/abstract/clicked",[])}),o(n().getDomElementDataIdentifierSelector("buttonHeaderViewModePreview")).on("click",function(){s().publish("view/viewModeButton/preview/clicked",[])}),o(n().getDomElementDataIdentifierSelector("structureRootContainer")).on("click",function(){s().publish("view/structure/root/selected")}),o(n().getDomElementDataIdentifierSelector("buttonHeaderPaginationNext")).on("click",function(){s().publish("view/paginationNext/clicked",[])}),o(n().getDomElementDataIdentifierSelector("buttonHeaderPaginationPrevious")).on("click",function(){s().publish("view/paginationPrevious/clicked",[])})}function a(){return H}function n(e){return u().isUndefinedOrNull(e)?M.setConfiguration(j):M.setConfiguration(e)}function f(e,t){return a().getFormElementDefinition(e,t)}function ve(){return o.extend(!0,{},j)}function be(){return K}function he(e){K=!!e}function g(){return z}function T(){g().renew(),s().publish("view/structure/renew/postProcess")}function J(e){g().getTreeNode(e).addClass(n().getDomElementClassName("selectedFormElement"))}function Se(e){g().getTreeNode(e).removeClass(n().getDomElementClassName("selectedFormElement"))}function Q(){o(n().getDomElementClassName("selectedFormElement",!0),g().getTreeDomElement()).removeClass(n().getDomElementClassName("selectedFormElement"))}function B(){return o(n().getDomElementDataAttribute("identifier","bracesWithKeyValue",[n().getDomElementDataAttributeValue("structureRootContainer")]))}function X(){return o(n().getDomElementDataAttribute("identifier","bracesWithKeyValue",[n().getDomElementDataAttributeValue("structureRootElement")]))}function Y(){o(n().getDomElementDataAttribute("identifier","bracesWithKeyValue",[n().getDomElementDataAttributeValue("structureRootContainer")])).removeClass(n().getDomElementClassName("selectedRootFormElement"))}function Z(){o(n().getDomElementDataAttribute("identifier","bracesWithKeyValue",[n().getDomElementDataAttributeValue("structureRootContainer")])).addClass(n().getDomElementClassName("selectedRootFormElement"))}function ee(e){u().isUndefinedOrNull(e)&&(e=o("<span></span>").text(c().get("label")?c().get("label"):c().get("identifier")).text()),X().text(e)}function Ce(){g().getAllTreeNodes().removeClass(n().getDomElementClassName("validationErrors")).removeClass(n().getDomElementClassName("validationChildHasErrors")),le(B());const e=a().validateFormElementRecursive(c());for(let t=0,r=e.length;t<r;++t){let l=!1;for(let i=0,m=e[t].validationResults.length;i<m;++i)if(e[t].validationResults[i].validationResults&&e[t].validationResults[i].validationResults.length>0){l=!0;break}if(l)if(t===0)P(B());else{let i=g().getTreeNode(e[t].formElementIdentifierPath);P(i);const m=e[t].formElementIdentifierPath.split("/");for(;m.pop();)i=g().getTreeNode(m.join("/")),o.type(i)==="object"&&P(i,"validationChildHasErrors")}}}function S(){return $}function we(e){u().isUndefinedOrNull(e)&&(e=v()),S().showRemoveFormElementModal(e)}function Ne(e,t,r){u().isUndefinedOrNull(r)&&(r=v()),S().showRemoveCollectionElementModal(e,t,r)}function Pe(){S().showCloseConfirmationModal()}function Ie(e,t){S().showInsertElementsModal(e,t)}function Ae(e){S().showInsertPagesModal(e)}function Fe(){const e=a().validateFormElementRecursive(c());S().showValidationErrorsModal(e)}function N(){return q}function k(e,t){u().isUndefinedOrNull(t)&&(t=!0);const r=l=>{N().renderEditors(e,l)};t?N().getInspectorDomElement().fadeOut("fast",function(){r(function(){N().getInspectorDomElement().fadeIn("fast")})}):r()}function ye(){document.querySelector(n().getDomElementDataIdentifierSelector("buttonToggleInspector"))?.getClientRects().length===1&&document.querySelector(n().getDomElementDataIdentifierSelector("inspectorSection")).classList.add("formeditor-sidebar-expanded")}function Ve(e,t){N().renderCollectionElementEditors(e,t)}function d(){return G}function te(e){d().setStageHeadline(e)}function ne(){d().getStagePanelDomElement().addClass(n().getDomElementClassName("selectedStagePanel"))}function oe(){d().getStagePanelDomElement().removeClass(n().getDomElementClassName("selectedStagePanel"))}function U(){d().renderPagination()}function Re(){d().renderUndoRedo()}function re(e,t){u().isUndefinedOrNull(e)&&(e=!0),u().isUndefinedOrNull(t)&&(t=!0),y(o(n().getDomElementDataIdentifierSelector("buttonHeaderViewModeAbstract"))),x(o(n().getDomElementDataIdentifierSelector("buttonHeaderViewModePreview"))),o(n().getDomElementDataIdentifierSelector("moduleWrapper")).addClass(n().getDomElementClassName("viewModeAbstract")).removeClass(n().getDomElementClassName("viewModePreview"));const r=i=>{d().renderAbstractStageArea(void 0,i)},l=()=>{const i=f(v(),void 0);d().getAllFormElementDomElements().hover(function(){d().getAllFormElementDomElements().parent().removeClass(n().getDomElementClassName("sortableHover")),o(this).parent().hasClass(n().getDomElementClassName("formElementIsComposit"))&&!o(this).parent().hasClass(n().getDomElementClassName("formElementIsTopLevel"))&&o(this).parent().addClass(n().getDomElementClassName("sortableHover"))}),i._isTopLevelFormElement&&!i._isCompositeFormElement&&!a().isRootFormElementSelected()?(w(o(n().getDomElementDataIdentifierSelector("buttonStageNewElementBottom"))),w(o(n().getDomElementDataIdentifierSelector("stageNewElementRow")))):(b(o(n().getDomElementDataIdentifierSelector("buttonStageNewElementBottom"))),b(o(n().getDomElementDataIdentifierSelector("stageNewElementRow")))),O(t),s().publish("view/stage/abstract/render/postProcess")};e?o(n().getDomElementDataIdentifierSelector("stageSection")).fadeOut(400,function(){r(function(){s().publish("view/stage/abstract/render/preProcess"),o(n().getDomElementDataIdentifierSelector("stageSection")).fadeIn(400),l(),s().publish("view/stage/abstract/render/postProcess")})}):r(function(){s().publish("view/stage/abstract/render/preProcess"),l(),s().publish("view/stage/abstract/render/postProcess")})}function Me(e){y(o(n().getDomElementDataIdentifierSelector("buttonHeaderViewModePreview"))),x(o(n().getDomElementDataIdentifierSelector("buttonHeaderViewModeAbstract"))),o(n().getDomElementDataIdentifierSelector("moduleWrapper")).addClass(n().getDomElementClassName("viewModePreview")).removeClass(n().getDomElementClassName("viewModeAbstract")),o(n().getDomElementDataIdentifierSelector("stageSection")).fadeOut(400,function(){w(o(n().getDomElementDataIdentifierSelector("buttonStageNewElementBottom"))),d().renderPreviewStageArea(e),o(n().getDomElementDataIdentifierSelector("stageSection")).fadeIn(400),s().publish("view/stage/preview/render/postProcess")})}function He(){const e=a().validateFormElementRecursive(c());for(let t=0,r=e.length;t<r;++t){let l=!1;for(let i=0,m=e[t].validationResults.length;i<m;++i)if(e[t].validationResults[i].validationResults&&e[t].validationResults[i].validationResults.length>0){l=!0;break}if(l&&t>0){const i=d().getAbstractViewFormElementDomElement(e[t].formElementIdentifierPath);P(i)}}}function Te(e,t,r){const l=a().createAndAddFormElement(e,t);return r||s().publish("view/formElement/inserted",[l]),l}function C(e,t,r,l){const i=a().moveFormElement(e,t,r,!1);return l||s().publish("view/formElement/moved",[i]),i}function Be(e,t){let r;return u().isUndefinedOrNull(e)&&(e=v()),f(e,"_isTopLevelFormElement")&&f(e,"_isCompositeFormElement")&&c().get("renderables").length===1?F.error(f(c(),"modalRemoveElementLastAvailablePageFlashMessageTitle"),f(c(),"modalRemoveElementLastAvailablePageFlashMessageMessage"),2):(r=a().removeFormElement(e,!1),t||s().publish("view/formElement/removed",[r])),r}function ke(e,t,r,l,i,m){a().createAndAddPropertyCollectionElement(e,t,r,l,i),m||s().publish("view/collectionElement/new/added",[e,t,r,l,i])}function Ue(e,t,r,l,i,m){u().isUndefinedOrNull(i)&&(i=v()),a().movePropertyCollectionElement(e,t,r,l,i,!1),m||s().publish("view/collectionElement/moved",[e,t,r,l,i])}function Oe(e,t,r,l){let i,m;a().removePropertyCollectionElement(e,t,r);const E=a().getPropertyCollectionElementConfiguration(e,t);if(o.type(E.editors)==="array"){for(let p=0,se=E.editors.length;p<se;++p)if(o.type(E.editors[p].additionalElementPropertyPaths)==="array")for(let h=0,V=E.editors[p].additionalElementPropertyPaths.length;h<V;++h)v().unset(E.editors[p].additionalElementPropertyPaths[h],!0);else if(E.editors[p].identifier==="validationErrorMessage"&&(m=a().buildPropertyPath(E.editors[p].propertyPath),i=v().get(m),!u().isUndefinedOrNull(i))){for(let h=0,V=E.editors[p].errorCodes.length;h<V;++h)for(let I=0,W=i.length;I<W;++I)parseInt(E.editors[p].errorCodes[h],10)===parseInt(i[I].code,10)&&(i.splice(I,1),--W);v().set(m,i)}}l||s().publish("view/collectionElement/removed",[e,t,r])}function O(e){u().isUndefinedOrNull(e)&&(e=!0);const t=f(v(),void 0);if(d().removeAllStageToolbars(),ae(),Q(),!a().isRootFormElementSelected()){Y(),J();const r=d().getAbstractViewFormElementDomElement();t._isTopLevelFormElement?ne():(r.addClass(n().getDomElementClassName("selectedFormElement")),d().createAndAddAbstractViewFormElementToolbar(r,void 0,e)),d().getAllFormElementDomElements().parent().removeClass(n().getDomElementClassName("selectedCompositFormElement")),!t._isTopLevelFormElement&&t._isCompositeFormElement&&r.parent().addClass(n().getDomElementClassName("selectedCompositFormElement"))}}function ie(e){D(o.type(e)==="number",'Invalid parameter "pageIndex"',1478651732),D(e>=0,'Invalid parameter "pageIndex"',1478651733),D(e<c().get("renderables").length,'Invalid parameter "pageIndex"',1478651734),a().setCurrentlySelectedFormElement(c().get("renderables")[e]),T(),U(),O(),k()}function ae(){d().getAllFormElementDomElements().removeClass(n().getDomElementClassName("selectedFormElement")),oe(),d().getAllFormElementDomElements().parent().removeClass(n().getDomElementClassName("sortableHover"))}function xe(){w(o(n().getDomElementDataIdentifierSelector("buttonStageNewElementBottom"))),w(o(n().getDomElementDataIdentifierSelector("stageNewElementRow"))),te(),ee(),re(!1),T(),Z(),k(),U(),w(o(n().getDomElementDataIdentifierSelector("moduleLoadingIndicator"))),b(o(n().getDomElementDataIdentifierSelector("moduleWrapper"))),b(o(n().getDomElementDataIdentifierSelector("buttonHeaderSave"))),b(o(n().getDomElementDataIdentifierSelector("buttonHeaderClose"))),b(o(n().getDomElementDataIdentifierSelector("buttonHeaderUndo"))),b(o(n().getDomElementDataIdentifierSelector("buttonHeaderRedo"))),y(o(n().getDomElementDataIdentifierSelector("buttonHeaderViewModeAbstract")))}function We(e,t){o(t).removeClass(n().getDomElementClassName("sortableHover"))}function Le(e,t,r){d().getAllFormElementDomElements().parent().removeClass(n().getDomElementClassName("sortableHover")),r&&d().getAbstractViewParentFormElementWithinDomElement(e).parent().addClass(n().getDomElementClassName("sortableHover"))}function _e(e,t,r,l){let i,m;l?i=C(t,"before",l):r?i=C(t,"after",r):(m=d().getAbstractViewParentFormElementIdentifierPathWithinDomElement(e),m?i=C(t,"inside",m):D(!1,"Next element, previous or parent element need to be set.",1472502237)),d().getAbstractViewFormElementWithinDomElement(e).attr(n().getDomElementDataAttribute("elementIdentifier"),i.get("__identifierPath"))}function je(e,t,r){g().getAllTreeNodes().parent().removeClass(n().getDomElementClassName("sortableHover")),d().getAllFormElementDomElements().parent().removeClass(n().getDomElementClassName("sortableHover")),r&&(g().getParentTreeNodeWithinDomElement(e).parent().addClass(n().getDomElementClassName("sortableHover")),d().getAbstractViewFormElementDomElement(r).parent().addClass(n().getDomElementClassName("sortableHover")))}function Ke(e,t,r,l){let i,m;l?i=C(t,"before",l):r?i=C(t,"after",r):(m=g().getParentTreeNodeIdentifierPathWithinDomElement(e),m?i=C(t,"inside",m):a().assert(!1,"Next element, previous or parent element need to be set.",1479048646)),g().getTreeNodeWithinDomElement(e).attr(n().getDomElementDataAttribute("elementIdentifier"),i.get("__identifierPath"))}function ze(){document.location.href=o(n().getDomElementDataIdentifierSelector("buttonHeaderClose")).prop("href")}function P(e,t){a().getUtility().isUndefinedOrNull(t)?e.addClass(n().getDomElementClassName("validationErrors")):e.addClass(n().getDomElementClassName(t))}function le(e,t){a().getUtility().isUndefinedOrNull(t)?e.removeClass(n().getDomElementClassName("validationErrors")):e.removeClass(n().getDomElementClassName(t))}function b(e){e.removeClass(n().getDomElementClassName("hidden")).show()}function w(e){e.addClass(n().getDomElementClassName("hidden")).hide()}function $e(e){e.prop("disabled",!1).removeClass(n().getDomElementClassName("disabled"))}function qe(e){e.prop("disabled","disabled").addClass(n().getDomElementClassName("disabled"))}function y(e){e.addClass(n().getDomElementClassName("active"))}function x(e){e.removeClass(n().getDomElementClassName("active"))}function Ge(){A.getIcon(n().getDomElementDataAttributeValue("iconSaveSpinner"),A.sizes.small).then(function(e){o(n().getDomElementDataIdentifierSelector("iconSave")).replaceWith(o(e))})}function Je(){A.getIcon(n().getDomElementDataAttributeValue("iconSave"),A.sizes.small).then(function(e){o(n().getDomElementDataIdentifierSelector("iconSaveSpinner")).replaceWith(o(e))})}function Qe(){F.success(f(c(),"saveSuccessFlashMessageTitle"),f(c(),"saveSuccessFlashMessageMessage"),2)}function Xe(e){F.error(f(c(),"saveErrorFlashMessageTitle"),f(c(),"saveErrorFlashMessageMessage")+" "+e.message)}function Ye(e,t){F.error(e,t,2)}function Ze(e,t){H=e,M.bootstrap(H),ge(),fe(),Ee(),pe(),De(),ue(),ce(t)}export{He as addAbstractViewValidationResults,ne as addStagePanelSelection,Z as addStructureRootElementSelection,J as addStructureSelection,Ce as addStructureValidationResults,Ze as bootstrap,ze as closeEditor,Te as createAndAddFormElement,ke as createAndAddPropertyCollectionElement,qe as disableButton,$e as enableButton,ve as getConfiguration,a as getFormEditorApp,f as getFormElementDefinition,n as getHelper,N as getInspector,S as getModals,be as getPreviewMode,d as getStage,g as getStructure,B as getStructureRootContainer,X as getStructureRootElement,w as hideComponent,C as moveFormElement,Ue as movePropertyCollectionElement,Le as onAbstractViewDndChangeBatch,We as onAbstractViewDndStartBatch,_e as onAbstractViewDndUpdateBatch,je as onStructureDndChangeBatch,Ke as onStructureDndUpdateBatch,xe as onViewReadyBatch,O as refreshSelectedElementItemsBatch,ae as removeAllStageElementSelectionsBatch,Q as removeAllStructureSelections,x as removeButtonActive,le as removeElementValidationErrorClass,Be as removeFormElement,Oe as removePropertyCollectionElement,oe as removeStagePanelSelection,Y as removeStructureRootElementSelection,Se as removeStructureSelection,re as renderAbstractStageArea,Ve as renderInspectorCollectionElementEditors,k as renderInspectorEditors,U as renderPagination,Me as renderPreviewStageArea,Re as renderUndoRedo,T as renewStructure,ie as selectPageBatch,y as setButtonActive,P as setElementValidationErrorClass,he as setPreviewMode,te as setStageHeadline,ee as setStructureRootElementTitle,Pe as showCloseConfirmationModal,b as showComponent,Ye as showErrorFlashMessage,Ie as showInsertElementsModal,Ae as showInsertPagesModal,ye as showInspectorSidebar,Ne as showRemoveCollectionElementModal,we as showRemoveFormElementModal,Je as showSaveButtonSaveIcon,Ge as showSaveButtonSpinnerIcon,Xe as showSaveErrorMessage,Qe as showSaveSuccessMessage,Fe as showValidationErrorsModal};
+/**
+ * Module: @typo3/form/backend/form-editor/view-model
+ */
+import { cloneDeep } from 'lodash-es';
+import * as TreeComponent from '@typo3/form/backend/form-editor/tree-component-adapter.js';
+import * as ModalsComponent from '@typo3/form/backend/form-editor/modals-component.js';
+import * as InspectorComponent from '@typo3/form/backend/form-editor/inspector-component.js';
+import * as StageComponent from '@typo3/form/backend/form-editor/stage-component.js';
+import * as Helper from '@typo3/form/backend/form-editor/helper.js';
+import Icons from '@typo3/backend/icons.js';
+import Notification from '@typo3/backend/notification.js';
+import { loadModule } from '@typo3/core/java-script-item-processor.js';
+const configuration = {
+    domElementClassNames: {
+        formElementIsComposit: 'formeditor-element-composit',
+        formElementIsTopLevel: 'formeditor-element-toplevel',
+        hasError: 'has-error',
+        selectedCompositFormElement: 'selected',
+        selectedFormElement: 'selected',
+        selectedRootFormElement: 'selected',
+        selectedStagePanel: 't3-form-form-stage-selected',
+        sortableHover: 'sortable-hover',
+        viewModeAbstract: 'formeditor-module-viewmode-abstract',
+        viewModePreview: 'formeditor-module-viewmode-preview'
+    },
+    domElementDataAttributeNames: {
+        abstractType: 'data-element-abstract-type'
+    },
+    domElementDataAttributeValues: {
+        buttonHeaderClose: 'closeButton',
+        buttonHeaderPaginationNext: 'buttonPaginationNext',
+        buttonHeaderPaginationPrevious: 'buttonPaginationPrevious',
+        buttonHeaderRedo: 'redoButton',
+        buttonHeaderSave: 'saveButton',
+        buttonHeaderUndo: 'undoButton',
+        buttonHeaderViewModeAbstract: 'buttonViewModeAbstract',
+        buttonHeaderViewModePreview: 'buttonViewModePreview',
+        buttonFormSettings: 'formSettings',
+        buttonToggleStructure: 'formeditorStructureToggle',
+        buttonExpandInspector: 'formeditorInspectorExpand',
+        buttonCollapseInspector: 'formeditorInspectorCollapse',
+        buttonNewPage: 'newPage',
+        iconMailform: 'content-form',
+        iconSave: 'actions-document-save',
+        iconSaveSpinner: 'spinner-circle',
+        inspectorSection: 'inspectorSection',
+        moduleLoadingIndicator: 'moduleLoadingIndicator',
+        moduleWrapper: 'moduleWrapper',
+        stageArea: 'stageArea',
+        stageContainer: 'stageContainer',
+        stageContainerInner: 'stageContainerInner',
+        stagePanelHeading: 'panelHeading',
+        stageSection: 'stageSection',
+        structure: 'structure-element',
+        structureSection: 'structureSection',
+        structureRootContainer: 'treeRootContainer',
+        structureRootElement: 'treeRootElement'
+    }
+};
+let previewMode = false;
+let formEditorApp = null;
+let structureComponent = null;
+let modalsComponent = null;
+let inspectorsComponent = null;
+let stageComponent = null;
+function getRootFormElement() {
+    return getFormEditorApp().getRootFormElement();
+}
+function assert(test, message, messageCode) {
+    return getFormEditorApp().assert(test, message, messageCode);
+}
+function getUtility() {
+    return getFormEditorApp().getUtility();
+}
+function getCurrentlySelectedFormElement() {
+    return getFormEditorApp().getCurrentlySelectedFormElement();
+}
+function getPublisherSubscriber() {
+    return getFormEditorApp().getPublisherSubscriber();
+}
+/**
+ * RFC 3339 full-date format: YYYY-MM-DD
+ */
+const RFC3339_FULL_DATE_PATTERN = /^([0-9]{4})-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])$/i;
+function isAbsoluteDate(value) {
+    return RFC3339_FULL_DATE_PATTERN.test(value);
+}
+/**
+ * A relative date expression is any non-empty string that is NOT an absolute
+ * date (YYYY-MM-DD). Actual validation is performed server-side by PHP's
+ * DateTime parser, which supports the full strtotime() grammar (e.g.
+ * "last sunday", "first day of next month", "+1 month +3 days").
+ */
+function isRelativeDateExpression(value) {
+    const trimmed = value.trim();
+    return trimmed.length > 0 && !isAbsoluteDate(trimmed);
+}
+function addPropertyValidators() {
+    getFormEditorApp().addPropertyValidationValidator('NotEmpty', function (formElement, propertyPath) {
+        const value = formElement.get(propertyPath);
+        if (!value || value === '' || Array.isArray(value) && !value.length) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('NotEmpty').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('Integer', function (formElement, propertyPath) {
+        const value = formElement.get(propertyPath);
+        if (value === '' || value === null || isNaN(Number(value))) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('Integer').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('IntegerOrEmpty', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        if (formElement.get(propertyPath).length > 0 && isNaN(Number(formElement.get(propertyPath)))) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('Integer').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('NaiveEmail', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        if (!formElement.get(propertyPath).match(/\S+@\S+\.\S+/)) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('NaiveEmail').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('NaiveEmailOrEmpty', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        if (formElement.get(propertyPath).length > 0 && !formElement.get(propertyPath).match(/\S+@\S+\.\S+/)) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('NaiveEmailOrEmpty').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('FormElementIdentifierWithinCurlyBracesInclusive', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        const regex = /\{([a-z0-9-_]+)?\}/gi;
+        const match = regex.exec(formElement.get(propertyPath));
+        if (match && ((match[1] && match[1] !== '__currentTimestamp' && !getFormEditorApp().isFormElementIdentifierUsed(match[1])) || !match[1])) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('FormElementIdentifierWithinCurlyBracesInclusive').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('FormElementIdentifierWithinCurlyBracesExclusive', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        const regex = /^\{([a-z0-9-_]+)?\}$/i;
+        const match = regex.exec(formElement.get(propertyPath));
+        if (!match || ((match[1] && match[1] !== '__currentTimestamp' && !getFormEditorApp().isFormElementIdentifierUsed(match[1])) || !match[1])) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('FormElementIdentifierWithinCurlyBracesInclusive').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('FileSize', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        if (!formElement.get(propertyPath).match(/^(\d*\.?\d+)(B|K|M|G)$/i)) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('FileSize').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('RFC3339FullDate', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        const value = formElement.get(propertyPath);
+        if (!isAbsoluteDate(value) && !isRelativeDateExpression(value)) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('RFC3339FullDate').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('RFC3339FullDateOrEmpty', function (formElement, propertyPath) {
+        if (getUtility().isUndefinedOrNull(formElement.get(propertyPath))) {
+            return undefined;
+        }
+        const value = formElement.get(propertyPath);
+        if (value.length > 0 && !isAbsoluteDate(value) && !isRelativeDateExpression(value)) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('RFC3339FullDate').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+    getFormEditorApp().addPropertyValidationValidator('RegularExpressionPattern', function (formElement, propertyPath) {
+        const value = formElement.get(propertyPath);
+        let isValid = true;
+        if (!getUtility().isNonEmptyString(value)) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('RegularExpressionPattern').errorMessage || 'invalid value';
+        }
+        try {
+            const matches = value.match(/^\/(.*)\/[gmixsuUAJD]*$/);
+            if (null !== matches) {
+                new RegExp(matches[1]);
+            }
+            else {
+                isValid = false;
+            }
+        }
+        catch {
+            isValid = false;
+        }
+        if (!isValid) {
+            return getFormEditorApp().getFormElementPropertyValidatorDefinition('RegularExpressionPattern').errorMessage || 'invalid value';
+        }
+        return undefined;
+    });
+}
+/**
+ * @publish view/ready
+ * @throws 1475425785
+ */
+function loadAdditionalModules(_additionalViewModelModules) {
+    let additionalViewModelModules = [];
+    if (typeof _additionalViewModelModules === 'object' && !Array.isArray(_additionalViewModelModules)) {
+        for (const key of Object.keys(_additionalViewModelModules)) {
+            additionalViewModelModules.push(_additionalViewModelModules[key]);
+        }
+    }
+    else {
+        additionalViewModelModules = _additionalViewModelModules;
+    }
+    if (!Array.isArray(additionalViewModelModules)) {
+        getPublisherSubscriber().publish('view/ready');
+        return;
+    }
+    const additionalViewModelModulesLength = additionalViewModelModules.length;
+    if (additionalViewModelModulesLength > 0) {
+        let loadedAdditionalViewModelModules = 0;
+        for (let i = 0; i < additionalViewModelModulesLength; ++i) {
+            loadModule(additionalViewModelModules[i]).then(function (additionalViewModelModule) {
+                assert(typeof additionalViewModelModule.bootstrap === 'function', 'The module "' + additionalViewModelModules[i].name + '" does not implement the method "bootstrap"', 1475425785);
+                additionalViewModelModule.bootstrap(getFormEditorApp());
+                loadedAdditionalViewModelModules++;
+                if (additionalViewModelModulesLength === loadedAdditionalViewModelModules) {
+                    getPublisherSubscriber().publish('view/ready');
+                }
+            });
+        }
+    }
+    else {
+        getPublisherSubscriber().publish('view/ready');
+    }
+}
+/**
+ * @throws 1478268639
+ */
+function structureComponentSetup() {
+    assert(typeof TreeComponent.bootstrap === 'function', 'The structure component does not implement the method "bootstrap"', 1478268639);
+    structureComponent = TreeComponent.bootstrap(getFormEditorApp(), document.querySelector(getHelper().getDomElementDataAttribute('identifier', 'bracesWithKeyValue', [
+        getHelper().getDomElementDataAttributeValue('structure')
+    ])));
+    const iconMailformEl = document.querySelector(getHelper().getDomElementDataIdentifierSelector('structureRootContainer'))?.querySelector(getHelper().getDomElementDataIdentifierSelector('iconMailform'));
+    if (iconMailformEl) {
+        iconMailformEl.setAttribute('title', 'identifier: ' + getRootFormElement().get('identifier'));
+    }
+}
+/**
+ * @throws 1478895106
+ */
+function modalsComponentSetup() {
+    assert(typeof ModalsComponent.bootstrap === 'function', 'The modals component does not implement the method "bootstrap"', 1478895106);
+    modalsComponent = ModalsComponent.bootstrap(getFormEditorApp());
+}
+/**
+ * @throws 1478895106
+ */
+function inspectorsComponentSetup() {
+    assert(typeof InspectorComponent.bootstrap === 'function', 'The inspector component does not implement the method "bootstrap"', 1478895106);
+    inspectorsComponent = InspectorComponent.bootstrap(getFormEditorApp());
+}
+/**
+ * @throws 1478986610
+ */
+function stageComponentSetup() {
+    assert(typeof InspectorComponent.bootstrap === 'function', 'The stage component does not implement the method "bootstrap"', 1478986610);
+    stageComponent = StageComponent.bootstrap(getFormEditorApp(), document.querySelector(getHelper().getDomElementDataAttribute('identifier', 'bracesWithKeyValue', [
+        getHelper().getDomElementDataAttributeValue('stageArea')
+    ])));
+    const stagePanelEl = getStage().getStagePanelDomElement();
+    stagePanelEl?.addEventListener('click', function (e) {
+        const identifierAttr = getHelper().getDomElementDataAttribute('identifier');
+        const target = e.target;
+        if (target.getAttribute(identifierAttr) === getHelper().getDomElementDataAttributeValue('stagePanelHeading')
+            || target.getAttribute(identifierAttr) === getHelper().getDomElementDataAttributeValue('stageSection')
+            || target.getAttribute(identifierAttr) === getHelper().getDomElementDataAttributeValue('stageArea')) {
+            selectPageBatch(getFormEditorApp().getCurrentlySelectedPageIndex());
+        }
+        getPublisherSubscriber().publish('view/stage/panel/clicked', []);
+    });
+}
+/**
+ * @publish view/header/button/save/clicked
+ * @publish view/stage/abstract/button/newElement/clicked
+ * @publish view/header/button/newPage/clicked
+ * @publish view/structure/button/newPage/clicked
+ * @publish view/header/button/close/clicked
+ */
+function buttonsSetup() {
+    const qs = (id) => document.querySelector(getHelper().getDomElementDataIdentifierSelector(id));
+    qs('buttonHeaderSave')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/header/button/save/clicked', []);
+    });
+    qs('buttonToggleStructure')?.addEventListener('click', function () {
+        qs('structureSection')?.classList.toggle('formeditor-inspector-expanded');
+    });
+    qs('buttonExpandInspector')?.addEventListener('click', function () {
+        qs('inspectorSection')?.classList.add('formeditor-inspector-expanded');
+    });
+    qs('buttonCollapseInspector')?.addEventListener('click', function () {
+        qs('inspectorSection')?.classList.remove('formeditor-inspector-expanded');
+    });
+    qs('buttonFormSettings')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/header/formSettings/clicked', []);
+    });
+    qs('buttonNewPage')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/structure/button/newPage/clicked', ['view/insertPages/perform']);
+    });
+    qs('buttonHeaderClose')?.addEventListener('click', function (e) {
+        if (!getFormEditorApp().getUnsavedContent()) {
+            return;
+        }
+        e.preventDefault();
+        getPublisherSubscriber().publish('view/header/button/close/clicked', []);
+    });
+    qs('buttonHeaderUndo')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/undoButton/clicked', []);
+    });
+    qs('buttonHeaderRedo')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/redoButton/clicked', []);
+    });
+    qs('buttonHeaderViewModeAbstract')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/viewModeButton/abstract/clicked', []);
+    });
+    qs('buttonHeaderViewModePreview')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/viewModeButton/preview/clicked', []);
+    });
+    qs('structureRootContainer')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/structure/root/selected');
+    });
+    qs('buttonHeaderPaginationNext')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/paginationNext/clicked', []);
+    });
+    qs('buttonHeaderPaginationPrevious')?.addEventListener('click', function () {
+        getPublisherSubscriber().publish('view/paginationPrevious/clicked', []);
+    });
+}
+/* *************************************************************
+ * Public Methods
+ * ************************************************************/
+export function getFormEditorApp() {
+    return formEditorApp;
+}
+export function getHelper(_configuration) {
+    if (getUtility().isUndefinedOrNull(_configuration)) {
+        return Helper.setConfiguration(configuration);
+    }
+    return Helper.setConfiguration(_configuration);
+}
+export function getFormElementDefinition(formElement, formElementDefinitionKey) {
+    return getFormEditorApp().getFormElementDefinition(formElement, formElementDefinitionKey);
+}
+export function getConfiguration() {
+    return cloneDeep(configuration);
+}
+export function getPreviewMode() {
+    return previewMode;
+}
+export function setPreviewMode(newPreviewMode) {
+    previewMode = !!newPreviewMode;
+}
+/* *************************************************************
+ * Structure
+ * ************************************************************/
+export function getStructure() {
+    return structureComponent;
+}
+/**
+ * @publish view/structure/renew/postProcess
+ */
+export function renewStructure() {
+    getStructure().renew();
+    getPublisherSubscriber().publish('view/structure/renew/postProcess');
+}
+export function selectStructureNode(formElement) {
+    getStructure().selectTreeNode(formElement);
+}
+export function addStructureSelection(formElement) {
+    getStructure().getTreeNode(formElement)?.classList.add(getHelper().getDomElementClassName('selectedFormElement'));
+}
+/**
+ * @todo deprecate, method is unused
+ */
+export function removeStructureSelection(formElement) {
+    getStructure().getTreeNode(formElement)?.classList.remove(getHelper().getDomElementClassName('selectedFormElement'));
+}
+export function removeAllStructureSelections() {
+    const treeDom = getStructure().getTreeDomElement();
+    if (treeDom) {
+        treeDom.querySelectorAll(getHelper().getDomElementClassName('selectedFormElement', true))
+            .forEach((el) => el.classList.remove(getHelper().getDomElementClassName('selectedFormElement')));
+    }
+}
+export function getStructureRootContainer() {
+    return document.querySelector(getHelper().getDomElementDataAttribute('identifier', 'bracesWithKeyValue', [
+        getHelper().getDomElementDataAttributeValue('structureRootContainer')
+    ]));
+}
+export function getStructureRootElement() {
+    return document.querySelector(getHelper().getDomElementDataAttribute('identifier', 'bracesWithKeyValue', [
+        getHelper().getDomElementDataAttributeValue('structureRootElement')
+    ]));
+}
+export function removeStructureRootElementSelection() {
+    getStructureRootContainer()?.classList.remove(getHelper().getDomElementClassName('selectedRootFormElement'));
+}
+export function addStructureRootElementSelection() {
+    getStructureRootContainer()?.classList.add(getHelper().getDomElementClassName('selectedRootFormElement'));
+}
+export function setStructureRootElementTitle(title) {
+    if (getUtility().isUndefinedOrNull(title)) {
+        const span = document.createElement('span');
+        span.textContent = getRootFormElement().get('label') ? getRootFormElement().get('label') : getRootFormElement().get('identifier');
+        title = span.textContent;
+    }
+    const el = getStructureRootElement();
+    if (el) {
+        el.textContent = title;
+    }
+}
+export function addStructureValidationResults() {
+    getStructure().clearAllValidationErrors();
+    const validationResults = getFormEditorApp().validateFormElementRecursive(getRootFormElement());
+    for (let i = 0, len = validationResults.length; i < len; ++i) {
+        let hasError = false;
+        for (let j = 0, len2 = validationResults[i].validationResults.length; j < len2; ++j) {
+            if (validationResults[i].validationResults[j].validationResults
+                && validationResults[i].validationResults[j].validationResults.length > 0) {
+                hasError = true;
+                break;
+            }
+        }
+        if (hasError) {
+            const identifierPath = validationResults[i].formElementIdentifierPath;
+            // Set validation error on the tree node (adds CSS class + overlay icon)
+            getStructure().setNodeValidationError(identifierPath, true);
+            // Mark all parent nodes as having a child with error
+            const pathParts = identifierPath.split('/');
+            while (pathParts.pop()) {
+                const parentPath = pathParts.join('/');
+                if (parentPath) {
+                    getStructure().setNodeChildHasError(parentPath, true);
+                }
+            }
+        }
+    }
+}
+/* *************************************************************
+ * Modals
+ * ************************************************************/
+export function getModals() {
+    return modalsComponent;
+}
+export function showRemoveFormElementModal(formElement) {
+    if (getUtility().isUndefinedOrNull(formElement)) {
+        formElement = getCurrentlySelectedFormElement();
+    }
+    getModals().showRemoveFormElementModal(formElement);
+}
+export function showRemoveCollectionElementModal(collectionElementIdentifier, collectionName, formElement) {
+    if (getUtility().isUndefinedOrNull(formElement)) {
+        formElement = getCurrentlySelectedFormElement();
+    }
+    getModals().showRemoveCollectionElementModal(collectionElementIdentifier, collectionName, formElement);
+}
+export function showCloseConfirmationModal() {
+    getModals().showCloseConfirmationModal();
+}
+export function showInsertElementsModal(targetEvent, configuration) {
+    getModals().showInsertElementsModal(targetEvent, configuration);
+}
+export function showInsertPagesModal(targetEvent) {
+    getModals().showInsertPagesModal(targetEvent);
+}
+export function showValidationErrorsModal() {
+    const validationResults = getFormEditorApp().validateFormElementRecursive(getRootFormElement());
+    getModals().showValidationErrorsModal(validationResults);
+}
+/* *************************************************************
+ * Inspector
+ * ************************************************************/
+export function getInspector() {
+    return inspectorsComponent;
+}
+export function renderInspectorEditors(formElement) {
+    getInspector().renderEditors(formElement);
+}
+export function focusFirstInspectorInput() {
+    const inspectorSection = document.querySelector(getHelper().getDomElementDataIdentifierSelector('inspectorSection'));
+    if (inspectorSection) {
+        const firstInput = inspectorSection.querySelector('input, select, textarea');
+        firstInput?.focus();
+    }
+}
+export function showInspectorSidebar() {
+    document.querySelector(getHelper().getDomElementDataIdentifierSelector('inspectorSection'))?.classList.add('formeditor-inspector-expanded');
+}
+export function renderInspectorCollectionElementEditors(collectionName, collectionElementIdentifier) {
+    getInspector().renderCollectionElementEditors(collectionName, collectionElementIdentifier);
+}
+/* *************************************************************
+ * Stage
+ * ************************************************************/
+export function getStage() {
+    return stageComponent;
+}
+export function setStageHeadline(title) {
+    getStage().setStageHeadline(title);
+}
+export function addStagePanelSelection() {
+    getStage().getStagePanelDomElement()?.classList.add(getHelper().getDomElementClassName('selectedStagePanel'));
+}
+export function removeStagePanelSelection() {
+    getStage().getStagePanelDomElement()?.classList.remove(getHelper().getDomElementClassName('selectedStagePanel'));
+}
+export function renderPagination() {
+    getStage().renderPagination();
+}
+export function renderUndoRedo() {
+    getStage().renderUndoRedo();
+}
+/**
+ * @publish view/stage/abstract/render/postProcess
+ * @publish view/stage/abstract/render/preProcess
+ */
+export function renderAbstractStageArea() {
+    setButtonActive(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderViewModeAbstract')));
+    removeButtonActive(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderViewModePreview')));
+    document.querySelector(getHelper().getDomElementDataIdentifierSelector('moduleWrapper'))
+        ?.classList.add(getHelper().getDomElementClassName('viewModeAbstract'));
+    document.querySelector(getHelper().getDomElementDataIdentifierSelector('moduleWrapper'))
+        ?.classList.remove(getHelper().getDomElementClassName('viewModePreview'));
+    const render = (callback) => {
+        getStage().renderAbstractStageArea(undefined, callback);
+    };
+    const renderPostProcess = () => {
+        const formElementTypeDefinition = getFormElementDefinition(getCurrentlySelectedFormElement(), undefined);
+        getStage().getAllFormElementDomElements().forEach(function (el) {
+            el.addEventListener('mouseenter', function () {
+                getStage().getAllFormElementDomElements().forEach((other) => {
+                    other.parentElement?.classList.remove(getHelper().getDomElementClassName('sortableHover'));
+                });
+                if (el.parentElement?.classList.contains(getHelper().getDomElementClassName('formElementIsComposit'))
+                    && !el.parentElement?.classList.contains(getHelper().getDomElementClassName('formElementIsTopLevel'))) {
+                    el.parentElement?.classList.add(getHelper().getDomElementClassName('sortableHover'));
+                }
+            });
+        });
+        if (formElementTypeDefinition._isTopLevelFormElement
+            && !formElementTypeDefinition._isCompositeFormElement
+            && !getFormEditorApp().isRootFormElementSelected()) {
+            // Non-composite top-level elements don't allow adding children
+        }
+        refreshSelectedElementItemsBatch();
+        getPublisherSubscriber().publish('view/stage/abstract/render/postProcess');
+    };
+    render(function () {
+        getPublisherSubscriber().publish('view/stage/abstract/render/preProcess');
+        renderPostProcess();
+        getPublisherSubscriber().publish('view/stage/abstract/render/postProcess');
+    });
+}
+/**
+ * @publish view/stage/preview/render/postProcess
+ */
+export function renderPreviewStageArea(html) {
+    setButtonActive(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderViewModePreview')));
+    removeButtonActive(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderViewModeAbstract')));
+    document.querySelector(getHelper().getDomElementDataIdentifierSelector('moduleWrapper'))
+        ?.classList.add(getHelper().getDomElementClassName('viewModePreview'));
+    document.querySelector(getHelper().getDomElementDataIdentifierSelector('moduleWrapper'))
+        ?.classList.remove(getHelper().getDomElementClassName('viewModeAbstract'));
+    getStage().renderPreviewStageArea(html);
+    getPublisherSubscriber().publish('view/stage/preview/render/postProcess');
+}
+export function addAbstractViewValidationResults() {
+    const validationResults = getFormEditorApp().validateFormElementRecursive(getRootFormElement());
+    for (let i = 0, len = validationResults.length; i < len; ++i) {
+        let hasError = false;
+        for (let j = 0, len2 = validationResults[i].validationResults.length; j < len2; ++j) {
+            if (validationResults[i].validationResults[j].validationResults
+                && validationResults[i].validationResults[j].validationResults.length > 0) {
+                hasError = true;
+                break;
+            }
+        }
+        if (hasError) {
+            if (i > 0) {
+                const validationElement = getStage().getAbstractViewFormElementDomElement(validationResults[i].formElementIdentifierPath);
+                // Set invalid property on Lit web component (FormElementStageItem)
+                const stageItem = validationElement.querySelector('typo3-form-form-element-stage-item');
+                if (stageItem && 'invalid' in stageItem) {
+                    stageItem.invalid = true;
+                }
+                // Also set legacy CSS class for backward compatibility (legacy templates)
+                setElementValidationErrorClass(validationElement);
+            }
+        }
+    }
+}
+/* *************************************************************
+ * Form element methods
+ * ************************************************************/
+/**
+ * @publish view/formElement/inserted
+ */
+export function createAndAddFormElement(formElementType, referenceFormElement, disablePublishersOnSet) {
+    const newFormElement = getFormEditorApp().createAndAddFormElement(formElementType, referenceFormElement);
+    if (!disablePublishersOnSet) {
+        getPublisherSubscriber().publish('view/formElement/inserted', [newFormElement]);
+    }
+    return newFormElement;
+}
+/**
+ * @publish view/formElement/moved
+ */
+export function moveFormElement(formElementToMove, position, referenceFormElement, disablePublishersOnSet) {
+    const movedFormElement = getFormEditorApp().moveFormElement(formElementToMove, position, referenceFormElement, false);
+    if (!disablePublishersOnSet) {
+        getPublisherSubscriber().publish('view/formElement/moved', [movedFormElement]);
+    }
+    return movedFormElement;
+}
+/**
+ * @publish view/formElement/removed
+ */
+export function removeFormElement(formElement, disablePublishersOnSet) {
+    let parentFormElement;
+    if (getUtility().isUndefinedOrNull(formElement)) {
+        formElement = getCurrentlySelectedFormElement();
+    }
+    if (getFormElementDefinition(formElement, '_isTopLevelFormElement')
+        && getFormElementDefinition(formElement, '_isCompositeFormElement')
+        && getRootFormElement().get('renderables').length === 1) {
+        Notification.error(getFormElementDefinition(getRootFormElement(), 'modalRemoveElementLastAvailablePageFlashMessageTitle'), getFormElementDefinition(getRootFormElement(), 'modalRemoveElementLastAvailablePageFlashMessageMessage'), 2);
+    }
+    else {
+        parentFormElement = getFormEditorApp().removeFormElement(formElement, false);
+        if (!disablePublishersOnSet) {
+            getPublisherSubscriber().publish('view/formElement/removed', [parentFormElement]);
+        }
+    }
+    return parentFormElement;
+}
+/**
+ * @publish view/collectionElement/new/added
+ */
+export function createAndAddPropertyCollectionElement(collectionElementIdentifier, collectionName, formElement, collectionElementConfiguration, referenceCollectionElementIdentifier, disablePublishersOnSet) {
+    getFormEditorApp().createAndAddPropertyCollectionElement(collectionElementIdentifier, collectionName, formElement, collectionElementConfiguration, referenceCollectionElementIdentifier);
+    if (!disablePublishersOnSet) {
+        getPublisherSubscriber().publish('view/collectionElement/new/added', [
+            collectionElementIdentifier,
+            collectionName,
+            formElement,
+            collectionElementConfiguration,
+            referenceCollectionElementIdentifier
+        ]);
+    }
+}
+export function movePropertyCollectionElement(collectionElementToMove, position, referenceCollectionElement, collectionName, formElement, disablePublishersOnSet) {
+    if (getUtility().isUndefinedOrNull(formElement)) {
+        formElement = getCurrentlySelectedFormElement();
+    }
+    getFormEditorApp().movePropertyCollectionElement(collectionElementToMove, position, referenceCollectionElement, collectionName, formElement, false);
+    if (!disablePublishersOnSet) {
+        getPublisherSubscriber().publish('view/collectionElement/moved', [
+            collectionElementToMove,
+            position,
+            referenceCollectionElement,
+            collectionName,
+            formElement
+        ]);
+    }
+}
+/**
+ * @publish view/collectionElement/removed
+ */
+export function removePropertyCollectionElement(collectionElementIdentifier, collectionName, formElement, disablePublishersOnSet) {
+    let propertyData, propertyPath;
+    getFormEditorApp().removePropertyCollectionElement(collectionElementIdentifier, collectionName, formElement);
+    const collectionElementConfiguration = getFormEditorApp().getPropertyCollectionElementConfiguration(collectionElementIdentifier, collectionName);
+    if (Array.isArray(collectionElementConfiguration.editors)) {
+        for (let i = 0, len1 = collectionElementConfiguration.editors.length; i < len1; ++i) {
+            if (Array.isArray(collectionElementConfiguration.editors[i].additionalElementPropertyPaths)) {
+                for (let j = 0, len2 = collectionElementConfiguration.editors[i].additionalElementPropertyPaths.length; j < len2; ++j) {
+                    getCurrentlySelectedFormElement().unset(collectionElementConfiguration.editors[i].additionalElementPropertyPaths[j], true);
+                }
+            }
+            else if (collectionElementConfiguration.editors[i].identifier === 'validationErrorMessage') {
+                propertyPath = getFormEditorApp().buildPropertyPath(collectionElementConfiguration.editors[i].propertyPath);
+                propertyData = getCurrentlySelectedFormElement().get(propertyPath);
+                if (!getUtility().isUndefinedOrNull(propertyData)) {
+                    for (let j = 0, len2 = collectionElementConfiguration.editors[i].errorCodes.length; j < len2; ++j) {
+                        for (let k = 0, len3 = propertyData.length; k < len3; ++k) {
+                            if (parseInt(collectionElementConfiguration.editors[i].errorCodes[j], 10) === parseInt(propertyData[k].code, 10)) {
+                                propertyData.splice(k, 1);
+                                --len3;
+                            }
+                        }
+                    }
+                    getCurrentlySelectedFormElement().set(propertyPath, propertyData);
+                }
+            }
+        }
+    }
+    if (!disablePublishersOnSet) {
+        getPublisherSubscriber().publish('view/collectionElement/removed', [
+            collectionElementIdentifier,
+            collectionName,
+            formElement
+        ]);
+    }
+}
+/* *************************************************************
+ * Batch methods
+ * ************************************************************/
+export function refreshSelectedElementItemsBatch() {
+    const formElementTypeDefinition = getFormElementDefinition(getCurrentlySelectedFormElement(), undefined);
+    removeAllStageElementSelectionsBatch();
+    removeAllStructureSelections();
+    if (!getFormEditorApp().isRootFormElementSelected()) {
+        removeStructureRootElementSelection();
+        addStructureSelection();
+        const selectedElement = getStage().getAbstractViewFormElementDomElement();
+        if (formElementTypeDefinition._isTopLevelFormElement) {
+            addStagePanelSelection();
+        }
+        else {
+            selectedElement?.classList.add(getHelper().getDomElementClassName('selectedFormElement'));
+            getStage().createAndAddAbstractViewFormElementToolbar(selectedElement, undefined);
+        }
+        getStage().getAllFormElementDomElements().forEach((el) => {
+            el.parentElement?.classList.remove(getHelper().getDomElementClassName('selectedCompositFormElement'));
+        });
+        if (!formElementTypeDefinition._isTopLevelFormElement && formElementTypeDefinition._isCompositeFormElement) {
+            selectedElement?.parentElement?.classList.add(getHelper().getDomElementClassName('selectedCompositFormElement'));
+        }
+    }
+}
+/**
+ * @throws 1478651732
+ * @throws 1478651733
+ * @throws 1478651734
+ */
+export function selectPageBatch(pageIndex) {
+    assert(typeof pageIndex === 'number', 'Invalid parameter "pageIndex"', 1478651732);
+    assert(pageIndex >= 0, 'Invalid parameter "pageIndex"', 1478651733);
+    assert(pageIndex < getRootFormElement().get('renderables').length, 'Invalid parameter "pageIndex"', 1478651734);
+    getFormEditorApp().setCurrentlySelectedFormElement(getRootFormElement().get('renderables')[pageIndex]);
+    renewStructure();
+    renderPagination();
+    refreshSelectedElementItemsBatch();
+    renderInspectorEditors();
+}
+export function removeAllStageElementSelectionsBatch() {
+    getStage().getAllFormElementDomElements().forEach((el) => el.classList.remove(getHelper().getDomElementClassName('selectedFormElement')));
+    removeStagePanelSelection();
+    getStage().getAllFormElementDomElements().forEach((el) => el.parentElement?.classList.remove(getHelper().getDomElementClassName('sortableHover')));
+}
+export function onViewReadyBatch() {
+    setStageHeadline();
+    setStructureRootElementTitle();
+    renderAbstractStageArea();
+    renewStructure();
+    addStructureRootElementSelection();
+    renderInspectorEditors();
+    renderPagination();
+    hideComponent(document.querySelector(getHelper().getDomElementDataIdentifierSelector('moduleLoadingIndicator')));
+    showComponent(document.querySelector(getHelper().getDomElementDataIdentifierSelector('moduleWrapper')));
+    showComponent(document.querySelector(getHelper().getDomElementDataIdentifierSelector('inspectorSection')));
+    showComponent(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderSave')));
+    showComponent(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderClose')));
+    showComponent(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
+    showComponent(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
+    setButtonActive(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderViewModeAbstract')));
+}
+export function onAbstractViewDndStartBatch(draggedFormElementDomElement, draggedFormPlaceholderDomElement) {
+    draggedFormPlaceholderDomElement?.classList.remove(getHelper().getDomElementClassName('sortableHover'));
+}
+export function onAbstractViewDndChangeBatch(placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement) {
+    getStage().getAllFormElementDomElements().forEach((el) => {
+        el.parentElement?.classList.remove(getHelper().getDomElementClassName('sortableHover'));
+    });
+    if (enclosingCompositeFormElement) {
+        getStage()
+            .getAbstractViewParentFormElementWithinDomElement(placeholderDomElement)
+            ?.parentElement?.classList.add(getHelper().getDomElementClassName('sortableHover'));
+    }
+}
+/**
+ * @throws 1472502237
+ */
+export function onAbstractViewDndUpdateBatch(movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath) {
+    let movedFormElement, parentFormElementIdentifierPath;
+    if (nextFormElementIdentifierPath) {
+        movedFormElement = moveFormElement(movedFormElementIdentifierPath, 'before', nextFormElementIdentifierPath);
+    }
+    else if (previousFormElementIdentifierPath) {
+        movedFormElement = moveFormElement(movedFormElementIdentifierPath, 'after', previousFormElementIdentifierPath);
+    }
+    else {
+        parentFormElementIdentifierPath = getStage().getAbstractViewParentFormElementIdentifierPathWithinDomElement(movedDomElement);
+        if (parentFormElementIdentifierPath) {
+            movedFormElement = moveFormElement(movedFormElementIdentifierPath, 'inside', parentFormElementIdentifierPath);
+        }
+        else {
+            assert(false, 'Next element, previous or parent element need to be set.', 1472502237);
+        }
+    }
+    getStage()
+        .getAbstractViewFormElementWithinDomElement(movedDomElement)
+        ?.setAttribute(getHelper().getDomElementDataAttribute('elementIdentifier'), movedFormElement.get('__identifierPath'));
+}
+export function onStructureDndChangeBatch(placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement) {
+    getStructure()
+        .getAllTreeNodes()
+        .forEach((node) => node.parentElement?.classList.remove(getHelper().getDomElementClassName('sortableHover')));
+    getStage()
+        .getAllFormElementDomElements()
+        .forEach((el) => el.parentElement?.classList.remove(getHelper().getDomElementClassName('sortableHover')));
+    if (enclosingCompositeFormElement) {
+        getStructure()
+            .getParentTreeNodeWithinDomElement(placeholderDomElement)
+            ?.parentElement?.classList.add(getHelper().getDomElementClassName('sortableHover'));
+        getStage()
+            .getAbstractViewFormElementDomElement(enclosingCompositeFormElement)
+            ?.parentElement?.classList.add(getHelper().getDomElementClassName('sortableHover'));
+    }
+}
+/**
+ * @throws 1479048646
+ */
+export function onStructureDndUpdateBatch(movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath) {
+    let movedFormElement, parentFormElementIdentifierPath;
+    if (nextFormElementIdentifierPath) {
+        movedFormElement = moveFormElement(movedFormElementIdentifierPath, 'before', nextFormElementIdentifierPath);
+    }
+    else if (previousFormElementIdentifierPath) {
+        movedFormElement = moveFormElement(movedFormElementIdentifierPath, 'after', previousFormElementIdentifierPath);
+    }
+    else {
+        parentFormElementIdentifierPath = getStructure().getParentTreeNodeIdentifierPathWithinDomElement(movedDomElement);
+        if (parentFormElementIdentifierPath) {
+            movedFormElement = moveFormElement(movedFormElementIdentifierPath, 'inside', parentFormElementIdentifierPath);
+        }
+        else {
+            getFormEditorApp().assert(false, 'Next element, previous or parent element need to be set.', 1479048646);
+        }
+    }
+    getStructure()
+        .getTreeNodeWithinDomElement(movedDomElement)
+        ?.setAttribute(getHelper().getDomElementDataAttribute('elementIdentifier'), movedFormElement.get('__identifierPath'));
+}
+/* *************************************************************
+ * Misc
+ * ************************************************************/
+export function closeEditor() {
+    const el = document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderClose'));
+    document.location.href = el?.href ?? '';
+}
+export function setElementValidationErrorClass(element, classIdentifier) {
+    if (getFormEditorApp().getUtility().isUndefinedOrNull(classIdentifier)) {
+        element?.classList.replace('panel-default', 'panel-danger');
+    }
+    else {
+        element?.classList.add(getHelper().getDomElementClassName(classIdentifier));
+    }
+}
+export function removeElementValidationErrorClass(element, classIdentifier) {
+    if (getFormEditorApp().getUtility().isUndefinedOrNull(classIdentifier)) {
+        element?.classList.replace('panel-danger', 'panel-default');
+    }
+    else {
+        element?.classList.remove(getHelper().getDomElementClassName(classIdentifier));
+    }
+}
+export function showComponent(element) {
+    element?.classList.remove(getHelper().getDomElementClassName('hidden'));
+    if (element) {
+        element.style.display = '';
+    }
+}
+export function hideComponent(element) {
+    element?.classList.add(getHelper().getDomElementClassName('hidden'));
+    if (element) {
+        element.style.display = 'none';
+    }
+}
+export function enableButton(buttonElement) {
+    if (buttonElement) {
+        buttonElement.disabled = false;
+    }
+    buttonElement?.classList.remove(getHelper().getDomElementClassName('disabled'));
+}
+export function disableButton(buttonElement) {
+    if (buttonElement) {
+        buttonElement.disabled = true;
+    }
+    buttonElement?.classList.add(getHelper().getDomElementClassName('disabled'));
+}
+export function setButtonActive(buttonElement) {
+    buttonElement?.classList.add(getHelper().getDomElementClassName('active'));
+}
+export function removeButtonActive(buttonElement) {
+    buttonElement?.classList.remove(getHelper().getDomElementClassName('active'));
+}
+export function showSaveButtonSpinnerIcon() {
+    Icons.getIcon(getHelper().getDomElementDataAttributeValue('iconSaveSpinner'), Icons.sizes.small).then(function (markup) {
+        const target = document.querySelector(getHelper().getDomElementDataIdentifierSelector('iconSave'));
+        if (target) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = markup;
+            target.replaceWith(tmp.firstElementChild ?? tmp);
+        }
+    });
+}
+export function showSaveButtonSaveIcon() {
+    Icons.getIcon(getHelper().getDomElementDataAttributeValue('iconSave'), Icons.sizes.small).then(function (markup) {
+        const target = document.querySelector(getHelper().getDomElementDataIdentifierSelector('iconSaveSpinner'));
+        if (target) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = markup;
+            target.replaceWith(tmp.firstElementChild ?? tmp);
+        }
+    });
+}
+export function showSaveSuccessMessage() {
+    Notification.success(getFormElementDefinition(getRootFormElement(), 'saveSuccessFlashMessageTitle'), getFormElementDefinition(getRootFormElement(), 'saveSuccessFlashMessageMessage'), 2);
+}
+export function showSaveErrorMessage(response) {
+    Notification.error(getFormElementDefinition(getRootFormElement(), 'saveErrorFlashMessageTitle'), getFormElementDefinition(getRootFormElement(), 'saveErrorFlashMessageMessage') +
+        ' ' +
+        response.message);
+}
+export function showErrorFlashMessage(title, message) {
+    Notification.error(title, message, 2);
+}
+export function bootstrap(_formEditorApp, additionalViewModelModules) {
+    formEditorApp = _formEditorApp;
+    Helper.bootstrap(formEditorApp);
+    structureComponentSetup();
+    modalsComponentSetup();
+    inspectorsComponentSetup();
+    stageComponentSetup();
+    buttonsSetup();
+    addPropertyValidators();
+    loadAdditionalModules(additionalViewModelModules);
+}

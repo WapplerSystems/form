@@ -1,3 +1,4 @@
+"use strict";
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -10,4 +11,18 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-typeof $<"u"&&$(function(t){t("input[data-t3-form-datepicker]").each(function(){t(this).datepicker({dateFormat:t(this).data("format")}).on("keydown",function(e){(e.keyCode===8||e.keyCode===46)&&(e.preventDefault(),t(this).datepicker("setDate",""))})})});
+if (typeof $ !== 'undefined') { // eslint-disable-line no-restricted-globals
+    $(function (jQuery) {
+        jQuery('input[data-t3-form-datepicker]').each(function () {
+            jQuery(this).datepicker({
+                dateFormat: jQuery(this).data('format')
+            }).on('keydown', function (e) {
+                // By using "backspace" or "delete", you can clear the datepicker again.
+                if (e.keyCode === 8 || e.keyCode === 46) {
+                    e.preventDefault();
+                    jQuery(this).datepicker('setDate', '');
+                }
+            });
+        });
+    });
+}

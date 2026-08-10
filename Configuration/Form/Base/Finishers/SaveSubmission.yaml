@@ -1,0 +1,69 @@
+prototypes:
+  standard:
+    finishersDefinition:
+      SaveSubmission:
+        implementationClassName: TYPO3\CMS\Form\Domain\Finishers\SaveSubmissionFinisher
+        formEditor:
+          iconIdentifier: form-finisher
+          label: formEditor.elements.Form.finisher.SaveSubmission.editor.header.label
+          predefinedDefaults:
+            options:
+              storagePid: ''
+              storeUploads: true
+              storeIpHash: false
+              label: ''
+          editors:
+            100:
+              identifier: header
+              templateName: Inspector-FormElementHeaderEditor
+              label: formEditor.elements.Form.finisher.SaveSubmission.editor.header.label
+            200:
+              identifier: storagePid
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.label
+              propertyPath: options.storagePid
+              enableFormelementSelectionButton: false
+              fieldExplanationText: formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.fieldExplanationText
+            300:
+              identifier: storeUploads
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.Form.finisher.SaveSubmission.editor.storeUploads.label
+              propertyPath: options.storeUploads
+            400:
+              identifier: storeIpHash
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.Form.finisher.SaveSubmission.editor.storeIpHash.label
+              propertyPath: options.storeIpHash
+            500:
+              identifier: label
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.finisher.SaveSubmission.editor.label.label
+              propertyPath: options.label
+              enableFormelementSelectionButton: false
+            9999:
+              identifier: removeButton
+              templateName: Inspector-RemoveElementEditor
+        FormEngine:
+          label: tt_content.finishersDefinition.SaveSubmission.label
+          elements:
+            storagePid:
+              label: tt_content.finishersDefinition.SaveSubmission.storagePid.label
+              config:
+                type: group
+                allowed: pages
+                size: 1
+                minitems: 0
+                maxitems: 1
+                fieldWizard:
+                  recordsOverview:
+                    disabled: 1
+            storeUploads:
+              label: tt_content.finishersDefinition.SaveSubmission.storeUploads.label
+              config:
+                type: check
+                default: 1
+            storeIpHash:
+              label: tt_content.finishersDefinition.SaveSubmission.storeIpHash.label
+              config:
+                type: check
+                default: 0

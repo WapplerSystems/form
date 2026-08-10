@@ -17,7 +17,16 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Domain\Model\FormElements;
 
+use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+use TYPO3\CMS\Extbase\Validation\ValidatorResolver;
+use TYPO3\CMS\Form\Mvc\Property\TypeConverter\UploadedFileReferenceConverter;
+use TYPO3\CMS\Form\Mvc\Validation\MimeTypeValidator;
 
 /**
  * A generic file upload form element
@@ -33,6 +42,83 @@ class FileUpload extends AbstractFormElement
     public function initializeFormElement()
     {
         $this->setDataType(FileReference::class);
-        parent::initializeFormElement();
+
+        // Set the property mapping configuration for the file upload element.
+        // * Add the UploadedFileReferenceConverter to convert an uploaded file to a
+        //   FileReference (single upload) or ObjectStorage (multiple uploads).
+        // * Register the MimeTypeValidator in the ProcessingRule to validate
+        //   allowed file types.
+        // * Setup the storage:
+        //   If the property "saveToFileMount" exist for this element it will be used.
+        //   If this file mount or the property "saveToFileMount" does not exist
+        //   the default storage "1:/user_uploads/" will be used. Uploads are placed
+        //   in a dedicated sub-folder (e.g. ".../form_<40-chars-hash>/actual.file").
+        $typeConverter = GeneralUtility::makeInstance(UploadedFileReferenceConverter::class);
+        /** @var \TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration $propertyMappingConfiguration */
+        $propertyMappingConfiguration = $this->getRootForm()
+            ->getProcessingRule($this->getIdentifier())
+            ->getPropertyMappingConfiguration()
+            ->setTypeConverter($typeConverter);
+
+        $allowedMimeTypes = [];
+        if (is_array($this->getProperties()['allowedMimeTypes'] ?? null)) {
+            $allowedMimeTypes = array_filter($this->getProperties()['allowedMimeTypes']);
+        }
+        if (!empty($allowedMimeTypes)) {
+            $validatorResolver = GeneralUtility::makeInstance(ValidatorResolver::class);
+            $mimeTypeValidator = $validatorResolver->createValidator(MimeTypeValidator::class, ['allowedMimeTypes' => $allowedMimeTypes]);
+            $this->getRootForm()
+                ->getProcessingRule($this->getIdentifier())
+                ->addValidator($mimeTypeValidator);
+        }
+
+        $uploadConfiguration = [
+            UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_CONFLICT_MODE => 'rename',
+        ];
+
+        // In preview mode (Form Editor backend module), skip upload folder resolution
+        // entirely. File uploads are non-functional during preview and resolving the
+        // target folder may throw access permission exceptions for backend users who
+        // do not have access to the configured upload storage.
+        if (!($this->getRootForm()->getRenderingOptions()['previewMode'] ?? false)) {
+            $saveToFileMountIdentifier = $this->getProperties()['saveToFileMount'] ?? '';
+            if ($this->checkSaveFileMountAccess($saveToFileMountIdentifier)) {
+                $uploadConfiguration[UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER] = $saveToFileMountIdentifier;
+            } else {
+                // @todo Why should uploaded files be stored to the same directory as the *.form.yaml definitions?
+                $persistenceIdentifier = $this->getRootForm()->getPersistenceIdentifier();
+                if (!empty($persistenceIdentifier)) {
+                    $pathinfo = PathUtility::pathinfo($persistenceIdentifier);
+                    $saveToFileMountIdentifier = $pathinfo['dirname'];
+                    if ($this->checkSaveFileMountAccess($saveToFileMountIdentifier)) {
+                        $uploadConfiguration[UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER] = $saveToFileMountIdentifier;
+                    }
+                }
+            }
+        }
+        $propertyMappingConfiguration->setTypeConverterOptions(UploadedFileReferenceConverter::class, $uploadConfiguration);
+    }
+
+    /**
+     * @internal
+     */
+    protected function checkSaveFileMountAccess(string $saveToFileMountIdentifier): bool
+    {
+        if (empty($saveToFileMountIdentifier)) {
+            return false;
+        }
+
+        if (PathUtility::isExtensionPath($saveToFileMountIdentifier)) {
+            return false;
+        }
+
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+
+        try {
+            $resourceFactory->getFolderObjectFromCombinedIdentifier($saveToFileMountIdentifier);
+            return true;
+        } catch (\InvalidArgumentException|InsufficientFolderAccessPermissionsException|FolderDoesNotExistException $e) {
+            return false;
+        }
     }
 }

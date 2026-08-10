@@ -1,1391 +1,1674 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file source-language="en" datatype="plaintext" original="EXT:form/Resources/Private/Language/Database.xlf" date="2016-08-21T20:15:32Z" product-name="form">
-		<header/>
-		<body>
-			<trans-unit id="module.shortcut_name">
-				<source>Form manager</source>
-			</trans-unit>
-
-			<trans-unit id="default">
-				<source>Default</source>
-			</trans-unit>
-			<trans-unit id="empty">
-				<source>[Empty]</source>
-			</trans-unit>
-
-			<trans-unit id="tt_content.pi_flexform.formframework.persistenceIdentifier">
-				<source>Form definition</source>
-			</trans-unit>
-			<trans-unit id="tt_content.pi_flexform.formframework.sheet_general">
-				<source>General</source>
-			</trans-unit>
-			<trans-unit id="tt_content.pi_flexform.formframework.selectPersistenceIdentifier">
-				<source>Please select a form definition</source>
-			</trans-unit>
-			<trans-unit id="tt_content.pi_flexform.formframework.overrideFinishers">
-				<source>Override finisher settings</source>
-			</trans-unit>
-			<trans-unit id="tt_content.pi_flexform.formframework.overrideFinishers.empty">
-				<source>There are no finishers or finisher options in the current form definition.</source>
-			</trans-unit>
-
-			<trans-unit id="tt_content.preview.noPersistenceIdentifier">
-				<source>No form selected.</source>
-			</trans-unit>
-			<trans-unit id="tt_content.preview.invalidPersistenceIdentifier">
-				<source>Invalid form "%s".</source>
-			</trans-unit>
-			<trans-unit id="tt_content.preview.inaccessiblePersistenceIdentifier">
-				<source>"%s" (no read access).</source>
-			</trans-unit>
-			<trans-unit id="tt_content.preview.notExistingdPersistenceIdentifier">
-				<source>The form "%s" does not exist.</source>
-			</trans-unit>
-			<trans-unit id="tt_content.preview.invalidFrameworkConfiguration">
-				<source>"%s" (Invalid ext:form configuration).</source>
-			</trans-unit>
-			<trans-unit id="tt_content.preview.invalidFrameworkConfiguration.text">
-				<source>Invalid ext:form configuration in form "%s": %s</source>
-			</trans-unit>
-			<trans-unit id="tt_content.preview.invalidFrameworkConfiguration.title">
-				<source>Invalid configuration.</source>
-			</trans-unit>
-
-			<trans-unit id="tt_content.finishersDefinition.Confirmation.label">
-				<source>Confirmation</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.Confirmation.message.label">
-				<source>Text</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.Confirmation.contentElementUid.label">
-				<source>Record</source>
-			</trans-unit>
-
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.label">
-				<source>Email to sender (form submitter)</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.subject.label">
-				<source>Subject of the email</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.label">
-				<source>Recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.item.label">
-				<source>Recipient</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.email.label">
-				<source>Email Address</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.name.label">
-				<source>Name</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.senderAddress.label">
-				<source>Email address of the sender</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.senderName.label">
-				<source>Human-readable name of the sender</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.replyToRecipients.label">
-				<source>Reply-To Recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.replyToRecipients.item.label">
-				<source>Reply-To Recipient</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.carbonCopyRecipients.label">
-				<source>CC Recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.carbonCopyRecipients.item.label">
-				<source>CC Recipient</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.blindCarbonCopyRecipients.label">
-				<source>BCC Recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.blindCarbonCopyRecipients.item.label">
-				<source>BCC Recipient</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.addHtmlPart.label">
-				<source>Add HTML mail part</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.language.label">
-				<source>Translation language</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.language.0">
-				<source>Auto</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.language.1">
-				<source>EN</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToSender.title.label">
-				<source>Title</source>
-			</trans-unit>
-
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.label">
-				<source>Email to receiver (you)</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.subject.label">
-				<source>Subject of the email</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.recipients.label">
-				<source>Email addresses and human-readable names of the recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.senderAddress.label">
-				<source>Email address of the sender</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.senderName.label">
-				<source>Human-readable name of the sender</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.replyToRecipients.label">
-				<source>Reply-To Recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.carbonCopyRecipients.label">
-				<source>CC Recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.blindCarbonCopyRecipients.label">
-				<source>BCC Recipients</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.addHtmlPart.label">
-				<source>Add HTML part</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.language.label">
-				<source>Translation language</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.language.0">
-				<source>Auto</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.language.1">
-				<source>EN</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.EmailToReceiver.title.label">
-				<source>Title</source>
-			</trans-unit>
-
-			<trans-unit id="tt_content.finishersDefinition.Redirect.label">
-				<source>Redirect</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.Redirect.pageUid.label">
-				<source>Page</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.Redirect.additionalParameters.label">
-				<source>Additional link parameter</source>
-			</trans-unit>
-			<trans-unit id="tt_content.finishersDefinition.Redirect.fragment.label">
-				<source>Add fragment to the redirect link</source>
-			</trans-unit>
-
-			<trans-unit id="formManagerController.deleteAction.error.title">
-				<source>Delete error</source>
-			</trans-unit>
-			<trans-unit id="formManagerController.deleteAction.error.body">
-				<source>The form "%s" could not be deleted.</source>
-			</trans-unit>
-
-			<trans-unit id="formManager.headline">
-				<source>Form Management</source>
-			</trans-unit>
-			<trans-unit id="formManager.create_new_form">
-				<source>Create new form</source>
-			</trans-unit>
-			<trans-unit id="formManager.form_name">
-				<source>Form name</source>
-			</trans-unit>
-			<trans-unit id="formManager.integrity">
-				<source>Integrity</source>
-			</trans-unit>
-			<trans-unit id="formManager.location">
-				<source>Location</source>
-			</trans-unit>
-			<trans-unit id="formManager.references">
-				<source>References</source>
-			</trans-unit>
-			<trans-unit id="formManager.options">
-				<source>Options</source>
-			</trans-unit>
-			<trans-unit id="formManager.edit_form">
-				<source>Edit this form</source>
-			</trans-unit>
-			<trans-unit id="formManager.duplicate_this_form">
-				<source>Duplicate this form</source>
-			</trans-unit>
-			<trans-unit id="formManager.delete_form">
-				<source>Delete this form</source>
-			</trans-unit>
-			<trans-unit id="formManager.forms_not_found.title">
-				<source>No forms found</source>
-			</trans-unit>
-			<trans-unit id="formManager.forms_not_found.message">
-				<source>There are currently no forms found in the system.</source>
-			</trans-unit>
-			<trans-unit id="formManager.forms_not_found_by_search_term.message">
-                <source>There are currently no forms found containing the search term "%1s".</source>
-            </trans-unit>
-			<trans-unit id="formManager.remove_search_term">
-				<source>Remove search term</source>
-			</trans-unit>
-			<trans-unit id="formManager.invalid">
-				<source>Invalid YAML file</source>
-			</trans-unit>
-			<trans-unit id="formManager.duplicate_identifier">
-				<source>Duplicate identifier</source>
-			</trans-unit>
-			<trans-unit id="formManager.table.amount.form">
-				<source>form</source>
-			</trans-unit>
-			<trans-unit id="formManager.table.amount.forms">
-				<source>forms</source>
-			</trans-unit>
-
-			<trans-unit id="formManager.selectablePrototypesConfiguration.standard.label">
-				<source>Standard</source>
-			</trans-unit>
-			<trans-unit id="formManager.selectablePrototypesConfiguration.standard.newFormTemplates.blankForm.label">
-				<source>Blank form</source>
-			</trans-unit>
-			<trans-unit id="formManager.selectablePrototypesConfiguration.standard.newFormTemplates.simpleContactForm.label">
-				<source>Simple contact form (ext:form example)</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.header">
-				<source>Form editor</source>
-			</trans-unit>
-			<trans-unit id="formEditor.loading">
-				<source>Loading...</source>
-			</trans-unit>
-			<trans-unit id="formEditor.spinner">
-				<source>Loading...</source>
-			</trans-unit>
-			<trans-unit id="formEditor.save_button">
-				<source>Save</source>
-			</trans-unit>
-			<trans-unit id="formEditor.edit_button">
-				<source>Edit</source>
-			</trans-unit>
-			<trans-unit id="formEditor.undo_button">
-				<source>Undo</source>
-			</trans-unit>
-			<trans-unit id="formEditor.redo_button">
-				<source>Redo</source>
-			</trans-unit>
-			<trans-unit id="formEditor.button_toggle_structure">
-				<source>Toggle structure</source>
-			</trans-unit>
-			<trans-unit id="formEditor.button_toggle_inspector">
-				<source>Toggle inspector</source>
-			</trans-unit>
-			<trans-unit id="formEditor.new_page_button">
-				<source>Create new step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.previous_step_button">
-				<source>Previous step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.next_step_button">
-				<source>Next step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.step.name.empty">
-				<source>Step name is not set</source>
-			</trans-unit>
-			<trans-unit id="formEditor.preview_mode_button">
-				<source>Preview mode</source>
-			</trans-unit>
-			<trans-unit id="formEditor.edit_mode_button">
-				<source>Edit mode</source>
-			</trans-unit>
-			<trans-unit id="formEditor.structure">
-				<source>Structure</source>
-			</trans-unit>
-			<trans-unit id="formEditor.insert_elements">
-				<source>Insert elements</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementPropertyValidatorsDefinition.NotEmpty.label">
-				<source>Required</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementPropertyValidatorsDefinition.Integer.label">
-				<source>Not a number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementPropertyValidatorsDefinition.NaiveEmail.label">
-				<source>Invalid email address</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementPropertyValidatorsDefinition.FormElementIdentifierWithinCurlyBraces.label">
-				<source>Invalid form element</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementPropertyValidatorsDefinition.FileSize.label">
-				<source>Invalid file size format, valid e.g. "10B|K|M|G"</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementPropertyValidatorsDefinition.RFC3339FullDate.label">
-				<source>Invalid date format. Valid format: Y-m-d (2018-03-17)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementPropertyValidatorsDefinition.RegularExpressionPattern.label">
-				<source>Invalid pattern</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.formElementGroups.input.label">
-				<source>Basic elements</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementGroups.html5.label">
-				<source>Special elements</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementGroups.select.label">
-				<source>Select elements</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementGroups.custom.label">
-				<source>Advanced elements</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementGroups.container.label">
-				<source>Container elements</source>
-			</trans-unit>
-			<trans-unit id="formEditor.formElementGroups.page.label">
-				<source>Step types</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.BaseFormElementMixin.editor.label.label">
-				<source>Form name</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.saveSuccessFlashMessageTitle">
-				<source>Save</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.saveSuccessFlashMessageMessage">
-				<source>The form has been successfully saved.</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.saveErrorFlashMessageTitle">
-				<source>Save</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.saveErrorFlashMessageMessage">
-				<source>The form could not be saved:</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.modals.validationErrors.dialogTitle">
-				<source>Alert</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.validationErrors.dialogMessage">
-				<source>Some elements are not configured properly. Please check the following elements:</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.validationErrors.confirmButton">
-				<source>OK</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.modals.insertElements.dialogTitle">
-				<source>New element</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.newPages.dialogTitle">
-				<source>New step</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.modals.removeElement.dialogTitle">
-				<source>Remove element?</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.removeElement.dialogMessage">
-				<source>Are you sure that you want to remove this element?</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.removeElement.confirmButton">
-				<source>Remove</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.removeElement.cancelButton">
-				<source>Cancel</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.removeElement.lastAvailablePageFlashMessageTitle">
-				<source>Error</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.removeElement.lastAvailablePageFlashMessageMessage">
-				<source>There must be at least one step within your form.</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.modals.close.dialogMessage">
-				<source>You have currently unsaved changes. Are you sure that you want to discard all changes?</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.close.dialogTitle">
-				<source>Do you want to quit without saving?</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.close.confirmButton">
-				<source>Yes, discard my changes</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.close.cancelButton">
-				<source>No, I will continue editing</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.pagination.title">
-				<source>Step {0} of {1}</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.MinimumMaximumEditorsMixin.editor.minimum.label">
-				<source>Minimum</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.MinimumMaximumEditorsMixin.editor.maximum.label">
-				<source>Maximum</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.editor.placeholder.label">
-				<source>Placeholder</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.defaultValue.label">
-				<source>Default value</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.pattern.label">
-				<source>Pattern</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.pattern.fieldExplanationText">
-				<source>Additional client-side validation as JavaScript regular expression</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.step.label">
-				<source>Step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.label">
-				<source>Validators</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.EmptyValue.label">
-				<source>Add validator</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.Alphanumeric.label">
-				<source>Alphanumeric</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.Text.label">
-				<source>Non-XML text</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.StringLength.label">
-				<source>String length</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.EmailAddress.label">
-				<source>Email</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.Integer.label">
-				<source>Integer number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.Float.label">
-				<source>Floating-point number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.Number.label">
-				<source>Number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.NumberRange.label">
-				<source>Number range</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.editor.validators.RegularExpression.label">
-				<source>Regular expression</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.MultiSelectionMixin.editor.validators.Count.label">
-				<source>Number of submitted values</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.Alphanumeric.editor.header.label">
-				<source>Alphanumeric</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Alphanumeric.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Alphanumeric.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.Text.editor.header.label">
-				<source>Non-XML text</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Text.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Text.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.StringLength.editor.header.label">
-				<source>String length</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.StringLength.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.StringLength.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.EmailAddress.editor.header.label">
-				<source>Email</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.EmailAddress.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.EmailAddress.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.Integer.editor.header.label">
-				<source>Integer number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Integer.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Integer.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.Float.editor.header.label">
-				<source>Floating-point number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Float.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.Float.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.Number.editor.header.label">
-				<source>Number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.NumberRange.editor.header.label">
-				<source>Number range</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.NumberRange.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.NumberRange.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.header.label">
-				<source>Regular expression</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.regex.label">
-				<source>Regular expression</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.regex.fieldExplanationText">
-				<source>Enter a valid PHP PCRE regular expression here.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.MultiSelectionMixin.validators.Count.editor.header.label">
-				<source>Number of submitted values</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.MultiSelectionMixin.validators.Count.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.MultiSelectionMixin.validators.Count.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.SelectionMixin.editor.inactiveOption.label">
-				<source>First option (empty value)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SelectionMixin.editor.inactiveOption.fieldExplanationText">
-				<source>If set, this label will be shown as first option.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SelectionMixin.editor.options.label">
-				<source>Choices</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.MultiSelectionMixin.editor.validators.label">
-				<source>Validators</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.MultiSelectionMixin.editor.validators.EmptyValue.label">
-				<source>Add validator</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.FileUploadMixin.editor.saveToFileMount.label">
-				<source>Uploads save path</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.label">
-				<source>Validators</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.EmptyValue.label">
-				<source>Add validator</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.FileSize.label">
-				<source>File size</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUploadMixin.validators.FileSize.editor.header.label">
-				<source>File size</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.editor.submitButtonLabel.label">
-				<source>Submit label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.editor.submitButtonLabel.value">
-				<source>Submit</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.editor.finishers.label">
-				<source>Finishers</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.editor.finishers.EmptyValue.label">
-				<source>Add finisher</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.editor.finishers.EmailToSender.label">
-				<source>Email to sender (form submitter)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.editor.finishers.EmailToReceiver.label">
-				<source>Email to receiver (you)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.editor.finishers.Redirect.label">
-				<source>Redirect to a page</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.editor.finishers.DeleteUploads.label">
-				<source>Delete uploads</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.editor.finishers.Confirmation.label">
-				<source>Confirmation message</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.header.label">
-				<source>Email to sender (form submitter)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.subject.label">
-				<source>Subject</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.label">
-				<source>Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.fieldExplanationText">
-				<source>The email addresses and names of the website visitors to which the email should be sent.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.value.title">
-				<source>Email Address</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.label.title">
-				<source>Name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderAddress.label">
-				<source>Sender address</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderAddress.fieldExplanationText">
-				<source>The email address of the sender (e.g. your company's email address) which appears in the website visitor email client.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderName.label">
-				<source>Sender name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderName.fieldExplanationText">
-				<source>The name of the sender (e.g. your company's name) which appears in the website visitor email client.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.replyToRecipients.label">
-				<source>Reply-To Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.carbonCopyRecipients.label">
-				<source>CC Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.blindCarbonCopyRecipients.label">
-				<source>BCC Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.addHtmlPart.label">
-				<source>Add HTML part</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.addHtmlPart.fieldExplanationText">
-				<source>If enabled, the email will contain a plaintext and an HTML part, otherwise only a plaintext part.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.attachUploads.label">
-				<source>Attach uploads</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.label">
-				<source>Translation language</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.0">
-				<source>Auto</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.1">
-				<source>EN</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.title.label">
-				<source>Title</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.title.fieldExplanationText">
-				<source>The title, being shown in the Email. The title is rendered in the header section right above the email body. Do not confuse this field with the subject of your email.</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.header.label">
-				<source>Email to receiver (you)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.subject.label">
-				<source>Subject</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.recipients.label">
-				<source>Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.recipients.fieldExplanationText">
-				<source>The email addresses and names of the recipients to which the email should be sent (e.g. your company's email addresses).</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderAddress.label">
-				<source>Sender address</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderAddress.fieldExplanationText">
-				<source>The email address of the sender which appears in your email client. If you want, you can use the "insert formelement identifier" dropdown to choose a form element which holds the website visitors email address.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderName.label">
-				<source>Sender name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderName.fieldExplanationText">
-				<source>The name of the sender which appears in your email client. If you want, you can use the "insert formelement identifier" dropdown to choose one or more form elements which holds the website visitors name.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.replyToRecipients.label">
-				<source>Reply-To Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.carbonCopyRecipients.label">
-				<source>CC Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.blindCarbonCopyRecipients.label">
-				<source>BCC Recipients</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.label">
-				<source>Add HTML part</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.fieldExplanationText">
-				<source>If enabled, the email will contain a plaintext and an HTML part, otherwise only a plaintext part.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.attachUploads.label">
-				<source>Attach uploads</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.language.label">
-				<source>Translation language</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.language.0">
-				<source>Auto</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.language.1">
-				<source>EN</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.title.label">
-				<source>Title</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.title.fieldExplanationText">
-				<source>The title, being shown in the Email. The title is rendered in the header section right above the email body. Do not confuse this field with the subject of your email.</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.header.label">
-				<source>Redirect to a page</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.pageUid.label">
-				<source>Page</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.pageUid.buttonLabel">
-				<source>Page</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.additionalParameters.label">
-				<source>Additional parameters</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.fragment.label">
-				<source>URL fragment</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.fragment.buttonLabel">
-				<source>Page Content</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.fragment.fieldExplanationText">
-				<source>You can use a content element identifier as URL fragment or set a custom fragment identifier.</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.finisher.DeleteUploads.editor.header.label">
-				<source>Delete uploads</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.header.label">
-				<source>Confirmation message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.contentElement.label">
-				<source>Content element uid</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.contentElement.buttonLabel">
-				<source>Page Content</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.message.label">
-				<source>Text</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.message.fieldExplanationText">
-				<source>Will be ignored if "Content element" is set</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Form.finisher.Closure.editor.header.label">
-				<source>Execute a closure</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.FlashMessage.editor.header.label">
-				<source>Flash message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Form.finisher.SaveToDatabase.editor.header.label">
-				<source>Save the mail to the Database</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.ReadOnlyFormElement.editor.label.label">
-				<source>Label</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.FormElement.editor.label.label">
-				<source>Label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.elementDescription.label">
-				<source>Description</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.label">
-				<source>Autocomplete</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.none">
-				<source>None</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.off">
-				<source>off - disable the autocomplete functionality</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.name">
-				<source>name - Full name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.honorific-prefix">
-				<source>Prefix or title (e.g., "Mr.", "Ms.", "Dr.")</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.given-name">
-				<source>given-name - first name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.additional-name">
-				<source>additional-name - middle name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.family-name">
-				<source>family-name - last name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.honorific-suffix">
-				<source>honorific-suffix - Name suffix (e.g., "Jr.", "II")</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.nickname">
-				<source>Nickname, screen name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.organization-title">
-				<source>organization-title - Job title</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.username">
-				<source>username</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.organization">
-				<source>organization - Company name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-line1">
-				<source>address-line1 - Street address, line 1</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-line2">
-				<source>address-line2 - Street address, line 2</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-level1">
-				<source>address-level1 - State, Canton etc</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-level2">
-				<source>address-level2 - City</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.country-name">
-				<source>country-name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.postal-code">
-				<source>postal-code - ZIP</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel">
-				<source>tel - Full telephone number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.impp">
-				<source>impp - URL representing an instant messaging protocol endpoint</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.sex">
-				<source>sex - Gender identity</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.language">
-				<source>language - Preferred language</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.street-address">
-				<source>street-address</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-country-code">
-				<source>tel-country-code - Country code component of the telephone number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-national">
-				<source>tel-national - Telephone number without the county code</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-area-code">
-				<source>tel-area-code - Area code component of the telephone number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-local">
-				<source>tel-local - Telephone number without the country code and area code component</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-extension">
-				<source>tel-extension - Telephone number internal extension code</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.url">
-				<source>url - Home page</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.new-password">
-				<source>new-password - A new password to create / change</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.current-password">
-				<source>current-password - Current password for the selected username</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday-day">
-				<source>bday-day - Day component of birthday</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday-month">
-				<source>bday-month - Month component of birthday</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday-year">
-				<source>bday-year - Year component of birthday</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.photo">
-				<source>photo</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.email">
-				<source>email</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday">
-				<source>bday - Birthday</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.country">
-				<source>country - Country code</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.requiredValidator.label">
-				<source>Field required</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.requiredValidator.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.requiredValidator.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.validators.DateRange.editor.header.label">
-				<source>Date range</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.label">
-				<source>Grid viewport configuration</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.xs.label">
-				<source>Extra small</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.sm.label">
-				<source>Small</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.md.label">
-				<source>Medium</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.lg.label">
-				<source>Large</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.xl.label">
-				<source>Extra large</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.xxl.label">
-				<source>Extra extra large</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.numbersOfColumnsToUse.label">
-				<source>Numbers of columns for viewport "{@viewPortLabel}"</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.numbersOfColumnsToUse.fieldExplanationText">
-				<source>Leave empty for auto calculation</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Page.label">
-				<source>Step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Page.description">
-				<source>A form step that can be customized with various elements</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Page.editor.label.label">
-				<source>Step name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Page.editor.previousButtonLabel.label">
-				<source>Previous button label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Page.editor.previousButtonLabel.value">
-				<source>Previous step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Page.editor.nextButtonLabel.label">
-				<source>Next button label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Page.editor.nextButtonLabel.value">
-				<source>Next step</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.SummaryPage.label">
-				<source>Summary step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SummaryPage.description">
-				<source>A form step that displays all entered values for review before submission</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SummaryPage.editor.label.label">
-				<source>Step name</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SummaryPage.editor.previousButtonLabel.label">
-				<source>Previous button label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SummaryPage.editor.previousButtonLabel.value">
-				<source>Previous step</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SummaryPage.editor.nextButtonLabel.label">
-				<source>Next button label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SummaryPage.editor.nextButtonLabel.value">
-				<source>Next step</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Fieldset.label">
-				<source>Fieldset</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Fieldset.description">
-				<source>A container used to group related form elements, improving accessibility and providing content-based structure</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Fieldset.editor.label.label">
-				<source>Fieldset name</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.GridColumn.label">
-				<source>Grid: Column</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.GridColumn.description">
-				<source>A container element for arranging fields, providing visual structure</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.GridColumn.editor.label.label">
-				<source>Name (not visible within frontend)</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.GridRow.label">
-				<source>Grid: Row</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.GridRow.description">
-				<source>A container element for arranging fields side by side, providing visual structuring</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.GridRow.editor.label.label">
-				<source>Row name (not visible within frontend)</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Text.label">
-				<source>Text</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Text.description">
-				<source>A single-line text field</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Email.label">
-				<source>Email address</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Email.description">
-				<source>A text field for inputting an email address</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Telephone.label">
-				<source>Telephone number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Telephone.description">
-				<source>A text field for inputting a phone number</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Url.label">
-				<source>URL</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Url.description">
-				<source>A text field for inputting a URL</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Number.label">
-				<source>Number</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Number.description">
-				<source>A text field for inputting numbers, with browser controls to adjust the value in predefined steps</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Number.editor.validators.Number.label">
-				<source>Number</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Date.label">
-				<source>Date</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Date.description">
-				<source>A text field for inputting a date in a single line</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Date.editor.defaultValue.placeholder">
-				<source>A date in format Y-m-d (e.g 2018-03-17)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Date.editor.step.fieldExplanationText">
-				<source>Specify the number of days between each occurrence of this event.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Date.editor.step.label">
-				<source>Frequency</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Date.editor.validators.DateRange.label">
-				<source>Date range</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.header.label">
-				<source>Date range</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.minimum">
-				<source>Minimum date</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.maximum">
-				<source>Maximum date</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.minimum.placeholder">
-				<source>A date in format Y-m-d (e.g 2018-03-17)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.maximum.placeholder">
-				<source>A date in format Y-m-d (e.g 2018-03-17)</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Password.label">
-				<source>Password</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Password.description">
-				<source>A text field for entering a password</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.AdvancedPassword.label">
-				<source>Advanced password</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.AdvancedPassword.description">
-				<source>A text field for entering and confirming a password</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.AdvancedPassword.editor.confirmationLabel.label">
-				<source>Confirmation label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.element.AdvancedPassword.editor.confirmationLabel.predefinedDefaults">
-				<source>Confirmation</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Textarea.label">
-				<source>Textarea</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Textarea.description">
-				<source>A multi-line text field for entering extended or continuous text</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Checkbox.label">
-				<source>Checkbox</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Checkbox.description">
-				<source>An element for creating a single checkbox</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.CountrySelect.label">
-				<source>Country select</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.CountrySelect.description">
-				<source>An element to select a country</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.MultiCheckbox.label">
-				<source>Multi checkbox</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.MultiCheckbox.description">
-				<source>An element for creating multiple checkboxes</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.MultiSelect.label">
-				<source>Multi select</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.MultiSelect.description">
-				<source>An element for creating a field that allows multiple selections</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.RadioButton.label">
-				<source>Radio button</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.RadioButton.description">
-				<source>An element for displaying one or more radio buttons</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.SingleSelect.label">
-				<source>Single select</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.SingleSelect.description">
-				<source>An element for creating a dropdown list for selecting a single option</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.DatePicker.label">
-				<source>Date picker (jQuery)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.description">
-				<source>A text field for selecting a date via a calendar interface</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.editor.dateFormat.label">
-				<source>Date format</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.editor.enableDatePicker.label">
-				<source>Enable datepicker (needs jQuery UI)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.editor.displayTimeSelector.label">
-				<source>Display time selector</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.editor.validators.label">
-				<source>Validators</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.editor.validators.EmptyValue.label">
-				<source>Add validator</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.editor.validators.DateTime.label">
-				<source>Date/time</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateTime.editor.header.label">
-				<source>Date/time</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateTime.editor.validationErrorMessage.label">
-				<source>Custom error message</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.DatePicker.validators.DateTime.editor.validationErrorMessage.fieldExplanationText">
-				<source>Error message which is shown if the validation does not succeed</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.StaticText.label">
-				<source>Static text</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.StaticText.description">
-				<source>A field for unformatted text</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.StaticText.editor.label.label">
-				<source>Header</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.StaticText.editor.staticText.label">
-				<source>Text</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.Hidden.label">
-				<source>Hidden</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Hidden.description">
-				<source>A field that is not displayed in the frontend</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.Hidden.editor.defaultValue.label">
-				<source>Value</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.ContentElement.label">
-				<source>Content element</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ContentElement.description">
-				<source>A field for displaying any content element from your website</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ContentElement.selectContentElement">
-				<source>No content element selected</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.ContentElement.editor.contentElement.label">
-				<source>Content element uid</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ContentElement.editor.contentElement.buttonLabel">
-				<source>Page Content</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.FileUpload.label">
-				<source>File upload</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.description">
-				<source>An element for uploading a file</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.label">
-				<source>Allowed file mime types</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.maximumFileSize.label">
-				<source>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:form/Resources/Private/Language/Database.xlf" date="2016-08-21T20:15:32Z" product-name="form">
+    <header/>
+    <body>
+      <trans-unit id="module.shortcut_name">
+        <source>Form manager</source>
+      </trans-unit>
+      <trans-unit id="default">
+        <source>Default</source>
+      </trans-unit>
+      <trans-unit id="empty">
+        <source>[Empty]</source>
+      </trans-unit>
+      <trans-unit id="tt_content.pi_flexform.formframework.persistenceIdentifier">
+        <source>Form definition</source>
+      </trans-unit>
+      <trans-unit id="tt_content.pi_flexform.formframework.sheet_general">
+        <source>General</source>
+      </trans-unit>
+      <trans-unit id="tt_content.pi_flexform.formframework.selectPersistenceIdentifier">
+        <source>Please select a form definition</source>
+      </trans-unit>
+      <trans-unit id="tt_content.pi_flexform.formframework.overrideFinishers">
+        <source>Override finisher settings</source>
+      </trans-unit>
+      <trans-unit id="tt_content.pi_flexform.formframework.overrideFinishers.empty">
+        <source>There are no finishers or finisher options in the current form definition.</source>
+      </trans-unit>
+      <trans-unit id="tt_content.preview.noPersistenceIdentifier">
+        <source>No form selected.</source>
+      </trans-unit>
+      <trans-unit id="tt_content.preview.invalidPersistenceIdentifier">
+        <source>Invalid form "%s".</source>
+      </trans-unit>
+      <trans-unit id="tt_content.preview.inaccessiblePersistenceIdentifier">
+        <source>"%s" (no read access).</source>
+      </trans-unit>
+      <trans-unit id="tt_content.preview.notExistingdPersistenceIdentifier">
+        <source>The form "%s" does not exist.</source>
+      </trans-unit>
+      <trans-unit id="tt_content.preview.invalidFrameworkConfiguration">
+        <source>"%s" (Invalid ext:form configuration).</source>
+      </trans-unit>
+      <trans-unit id="tt_content.preview.invalidFrameworkConfiguration.text">
+        <source>Invalid ext:form configuration in form "%s": %s</source>
+      </trans-unit>
+      <trans-unit id="tt_content.preview.invalidFrameworkConfiguration.title">
+        <source>Invalid configuration.</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.Confirmation.label">
+        <source>Confirmation</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.Confirmation.message.label">
+        <source>Text</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.Confirmation.contentElementUid.label">
+        <source>Record</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.label">
+        <source>Email to sender (form submitter)</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.subject.label">
+        <source>Subject of the email</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.label">
+        <source>Recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.item.label">
+        <source>Recipient</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.email.label">
+        <source>Email Address</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.recipients.name.label">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.senderAddress.label">
+        <source>Email address of the sender</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.senderName.label">
+        <source>Human-readable name of the sender</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.replyToRecipients.label">
+        <source>Reply-To Recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.replyToRecipients.item.label">
+        <source>Reply-To Recipient</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.carbonCopyRecipients.label">
+        <source>CC Recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.carbonCopyRecipients.item.label">
+        <source>CC Recipient</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.blindCarbonCopyRecipients.label">
+        <source>BCC Recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.blindCarbonCopyRecipients.item.label">
+        <source>BCC Recipient</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.addHtmlPart.label">
+        <source>Add HTML mail part</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.language.label">
+        <source>Translation language</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.language.0">
+        <source>Auto</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.language.1">
+        <source>EN</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.message.label">
+        <source>Message</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.title.label">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.label">
+        <source>Email to receiver (you)</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.subject.label">
+        <source>Subject of the email</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.recipients.label">
+        <source>Email addresses and human-readable names of the recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.senderAddress.label">
+        <source>Email address of the sender</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.senderName.label">
+        <source>Human-readable name of the sender</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.replyToRecipients.label">
+        <source>Reply-To Recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.carbonCopyRecipients.label">
+        <source>CC Recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.blindCarbonCopyRecipients.label">
+        <source>BCC Recipients</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.addHtmlPart.label">
+        <source>Add HTML part</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.language.label">
+        <source>Translation language</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.language.0">
+        <source>Auto</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.language.1">
+        <source>EN</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.message.label">
+        <source>Message</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.title.label">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.Redirect.label">
+        <source>Redirect</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.Redirect.pageUid.label">
+        <source>Page</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.Redirect.additionalParameters.label">
+        <source>Additional link parameter</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.Redirect.fragment.label">
+        <source>Add fragment to the redirect link</source>
+      </trans-unit>
+      <trans-unit id="formManagerController.deleteAction.error.title">
+        <source>Delete error</source>
+      </trans-unit>
+      <trans-unit id="formManagerController.deleteAction.error.body">
+        <source>The form "%s" could not be deleted.</source>
+      </trans-unit>
+      <trans-unit id="formManager.headline">
+        <source>Form Management</source>
+      </trans-unit>
+      <trans-unit id="formManager.create_new_form">
+        <source>Create new form</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_name">
+        <source>Form name</source>
+      </trans-unit>
+      <trans-unit id="formManager.integrity">
+        <source>Integrity</source>
+      </trans-unit>
+      <trans-unit id="formManager.location">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="formManager.references">
+        <source>References</source>
+      </trans-unit>
+      <trans-unit id="formManager.options">
+        <source>Options</source>
+      </trans-unit>
+      <trans-unit id="formManager.edit_form">
+        <source>Edit this form</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicate_this_form">
+        <source>Duplicate this form</source>
+      </trans-unit>
+      <trans-unit id="formManager.delete_form">
+        <source>Delete this form</source>
+      </trans-unit>
+      <trans-unit id="formManager.forms_not_found.title">
+        <source>No forms exist</source>
+      </trans-unit>
+      <trans-unit id="formManager.forms_not_found.message">
+        <source>Once created, forms will be displayed here.</source>
+      </trans-unit>
+      <trans-unit id="formManager.forms_not_found_by_search_term.message">
+        <source>There are currently no forms found containing the search term "%1s".</source>
+      </trans-unit>
+      <trans-unit id="formManager.remove_search_term">
+        <source>Remove search term</source>
+      </trans-unit>
+      <trans-unit id="formManager.invalid">
+        <source>Invalid form definition</source>
+      </trans-unit>
+      <trans-unit id="formManager.readOnly">
+        <source>Read only</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicate_identifier">
+        <source>Duplicate identifier</source>
+      </trans-unit>
+      <trans-unit id="formManager.table.amount.form">
+        <source>form</source>
+      </trans-unit>
+      <trans-unit id="formManager.table.amount.forms">
+        <source>forms</source>
+      </trans-unit>
+      <trans-unit id="formManager.selectablePrototypesConfiguration.standard.label">
+        <source>Standard</source>
+      </trans-unit>
+      <trans-unit id="formManager.selectablePrototypesConfiguration.standard.newFormTemplates.blankForm.label">
+        <source>Blank form</source>
+      </trans-unit>
+      <trans-unit id="formManager.selectablePrototypesConfiguration.standard.newFormTemplates.simpleContactForm.label">
+        <source>Simple contact form (ext:form example)</source>
+      </trans-unit>
+      <trans-unit id="formManager.showHistory">
+        <source>Show History</source>
+      </trans-unit>
+      <trans-unit id="formEditor.header">
+        <source>Form editor</source>
+      </trans-unit>
+      <trans-unit id="formEditor.loading">
+        <source>Loading...</source>
+      </trans-unit>
+      <trans-unit id="formEditor.spinner">
+        <source>Loading...</source>
+      </trans-unit>
+      <trans-unit id="formEditor.save_button">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="formEditor.edit_button">
+        <source>Edit form properties</source>
+      </trans-unit>
+      <trans-unit id="formEditor.undo_button">
+        <source>Undo</source>
+      </trans-unit>
+      <trans-unit id="formEditor.redo_button">
+        <source>Redo</source>
+      </trans-unit>
+      <trans-unit id="formEditor.button_toggle_structure">
+        <source>Toggle structure</source>
+      </trans-unit>
+      <trans-unit id="formEditor.button_toggle_inspector">
+        <source>Toggle inspector</source>
+      </trans-unit>
+      <trans-unit id="formEditor.button_expand_inspector">
+        <source>Show inspector</source>
+      </trans-unit>
+      <trans-unit id="formEditor.button_collapse_inspector">
+        <source>Hide inspector</source>
+      </trans-unit>
+      <trans-unit id="formEditor.new_page_button">
+        <source>Create new step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.previous_step_button">
+        <source>Previous step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.next_step_button">
+        <source>Next step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.step.name.empty">
+        <source>Step name is not set</source>
+      </trans-unit>
+      <trans-unit id="formEditor.preview_mode_button">
+        <source>Preview mode</source>
+      </trans-unit>
+      <trans-unit id="formEditor.edit_mode_button">
+        <source>Edit mode</source>
+      </trans-unit>
+      <trans-unit id="formEditor.structure">
+        <source>Structure</source>
+      </trans-unit>
+      <trans-unit id="formEditor.insert_elements">
+        <source>Insert elements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementPropertyValidatorsDefinition.NotEmpty.label">
+        <source>Required</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementPropertyValidatorsDefinition.Integer.label">
+        <source>Not a number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementPropertyValidatorsDefinition.NaiveEmail.label">
+        <source>Invalid email address</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementPropertyValidatorsDefinition.FormElementIdentifierWithinCurlyBraces.label">
+        <source>Invalid form element</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementPropertyValidatorsDefinition.FileSize.label">
+        <source>Invalid file size format, valid e.g. "10B|K|M|G"</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementPropertyValidatorsDefinition.RFC3339FullDate.label">
+        <source>Invalid date format. Use Y-m-d (e.g. 2018-03-17) or a relative expression (e.g. today, -18 years)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementPropertyValidatorsDefinition.RegularExpressionPattern.label">
+        <source>Invalid pattern</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementGroups.input.label">
+        <source>Basic elements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementGroups.html5.label">
+        <source>Special elements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementGroups.select.label">
+        <source>Select elements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementGroups.custom.label">
+        <source>Advanced elements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementGroups.container.label">
+        <source>Container elements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.formElementGroups.page.label">
+        <source>Step types</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.BaseFormElementMixin.editor.label.label">
+        <source>Form name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.saveSuccessFlashMessageTitle">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.saveSuccessFlashMessageMessage">
+        <source>The form has been successfully saved.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.saveErrorFlashMessageTitle">
+        <source>Save</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.saveErrorFlashMessageMessage">
+        <source>The form could not be saved:</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.validationErrors.dialogTitle">
+        <source>Alert</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.validationErrors.dialogMessage">
+        <source>Some elements are not configured properly. Please check the following elements:</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.validationErrors.confirmButton">
+        <source>OK</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.insertElements.dialogTitle">
+        <source>New element</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.newPages.dialogTitle">
+        <source>New step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.removeElement.dialogTitle">
+        <source>Remove element?</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.removeElement.dialogMessage">
+        <source>Remove this element?</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.removeElement.confirmButton">
+        <source>Remove</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.removeElement.cancelButton">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.removeElement.lastAvailablePageFlashMessageTitle">
+        <source>Error</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.removeElement.lastAvailablePageFlashMessageMessage">
+        <source>There must be at least one step within your form.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.close.dialogMessage">
+        <source>You currently have unsaved changes. Closing the form will discard them. Continue?</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.close.dialogTitle">
+        <source>Quit without saving?</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.close.confirmButton">
+        <source>Discard changes</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.close.cancelButton">
+        <source>Keep editing</source>
+      </trans-unit>
+      <trans-unit id="formEditor.pagination.title">
+        <source>Step {0} of {1}</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MinimumMaximumEditorsMixin.editor.minimum.label">
+        <source>Minimum</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MinimumMaximumEditorsMixin.editor.maximum.label">
+        <source>Maximum</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.placeholder.label">
+        <source>Placeholder</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.defaultValue.label">
+        <source>Default value</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.pattern.label">
+        <source>Pattern</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.pattern.description">
+        <source>Additional client-side validation as JavaScript regular expression</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.pattern.fieldExplanationText" x-unused-since="14.2">
+        <source>Additional client-side validation as JavaScript regular expression</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.step.label">
+        <source>Step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.label">
+        <source>Validators</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.EmptyValue.label">
+        <source>Add validator</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.Alphanumeric.label">
+        <source>Alphanumeric</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.Text.label">
+        <source>Non-XML text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.StringLength.label">
+        <source>String length</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.EmailAddress.label">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.Integer.label">
+        <source>Integer number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.Float.label">
+        <source>Floating-point number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.Number.label">
+        <source>Number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.NumberRange.label">
+        <source>Number range</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.editor.validators.RegularExpression.label">
+        <source>Regular expression</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelectionMixin.editor.validators.Count.label">
+        <source>Number of submitted values</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Alphanumeric.editor.header.label">
+        <source>Alphanumeric</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Alphanumeric.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Alphanumeric.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Alphanumeric.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Text.editor.header.label">
+        <source>Non-XML text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Text.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Text.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Text.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.StringLength.editor.header.label">
+        <source>String length</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.StringLength.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.StringLength.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.StringLength.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.EmailAddress.editor.header.label">
+        <source>Email</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.EmailAddress.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.EmailAddress.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.EmailAddress.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Integer.editor.header.label">
+        <source>Integer number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Integer.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Integer.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Integer.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Float.editor.header.label">
+        <source>Floating-point number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Float.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Float.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Float.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.Number.editor.header.label">
+        <source>Number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.NumberRange.editor.header.label">
+        <source>Number range</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.NumberRange.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.NumberRange.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.NumberRange.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.header.label">
+        <source>Regular expression</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.regex.label">
+        <source>Regular expression</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.regex.description">
+        <source>Enter a valid PHP PCRE regular expression here.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.regex.fieldExplanationText" x-unused-since="14.2">
+        <source>Enter a valid PHP PCRE regular expression here.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.TextMixin.validators.RegularExpression.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelectionMixin.validators.Count.editor.header.label">
+        <source>Number of submitted values</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelectionMixin.validators.Count.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelectionMixin.validators.Count.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelectionMixin.validators.Count.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SelectionMixin.editor.inactiveOption.label">
+        <source>First option (empty value)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SelectionMixin.editor.inactiveOption.description">
+        <source>If set, this label will be shown as first option.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SelectionMixin.editor.inactiveOption.fieldExplanationText" x-unused-since="14.2">
+        <source>If set, this label will be shown as first option.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SelectionMixin.editor.options.label">
+        <source>Choices</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelectionMixin.editor.validators.label">
+        <source>Validators</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelectionMixin.editor.validators.EmptyValue.label">
+        <source>Add validator</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUploadMixin.editor.saveToFileMount.label">
+        <source>Uploads save path</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.label">
+        <source>Validators</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.EmptyValue.label">
+        <source>Add validator</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.FileSize.label">
+        <source>File size</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.Count.label">
+        <source>Number of files</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUploadMixin.validators.FileSize.editor.header.label">
+        <source>File size</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUploadMixin.validators.Count.editor.header.label">
+        <source>Number of uploaded files</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.submitButtonLabel.label">
+        <source>Submit label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.submitButtonLabel.value">
+        <source>Submit</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.label">
+        <source>Finishers</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.EmptyValue.label">
+        <source>Add finisher</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.EmailToSender.label">
+        <source>Email to sender (form submitter)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.EmailToReceiver.label">
+        <source>Email to receiver (you)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.Redirect.label">
+        <source>Redirect to a page</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.DeleteUploads.label">
+        <source>Delete uploads</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.Confirmation.label">
+        <source>Confirmation message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.header.label">
+        <source>Email to sender (form submitter)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.subject.label">
+        <source>Subject</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.message.label">
+        <source>Message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.message.description">
+        <source>Optional custom message. Use {formValues} as a placeholder to include the submitted form data at that position. If empty, only the form data table will be shown.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.label">
+        <source>Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.description">
+        <source>The email addresses and names of the website visitors to which the email should be sent.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.fieldExplanationText" x-unused-since="14.2">
+        <source>The email addresses and names of the website visitors to which the email should be sent.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.value.title">
+        <source>Email Address</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.label.title">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderAddress.label">
+        <source>Sender address</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderAddress.description">
+        <source>The email address of the sender (e.g. your company's email address) which appears in the website visitor email client.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderAddress.fieldExplanationText" x-unused-since="14.2">
+        <source>The email address of the sender (e.g. your company's email address) which appears in the website visitor email client.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderName.label">
+        <source>Sender name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderName.description">
+        <source>The name of the sender (e.g. your company's name) which appears in the website visitor email client.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.senderName.fieldExplanationText" x-unused-since="14.2">
+        <source>The name of the sender (e.g. your company's name) which appears in the website visitor email client.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.replyToRecipients.label">
+        <source>Reply-To Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.carbonCopyRecipients.label">
+        <source>CC Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.blindCarbonCopyRecipients.label">
+        <source>BCC Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.addHtmlPart.label">
+        <source>Add HTML part</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.addHtmlPart.description">
+        <source>If enabled, the email will contain a plaintext and an HTML part, otherwise only a plaintext part.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.addHtmlPart.fieldExplanationText" x-unused-since="14.2">
+        <source>If enabled, the email will contain a plaintext and an HTML part, otherwise only a plaintext part.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.attachUploads.label">
+        <source>Attach uploads</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.label">
+        <source>Translation language</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.0">
+        <source>Auto</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.1">
+        <source>EN</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.language.option.frontend">
+        <source>Same as frontend rendering</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.translations.label">
+        <source>Translations</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.translationsOverview.label">
+        <source>Form translations</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.editButton">
+        <source>Edit email content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.modalTitle">
+        <source>Email content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.template">
+        <source>Template</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.html">
+        <source>HTML</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.plain">
+        <source>Plain text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.preview">
+        <source>Preview</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.refreshPreview">
+        <source>Refresh preview</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.close">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.plainHint">
+        <source>Leave empty to derive the plain-text part from the HTML body automatically. Use {formValues} to position the submitted values.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.insertMarker">
+        <source>Insert field marker…</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.allValuesMarker">
+        <source>All form values (table)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.title">
+        <source>Condition builder</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.cancel">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.apply">
+        <source>Apply</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.addRule">
+        <source>+ Add rule</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.addGroup">
+        <source>+ Add group</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.removeGroup">
+        <source>Remove group</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.removeRule">
+        <source>Remove rule</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.value">
+        <source>value</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.fieldPlaceholder">
+        <source>— field —</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.valuePlaceholder">
+        <source>— value —</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.and">
+        <source>AND — all must match</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.or">
+        <source>OR — any may match</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.unparsed">
+        <source>This condition could not be parsed into the visual builder and is shown as raw expression. Edit it directly below.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.alwaysTrue">
+        <source>(always true — no rules)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.eq">
+        <source>equals</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.neq">
+        <source>not equals</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.lt">
+        <source>less than</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.lte">
+        <source>less than or equal</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.gt">
+        <source>greater than</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.gte">
+        <source>greater than or equal</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.in">
+        <source>is one of</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.notIn">
+        <source>is not one of</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.add">
+        <source>Add variant</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.variantPrefix">
+        <source>Variant</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.build">
+        <source>Build…</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.conditionPlaceholder">
+        <source>e.g. traverse(formValues, "fieldId") == 1</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.requiredWhen">
+        <source>Required when condition matches</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.editButton">
+        <source>Edit email content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.html">
+        <source>HTML</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainText">
+        <source>Plain text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.templatePrefix">
+        <source>Template</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainLabel">
+        <source>plain text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainCustom">
+        <source>custom</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainAuto">
+        <source>auto (from HTML)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.sendTest">
+        <source>Send test email</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.loadingPreview">
+        <source>Loading preview…</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testTitle">
+        <source>Test email</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testEndpointUnavailable">
+        <source>The test-send endpoint is not available.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testSent">
+        <source>Test email sent.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testFailed">
+        <source>Could not send the test email.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.edit">
+        <source>Translate…</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.editWholeForm">
+        <source>Translate whole form…</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.translationsLabel">
+        <source>Translations</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.completenessLabel">
+        <source>Completeness</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.noLanguages">
+        <source>No additional site languages configured.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.elementNothing">
+        <source>This element has no label, placeholder, options or custom validation messages to translate.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.field">
+        <source>Field</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.modalTitle">
+        <source>Translations</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.formModalTitle">
+        <source>Form translations</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.nothingHere">
+        <source>Nothing translatable here.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.noLanguagesForSite">
+        <source>No additional site languages are configured for this site.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.js.common.close">
+        <source>Close</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.title.label">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.title.description">
+        <source>The title, being shown in the Email. The title is rendered in the header section right above the email body. Do not confuse this field with the subject of your email.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.title.fieldExplanationText" x-unused-since="14.2">
+        <source>The title, being shown in the Email. The title is rendered in the header section right above the email body. Do not confuse this field with the subject of your email.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.header.label">
+        <source>Email to receiver (you)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.subject.label">
+        <source>Subject</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.message.label">
+        <source>Message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.message.description">
+        <source>Optional custom message. Use {formValues} once as a placeholder to include the submitted form data at that position (only the first occurrence is replaced). If empty, only the form data table will be shown.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.recipients.label">
+        <source>Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.recipients.description">
+        <source>The email addresses and names of the recipients to which the email should be sent (e.g. your company's email addresses).</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.recipients.fieldExplanationText" x-unused-since="14.2">
+        <source>The email addresses and names of the recipients to which the email should be sent (e.g. your company's email addresses).</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderAddress.label">
+        <source>Sender address</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderAddress.description">
+        <source>The email address of the sender which appears in your email client. Use the "insert formelement identifier" dropdown if you need to select a form element which contains the website visitor's email address instead.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderAddress.fieldExplanationText" x-unused-since="14.2">
+        <source>The email address of the sender which appears in your email client. Use the "insert formelement identifier" dropdown if you need to select a form element which contains the website visitor's email address instead.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderName.label">
+        <source>Sender name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderName.description">
+        <source>The name of the sender which appears in your email client. Use the "insert formelement identifier" dropdown if you need to choose one or more form elements which contain the website visitor's name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.senderName.fieldExplanationText" x-unused-since="14.2">
+        <source>The name of the sender which appears in your email client. Use the "insert formelement identifier" dropdown if you need to choose one or more form elements which contain the website visitor's name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.replyToRecipients.label">
+        <source>Reply-To Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.carbonCopyRecipients.label">
+        <source>CC Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.blindCarbonCopyRecipients.label">
+        <source>BCC Recipients</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.label">
+        <source>Add HTML part</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.description">
+        <source>If enabled, the email will contain a plaintext and an HTML part, otherwise only a plaintext part.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.fieldExplanationText" x-unused-since="14.2">
+        <source>If enabled, the email will contain a plaintext and an HTML part, otherwise only a plaintext part.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.attachUploads.label">
+        <source>Attach uploads</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.language.label">
+        <source>Translation language</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.language.0">
+        <source>Auto</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.language.1">
+        <source>EN</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.title.label">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.title.description">
+        <source>The title, being shown in the Email. The title is rendered in the header section right above the email body. Do not confuse this field with the subject of your email.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.title.fieldExplanationText" x-unused-since="14.2">
+        <source>The title, being shown in the Email. The title is rendered in the header section right above the email body. Do not confuse this field with the subject of your email.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.header.label">
+        <source>Redirect to a page</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.pageUid.label">
+        <source>Page</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.pageUid.buttonLabel">
+        <source>Page</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.additionalParameters.label">
+        <source>Additional parameters</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.fragment.label">
+        <source>URL fragment</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.fragment.buttonLabel">
+        <source>Page Content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.fragment.description">
+        <source>You can use a content element identifier as URL fragment or set a custom fragment identifier.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Redirect.editor.fragment.fieldExplanationText" x-unused-since="14.2">
+        <source>You can use a content element identifier as URL fragment or set a custom fragment identifier.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.DeleteUploads.editor.header.label">
+        <source>Delete uploads</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.RedirectToUri.editor.header.label">
+        <source>Redirect to URI</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.FeUser.editor.header.label">
+        <source>Frontend user registration (fe_users)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.AttachUploadsToObject.editor.header.label">
+        <source>Attach uploads to a database record (FAL)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.header.label">
+        <source>Confirmation message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.contentElement.label">
+        <source>Content element uid</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.contentElement.buttonLabel">
+        <source>Page Content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.message.label">
+        <source>Text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.message.description">
+        <source>Will be ignored if "Content element" is set</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Confirmation.editor.message.fieldExplanationText" x-unused-since="14.2">
+        <source>Will be ignored if "Content element" is set</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Closure.editor.header.label">
+        <source>Execute a closure</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.FlashMessage.editor.header.label">
+        <source>Flash message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveToDatabase.editor.header.label">
+        <source>Save the mail to the Database</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ReadOnlyFormElement.editor.label.label">
+        <source>Label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.label.label">
+        <source>Label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.elementDescription.label">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.enabled.label">
+        <source>Field visible</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.variants.label">
+        <source>Variants &amp; conditions</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.label">
+        <source>Autocomplete</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.none">
+        <source>None</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.off">
+        <source>off - disable the autocomplete functionality</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.name">
+        <source>name - Full name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.honorific-prefix">
+        <source>Prefix or title (e.g., "Mr.", "Ms.", "Dr.")</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.given-name">
+        <source>given-name - first name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.additional-name">
+        <source>additional-name - middle name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.family-name">
+        <source>family-name - last name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.honorific-suffix">
+        <source>honorific-suffix - Name suffix (e.g., "Jr.", "II")</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.nickname">
+        <source>Nickname, screen name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.organization-title">
+        <source>organization-title - Job title</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.username">
+        <source>username</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.organization">
+        <source>organization - Company name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-line1">
+        <source>address-line1 - Street address, line 1</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-line2">
+        <source>address-line2 - Street address, line 2</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-level1">
+        <source>address-level1 - State, Canton etc</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.address-level2">
+        <source>address-level2 - City</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.country-name">
+        <source>country-name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.postal-code">
+        <source>postal-code - ZIP</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel">
+        <source>tel - Full telephone number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.impp">
+        <source>impp - URL representing an instant messaging protocol endpoint</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.sex">
+        <source>sex - Gender identity</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.language">
+        <source>language - Preferred language</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.street-address">
+        <source>street-address</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-country-code">
+        <source>tel-country-code - Country code component of the telephone number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-national">
+        <source>tel-national - Telephone number without the county code</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-area-code">
+        <source>tel-area-code - Area code component of the telephone number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-local">
+        <source>tel-local - Telephone number without the country code and area code component</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.tel-extension">
+        <source>tel-extension - Telephone number internal extension code</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.url">
+        <source>url - Home page</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.new-password">
+        <source>new-password - A new password to create / change</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.current-password">
+        <source>current-password - Current password for the selected username</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday-day">
+        <source>bday-day - Day component of birthday</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday-month">
+        <source>bday-month - Month component of birthday</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday-year">
+        <source>bday-year - Year component of birthday</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.photo">
+        <source>photo</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.email">
+        <source>email</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.bday">
+        <source>bday - Birthday</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.autocomplete.option.country">
+        <source>country - Country code</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.requiredValidator.label">
+        <source>Field required</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.requiredValidator.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.requiredValidator.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.requiredValidator.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.validators.DateRange.editor.header.label">
+        <source>Date range</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.label">
+        <source>Grid viewport configuration</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.xs.label">
+        <source>Extra small</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.sm.label">
+        <source>Small</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.md.label">
+        <source>Medium</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.lg.label">
+        <source>Large</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.xl.label">
+        <source>Extra large</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.xxl.label">
+        <source>Extra extra large</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.numbersOfColumnsToUse.label">
+        <source>Numbers of columns for viewport "{@viewPortLabel}"</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.numbersOfColumnsToUse.description">
+        <source>Leave empty for auto calculation</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.gridColumnViewPortConfiguration.numbersOfColumnsToUse.fieldExplanationText" x-unused-since="14.2">
+        <source>Leave empty for auto calculation</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Page.label">
+        <source>Step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Page.description">
+        <source>A form step that can be customized with various elements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Page.editor.label.label">
+        <source>Step name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Page.editor.previousButtonLabel.label">
+        <source>Previous button label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Page.editor.previousButtonLabel.value">
+        <source>Previous step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Page.editor.nextButtonLabel.label">
+        <source>Next button label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Page.editor.nextButtonLabel.value">
+        <source>Next step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SummaryPage.label">
+        <source>Summary step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SummaryPage.description">
+        <source>A form step that displays all entered values for review before submission</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SummaryPage.editor.label.label">
+        <source>Step name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SummaryPage.editor.previousButtonLabel.label">
+        <source>Previous button label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SummaryPage.editor.previousButtonLabel.value">
+        <source>Previous step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SummaryPage.editor.nextButtonLabel.label">
+        <source>Next button label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SummaryPage.editor.nextButtonLabel.value">
+        <source>Next step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Fieldset.label">
+        <source>Fieldset</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Fieldset.description">
+        <source>A container used to group related form elements, improving accessibility and providing content-based structure</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Fieldset.editor.label.label">
+        <source>Fieldset name</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.GridColumn.label">
+        <source>Grid: Column</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.GridColumn.description">
+        <source>A container element for arranging fields, providing visual structure</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.GridColumn.editor.label.label">
+        <source>Name (not visible within frontend)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.GridRow.label">
+        <source>Grid: Row</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.GridRow.description">
+        <source>A container element for arranging fields side by side, providing visual structuring</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.GridRow.editor.label.label">
+        <source>Row name (not visible within frontend)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Text.label">
+        <source>Text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Text.description">
+        <source>A single-line text field</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Email.label">
+        <source>Email address</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Email.description">
+        <source>A text field for inputting an email address</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Telephone.label">
+        <source>Telephone number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Telephone.description">
+        <source>A text field for inputting a phone number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Url.label">
+        <source>URL</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Url.description">
+        <source>A text field for inputting a URL</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Number.label">
+        <source>Number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Number.description">
+        <source>A text field for inputting numbers, with browser controls to adjust the value in predefined steps</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Number.editor.validators.Number.label">
+        <source>Number</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Date.label">
+        <source>Date</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Date.description">
+        <source>A text field for inputting a date in a single line</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Date.editor.defaultValue.placeholder">
+        <source>A date in format Y-m-d (e.g 2018-03-17)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Date.editor.step.description">
+        <source>Specify the number of days between each occurrence of this event.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Date.editor.step.fieldExplanationText" x-unused-since="14.2">
+        <source>Specify the number of days between each occurrence of this event.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Date.editor.step.label">
+        <source>Frequency</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Date.editor.validators.DateRange.label">
+        <source>Date range</source>
+      </trans-unit>
+      <!-- WapplerSystems fork: Time form element labels -->
+      <trans-unit id="formEditor.elements.Time.label">
+        <source>Time</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Time.description">
+        <source>A text field for inputting a time in HH:MM format</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.header.label">
+        <source>Date range</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.minimum">
+        <source>Minimum date</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.maximum">
+        <source>Maximum date</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.minimum.placeholder">
+        <source>A date in format Y-m-d (e.g 2018-03-17)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateRange.editor.maximum.placeholder">
+        <source>A date in format Y-m-d (e.g 2018-03-17)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Password.label">
+        <source>Password</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Password.description">
+        <source>A text field for entering a password</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.AdvancedPassword.label">
+        <source>Advanced password</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.AdvancedPassword.description">
+        <source>A text field for entering and confirming a password</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.AdvancedPassword.editor.confirmationLabel.label">
+        <source>Confirmation label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.element.AdvancedPassword.editor.confirmationLabel.predefinedDefaults">
+        <source>Confirmation</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Textarea.label">
+        <source>Textarea</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Textarea.description">
+        <source>A multi-line text field for entering extended or continuous text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Checkbox.label">
+        <source>Checkbox</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Checkbox.description">
+        <source>An element for creating a single checkbox</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.CountrySelect.label">
+        <source>Country select</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.CountrySelect.description">
+        <source>An element to select a country</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiCheckbox.label">
+        <source>Multi checkbox</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiCheckbox.description">
+        <source>An element for creating multiple checkboxes</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelect.label">
+        <source>Multi select</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.MultiSelect.description">
+        <source>An element for creating a field that allows multiple selections</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.RadioButton.label">
+        <source>Radio button</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.RadioButton.description">
+        <source>An element for displaying one or more radio buttons</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SingleSelect.label">
+        <source>Single select</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.SingleSelect.description">
+        <source>An element for creating a dropdown list for selecting a single option</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.label">
+        <source>Date picker (jQuery)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.description">
+        <source>A text field for selecting a date via a calendar interface</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.editor.dateFormat.label">
+        <source>Date format</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.editor.enableDatePicker.label">
+        <source>Enable datepicker (needs jQuery UI)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.editor.displayTimeSelector.label">
+        <source>Display time selector</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.editor.validators.label">
+        <source>Validators</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.editor.validators.EmptyValue.label">
+        <source>Add validator</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.editor.validators.DateTime.label">
+        <source>Date/time</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateTime.editor.header.label">
+        <source>Date/time</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateTime.editor.validationErrorMessage.label">
+        <source>Custom error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateTime.editor.validationErrorMessage.description">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.DatePicker.validators.DateTime.editor.validationErrorMessage.fieldExplanationText" x-unused-since="14.2">
+        <source>Error message which is shown if the validation does not succeed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.StaticText.label">
+        <source>Static text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.StaticText.description">
+        <source>A field for displaying text content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.StaticText.editor.label.label">
+        <source>Header</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.StaticText.editor.staticText.label">
+        <source>Text</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Hidden.label">
+        <source>Hidden</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Hidden.description">
+        <source>A field that is not displayed in the frontend</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Hidden.editor.defaultValue.label">
+        <source>Value</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ContentElement.label">
+        <source>Content element</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ContentElement.description">
+        <source>A field for displaying any content element from your website</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ContentElement.selectContentElement">
+        <source>No content element selected</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ContentElement.editor.contentElement.label">
+        <source>Content element uid</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ContentElement.editor.contentElement.buttonLabel">
+        <source>Page Content</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.label">
+        <source>File upload</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.description">
+        <source>An element for uploading a file</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.label">
+        <source>Allowed file mime types</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.maximumFileSize.label">
+        <source>
 Your servers' maximum upload file size is {0}. Be aware setting higher values can result in errors when submitting the form.
 If you need higher values contact your administrator for help.
-				</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.doc">
-				<source>Documents (doc)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.docx">
-				<source>Documents (docx)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.xls">
-				<source>Documents (xls)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.xlsx">
-				<source>Documents (xlsx)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.pdf">
-				<source>Documents (pdf)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.odt">
-				<source>Documents (odt)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.ods">
-				<source>Documents (ods)</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.ImageUpload.label">
-				<source>Image upload</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ImageUpload.description">
-				<source>An element for uploading an image</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.label">
-				<source>Allowed file mime types</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.jpg">
-				<source>Images (jpg)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.png">
-				<source>Images (png)</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.bmp">
-				<source>Images (bmp)</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.CountrySelect">
-				<source>Country Select</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.CountrySelect.editor.prioritizedCountries.label">
-				<source>Prioritized countries</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.CountrySelect.editor.onlyCountries.label">
-				<source>Only countries</source>
-			</trans-unit>
-			<trans-unit id="formEditor.elements.CountrySelect.editor.excludeCountries.label">
-				<source>Exclude countries</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.elements.UnknownElement">
-				<source>Unknown element</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.stage.toolbar.new_element">
-				<source>Create new element</source>
-			</trans-unit>
-			<trans-unit id="formEditor.stage.toolbar.remove">
-				<source>Remove</source>
-			</trans-unit>
-			<trans-unit id="formEditor.stage.toolbar.new_element.inside">
-				<source>Inside</source>
-			</trans-unit>
-			<trans-unit id="formEditor.stage.toolbar.new_element.after">
-				<source>After</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.inspector.editor.formelement_selector.title">
-				<source>Insert formelement identifier</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.formelement_selector.no_elements">
-				<source>No elements available</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.formelement.remove">
-				<source>Remove this Element</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.grid.add">
-				<source>Add a new row</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.grid.remove">
-				<source>Remove this row</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.grid.move">
-				<source>Move this row</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.entry.label">
-				<source>Label</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.entry.value">
-				<source>Value</source>
-			</trans-unit>
-			<trans-unit id="formEditor.inspector.editor.entry.selected">
-				<source>Selected</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.modals.insertElements.filter.noResults">
-				<source>Unfortunately no element type matches your query, please try a different one.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.insertElements.filter.placeholder">
-				<source>Search for any element type</source>
-			</trans-unit>
-
-			<trans-unit id="formEditor.modals.newPages.filter.noResults">
-				<source>Unfortunately no step type matches your query, please try a different one.</source>
-			</trans-unit>
-			<trans-unit id="formEditor.modals.newPages.filter.placeholder">
-				<source>Search for any step type</source>
-			</trans-unit>
-		</body>
-	</file>
+        </source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.doc">
+        <source>Documents (doc)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.docx">
+        <source>Documents (docx)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.xls">
+        <source>Documents (xls)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.xlsx">
+        <source>Documents (xlsx)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.pdf">
+        <source>Documents (pdf)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.odt">
+        <source>Documents (odt)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowedMimeTypes.ods">
+        <source>Documents (ods)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.multiple.label">
+        <source>Allow multiple upload</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FileUpload.editor.allowRemoval.label">
+        <source>Allow removal of uploaded files</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ImageUpload.label">
+        <source>Image upload</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ImageUpload.description">
+        <source>An element for uploading an image</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.label">
+        <source>Allowed file mime types</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.jpg">
+        <source>Images (jpg)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.png">
+        <source>Images (png)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.bmp">
+        <source>Images (bmp)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.CountrySelect">
+        <source>Country Select</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.CountrySelect.editor.prioritizedCountries.label">
+        <source>Prioritized countries</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.CountrySelect.editor.onlyCountries.label">
+        <source>Only countries</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.CountrySelect.editor.excludeCountries.label">
+        <source>Exclude countries</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.UnknownElement">
+        <source>Unknown element</source>
+      </trans-unit>
+      <trans-unit id="formEditor.stage.toolbar.new_element">
+        <source>Create new element</source>
+      </trans-unit>
+      <trans-unit id="formEditor.stage.toolbar.remove">
+        <source>Remove</source>
+      </trans-unit>
+      <trans-unit id="formEditor.stage.toolbar.new_element.inside" x-unused-since="14.2">
+        <source>Inside</source>
+      </trans-unit>
+      <trans-unit id="formEditor.stage.toolbar.new_element.after" x-unused-since="14.2">
+        <source>After</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.formelement_selector.title">
+        <source>Insert formelement identifier</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.formelement.remove">
+        <source>Remove this Element</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.grid.add">
+        <source>Add a new row</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.grid.remove">
+        <source>Remove this row</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.grid.move">
+        <source>Move this row</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.entry.label">
+        <source>Label</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.entry.value">
+        <source>Value</source>
+      </trans-unit>
+      <trans-unit id="formEditor.inspector.editor.entry.selected">
+        <source>Selected</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.insertElements.filter.noResults">
+        <source>Unfortunately no element type matches your query, please try a different one.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.insertElements.filter.placeholder">
+        <source>Search for any element type</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.newPages.filter.noResults">
+        <source>Unfortunately no step type matches your query, please try a different one.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.newPages.filter.placeholder">
+        <source>Search for any step type</source>
+      </trans-unit>
+      <trans-unit id="formManager.storage.database.label">
+        <source>Database</source>
+      </trans-unit>
+      <trans-unit id="formManager.storage.database.description">
+        <source>Store the form as a record in the database. Recommended for most use cases, because it treats forms as user-generated content and allows integrated versioning.</source>
+      </trans-unit>
+      <trans-unit id="formManager.storage.fileMount.label">
+        <source>File (deprecated)</source>
+      </trans-unit>
+      <trans-unit id="formManager.storage.fileMount.description">
+        <source>Store the form as a YAML file. This option will be removed in a future TYPO3 version. Use "Database" instead. Files can still be provided within extensions.</source>
+      </trans-unit>
+      <trans-unit id="formManager.storage.extension.label">
+        <source>Extension</source>
+      </trans-unit>
+      <trans-unit id="formManager.storage.extension.description">
+        <source>Store the form inside an extension. Such forms are then not meant for editing, but provided as-is.</source>
+      </trans-unit>
+    </body>
+  </file>
 </xliff>

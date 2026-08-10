@@ -1,0 +1,35 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <div class="mb-3">
+        <f:link.action action="index" arguments="{form: submission.form_identifier}" class="btn btn-default">
+            <core:icon identifier="actions-arrow-left-alt" size="small" />
+            <f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.back">Back</f:translate>
+        </f:link.action>
+    </div>
+
+    <h1>{submission.form_label}</h1>
+    <p class="text-muted">
+        #{submission.uid} &middot;
+        <f:format.date format="Y-m-d H:i">@{submission.crdate}</f:format.date>
+    </p>
+
+    <div class="table-fit">
+        <table class="table table-striped">
+            <tbody>
+                <f:for each="{pairs}" as="pair">
+                    <tr>
+                        <th style="width:30%">{pair.label}</th>
+                        <td><f:format.nl2br>{pair.value}</f:format.nl2br></td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+    </div>
+</f:section>
+</html>

@@ -21,15 +21,21 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Domain\Finishers;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Model\FormElements\StringableFormElementInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Service\TranslationService;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+// WapplerSystems fork additions:
+use TYPO3\CMS\Form\Event\AfterFinisherExecutedEvent;
+use TYPO3\CMS\Form\Event\BeforeFinisherExecutedEvent;
 
 /**
  * Finisher base class.
@@ -37,8 +43,10 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  * Scope: frontend
  * **This class is meant to be sub classed by developers**
  */
-abstract class AbstractFinisher implements FinisherInterface
+abstract class AbstractFinisher implements FinisherInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var string
      */
@@ -67,9 +75,44 @@ abstract class AbstractFinisher implements FinisherInterface
     protected $defaultOptions = [];
 
     /**
-     * @var \TYPO3\CMS\Form\Domain\Finishers\FinisherContext
+     * @var FinisherContext
      */
     protected $finisherContext;
+
+    private ViewFactoryInterface $viewFactory;
+
+    private TranslationService $translationService;
+
+    /**
+     * WapplerSystems fork: optional. Null-safe so finishers instantiated
+     * outside the DI container (legacy tests, manual makeInstance) still work.
+     */
+    private ?EventDispatcherInterface $eventDispatcher = null;
+
+    public function injectViewFactory(ViewFactoryInterface $viewFactory)
+    {
+        $this->viewFactory = $viewFactory;
+    }
+
+    public function injectTranslationService(TranslationService $translationService)
+    {
+        $this->translationService = $translationService;
+    }
+
+    public function injectEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * WapplerSystems fork: lets subclasses (e.g. SaveToDatabaseFinisher) dispatch
+     * their own events without redeclaring the private $eventDispatcher property
+     * (EmailFinisher promotes its own readonly one, so the property can't be protected).
+     */
+    protected function getEventDispatcher(): ?EventDispatcherInterface
+    {
+        return $this->eventDispatcher;
+    }
 
     /**
      * @param string $finisherIdentifier The identifier for this finisher
@@ -77,7 +120,7 @@ abstract class AbstractFinisher implements FinisherInterface
     public function setFinisherIdentifier(string $finisherIdentifier): void
     {
         $this->finisherIdentifier = $finisherIdentifier;
-        $this->shortFinisherIdentifier = preg_replace('/Finisher$/', '', $this->finisherIdentifier) ?? '';
+        $this->shortFinisherIdentifier = preg_replace('/Finisher$/', '', $finisherIdentifier) ?? '';
     }
 
     public function getFinisherIdentifier(): string
@@ -91,6 +134,16 @@ abstract class AbstractFinisher implements FinisherInterface
     public function setOptions(array $options)
     {
         $this->options = $options;
+    }
+
+    /**
+     * Returns the raw (unparsed) finisher options.
+     *
+     * @return array<string, mixed>
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
     }
 
     /**
@@ -118,7 +171,30 @@ abstract class AbstractFinisher implements FinisherInterface
             return null;
         }
 
-        return $this->executeInternal();
+        // WapplerSystems fork: notify listeners before any finisher executes
+        $this->eventDispatcher?->dispatch(new BeforeFinisherExecutedEvent($this, $finisherContext));
+
+        try {
+            $result = $this->executeInternal();
+            // WapplerSystems fork: notify only on successful execution (no exception)
+            $this->eventDispatcher?->dispatch(new AfterFinisherExecutedEvent($this, $finisherContext, $result));
+            return $result;
+        } catch (FinisherException $e) {
+            $this->logger->error('Failed to execute finisher', ['exception' => $e]);
+            $this->finisherContext->cancel();
+            $formRuntime = $this->finisherContext->getFormRuntime();
+            $renderingOptions = $formRuntime->getRenderingOptions();
+            $viewFactoryData = new ViewFactoryData(
+                templateRootPaths: is_array($renderingOptions['templateRootPaths'] ?? null) ? $renderingOptions['templateRootPaths'] : [],
+                partialRootPaths: is_array($renderingOptions['partialRootPaths'] ?? null) ? $renderingOptions['partialRootPaths'] : [],
+                layoutRootPaths: is_array($renderingOptions['layoutRootPaths'] ?? null) ? $renderingOptions['layoutRootPaths'] : [],
+                request: $this->finisherContext->getRequest(),
+            );
+            $view = $this->viewFactory->create($viewFactoryData);
+            $message = $this->parseOption('errorMessage') ?: $this->translationService->translate('form.finisher.error', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
+            $view->assign('message', $message);
+            return $view->render('Finishers/Error');
+        }
     }
 
     /**
@@ -126,6 +202,7 @@ abstract class AbstractFinisher implements FinisherInterface
      *
      * Override and fill with your own implementation!
      *
+     * @throws FinisherException
      * @return string|void|null
      */
     abstract protected function executeInternal();
@@ -139,7 +216,7 @@ abstract class AbstractFinisher implements FinisherInterface
      * If $optionName was not found, the corresponding default option is returned (from $this->defaultOptions)
      *
      * @param string $optionName
-     * @return string|array|int|bool|null
+     * @return string|array|int|bool|\Closure|callable|null
      */
     protected function parseOption(string $optionName)
     {
@@ -174,7 +251,7 @@ abstract class AbstractFinisher implements FinisherInterface
         $optionValue = $this->substituteRuntimeReferences($optionValue, $formRuntime);
 
         if (is_string($optionValue)) {
-            $translationOptions = isset($this->options['translation']) && is_array($this->options['translation'])
+            $translationOptions = is_array($this->options['translation'] ?? null)
                                 ? $this->options['translation']
                                 : [];
 
@@ -227,7 +304,7 @@ abstract class AbstractFinisher implements FinisherInterface
             return $subject;
         }
 
-        return GeneralUtility::makeInstance(TranslationService::class)->translateFinisherOption(
+        return $this->translationService->translateFinisherOption(
             $formRuntime,
             $this->finisherIdentifier,
             $optionName,
@@ -360,10 +437,5 @@ abstract class AbstractFinisher implements FinisherInterface
     public function isEnabled(): bool
     {
         return !isset($this->options['renderingOptions']['enabled']) || (bool)$this->parseOption('renderingOptions.enabled') === true;
-    }
-
-    protected function getTypoScriptFrontendController(): TypoScriptFrontendController
-    {
-        return $GLOBALS['TSFE'];
     }
 }

@@ -1,0 +1,110 @@
+<html
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:formvh="http://typo3.org/ns/TYPO3/CMS/Form/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <div class="formeditor">
+        <div class="formeditor-loader" data-identifier="moduleLoadingIndicator">
+            <core:icon identifier="spinner-circle" size="medium" />
+            <div><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.loading" /></div>
+        </div>
+        <div class="formeditor-inner">
+            <div class="formeditor-module hidden" data-identifier="moduleWrapper">
+                <f:format.raw>{formEditorTemplates}</f:format.raw>
+                <section class="formeditor-stage-container" data-identifier="stageContainer">
+                    <div class="formeditor-stage-container-inner" data-identifier="stageContainerInner">
+                            <f:render section="Header" />
+                            <f:render section="Stage" />
+                    </div>
+                </section>
+            </div>
+            <section class="formeditor-inspector hidden" data-identifier="inspectorSection">
+                <div class="formeditor-inspector-inner">
+                    <div class="formeditor-inspector-collapse">
+                        <button
+                            type="button"
+                            class="btn btn-default btn-sm"
+                            title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.button_collapse_inspector')}"
+                            data-identifier="formeditorInspectorCollapse"
+                        >
+                            <core:icon identifier="actions-panel-expand-start" size="small" />
+                        </button>
+                    </div>
+                    <f:render section="Inspector" />
+                </div>
+            </section>
+        </div>
+    </div>
+</f:section>
+
+<f:section name="Header">
+    <div class="formeditor-header">
+        <h1 data-identifier="formDefinitionLabel"></h1>
+        <div class="formeditor-header-actions">
+            <button
+                type="button"
+                class="btn btn-sm btn-default"
+                title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.edit_button')}"
+                data-identifier="formSettings"
+            >
+                <core:icon identifier="actions-open" />
+                {f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.edit_button')}
+            </button>
+            <button
+                type="button"
+                class="btn btn-sm btn-default formeditor-inspector-expand"
+                title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.button_expand_inspector')}"
+                data-identifier="formeditorInspectorExpand"
+            >
+                <core:icon identifier="actions-panel-collapse-start" size="small" />
+            </button>
+        </div>
+    </div>
+</f:section>
+
+<f:section name="Stage">
+    <div class="formeditor-stage" data-identifier="stagePanel">
+        <div class="formeditor-stage-inner">
+            <div class="formeditor-stage-heading" data-identifier="panelHeading">
+                <div class="panel-heading-row panel-heading-row-spread">
+                    <div class="panel-heading-column">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-default" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.preview_mode_button')}" data-identifier="buttonViewModePreview"><core:icon identifier="actions-view" alternativeMarkupIdentifier="inline" /></button>
+                            <button class="btn btn-default" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.edit_mode_button')}" data-identifier="buttonViewModeAbstract"><core:icon identifier="actions-open" alternativeMarkupIdentifier="inline" /></button>
+                        </div>
+                    </div>
+                    <div class="panel-heading-column">
+                        <span class="panel-label" data-identifier="paginationTitle"></span>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-default" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.previous_step_button')}" data-identifier="buttonPaginationPrevious"><core:icon identifier="actions-view-paging-previous" alternativeMarkupIdentifier="inline" /></button>
+                            <button class="btn btn-default" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.next_step_button')}" data-identifier="buttonPaginationNext"><core:icon identifier="actions-view-paging-next" alternativeMarkupIdentifier="inline" /></button>
+                        </div>
+                        <button
+                                type="button"
+                                class="btn btn-sm btn-default"
+                                title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.new_page_button')}"
+                                data-identifier="newPage"
+                        >
+                            <core:icon identifier="actions-plus" />
+                            {f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.new_page_button')}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="formeditor-stage-section" data-identifier="stageSection">
+                <div class="formeditor-stage-area" data-identifier="stageArea"></div>
+            </div>
+        </div>
+    </div>
+</f:section>
+
+<f:section name="Inspector">
+    <div class="formeditor-inspector-content" data-identifier="inspector"></div>
+</f:section>
+
+</html>

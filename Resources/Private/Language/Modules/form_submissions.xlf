@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:form/Resources/Private/Language/Modules/form_submissions.xlf" date="2026-07-11T12:00:00Z" product-name="form">
+    <header/>
+    <body>
+      <trans-unit id="title">
+        <source>Form submissions</source>
+      </trans-unit>
+      <trans-unit id="description">
+        <source>Review, search, export and delete form submissions stored by the "Save submission" finisher.</source>
+      </trans-unit>
+      <trans-unit id="short_description">
+        <source>Stored form submissions</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

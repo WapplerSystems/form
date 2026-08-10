@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 use TYPO3Tests\FormCachingTests\Controller\FormCachingTestsController;
 
@@ -14,7 +13,6 @@ call_user_func(static function () {
         'AllActionsCached',
         [FormCachingTestsController::class => ['someRender', 'somePerform']],
         [FormCachingTestsController::class => ['']],
-        ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
 
     ExtensionUtility::configurePlugin(
@@ -22,7 +20,6 @@ call_user_func(static function () {
         'RenderActionIsCached',
         [FormCachingTestsController::class => ['someRender', 'somePerform']],
         [FormCachingTestsController::class => ['somePerform']],
-        ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
 
     ExtensionUtility::configurePlugin(
@@ -30,16 +27,5 @@ call_user_func(static function () {
         'AllActionsUncached',
         [FormCachingTestsController::class => ['someRender', 'somePerform']],
         [FormCachingTestsController::class => ['someRender', 'somePerform']],
-        ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
-
-    ExtensionManagementUtility::addTypoScriptSetup('
-        plugin.tx_form {
-            settings {
-                yamlConfigurations {
-                    1628755200 = EXT:form_caching_tests/Configuration/Yaml/FormSetup.yaml
-                }
-            }
-        }
-    ');
 });

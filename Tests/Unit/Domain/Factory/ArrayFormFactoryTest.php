@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Tests\Unit\Domain\Factory;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\EventDispatcher\NoopEventDispatcher;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Form\Domain\Exception\IdentifierNotValidException;
 use TYPO3\CMS\Form\Domain\Factory\ArrayFormFactory;
@@ -35,6 +36,7 @@ final class ArrayFormFactoryTest extends UnitTestCase
 
         $section = new Section('test', 'page');
         $arrayFormFactory = $this->getAccessibleMock(ArrayFormFactory::class, null);
+        $arrayFormFactory->injectEventDispatcher(new NoopEventDispatcher());
 
         $request = new ServerRequest();
         $arrayFormFactory->_call('addNestedRenderable', [], $section, $request);
@@ -51,6 +53,7 @@ final class ArrayFormFactoryTest extends UnitTestCase
             'type' => 'Foo',
         ];
         $arrayFormFactory = $this->getAccessibleMock(ArrayFormFactory::class, null);
+        $arrayFormFactory->injectEventDispatcher(new NoopEventDispatcher());
         $request = new ServerRequest();
         $result = $arrayFormFactory->_call('addNestedRenderable', $configuration, $section, $request);
         self::assertSame($unknownElement, $result);

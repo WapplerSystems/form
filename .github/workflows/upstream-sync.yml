@@ -1,0 +1,102 @@
+name: Upstream Sync (TYPO3-CMS/form)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Fork branch to PR against'
+        default: 'release/v14'
+      upstream_branch:
+        description: 'Upstream branch to follow (TYPO3-CMS/form)'
+        default: '14.3'
+      max_prs:
+        description: 'Maximum PRs to create in one run'
+        default: '10'
+      dry_run:
+        description: 'Dry-run (list only, do not push or open PRs)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  # GitHub tracks labels under the issues API, so `pull-requests: write` alone
+  # is NOT enough — `gh pr create --label` fails with "label not found" and
+  # `gh label create` is silently denied without this.
+  issues: write
+
+concurrency:
+  group: upstream-sync-${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.base || 'release/v14' }}
+          fetch-depth: 0
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "wapplersystems-upstream-bot"
+          git config user.email "bot@wappler.systems"
+
+      - name: Add and fetch upstream
+        env:
+          UPSTREAM_BRANCH: ${{ inputs.upstream_branch || '14.3' }}
+        run: |
+          git remote add upstream https://github.com/TYPO3-CMS/form.git 2>/dev/null || \
+            git remote set-url upstream https://github.com/TYPO3-CMS/form.git
+          git fetch --no-tags upstream "+refs/heads/${UPSTREAM_BRANCH}:refs/remotes/upstream/${UPSTREAM_BRANCH}"
+
+      - name: Ensure labels exist (and visible to the workflow token)
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          # Pin gh to the fork — without this, gh follows the upstream remote
+          # via its fork-parent heuristic and ends up calling
+          # https://api.github.com/repos/TYPO3-CMS/form/... where the GITHUB_TOKEN
+          # has no permissions (403 Resource not accessible by integration).
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -e
+          declare -a labels=(
+            "upstream-sync:0e8a16:Automatically proposed cherry-pick from upstream"
+            "needs-conflict-resolution:d73a4a:Cherry-pick had conflicts, manual resolution required"
+            "security:b60205:Security-related upstream change"
+            "bugfix:5319e7:Bugfix from upstream"
+            "breaking-change:e99695:Upstream marked [!!!] — review carefully"
+          )
+          echo "--- creating labels ---"
+          for spec in "${labels[@]}"; do
+            name="${spec%%:*}"; rest="${spec#*:}"
+            color="${rest%%:*}"; desc="${rest#*:}"
+            if out=$(gh label create "$name" --color "$color" --description "$desc" 2>&1); then
+              echo "  created: $name"
+            else
+              if echo "$out" | grep -qi 'already exists'; then
+                gh label edit "$name" --color "$color" --description "$desc" >/dev/null
+                echo "  exists, edited: $name"
+              else
+                echo "::warning::label '$name' create failed: $out"
+              fi
+            fi
+          done
+          echo "--- labels visible to this token ---"
+          gh label list --limit 100 | awk '{print "  "$0}'
+
+      - name: Propose upstream commits as PRs
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          BASE: ${{ inputs.base || 'release/v14' }}
+          UPSTREAM_BRANCH: ${{ inputs.upstream_branch || '14.3' }}
+          MAX_PRS: ${{ inputs.max_prs || '10' }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: bash .github/scripts/upstream-sync.sh

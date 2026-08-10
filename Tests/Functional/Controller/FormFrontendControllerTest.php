@@ -20,12 +20,10 @@ namespace TYPO3\CMS\Form\Tests\Functional\Controller;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Form\Controller\FormFrontendController;
 use TYPO3\CMS\Form\Domain\Configuration\ConfigurationService;
-use TYPO3\CMS\Form\Mvc\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Form\Mvc\Persistence\FormPersistenceManagerInterface;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -48,9 +46,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
             [
                 $configurationServiceMock,
                 $this->createMock(FormPersistenceManagerInterface::class),
-                $this->get(FlexFormService::class),
                 $this->get(FlexFormTools::class),
-                $this->createMock(ConfigurationManagerInterface::class),
             ],
         );
         $sheetIdentifier = md5(
@@ -63,7 +59,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
         );
         $request = (new ServerRequest())->withAttribute('extbase', new ExtbaseRequestParameters());
         $request = (new Request($request));
-        $contentObject = new ContentObjectRenderer();
+        $contentObject = $this->get(ContentObjectRenderer::class);
         $request = $request->withAttribute('currentContentObject', $contentObject);
         $contentObject->setRequest($request);
         $subjectMock->_set('request', $request);
@@ -171,9 +167,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
             [
                 $configurationServiceMock,
                 $this->createMock(FormPersistenceManagerInterface::class),
-                $this->get(FlexFormService::class),
                 $this->get(FlexFormTools::class),
-                $this->createMock(ConfigurationManagerInterface::class),
             ],
         );
         $sheetIdentifier = md5(
@@ -186,7 +180,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
         );
         $request = (new ServerRequest())->withAttribute('extbase', new ExtbaseRequestParameters());
         $request = (new Request($request));
-        $contentObject = new ContentObjectRenderer();
+        $contentObject = $this->get(ContentObjectRenderer::class);
         $request = $request->withAttribute('currentContentObject', $contentObject);
         $contentObject->setRequest($request);
         $subjectMock->_set('request', $request);
@@ -317,9 +311,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
             [
                 $configurationServiceMock,
                 $this->createMock(FormPersistenceManagerInterface::class),
-                $this->get(FlexFormService::class),
                 $this->get(FlexFormTools::class),
-                $this->createMock(ConfigurationManagerInterface::class),
             ],
         );
 
@@ -333,7 +325,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
         );
         $request = (new ServerRequest())->withAttribute('extbase', new ExtbaseRequestParameters());
         $request = (new Request($request));
-        $contentObject = new ContentObjectRenderer();
+        $contentObject = $this->get(ContentObjectRenderer::class);
         $request = $request->withAttribute('currentContentObject', $contentObject);
         $contentObject->setRequest($request);
         $mockController->_set('request', $request);

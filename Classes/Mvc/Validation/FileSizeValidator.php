@@ -30,7 +30,7 @@ use TYPO3\CMS\Form\Mvc\Validation\Exception\InvalidValidationOptionsException;
  * Scope: frontend
  * @internal
  */
-final class FileSizeValidator extends AbstractValidator
+final class FileSizeValidator extends AbstractValidator implements ObjectStorageElementValidatorInterface
 {
     /**
      * @var array
@@ -43,7 +43,7 @@ final class FileSizeValidator extends AbstractValidator
     /**
      * The given value is valid
      *
-     * @param FileReference|File|PseudoFile $resource
+     * @param mixed $resource
      */
     public function isValid(mixed $resource): void
     {
@@ -70,25 +70,27 @@ final class FileSizeValidator extends AbstractValidator
 
         $labels = ' Bytes| Kilobyte| Megabyte| Gigabyte';
         if ($fileSize < $minFileSize) {
+            $formattedMinFileSize = GeneralUtility::formatSize($minFileSize, $labels);
             $this->addError(
                 $this->translateErrorMessage(
                     'validation.error.1505305752',
                     'form',
-                    [GeneralUtility::formatSize($minFileSize, $labels)]
+                    [$formattedMinFileSize]
                 ),
                 1505305752,
-                [GeneralUtility::formatSize($minFileSize, $labels)]
+                [$formattedMinFileSize]
             );
         }
         if ($fileSize > $maxFileSize) {
+            $formattedMaxFileSize = GeneralUtility::formatSize($maxFileSize, $labels);
             $this->addError(
                 $this->translateErrorMessage(
                     'validation.error.1505305753',
                     'form',
-                    [GeneralUtility::formatSize($maxFileSize, $labels)]
+                    [$formattedMaxFileSize]
                 ),
                 1505305753,
-                [GeneralUtility::formatSize($maxFileSize, $labels)]
+                [$formattedMaxFileSize]
             );
         }
     }
@@ -98,7 +100,7 @@ final class FileSizeValidator extends AbstractValidator
      *
      * @throws InvalidValidationOptionsException if the configured validation options are incorrect
      */
-    protected function validateOptions(): void
+    private function validateOptions(): void
     {
         if (!preg_match('/^(\d*\.?\d+)(B|K|M|G)$/i', $this->options['minimum'])) {
             throw new InvalidValidationOptionsException('The option "minimum" has an invalid format. Valid formats are something like this: "10B|K|M|G".', 1505304205);

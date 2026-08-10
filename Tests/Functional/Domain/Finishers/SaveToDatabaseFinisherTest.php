@@ -18,16 +18,14 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Tests\Functional\Domain\Finishers;
 
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Database\Platform\SQLitePlatform;
-use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface as ExtbaseConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
 use TYPO3\CMS\Form\Domain\Finishers\SaveToDatabaseFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Domain\Runtime\FormState;
+use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class SaveToDatabaseFinisherTest extends FunctionalTestCase
@@ -37,12 +35,6 @@ final class SaveToDatabaseFinisherTest extends FunctionalTestCase
     #[Test]
     public function insertIntoTableWithoutUidColumnCreatesRow(): void
     {
-        // Needed for TranslationService
-        $configurationManager = $this->get(ExtbaseConfigurationManagerInterface::class);
-        $configurationManager->setRequest(
-            (new ServerRequest())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
-        );
-
         // sys_category_record_mm has no auto-increment UID column; lastInsertId()
         // throws in that case. The finisher must handle this gracefully and still
         // write the row to the database.
@@ -58,6 +50,7 @@ final class SaveToDatabaseFinisherTest extends FunctionalTestCase
 
         $subject = new SaveToDatabaseFinisher();
         $subject->setFinisherIdentifier('SaveToDatabase');
+        $subject->injectTranslationService($this->get(TranslationService::class));
         $subject->setOptions([
             'table' => 'sys_category_record_mm',
             'mode' => 'insert',

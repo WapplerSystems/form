@@ -1,0 +1,8 @@
+# Artifacts produced by a standalone `composer update` of this package
+# (see Build/phpunit/*.xml test toolchain). Never committed.
+/.cache/
+/composer.lock
+/packages/
+/public/
+/var/
+/vendor/

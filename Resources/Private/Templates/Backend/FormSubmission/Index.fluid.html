@@ -1,0 +1,103 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <h1><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.headline">Form submissions</f:translate></h1>
+
+    <f:if condition="{forms}">
+        <f:then>
+            <f:form action="index" method="get" class="mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label class="form-label" for="form-select"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.filter.form">Form</f:translate></label>
+                        <f:form.select id="form-select" class="form-select" name="form" value="{selectedForm}"
+                            additionalAttributes="{data-global-event: 'change', data-action-submit: '$form'}"
+                            options="{selectOptions}" prependOptionLabel=" " />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label" for="date-from"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.filter.from">From</f:translate></label>
+                        <f:form.textfield type="date" id="date-from" class="form-control" name="dateFrom" value="{dateFrom}" />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label" for="date-to"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.filter.to">To</f:translate></label>
+                        <f:form.textfield type="date" id="date-to" class="form-control" name="dateTo" value="{dateTo}" />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label" for="search-term"><f:translate id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.label.searchString">Search</f:translate></label>
+                        <f:form.textfield type="search" id="search-term" class="form-control" name="searchTerm" value="{searchTerm}" />
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-primary" type="submit"><f:translate id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search">Apply</f:translate></button>
+                    </div>
+                </div>
+            </f:form>
+
+            <f:if condition="{selectedForm}">
+                <div class="mb-3 btn-group">
+                    <f:link.action action="export" arguments="{form: selectedForm, format: 'csv', searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" class="btn btn-default">CSV</f:link.action>
+                    <f:link.action action="export" arguments="{form: selectedForm, format: 'xlsx', searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" class="btn btn-default">XLSX</f:link.action>
+                    <f:link.action action="export" arguments="{form: selectedForm, format: 'pdf', searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" class="btn btn-default">PDF</f:link.action>
+                </div>
+
+                <f:if condition="{truncated}">
+                    <div class="alert alert-warning">
+                        <f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.truncated">Only the most recent submissions are shown; narrow the filter or export for the full set.</f:translate>
+                    </div>
+                </f:if>
+
+                <f:if condition="{paginator.paginatedItems}">
+                    <f:then>
+                        <div class="table-fit">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:tx_form_submission.crdate">Date</f:translate></th>
+                                        <f:for each="{columns}" as="label" key="identifier">
+                                            <th>{label}</th>
+                                        </f:for>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <f:for each="{paginator.paginatedItems}" as="row">
+                                        <tr>
+                                            <td>{row.uid}</td>
+                                            <td><f:format.date format="Y-m-d H:i">@{row.crdate}</f:format.date></td>
+                                            <f:for each="{columns}" as="label" key="identifier">
+                                                <td><f:format.crop maxCharacters="80">{row.cells.{identifier}}</f:format.crop></td>
+                                            </f:for>
+                                            <td class="text-end text-nowrap">
+                                                <f:link.action action="show" arguments="{submission: row.uid}" class="btn btn-default btn-sm">
+                                                    <core:icon identifier="actions-eye" size="small" />
+                                                </f:link.action>
+                                                <f:form action="delete" arguments="{submission: row.uid, form: selectedForm}" method="post" style="display:inline">
+                                                    <button type="submit" class="btn btn-default btn-sm" data-global-event="click" data-action-confirm="{f:translate(id: 'LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.confirmDelete')}">
+                                                        <core:icon identifier="actions-delete" size="small" />
+                                                    </button>
+                                                </f:form>
+                                            </td>
+                                        </tr>
+                                    </f:for>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <f:render partial="Backend/FormSubmission/Pagination" arguments="{paginator: paginator, pagination: pagination, form: selectedForm, searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" />
+                    </f:then>
+                    <f:else>
+                        <p class="text-muted"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.empty">No submissions found for this form.</f:translate></p>
+                    </f:else>
+                </f:if>
+            </f:if>
+        </f:then>
+        <f:else>
+            <p class="text-muted"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.noForms">No stored submissions yet. Add the "Save submission" finisher to a form to start collecting entries.</f:translate></p>
+        </f:else>
+    </f:if>
+</f:section>
+</html>

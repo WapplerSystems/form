@@ -18,10 +18,13 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Domain\Finishers;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
+use TYPO3\CMS\Form\Event\AfterDatabaseRecordPersistedEvent;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 
 /**
@@ -68,6 +71,11 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
  *   Set this to true if the database column should not be written
  *   if the value from the submitted form element with the identifier
  *   '<elementIdentifier>' is empty (think about password fields etc.)
+ *
+ *  options.elements.<elementIdentifier>.hashed (default: false)
+ *  ------------------------------------------------------
+ *    Set this to true if the value from the submitted form element
+ *    should be hashed before writing into the database.
  *
  * options.elements.<elementIdentifier>.saveFileIdentifierInsteadOfUid (default: false)
  * -------------------------------------------------------------------
@@ -137,6 +145,7 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
  *          advancedpassword-1:
  *            mapOnDatabaseColumn: 'password'
  *            skipIfValueIsEmpty: true
+ *            hashed: true
  *
  * Multiple database operations
  * ============================
@@ -196,7 +205,7 @@ class SaveToDatabaseFinisher extends AbstractFinisher
      *
      * @throws FinisherException
      */
-    protected function executeInternal()
+    protected function executeInternal(): void
     {
         $options = [];
         if (isset($this->options['table'])) {
@@ -213,10 +222,8 @@ class SaveToDatabaseFinisher extends AbstractFinisher
 
     /**
      * Prepare data for saving to database
-     *
-     * @return array
      */
-    protected function prepareData(array $elementsConfiguration, array $databaseData)
+    protected function prepareData(array $elementsConfiguration, array $databaseData): array
     {
         foreach ($this->getFormValues() as $elementIdentifier => $elementValue) {
             if (
@@ -230,30 +237,37 @@ class SaveToDatabaseFinisher extends AbstractFinisher
 
             $element = $this->getElementByIdentifier($elementIdentifier);
             if (
-                !$element instanceof FormElementInterface
+                !$element
                 || !isset($elementsConfiguration[$elementIdentifier])
                 || !isset($elementsConfiguration[$elementIdentifier]['mapOnDatabaseColumn'])
             ) {
                 continue;
             }
 
-            if ($elementValue instanceof FileReference) {
-                if (isset($elementsConfiguration[$elementIdentifier]['saveFileIdentifierInsteadOfUid'])) {
-                    $saveFileIdentifierInsteadOfUid = (bool)$elementsConfiguration[$elementIdentifier]['saveFileIdentifierInsteadOfUid'];
-                } else {
-                    $saveFileIdentifierInsteadOfUid = false;
-                }
+            if (isset($elementsConfiguration[$elementIdentifier]['saveFileIdentifierInsteadOfUid'])) {
+                $saveFileIdentifierInsteadOfUid = (bool)$elementsConfiguration[$elementIdentifier]['saveFileIdentifierInsteadOfUid'];
+            } else {
+                $saveFileIdentifierInsteadOfUid = false;
+            }
 
-                if ($saveFileIdentifierInsteadOfUid) {
-                    $elementValue = $elementValue->getOriginalResource()->getCombinedIdentifier();
-                } else {
-                    $elementValue = $elementValue->getOriginalResource()->getProperty('uid_local');
+            if ($elementValue instanceof FileReference) {
+                $elementValue = $this->prepareFileForDatabase($elementValue, $saveFileIdentifierInsteadOfUid);
+            } elseif ($elementValue instanceof ObjectStorage) {
+                $fileIdentifiers = [];
+                foreach ($elementValue as $singleElement) {
+                    if ($singleElement instanceof FileReference) {
+                        $fileIdentifiers[] = $this->prepareFileForDatabase($singleElement, $saveFileIdentifierInsteadOfUid);
+                    }
                 }
+                $elementValue = implode(',', $fileIdentifiers);
             } elseif (is_array($elementValue)) {
                 $elementValue = implode(',', $elementValue);
             } elseif ($elementValue instanceof \DateTimeInterface) {
                 $format = $elementsConfiguration[$elementIdentifier]['dateFormat'] ?? 'U';
                 $elementValue = $elementValue->format($format);
+            } elseif ($elementValue && ($elementsConfiguration[$elementIdentifier]['hashed'] ?? false) === true) {
+                $hashInstance = GeneralUtility::makeInstance(PasswordHashFactory::class)->getDefaultHashInstance('FE');
+                $elementValue = $hashInstance->getHashedPassword($elementValue);
             }
 
             $databaseData[$elementsConfiguration[$elementIdentifier]['mapOnDatabaseColumn']] = $elementValue;
@@ -263,8 +277,9 @@ class SaveToDatabaseFinisher extends AbstractFinisher
 
     /**
      * Perform the current database operation
+     * @throws FinisherException
      */
-    protected function process(int $iterationCount)
+    protected function process(int $iterationCount): void
     {
         $this->throwExceptionOnInconsistentConfiguration();
 
@@ -291,14 +306,23 @@ class SaveToDatabaseFinisher extends AbstractFinisher
 
         $databaseData = $this->prepareData($elementsConfiguration, $databaseData);
 
-        $this->saveToDatabase($databaseData, $table, $iterationCount);
+        try {
+            $this->saveToDatabase($databaseData, $table, $iterationCount);
+        } catch (Exception $e) {
+            throw new FinisherException(
+                'Failed to save data to database table: ' . $table . '. Error message:' . $e->getMessage(),
+                1754050114,
+                $e
+            );
+        }
     }
 
     /**
      * Save or insert the values from
      * $databaseData into the table $table
+     * @throws Exception
      */
-    protected function saveToDatabase(array $databaseData, string $table, int $iterationCount)
+    protected function saveToDatabase(array $databaseData, string $table, int $iterationCount): void
     {
         if (!empty($databaseData)) {
             if ($this->parseOption('mode') === 'update') {
@@ -310,6 +334,10 @@ class SaveToDatabaseFinisher extends AbstractFinisher
                     $table,
                     $databaseData,
                     $whereClause
+                );
+                // WapplerSystems fork: record-persisted hook (CRM sync, workflow triggers, …).
+                $this->getEventDispatcher()?->dispatch(
+                    new AfterDatabaseRecordPersistedEvent($table, 0, $databaseData, 'update', $this, $this->finisherContext)
                 );
             } else {
                 $this->databaseConnection->insert($table, $databaseData);
@@ -326,6 +354,10 @@ class SaveToDatabaseFinisher extends AbstractFinisher
                     'insertedUids.' . $iterationCount,
                     $insertedUid
                 );
+                // WapplerSystems fork: record-persisted hook with the freshly inserted uid.
+                $this->getEventDispatcher()?->dispatch(
+                    new AfterDatabaseRecordPersistedEvent($table, $insertedUid, $databaseData, 'insert', $this, $this->finisherContext)
+                );
             }
         }
     }
@@ -336,7 +368,7 @@ class SaveToDatabaseFinisher extends AbstractFinisher
      *
      * @throws FinisherException
      */
-    protected function throwExceptionOnInconsistentConfiguration()
+    protected function throwExceptionOnInconsistentConfiguration(): void
     {
         if (
             $this->parseOption('mode') === 'update'
@@ -362,12 +394,23 @@ class SaveToDatabaseFinisher extends AbstractFinisher
      *
      * @return FormElementInterface|null
      */
-    protected function getElementByIdentifier(string $elementIdentifier)
+    protected function getElementByIdentifier(string $elementIdentifier): ?FormElementInterface
     {
         return $this
             ->finisherContext
             ->getFormRuntime()
             ->getFormDefinition()
             ->getElementByIdentifier($elementIdentifier);
+    }
+
+    protected function prepareFileForDatabase(FileReference $fileReference, bool $saveFileIdentifierInsteadOfUid = false): int|string
+    {
+        if ($saveFileIdentifierInsteadOfUid) {
+            $elementValue = $fileReference->getOriginalResource()->getCombinedIdentifier();
+        } else {
+            $elementValue = $fileReference->getOriginalResource()->getProperty('uid_local');
+        }
+
+        return $elementValue;
     }
 }

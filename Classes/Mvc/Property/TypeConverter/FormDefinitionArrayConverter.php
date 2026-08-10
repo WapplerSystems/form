@@ -34,10 +34,11 @@ use TYPO3\CMS\Form\Type\FormDefinitionArray;
  */
 class FormDefinitionArrayConverter extends AbstractTypeConverter
 {
-    /**
-     * @var ConfigurationService
-     */
-    protected $configurationService;
+    public function __construct(
+        protected readonly FormDefinitionValidationService $formDefinitionValidationService,
+        protected readonly FormDefinitionConversionService $formDefinitionConversionService,
+        protected readonly ConfigurationService $configurationService,
+    ) {}
 
     /**
      * Convert from $source to $targetType, a noop if the source is an array.
@@ -45,19 +46,19 @@ class FormDefinitionArrayConverter extends AbstractTypeConverter
      *
      * @param string $source
      * @param string $targetType
-     * @return FormDefinitionArray
      * @throws PropertyException
      */
-    public function convertFrom($source, $targetType, array $convertedChildProperties = [], ?PropertyMappingConfigurationInterface $configuration = null)
-    {
+    public function convertFrom(
+        $source,
+        $targetType,
+        array $convertedChildProperties = [],
+        ?PropertyMappingConfigurationInterface $configuration = null
+    ): FormDefinitionArray {
         $rawFormDefinitionArray = json_decode($source, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new PropertyException('Unable to decode JSON source: ' . json_last_error_msg(), 1512578002);
         }
-
-        $formDefinitionValidationService = $this->getFormDefinitionValidationService();
-        $formDefinitionConversionService = $this->getFormDefinitionConversionService();
 
         // Extend the hmac hashing key with the "per form editor session (load / save)" unique key.
         // The form persistence identifier is embedded in the form definition by addHmacData()
@@ -73,28 +74,43 @@ class FormDefinitionArrayConverter extends AbstractTypeConverter
         // A modification of the properties "prototypeName" and "identifier" from the root form element
         // through the form editor is always forbidden.
         try {
-            if (!$formDefinitionValidationService->isPropertyValueEqualToHistoricalValue([$identifier, 'identifier'], $identifier, $rawFormDefinitionArray['_orig_identifier'] ?? [], $sessionToken)) {
+            if (!$this->formDefinitionValidationService->isPropertyValueEqualToHistoricalValue([$identifier, 'identifier'], $identifier, $rawFormDefinitionArray['_orig_identifier'] ?? [], $sessionToken)) {
                 throw new PropertyException('Unauthorized modification of "identifier".', 1528538324);
             }
 
-            if (!$formDefinitionValidationService->isPropertyValueEqualToHistoricalValue([$identifier, 'prototypeName'], $prototypeName, $rawFormDefinitionArray['_orig_prototypeName'] ?? [], $sessionToken)) {
+            if (!$this->formDefinitionValidationService->isPropertyValueEqualToHistoricalValue([$identifier, 'prototypeName'], $prototypeName, $rawFormDefinitionArray['_orig_prototypeName'] ?? [], $sessionToken)) {
                 throw new PropertyException('Unauthorized modification of "prototype name".', 1528538323);
             }
         } catch (PropertyException $e) {
             throw new PropertyException('Unauthorized modification of "prototype name" or "identifier".', 1528538322);
         }
 
-        $formDefinitionValidationService->validateFormDefinitionProperties($rawFormDefinitionArray, $prototypeName, $sessionToken);
+        $this->formDefinitionValidationService->validateFormDefinitionProperties($rawFormDefinitionArray, $prototypeName, $sessionToken);
 
         // @todo move all the transformations to FormDefinitionConversionService
         $rawFormDefinitionArray = $this->filterEmptyArrays($rawFormDefinitionArray);
         $rawFormDefinitionArray = $this->transformMultiValueElementsForFormFramework($rawFormDefinitionArray);
-        // @todo: replace with rte parsing
-        $rawFormDefinitionArray = ArrayUtility::stripTagsFromValuesRecursive($rawFormDefinitionArray);
-        $rawFormDefinitionArray = $formDefinitionConversionService->removeHmacData($rawFormDefinitionArray);
 
-        $formDefinitionArray = GeneralUtility::makeInstance(FormDefinitionArray::class, $rawFormDefinitionArray);
-        return $formDefinitionArray;
+        // Get RTE property paths for transformation and sanitization
+        $rtePropertyPaths = $this->getRtePropertyPaths($prototypeName);
+
+        // Transform RTE content using RteHtmlParser before persistence
+        if ($rtePropertyPaths !== []) {
+            $rawFormDefinitionArray = $this->formDefinitionConversionService->transformRteContentForPersistence(
+                $rawFormDefinitionArray,
+                $rtePropertyPaths
+            );
+        }
+
+        // Sanitize HTML: RTE fields use HtmlSanitizer, all others use strip_tags
+        $rawFormDefinitionArray = $this->formDefinitionConversionService->sanitizeHtml($rawFormDefinitionArray, $rtePropertyPaths);
+        $rawFormDefinitionArray = $this->formDefinitionConversionService->removeHmacData($rawFormDefinitionArray);
+
+        // Filter empty arrays again after removeHmacData, as removing _orig_* entries
+        // can leave previously non-empty arrays (e.g. fluidAdditionalAttributes) empty.
+        $rawFormDefinitionArray = $this->filterEmptyArrays($rawFormDefinitionArray);
+
+        return GeneralUtility::makeInstance(FormDefinitionArray::class, $rawFormDefinitionArray);
     }
 
     /**
@@ -161,16 +177,27 @@ class FormDefinitionArrayConverter extends AbstractTypeConverter
 
     protected function retrieveSessionToken(string $formPersistenceIdentifier): string
     {
-        return $this->getFormDefinitionConversionService()->retrieveSessionToken($formPersistenceIdentifier);
+        return $this->formDefinitionConversionService->retrieveSessionToken($formPersistenceIdentifier);
     }
 
-    protected function getFormDefinitionValidationService(): FormDefinitionValidationService
+    /**
+     * Get RTE-enabled property paths from the prototype configuration.
+     *
+     * @param string|null $prototypeName The prototype name
+     * @return array Map of element types to their RTE property paths
+     */
+    protected function getRtePropertyPaths(?string $prototypeName): array
     {
-        return GeneralUtility::makeInstance(FormDefinitionValidationService::class);
-    }
+        if ($prototypeName === null) {
+            return [];
+        }
 
-    protected function getFormDefinitionConversionService(): FormDefinitionConversionService
-    {
-        return GeneralUtility::makeInstance(FormDefinitionConversionService::class);
+        try {
+            $prototypeConfiguration = $this->configurationService->getPrototypeConfiguration($prototypeName);
+            return $this->formDefinitionConversionService->extractRtePropertyPaths($prototypeConfiguration);
+        } catch (\Exception $e) {
+            // If prototype configuration is not available, return empty array
+            return [];
+        }
     }
 }

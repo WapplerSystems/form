@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:form/Resources/Private/Language/locallang_submission.xlf" date="2026-07-11T12:00:00Z" product-name="form">
+    <header/>
+    <body>
+      <trans-unit id="tx_form_submission">
+        <source>Form submission</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.crdate">
+        <source>Date</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.form_identifier">
+        <source>Form identifier</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.form_label">
+        <source>Form</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.page_uid">
+        <source>Page</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.language_uid">
+        <source>Language</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.content">
+        <source>Values (JSON)</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.field_labels">
+        <source>Field labels (JSON)</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.ip_hash">
+        <source>IP hash</source>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.session_hash">
+        <source>Session hash</source>
+      </trans-unit>
+      <trans-unit id="module.title">
+        <source>Form submissions</source>
+      </trans-unit>
+      <trans-unit id="module.headline">
+        <source>Form submissions</source>
+      </trans-unit>
+      <trans-unit id="module.filter.form">
+        <source>Form</source>
+      </trans-unit>
+      <trans-unit id="module.filter.from">
+        <source>From</source>
+      </trans-unit>
+      <trans-unit id="module.filter.to">
+        <source>To</source>
+      </trans-unit>
+      <trans-unit id="module.truncated">
+        <source>Only the most recent submissions are shown; narrow the filter or export for the full set.</source>
+      </trans-unit>
+      <trans-unit id="module.empty">
+        <source>No submissions found for this form.</source>
+      </trans-unit>
+      <trans-unit id="module.noForms">
+        <source>No stored submissions yet. Add the "Save submission" finisher to a form to start collecting entries.</source>
+      </trans-unit>
+      <trans-unit id="module.confirmDelete">
+        <source>Delete this submission permanently?</source>
+      </trans-unit>
+      <trans-unit id="module.back">
+        <source>Back to list</source>
+      </trans-unit>
+      <trans-unit id="module.notFound">
+        <source>The requested submission no longer exists.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

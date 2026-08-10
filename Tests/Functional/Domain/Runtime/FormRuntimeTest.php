@@ -18,10 +18,14 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Tests\Functional\Domain\Runtime;
 
 use PHPUnit\Framework\Attributes\Test;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Crypto\HashService;
+use TYPO3\CMS\Core\EventDispatcher\ListenerProvider;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface as ExtbaseConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
@@ -29,24 +33,39 @@ use TYPO3\CMS\Extbase\Validation\ValidatorResolver;
 use TYPO3\CMS\Form\Domain\Exception\RenderingException;
 use TYPO3\CMS\Form\Domain\Factory\ArrayFormFactory;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
+use TYPO3\CMS\Form\Domain\Model\FormElements\GenericFormElement;
+use TYPO3\CMS\Form\Domain\Model\FormElements\Page;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
+use TYPO3\CMS\Form\Event\AfterCurrentPageIsResolvedEvent;
+use TYPO3\CMS\Form\Event\BeforeRenderableIsValidatedEvent;
 use TYPO3\CMS\Form\Mvc\Configuration\ConfigurationManagerInterface as ExtFormConfigurationManagerInterface;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class FormRuntimeTest extends FunctionalTestCase
 {
+    public const AFTER_CURRENT_PAGE_IS_RESOLVED_LISTENER_KEY = 'after-current-page-is-resolved-listener';
+    public const BEFORE_RENDERABLE_IS_VALIDATED_LISTENER_KEY = 'before-renderable-is-validated-listener';
+
     protected array $coreExtensionsToLoad = [
         'form',
     ];
 
-    protected ArrayFormFactory $formFactory;
-    protected Request $request;
+    private ArrayFormFactory $formFactory;
+    private Request $request;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loadDefaultYamlConfigurations();
+        // FormRuntime is a frontend concept. Provide a minimal FE request with an empty
+        // (but valid) FrontendTypoScript so that FrontendConfigurationManager can operate
+        // without requiring a fully-bootstrapped TypoScript pipeline.
+        $frontendTypoScript = new FrontendTypoScript(new RootNode(), [], [], []);
+        $frontendTypoScript->setSetupArray([]);
+        $feRequest = (new ServerRequest())
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE)
+            ->withAttribute('frontend.typoscript', $frontendTypoScript);
+        $this->get(ExtbaseConfigurationManagerInterface::class)->setRequest($feRequest);
         $this->formFactory = $this->get(ArrayFormFactory::class);
         $this->request = $this->buildExtbaseRequest();
     }
@@ -88,6 +107,7 @@ final class FormRuntimeTest extends FunctionalTestCase
             new HashService(),
             $this->createMock(ValidatorResolver::class),
             $this->createMock(Context::class),
+            $this->get(EventDispatcherInterface::class),
         ]);
 
         $formDefinition = $this->buildFormDefinitionWithDisabledElementAndPageVariant();
@@ -114,6 +134,7 @@ final class FormRuntimeTest extends FunctionalTestCase
             new HashService(),
             $this->createMock(ValidatorResolver::class),
             $this->createMock(Context::class),
+            $this->get(EventDispatcherInterface::class),
         ]);
 
         $formDefinition = $this->buildFormDefinitionWithDisabledElementAndPageVariant();
@@ -140,6 +161,7 @@ final class FormRuntimeTest extends FunctionalTestCase
             new HashService(),
             $this->createMock(ValidatorResolver::class),
             $this->createMock(Context::class),
+            $this->get(EventDispatcherInterface::class),
         ]);
 
         $formDefinition = $this->buildFormDefinitionWithDisabledElementAndPageVariantAndSummaryPage();
@@ -155,6 +177,80 @@ final class FormRuntimeTest extends FunctionalTestCase
 
         $element = $formDefinition->getElementByIdentifier('text-1');
         self::assertFalse($element->isEnabled(), 'Element must remain disabled on a SummaryPage step');
+    }
+
+    #[Test]
+    public function afterCurrentPageIsResolvedEventIsTriggered(): void
+    {
+        $container = $this->get('service_container');
+        $state = [
+            self::AFTER_CURRENT_PAGE_IS_RESOLVED_LISTENER_KEY => null,
+        ];
+        $container->set(
+            self::AFTER_CURRENT_PAGE_IS_RESOLVED_LISTENER_KEY,
+            static function (AfterCurrentPageIsResolvedEvent $event) use (&$state): void {
+                $state[self::AFTER_CURRENT_PAGE_IS_RESOLVED_LISTENER_KEY] = $event;
+                $event->currentPage = null;
+            }
+        );
+
+        $eventListener = $container->get(ListenerProvider::class);
+        $eventListener->addListener(AfterCurrentPageIsResolvedEvent::class, self::AFTER_CURRENT_PAGE_IS_RESOLVED_LISTENER_KEY);
+
+        $formDefinition = $this->buildFormDefinition();
+        $formRuntime = $formDefinition->bind($this->request);
+        $formRuntime->render();
+
+        self::assertInstanceOf(AfterCurrentPageIsResolvedEvent::class, $state[self::AFTER_CURRENT_PAGE_IS_RESOLVED_LISTENER_KEY]);
+        self::assertNull($formRuntime->getCurrentPage());
+    }
+
+    #[Test]
+    public function beforeRenderableIsValidatedEventIsTriggered(): void
+    {
+        $container = $this->get('service_container');
+        $state = [
+            self::BEFORE_RENDERABLE_IS_VALIDATED_LISTENER_KEY => null,
+        ];
+        $expectedValue = 'foo';
+        $container->set(
+            self::BEFORE_RENDERABLE_IS_VALIDATED_LISTENER_KEY,
+            static function (BeforeRenderableIsValidatedEvent $event) use (&$state, $expectedValue): void {
+                $state[self::BEFORE_RENDERABLE_IS_VALIDATED_LISTENER_KEY] = $event;
+                if ($event->renderable->getIdentifier() !== 'text-1') {
+                    return;
+                }
+                $event->value = $expectedValue;
+            }
+        );
+
+        $eventListener = $container->get(ListenerProvider::class);
+        $eventListener->addListener(BeforeRenderableIsValidatedEvent::class, self::BEFORE_RENDERABLE_IS_VALIDATED_LISTENER_KEY);
+
+        $subject = $this->getAccessibleMock(FormRuntime::class, null, [
+            $container,
+            $this->createMock(ExtbaseConfigurationManagerInterface::class),
+            new HashService(),
+            $this->createMock(ValidatorResolver::class),
+            $this->createMock(Context::class),
+            $this->get(EventDispatcherInterface::class),
+        ]);
+        $page = new Page('page-1');
+        $page->addElement(new GenericFormElement('text-1', 'Text'));
+
+        $subject->setRequest($this->request);
+        $subject->setFormDefinition($this->buildFormDefinition());
+
+        $subject->_call(
+            'initializeFormStateFromRequest',
+        );
+        $subject->_call(
+            'mapAndValidatePage',
+            $page,
+        );
+
+        self::assertInstanceOf(BeforeRenderableIsValidatedEvent::class, $state[self::BEFORE_RENDERABLE_IS_VALIDATED_LISTENER_KEY]);
+        self::assertEquals($expectedValue, $subject->getElementValue('text-1'));
     }
 
     private function buildExtbaseRequest(): Request
@@ -270,24 +366,5 @@ final class FormRuntimeTest extends FunctionalTestCase
                 ],
             ],
         ], null, new ServerRequest());
-    }
-
-    private function loadDefaultYamlConfigurations(): void
-    {
-        $configurationManager = $this->get(ExtbaseConfigurationManagerInterface::class);
-        $configurationManager->setRequest(
-            (new ServerRequest())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
-        );
-        $configurationManager->setConfiguration([
-            'plugin.' => [
-                'tx_form.' => [
-                    'settings.' => [
-                        'yamlConfigurations.' => [
-                            '10' => 'EXT:form/Configuration/Yaml/FormSetup.yaml',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
     }
 }

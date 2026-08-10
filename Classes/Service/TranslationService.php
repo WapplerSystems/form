@@ -19,18 +19,16 @@ namespace TYPO3\CMS\Form\Service;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
-use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Core\Localization\Locale;
 use TYPO3\CMS\Core\Localization\Locales;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\Renderable\RootRenderableInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
@@ -46,18 +44,8 @@ use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 #[Autoconfigure(public: true)]
 class TranslationService implements SingletonInterface
 {
-    /**
-     * Key of the language to use
-     *
-     * @var string
-     */
-    protected string $languageKey = '';
-
     public function __construct(
-        protected readonly ConfigurationManagerInterface $configurationManager,
         protected readonly LanguageServiceFactory $languageServiceFactory,
-        #[Autowire(service: 'cache.runtime')]
-        protected readonly FrontendInterface $runtimeCache,
         protected readonly Locales $locales
     ) {}
 
@@ -74,7 +62,7 @@ class TranslationService implements SingletonInterface
         $key,
         ?array $arguments = null,
         ?string $locallangPathAndFilename = null,
-        ?string $language = null,
+        Locale|string|null $locale = null,
         $defaultValue = ''
     ) {
         $key = (string)$key;
@@ -95,29 +83,23 @@ class TranslationService implements SingletonInterface
             $key = $keyParts[1];
         }
 
-        if ($language) {
-            $this->languageKey = $language;
+        $request = $this->getRequest();
+        $languageService = $this->createLanguageService($locale, $request);
+
+        if (!empty($locallangPathAndFilename) && $request) {
+            $typoScript = $request->getAttribute('frontend.typoscript');
+            if ($typoScript instanceof FrontendTypoScript && $typoScript->hasSetup()) {
+                $overrideLabels = $languageService->loadTypoScriptLabelsFromExtension('form', $typoScript);
+                if ($overrideLabels !== []) {
+                    $languageService->overrideLabels($locallangPathAndFilename, $overrideLabels);
+                }
+            }
         }
 
-        if ($this->languageKey === '' || $language !== null) {
-            $this->setLanguageKeys($language);
-        }
-        $languageService = $this->initializeLocalization($locallangPathAndFilename ?? '');
-        $resolvedLabel = $languageService->sL('LLL:' . $locallangPathAndFilename . ':' . $key);
-        $value = $resolvedLabel !== '' ? $resolvedLabel : null;
-
-        // Check if a value was explicitly set to ""
-        $overrideLabels = static::loadTypoScriptLabels();
-        if ($value === null && isset($overrideLabels[$this->languageKey])) {
-            $value = '';
-        }
-
-        if (is_array($arguments) && !empty($arguments) && $value !== null) {
-            $value = vsprintf($value, $arguments);
-        } elseif ($value === null) {
+        $value = $languageService->translate($key, $locallangPathAndFilename, $arguments ?? []);
+        if ($value === null) {
             $value = $defaultValue;
         }
-
         return $value;
     }
 
@@ -199,6 +181,19 @@ class TranslationService implements SingletonInterface
             return $optionValue;
         }
 
+        // WapplerSystems fork (Feature 7): per-site-language overlay for finisher options,
+        // stored in the form definition under finisher.options.translation.overrides.<lang>.<optionKey>
+        // ($renderingOptions here IS the finisher's options.translation sub-array). Wins over the
+        // XLF chain for the active language; runtime placeholders ({name} …) are resolved by the
+        // caller (AbstractFinisher::parseOption) afterwards. Also works for DB-stored forms.
+        $languageCode = $formRuntime->getCurrentSiteLanguage()?->getLocale()->getLanguageCode() ?? '';
+        if ($languageCode !== '') {
+            $override = $renderingOptions['overrides'][$languageCode][$optionKey] ?? null;
+            if (is_string($override) && $override !== '') {
+                return $override;
+            }
+        }
+
         $finisherIdentifier = preg_replace('/Finisher$/', '', $finisherIdentifier);
         $translationFiles = $renderingOptions['translationFiles'] ?? [];
         if (empty($translationFiles)) {
@@ -217,9 +212,9 @@ class TranslationService implements SingletonInterface
             return $optionValue;
         }
 
-        $language = null;
+        $locale = null;
         if (isset($renderingOptions['language'])) {
-            $language = $renderingOptions['language'];
+            $locale = $renderingOptions['language'];
         }
 
         try {
@@ -242,22 +237,22 @@ class TranslationService implements SingletonInterface
             $translationKeyChain[] = sprintf('%s:finisher.%s.%s', $translationFile, $finisherIdentifier, $optionKey);
         }
 
-        $translatedValue = $this->processTranslationChain($translationKeyChain, $language, $arguments);
+        $translatedValue = $this->processTranslationChain($translationKeyChain, $locale, $arguments);
         $translatedValue = $this->isEmptyTranslatedValue($translatedValue) ? $optionValue : $translatedValue;
 
         return $translatedValue;
     }
 
     /**
-     * @return string|array|null
      * @throws \InvalidArgumentException
      * @internal
      */
     public function translateFormElementValue(
         RootRenderableInterface $element,
         array $propertyParts,
-        FormRuntime $formRuntime
-    ) {
+        FormRuntime $formRuntime,
+        Locale|string|null $locale = null,
+    ): array|string|null {
         if (empty($propertyParts)) {
             throw new \InvalidArgumentException('The argument "propertyParts" is empty', 1476216007);
         }
@@ -268,6 +263,8 @@ class TranslationService implements SingletonInterface
 
         if ($property === 'label') {
             $defaultValue = $element->getLabel();
+        } elseif ($property === 'defaultValue' && $element instanceof FormElementInterface) {
+            $defaultValue = $element->getDefaultValue();
         } else {
             if ($element instanceof FormElementInterface) {
                 try {
@@ -282,6 +279,31 @@ class TranslationService implements SingletonInterface
                 } catch (MissingArrayPathException $exception) {
                     $defaultValue = null;
                 }
+            }
+        }
+
+        // WapplerSystems fork (Feature 7): in-definition translation overlay. Editors
+        // maintain per-site-language translations in the form definition under
+        // renderingOptions.translation.overrides.<languageCode>; these win over the XLF
+        // chain (and work for DB-stored forms). Applies to label, placeholder
+        // (fluidAdditionalAttributes) and options.
+        $languageCode = $formRuntime->getCurrentSiteLanguage()?->getLocale()->getLanguageCode() ?? '';
+        $overrides = $renderingOptions['translation']['overrides'][$languageCode] ?? null;
+        if (is_array($overrides)) {
+            if ($property === 'label' && isset($overrides['label']) && $overrides['label'] !== '') {
+                return (string)$overrides['label'];
+            }
+            if ($property === 'fluidAdditionalAttributes' && is_array($defaultValue) && isset($overrides['placeholder']) && $overrides['placeholder'] !== '') {
+                $defaultValue['placeholder'] = (string)$overrides['placeholder'];
+                return $defaultValue;
+            }
+            if ($property === 'options' && is_array($defaultValue) && is_array($overrides['options'] ?? null)) {
+                foreach ($overrides['options'] as $optionValue => $optionLabel) {
+                    if ($optionLabel !== '' && array_key_exists($optionValue, $defaultValue)) {
+                        $defaultValue[$optionValue] = (string)$optionLabel;
+                    }
+                }
+                return $defaultValue;
             }
         }
 
@@ -303,9 +325,8 @@ class TranslationService implements SingletonInterface
 
         $translationFiles = $this->sortArrayWithIntegerKeysDescending($translationFiles);
 
-        $language = null;
-        if (isset($renderingOptions['translation']['language'])) {
-            $language = $renderingOptions['translation']['language'];
+        if (!$locale && isset($renderingOptions['translation']['language'])) {
+            $locale = $renderingOptions['translation']['language'];
         }
 
         try {
@@ -336,7 +357,7 @@ class TranslationService implements SingletonInterface
                     $translationKeyChain[] = sprintf('%s:element.%s.%s.%s.%s', $translationFile, $element->getType(), $propertyType, $property, $optionValue);
                 }
 
-                $translatedValue = $this->processTranslationChain($translationKeyChain, $language, $arguments);
+                $translatedValue = $this->processTranslationChain($translationKeyChain, $locale, $arguments);
                 $optionLabel = $this->isEmptyTranslatedValue($translatedValue) ? $optionLabel : $translatedValue;
             }
             $translatedValue = $defaultValue;
@@ -364,7 +385,7 @@ class TranslationService implements SingletonInterface
                     $translationKeyChain[] = sprintf('%s:element.%s.%s.%s', $translationFile, $element->getType(), $propertyType, $propertyName);
                 }
 
-                $translatedValue = $this->processTranslationChain($translationKeyChain, $language, $arguments);
+                $translatedValue = $this->processTranslationChain($translationKeyChain, $locale, $arguments);
                 $propertyValue = $this->isEmptyTranslatedValue($translatedValue) ? $propertyValue : $translatedValue;
             }
             $translatedValue = $defaultValue;
@@ -384,7 +405,7 @@ class TranslationService implements SingletonInterface
                 $translationKeyChain[] = sprintf('%s:element.%s.%s.%s', $translationFile, $element->getType(), $propertyType, $property);
             }
 
-            $translatedValue = $this->processTranslationChain($translationKeyChain, $language, $arguments);
+            $translatedValue = $this->processTranslationChain($translationKeyChain, $locale, $arguments);
             $translatedValue = $this->isEmptyTranslatedValue($translatedValue) ? $defaultValue : $translatedValue;
         }
 
@@ -406,11 +427,29 @@ class TranslationService implements SingletonInterface
             throw new \InvalidArgumentException('The argument "code" is empty', 1489272978);
         }
 
-        $validationErrors = $element->getProperties()['validationErrorMessages'] ?? null;
-        if (is_array($validationErrors)) {
-            foreach ($validationErrors as $validationError) {
-                if ((int)$validationError['code'] === $code) {
-                    return sprintf($validationError['message'], ...$arguments);
+        if ($element instanceof FormElementInterface) {
+            // WapplerSystems fork (Feature 7): per-site-language overlay for custom
+            // validation error messages, stored in the form definition under
+            // renderingOptions.translation.overrides.<languageCode>.validationErrorMessages.c<code>
+            // (the "c" prefix keeps the key non-numeric so the form editor model does not
+            // turn it into a sparse array). This wins over the element's default custom
+            // message and the XLF chain for the currently rendered language and also works
+            // for DB-stored forms.
+            $languageCode = $formRuntime->getCurrentSiteLanguage()?->getLocale()->getLanguageCode() ?? '';
+            $overrideMessages = $element->getRenderingOptions()['translation']['overrides'][$languageCode]['validationErrorMessages'] ?? null;
+            if (is_array($overrideMessages)) {
+                $overrideMessage = $overrideMessages['c' . $code] ?? '';
+                if (is_string($overrideMessage) && $overrideMessage !== '') {
+                    return sprintf($overrideMessage, ...$arguments);
+                }
+            }
+
+            $validationErrors = $element->getProperties()['validationErrorMessages'] ?? null;
+            if (is_array($validationErrors)) {
+                foreach ($validationErrors as $validationError) {
+                    if ((int)$validationError['code'] === $code) {
+                        return sprintf($validationError['message'], ...$arguments);
+                    }
                 }
             }
         }
@@ -423,9 +462,9 @@ class TranslationService implements SingletonInterface
 
         $translationFiles = $this->sortArrayWithIntegerKeysDescending($translationFiles);
 
-        $language = null;
+        $locale = null;
         if (isset($renderingOptions['language'])) {
-            $language = $renderingOptions['language'];
+            $locale = $renderingOptions['language'];
         }
 
         $originalFormIdentifier = null;
@@ -450,25 +489,9 @@ class TranslationService implements SingletonInterface
             $translationKeyChain[] = sprintf('%s:validation.error.%s', $translationFile, $code);
         }
 
-        $translatedValue = $this->processTranslationChain($translationKeyChain, $language, $arguments);
+        $translatedValue = $this->processTranslationChain($translationKeyChain, $locale, $arguments);
         $translatedValue = $this->isEmptyTranslatedValue($translatedValue) ? $defaultValue : $translatedValue;
         return $translatedValue;
-    }
-
-    /**
-     * @internal
-     */
-    public function setLanguage(string $languageKey)
-    {
-        $this->languageKey = $languageKey;
-    }
-
-    /**
-     * @internal
-     */
-    public function getLanguage(): string
-    {
-        return $this->languageKey;
     }
 
     /**
@@ -476,120 +499,17 @@ class TranslationService implements SingletonInterface
      */
     protected function processTranslationChain(
         array $translationKeyChain,
-        ?string $language = null,
+        Locale|string|null $locale = null,
         ?array $arguments = null
     ) {
         $translatedValue = null;
         foreach ($translationKeyChain as $translationKey) {
-            $translatedValue = $this->translate($translationKey, $arguments, null, $language);
+            $translatedValue = $this->translate($translationKey, $arguments, null, $locale);
             if (!$this->isEmptyTranslatedValue($translatedValue)) {
                 break;
             }
         }
         return $translatedValue;
-    }
-
-    protected function initializeLocalization(string $locallangPathAndFilename): LanguageService
-    {
-        $languageService = $this->buildLanguageService($this->languageKey, $locallangPathAndFilename);
-
-        if (!empty($locallangPathAndFilename)) {
-            $overrideLabels = $this->loadTypoScriptLabels();
-            if ($overrideLabels !== []) {
-                $languageService->overrideLabels($locallangPathAndFilename, $overrideLabels);
-            }
-        }
-        return $languageService;
-    }
-
-    protected function buildLanguageService(string $languageKey, $languageFilePath): LanguageService
-    {
-        $languageKeyHash = sha1($languageKey . '_' . $languageFilePath);
-        if (!$this->runtimeCache->get($languageKeyHash)) {
-            $languageService = $this->languageServiceFactory->create($languageKey);
-            if ($languageFilePath) {
-                $languageService->includeLLFile($languageFilePath);
-            }
-            $this->runtimeCache->set($languageKeyHash, $languageService);
-        }
-        return $this->runtimeCache->get($languageKeyHash);
-    }
-
-    /**
-     * Sets the currently active language keys.
-     */
-    protected function setLanguageKeys(?string $language): void
-    {
-        if ($language) {
-            $this->languageKey = $language;
-        } else {
-            $this->languageKey = 'default';
-            if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface
-                && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isFrontend()
-            ) {
-                $this->languageKey = $this->getCurrentSiteLanguage()->getTypo3Language();
-            } elseif (!empty($GLOBALS['BE_USER']->user['lang'])) {
-                $this->languageKey = $GLOBALS['BE_USER']->user['lang'];
-            }
-        }
-    }
-
-    /**
-     * Overwrites labels that are set via TypoScript.
-     * TS labels have to be configured like:
-     * plugin.tx_myextension._LOCAL_LANG.languageKey.key = value
-     */
-    protected function loadTypoScriptLabels(): array
-    {
-        $frameworkConfiguration = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK, 'form');
-        if (!is_array($frameworkConfiguration['_LOCAL_LANG'] ?? false)) {
-            return [];
-        }
-        $finalLabels = [];
-        foreach ($frameworkConfiguration['_LOCAL_LANG'] as $languageKey => $labels) {
-            if (!is_array($labels)) {
-                continue;
-            }
-            foreach ($labels as $labelKey => $labelValue) {
-                if (is_string($labelValue)) {
-                    $finalLabels[$languageKey][$labelKey] = $labelValue;
-                } elseif (is_array($labelValue)) {
-                    $labelValue = $this->flattenTypoScriptLabelArray($labelValue, $labelKey);
-                    foreach ($labelValue as $key => $value) {
-                        $finalLabels[$languageKey][$key] = $value;
-                    }
-                }
-            }
-        }
-        return $finalLabels;
-    }
-
-    /**
-     * Flatten TypoScript label array; converting a hierarchical array into a flat
-     * array with the keys separated by dots.
-     *
-     * Example Input:  array('k1' => array('subkey1' => 'val1'))
-     * Example Output: array('k1.subkey1' => 'val1')
-     *
-     * @param array $labelValues Hierarchical array of labels
-     * @param string $parentKey the name of the parent key in the recursion; is only needed for recursion.
-     * @return array flattened array of labels.
-     */
-    protected function flattenTypoScriptLabelArray(array $labelValues, string $parentKey = ''): array
-    {
-        $result = [];
-        foreach ($labelValues as $key => $labelValue) {
-            if (!empty($parentKey)) {
-                $key = $parentKey . '.' . $key;
-            }
-            if (is_array($labelValue)) {
-                $labelValue = $this->flattenTypoScriptLabelArray($labelValue, $key);
-                $result = array_merge($result, $labelValue);
-            } else {
-                $result[$key] = $labelValue;
-            }
-        }
-        return $result;
     }
 
     /**
@@ -634,14 +554,16 @@ class TranslationService implements SingletonInterface
         return false;
     }
 
-    /**
-     * Returns the currently configured "site language" if a site is configured (= resolved) in the current request.
-     */
-    protected function getCurrentSiteLanguage(): ?SiteLanguage
+    private function createLanguageService(Locale|string|null $locale, ?ServerRequestInterface $request): LanguageService
     {
-        if ($GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
-            return $GLOBALS['TYPO3_REQUEST']->getAttribute('language', null);
+        if ($locale) {
+            return $this->languageServiceFactory->create($locale);
         }
-        return null;
+        return $this->languageServiceFactory->create(GeneralUtility::makeInstance(Locales::class)->createLocaleFromRequest($request));
+    }
+
+    private function getRequest(): ?ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'] ?? null;
     }
 }

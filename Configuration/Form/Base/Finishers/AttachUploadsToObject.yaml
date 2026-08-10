@@ -1,0 +1,11 @@
+prototypes:
+  standard:
+    finishersDefinition:
+      AttachUploadsToObject:
+        implementationClassName: TYPO3\CMS\Form\Domain\Finishers\AttachUploadsToObjectFinisher
+        formEditor:
+          iconIdentifier: form-finisher
+          label: formEditor.elements.Form.finisher.AttachUploadsToObject.editor.header.label
+          predefinedDefaults:
+            options:
+              elements: {}

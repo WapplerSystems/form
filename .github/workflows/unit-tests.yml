@@ -1,0 +1,94 @@
+name: Tests
+
+# Runs the PHPUnit unit and functional suites against the *latest* TYPO3 14.3.x.
+#
+# There is no native trigger for "a new dependency version was released", so we
+# resolve dependencies fresh on every run (`composer update`, no committed lock)
+# and run on a daily schedule. A new TYPO3 14.3.x patch is therefore picked up
+# and tested within a day of being published, in addition to on every push/PR.
+#
+# PHP matrix is 8.4/8.5: TYPO3 14.3 allows PHP >= 8.2, but typo3/testing-framework
+# ^9.5 pulls PHPUnit 13, which requires PHP >= 8.4.1.
+on:
+  schedule:
+    - cron: '37 4 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - release/v14
+  pull_request:
+    branches:
+      - release/v14
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit (PHP ${{ matrix.php }}, latest TYPO3 14.3.x)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+    env:
+      # The package version cannot be inferred reliably in a shallow checkout,
+      # so pin it for Composer (matches the branch-alias of release/v14).
+      COMPOSER_ROOT_VERSION: 14.3.x-dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Resolve dependencies (latest TYPO3 14.3.x)
+        run: composer update --no-progress --no-interaction --prefer-dist
+
+      - name: Report resolved TYPO3 version
+        run: composer show typo3/cms-core | grep -E '^(name|versions)' || true
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit -c Build/phpunit/UnitTests.xml
+
+  functional:
+    name: Functional (PHP ${{ matrix.php }}, latest TYPO3 14.3.x)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 8.4 only: TYPO3 14.3's functional test bootstrap is not compatible with
+        # PHP 8.5 (it leaves an output buffer open, which fails every test).
+        php: ['8.4']
+    env:
+      COMPOSER_ROOT_VERSION: 14.3.x-dev
+      # SQLite keeps the job self-contained (no database service container).
+      typo3DatabaseDriver: pdo_sqlite
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite, sqlite3
+          tools: composer:v2
+          coverage: none
+
+      - name: Resolve dependencies (latest TYPO3 14.3.x)
+        run: composer update --no-progress --no-interaction --prefer-dist
+
+      - name: Report resolved TYPO3 version
+        run: composer show typo3/cms-core | grep -E '^(name|versions)' || true
+
+      - name: Run functional tests
+        run: vendor/bin/phpunit -c Build/phpunit/FunctionalTests.xml

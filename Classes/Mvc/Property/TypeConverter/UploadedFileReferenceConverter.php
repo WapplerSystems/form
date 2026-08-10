@@ -17,10 +17,14 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Mvc\Property\TypeConverter;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Crypto\Random;
+use TYPO3\CMS\Core\Exception\Crypto\InvalidHashStringException;
 use TYPO3\CMS\Core\Http\UploadedFile;
-use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
@@ -28,16 +32,18 @@ use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\ResourceInstructionTrait;
 use TYPO3\CMS\Core\Resource\Security\FileNameValidator;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Error\Error;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationInterface;
 use TYPO3\CMS\Extbase\Property\TypeConverter\AbstractTypeConverter;
-use TYPO3\CMS\Extbase\Validation\Validator\AbstractValidator;
 use TYPO3\CMS\Form\Mvc\Property\Exception\TypeConverterException;
 use TYPO3\CMS\Form\Security\HashScope;
+use TYPO3\CMS\Form\Event\AfterFileUploadedEvent;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Form\Slot\ResourcePublicationSlot;
 
@@ -45,8 +51,9 @@ use TYPO3\CMS\Form\Slot\ResourcePublicationSlot;
  * Scope: frontend
  * @internal
  */
-class UploadedFileReferenceConverter extends AbstractTypeConverter
+class UploadedFileReferenceConverter extends AbstractTypeConverter implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
     use ResourceInstructionTrait;
 
     /**
@@ -65,46 +72,32 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     public const CONFIGURATION_UPLOAD_SEED = 3;
 
     /**
-     * Validator for file types
+     * Whether the user is allowed to remove previously uploaded files.
      */
-    public const CONFIGURATION_FILE_VALIDATORS = 4;
+    public const CONFIGURATION_ALLOW_REMOVAL = 5;
 
-    /**
-     * @var string
-     */
-    protected $defaultUploadFolder = '1:/user_upload/';
+    protected string $defaultUploadFolder = '1:/user_upload/';
 
     /**
      * One of 'cancel', 'replace', 'rename'
-     *
-     * @var string
      */
-    protected $defaultConflictMode = 'rename';
+    protected DuplicationBehavior $defaultConflictMode = DuplicationBehavior::RENAME;
 
     /**
      * @var PseudoFileReference[]
      */
-    protected $convertedResources = [];
-
-    /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceFactory
-     */
-    protected $resourceFactory;
-
-    /**
-     * @var HashService
-     */
-    protected $hashService;
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface
-     */
-    protected $persistenceManager;
+    protected array $convertedResources = [];
+    protected ResourceFactory $resourceFactory;
+    protected HashService $hashService;
+    protected PersistenceManagerInterface $persistenceManager;
+    protected StorageRepository $storageRepository;
+    // WapplerSystems fork: nullable so manual instantiation (without DI) keeps working.
+    protected ?EventDispatcherInterface $eventDispatcher = null;
 
     /**
      * @internal
      */
-    public function injectResourceFactory(ResourceFactory $resourceFactory)
+    public function injectResourceFactory(ResourceFactory $resourceFactory): void
     {
         $this->resourceFactory = $resourceFactory;
     }
@@ -112,7 +105,15 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     /**
      * @internal
      */
-    public function injectHashService(HashService $hashService)
+    public function injectEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @internal
+     */
+    public function injectHashService(HashService $hashService): void
     {
         $this->hashService = $hashService;
     }
@@ -120,46 +121,219 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     /**
      * @internal
      */
-    public function injectPersistenceManager(PersistenceManagerInterface $persistenceManager)
+    public function injectPersistenceManager(PersistenceManagerInterface $persistenceManager): void
     {
         $this->persistenceManager = $persistenceManager;
+    }
+
+    /**
+     * @internal
+     */
+    public function injectStorageRepository(StorageRepository $storageRepository): void
+    {
+        $this->storageRepository = $storageRepository;
     }
 
     /**
      * Actually convert from $source to $targetType, taking into account the fully
      * built $convertedChildProperties and $configuration.
      *
-     * @param array|UploadedFile $source
+     * @param array|UploadedFile|string $source
      * @param string $targetType
-     * @return File|FileReference|Folder|Error|null
+     * @return FileReference|ObjectStorage|Error|null
      * @internal
      */
     public function convertFrom($source, $targetType, array $convertedChildProperties = [], ?PropertyMappingConfigurationInterface $configuration = null)
     {
-        if ($source instanceof UploadedFile) {
-            $source = $this->convertUploadedFileToUploadInfoArray($source);
+        if ($source === '' || $source === []) {
+            return null;
         }
-        // slot/listener using `FileDumpController` instead of direct public URL in (later) rendering process
+
+        if ($source instanceof UploadedFile) {
+            return $this->convertSingleUpload(
+                $this->convertUploadedFileToUploadInfoArray($source),
+                $convertedChildProperties,
+                $configuration,
+            );
+        }
+
+        $allowRemoval = $configuration?->getConfigurationValue(self::class, self::CONFIGURATION_ALLOW_REMOVAL) ?? false;
+
+        $deleteFileIndices = [];
+        $filesToDelete = [];
+        if ($allowRemoval) {
+            [$deleteFileIndices, $filesToDelete] = $this->extractFileDeletionData($source);
+            $this->deleteUploadedFiles($filesToDelete);
+        }
+        unset($source['__deleteFile']);
+
+        if ($this->isMultiUploadTarget($source, $targetType)) {
+            return $this->handleMultiUploadSource($source, $deleteFileIndices, $convertedChildProperties, $configuration);
+        }
+
+        return $this->handleSingleUploadSource($source, $filesToDelete, $allowRemoval, $convertedChildProperties, $configuration);
+    }
+
+    /**
+     * Determines whether the source should be treated as a multi-file upload.
+     *
+     * Multi-upload is detected when:
+     *  - the target type is ObjectStorage, or
+     *  - the source contains '__submittedFiles' with more than one entry, or
+     *  - the source contains numeric keys holding sub-arrays / UploadedFile objects
+     *    (i.e. no flat 'error' key at the top level).
+     */
+    private function isMultiUploadTarget(array $source, string $targetType): bool
+    {
+        if (is_a($targetType, ObjectStorage::class, true)) {
+            return true;
+        }
+        // Fallback heuristic for edge cases where targetType is not ObjectStorage
+        // but the source structure clearly indicates multi-upload.
+        if (isset($source['__submittedFiles']) && count($source['__submittedFiles']) > 1) {
+            return true;
+        }
+        return !array_key_exists('error', $source) && !isset($source['submittedFile']) && !isset($source['__submittedFiles']);
+    }
+
+    /**
+     * Handles single file upload: standard upload, existing resource pointer only,
+     * or new upload replacing a previous file.
+     *
+     * '__submittedFiles' contains existing resource pointers from hidden inputs.
+     * 'error' is PHP's native UPLOAD_ERR_* constant from $_FILES.
+     *
+     * @param list<int> $filesToDelete
+     */
+    private function handleSingleUploadSource(
+        array $source,
+        array $filesToDelete,
+        bool $allowRemoval,
+        array $convertedChildProperties,
+        ?PropertyMappingConfigurationInterface $configuration,
+    ): FileReference|Error|null {
+        // Extract the submitted file resource pointer from __submittedFiles
+        $submittedResourcePointer = null;
+        if (is_array($source['__submittedFiles'] ?? null)) {
+            $firstSubmitted = reset($source['__submittedFiles']);
+            $submittedResourcePointer = $firstSubmitted['submittedFile']['resourcePointer'] ?? null;
+        }
+        unset($source['__submittedFiles']);
+
+        // Build a flat source array for convertSingleUpload compatibility
+        if ($submittedResourcePointer !== null) {
+            $source['submittedFile']['resourcePointer'] = $submittedResourcePointer;
+        }
+
+        if ($allowRemoval && $filesToDelete !== []) {
+            unset($source['submittedFile']['resourcePointer']);
+        }
+
+        // New upload replaces existing file – clean up the old one
+        if (isset($source['submittedFile']['resourcePointer'], $source['error']) && $source['error'] === \UPLOAD_ERR_OK
+        ) {
+            $this->deletePreviousUpload($source);
+            unset($source['submittedFile']);
+        }
+
+        return $this->convertSingleUpload($source, $convertedChildProperties, $configuration);
+    }
+
+    /**
+     * @param list<int> $deleteFileIndices
+     */
+    private function handleMultiUploadSource(
+        array $source,
+        array $deleteFileIndices,
+        array $convertedChildProperties,
+        ?PropertyMappingConfigurationInterface $configuration,
+    ): ObjectStorage|Error {
+        $files = new ObjectStorage();
+
+        // Extract existing file resource pointers from the dedicated sub-key.
+        // These are stored separately to avoid index collision with new UploadedFile
+        // objects during array_replace_recursive() in RequestBuilder.
+        $submittedFiles = [];
+        if (is_array($source['__submittedFiles'] ?? null)) {
+            $submittedFiles = $source['__submittedFiles'];
+        }
+        unset($source['__submittedFiles']);
+
+        // Process existing files (resource pointers from previous uploads)
+        $existingFileIndex = 0;
+        foreach ($submittedFiles as $file) {
+            if (in_array($existingFileIndex, $deleteFileIndices, true)) {
+                $existingFileIndex++;
+                continue;
+            }
+            if (is_array($file)) {
+                $convertedFile = $this->convertSingleUpload(
+                    $file,
+                    $convertedChildProperties,
+                    $configuration,
+                );
+                if ($convertedFile instanceof Error) {
+                    return $convertedFile;
+                }
+                if ($convertedFile !== null) {
+                    $files->attach($convertedFile);
+                }
+            }
+            $existingFileIndex++;
+        }
+
+        // Process new file uploads
+        foreach ($source as $file) {
+            if ($file instanceof UploadedFile || is_array($file)) {
+                $convertedFile = $this->convertSingleUpload(
+                    $file instanceof UploadedFile ? $this->convertUploadedFileToUploadInfoArray($file) : $file,
+                    $convertedChildProperties,
+                    $configuration,
+                );
+                if ($convertedFile instanceof Error) {
+                    return $convertedFile;
+                }
+                if ($convertedFile !== null) {
+                    $files->attach($convertedFile);
+                }
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * Core conversion: upload info array → FileReference, Error, or null.
+     */
+    private function convertSingleUpload(
+        array $source,
+        array $convertedChildProperties,
+        ?PropertyMappingConfigurationInterface $configuration,
+    ): FileReference|Error|null {
         $resourcePublicationSlot = GeneralUtility::makeInstance(ResourcePublicationSlot::class);
+
         if (!isset($source['error']) || $source['error'] === \UPLOAD_ERR_NO_FILE) {
             if (isset($source['submittedFile']['resourcePointer'])) {
                 try {
-                    // File references use numeric resource pointers, direct
-                    // file relations are using "file:" prefix (e.g. "file:5")
-                    $resourcePointer = $this->hashService->validateAndStripHmac($source['submittedFile']['resourcePointer'], HashScope::ResourcePointer->prefix());
+                    $resourcePointer = $this->hashService->validateAndStripHmac(
+                        $source['submittedFile']['resourcePointer'],
+                        HashScope::ResourcePointer->prefix(),
+                    );
                     if (str_starts_with($resourcePointer, 'file:')) {
                         $fileUid = (int)substr($resourcePointer, 5);
-                        $resource = $this->createFileReferenceFromFalFileObject($this->resourceFactory->getFileObject($fileUid));
+                        $resource = $this->createFileReferenceFromFalFileObject(
+                            $this->resourceFactory->getFileObject($fileUid),
+                        );
                     } else {
                         $resource = $this->createFileReferenceFromFalFileReferenceObject(
                             $this->resourceFactory->getFileReferenceObject((int)$resourcePointer),
-                            (int)$resourcePointer
+                            (int)$resourcePointer,
                         );
                     }
                     $resourcePublicationSlot->add($resource->getOriginalResource()->getOriginalFile());
                     return $resource;
-                } catch (\InvalidArgumentException $e) {
-                    // Nothing to do. No file is uploaded and resource pointer is invalid. Discard!
+                } catch (\InvalidArgumentException) {
+                    // No file uploaded and resource pointer is invalid – discard.
                 }
             }
             return null;
@@ -191,6 +365,113 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
     }
 
     /**
+     * Deletes a previously uploaded file referenced by submittedFile.resourcePointer.
+     */
+    private function deletePreviousUpload(array $source): void
+    {
+        if (!isset($source['submittedFile']['resourcePointer'])) {
+            return;
+        }
+        try {
+            $resourcePointer = $this->hashService->validateAndStripHmac(
+                $source['submittedFile']['resourcePointer'],
+                HashScope::ResourcePointer->prefix(),
+            );
+            $fileUid = str_starts_with($resourcePointer, 'file:')
+                ? (int)substr($resourcePointer, 5)
+                : null;
+            if ($fileUid !== null) {
+                $this->deleteUploadedFiles([$fileUid]);
+            }
+        } catch (InvalidHashStringException) {
+            // Invalid resource pointer – nothing to delete.
+        }
+    }
+
+    /**
+     * Extracts and validates file deletion data from the source array.
+     *
+     * @return array{0: list<int>, 1: list<int>} Array containing [deleteFileIndices, filesToDelete]
+     */
+    private function extractFileDeletionData(array $source): array
+    {
+        $deleteFileIndices = [];
+        $filesToDelete = [];
+
+        if (!array_key_exists('__deleteFile', $source) || !is_array($source['__deleteFile'])) {
+            return [$deleteFileIndices, $filesToDelete];
+        }
+
+        foreach ($source['__deleteFile'] as $signedValue) {
+            try {
+                $deleteData = $this->hashService->validateAndStripHmac(
+                    $signedValue,
+                    HashScope::DeleteFile->prefix()
+                );
+                $deleteData = json_decode($deleteData, true, 512, JSON_THROW_ON_ERROR);
+                if (isset($deleteData['fileIndex'])) {
+                    $deleteFileIndices[] = (int)$deleteData['fileIndex'];
+                }
+                if (isset($deleteData['fileUid'])) {
+                    $filesToDelete[] = (int)$deleteData['fileUid'];
+                }
+            } catch (InvalidHashStringException $e) {
+                $this->logger?->warning(
+                    'Invalid file deletion request: HMAC validation failed.',
+                    ['exception' => $e]
+                );
+            } catch (\JsonException $e) {
+                $this->logger?->warning(
+                    'Invalid file deletion request: JSON decoding failed.',
+                    ['exception' => $e]
+                );
+            }
+        }
+
+        return [$deleteFileIndices, $filesToDelete];
+    }
+
+    /**
+     * Deletes uploaded files from the server and cleans up empty upload folders.
+     *
+     * @param list<int> $fileUids
+     */
+    private function deleteUploadedFiles(array $fileUids): void
+    {
+        foreach ($fileUids as $fileUid) {
+            try {
+                $file = $this->resourceFactory->getFileObject($fileUid);
+                $parentFolder = $file->getParentFolder();
+                $file->delete();
+                $this->deleteEmptyUploadFolder($parentFolder);
+            } catch (\Exception $e) {
+                $this->logger?->warning(
+                    'Could not delete uploaded file with uid {fileUid}.',
+                    ['fileUid' => $fileUid, 'exception' => $e]
+                );
+            }
+        }
+    }
+
+    /**
+     * Deletes the upload folder if it's empty and was created by the form framework.
+     */
+    private function deleteEmptyUploadFolder(?Folder $folder): void
+    {
+        if ($folder === null) {
+            return;
+        }
+        if (!str_starts_with($folder->getName(), 'form_')) {
+            return;
+        }
+        if ($folder->getFileCount() === 0
+            && $folder->getStorage()->countFoldersInFolder($folder) === 0
+        ) {
+            $folder->delete();
+        }
+    }
+
+    /**
      * Import a resource and respect configuration given for properties
      */
     protected function importUploadedResource(
@@ -205,20 +486,8 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
         $seed = $configuration->getConfigurationValue(self::class, self::CONFIGURATION_UPLOAD_SEED)
             ?: GeneralUtility::makeInstance(Random::class)->generateRandomHexString(40);
         $uploadFolderId = $configuration->getConfigurationValue(self::class, self::CONFIGURATION_UPLOAD_FOLDER) ?: $this->defaultUploadFolder;
-        $conflictMode = $configuration->getConfigurationValue(self::class, self::CONFIGURATION_UPLOAD_CONFLICT_MODE) ?: $this->defaultConflictMode;
+        $conflictMode = DuplicationBehavior::tryFrom($configuration->getConfigurationValue(self::class, self::CONFIGURATION_UPLOAD_CONFLICT_MODE)) ?? $this->defaultConflictMode;
         $pseudoFile = GeneralUtility::makeInstance(PseudoFile::class, $uploadInfo);
-
-        $validators = $configuration->getConfigurationValue(self::class, self::CONFIGURATION_FILE_VALIDATORS);
-        if (is_array($validators)) {
-            foreach ($validators as $validator) {
-                if ($validator instanceof AbstractValidator) {
-                    $validationResult = $validator->validate($pseudoFile);
-                    if ($validationResult->hasErrors()) {
-                        throw TypeConverterException::fromError($validationResult->getErrors()[0]);
-                    }
-                }
-            }
-        }
 
         $uploadFolder = $this->provideUploadFolder($uploadFolderId);
         // current folder name, derived from public random seed (`formSession`)
@@ -229,6 +498,10 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
         $this->skipResourceConsistencyCheckForUploads($uploadFolder->getStorage(), $uploadInfo);
         /** @var File $uploadedFile */
         $uploadedFile = $uploadFolder->addUploadedFile($uploadInfo, $conflictMode);
+
+        // WapplerSystems fork: file-uploaded hook (virus scan, EXIF stripping,
+        // content policy). A listener that throws rejects the upload.
+        $this->eventDispatcher?->dispatch(new AfterFileUploadedEvent($uploadedFile, $uploadInfo));
 
         $resourcePointer = isset($uploadInfo['submittedFile']['resourcePointer']) && !str_contains($uploadInfo['submittedFile']['resourcePointer'], 'file:')
             ? (int)$this->hashService->validateAndStripHmac($uploadInfo['submittedFile']['resourcePointer'], HashScope::ResourcePointer->prefix())
@@ -279,33 +552,30 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
      */
     protected function getUploadErrorMessage(int $errorCode): string
     {
-        $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(static::class);
-        switch ($errorCode) {
-            case \UPLOAD_ERR_INI_SIZE:
-                $logger->error('The uploaded file exceeds the upload_max_filesize directive in php.ini.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530345', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-            case \UPLOAD_ERR_FORM_SIZE:
-                $logger->error('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530345', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-            case \UPLOAD_ERR_PARTIAL:
-                $logger->error('The uploaded file was only partially uploaded.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530346', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-            case \UPLOAD_ERR_NO_FILE:
-                $logger->error('No file was uploaded.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530347', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-            case \UPLOAD_ERR_NO_TMP_DIR:
-                $logger->error('Missing a temporary folder.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530348', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-            case \UPLOAD_ERR_CANT_WRITE:
-                $logger->error('Failed to write file to disk.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530348', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-            case \UPLOAD_ERR_EXTENSION:
-                $logger->error('File upload stopped by extension.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530348', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-            default:
-                $logger->error('Unknown upload error.', []);
-                return GeneralUtility::makeInstance(TranslationService::class)->translate('upload.error.150530348', null, 'EXT:form/Resources/Private/Language/locallang.xlf');
-        }
+        $logMessage = match ($errorCode) {
+            \UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+            \UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+            \UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
+            \UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+            \UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder.',
+            \UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+            \UPLOAD_ERR_EXTENSION => 'File upload stopped by extension.',
+            default => 'Unknown upload error.',
+        };
+        $this->logger?->error($logMessage);
+
+        $translationKey = match ($errorCode) {
+            \UPLOAD_ERR_INI_SIZE, \UPLOAD_ERR_FORM_SIZE => 'upload.error.150530345',
+            \UPLOAD_ERR_PARTIAL => 'upload.error.150530346',
+            \UPLOAD_ERR_NO_FILE => 'upload.error.150530347',
+            default => 'upload.error.150530348',
+        };
+
+        return GeneralUtility::makeInstance(TranslationService::class)->translate(
+            $translationKey,
+            null,
+            'EXT:form/Resources/Private/Language/locallang.xlf'
+        );
     }
 
     /**
@@ -317,7 +587,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter
             return $this->resourceFactory->getFolderObjectFromCombinedIdentifier($uploadFolderIdentifier);
         } catch (FolderDoesNotExistException $exception) {
             [$storageId, $storagePath] = explode(':', $uploadFolderIdentifier, 2);
-            $storage = $this->resourceFactory->getStorageObject($storageId);
+            $storage = $this->storageRepository->getStorageObject($storageId);
             $folderNames = GeneralUtility::trimExplode('/', $storagePath, true);
             $uploadFolder = $this->provideTargetFolder($storage->getRootLevelFolder(), ...$folderNames);
             $this->provideFolderInitialization($uploadFolder);

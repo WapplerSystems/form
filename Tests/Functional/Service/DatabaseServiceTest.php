@@ -20,10 +20,13 @@ namespace TYPO3\CMS\Form\Tests\Functional\Service;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Form\Service\DatabaseService;
+use TYPO3\CMS\Form\Tests\Functional\SetsUpAdminBackendUserTrait;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class DatabaseServiceTest extends FunctionalTestCase
 {
+    use SetsUpAdminBackendUserTrait;
+
     protected array $coreExtensionsToLoad = ['form'];
     protected array $testExtensionsToLoad = ['typo3/sysext/form/Tests/Functional/Fixtures/Extensions/form_references'];
     protected array $pathsToProvideInTestInstance = [
@@ -35,6 +38,7 @@ final class DatabaseServiceTest extends FunctionalTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->setUpAdminBackendUser();
         $this->importCSVDataSet(__DIR__ . '/Fixtures/DatabaseServiceTestImport.csv');
     }
 
@@ -76,9 +80,6 @@ final class DatabaseServiceTest extends FunctionalTestCase
     {
         $subject = new DatabaseService();
         $data = $subject->getReferencesByPersistenceIdentifier($yamlFile);
-        // Expectation wants to see that specific hash entries in sys_refindex
-        // could be retrieved, and the service returned an array.
-        self::assertIsArray($data);
         self::assertSame($expectedHash, $data[0]['hash']);
     }
 

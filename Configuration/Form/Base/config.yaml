@@ -1,0 +1,195 @@
+imports:
+  # Validators
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/NotEmpty.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/DateTime.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/Alphanumeric.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/Text.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/StringLength.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/EmailAddress.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/Integer.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/Float.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/Number.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/NumberRange.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/RegularExpression.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/Count.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/FileSize.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/DateRange.yaml' }
+
+  # WapplerSystems fork additions
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/EntropySpam.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Time.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/RedirectToUri.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/FeUser.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/AttachUploadsToObject.yaml' }
+
+  # Form elements
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Form.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Page.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/SummaryPage.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Fieldset.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/GridColumn.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/GridRow.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Text.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Password.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/AdvancedPassword.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Textarea.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Honeypot.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Hidden.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Email.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Telephone.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Url.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Number.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Date.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Checkbox.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/MultiCheckbox.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/MultiSelect.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/RadioButton.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/SingleSelect.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/CountrySelect.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/DatePicker.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/StaticText.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/ContentElement.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/FileUpload.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/FormElements/ImageUpload.yaml' }
+
+  # Finishers
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/Closure.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/Confirmation.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/EmailToSender.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/EmailToReceiver.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/DeleteUploads.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/FlashMessage.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/Redirect.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/SaveToDatabase.yaml' }
+
+name: typo3/form-base
+label: 'TYPO3 Form — Base Configuration'
+priority: 10
+
+persistenceManager:
+  # @deprecated since v14.2, will be removed in v15.0.
+  # Use database storage or extension storage instead.
+  # See Deprecation-108653-FormFileBasedStorageAdapter.rst
+  allowedFileMounts:
+    10: '1:/form_definitions/'
+  allowSaveToExtensionPaths: false
+  allowDeleteFromExtensionPaths: false
+  sortByKeys:
+    - name
+    - fileUid
+  sortAscending: true
+
+prototypes:
+  standard:
+    formEditor:
+      translationFiles:
+        10: 'EXT:form/Resources/Private/Language/Database.xlf'
+      dynamicJavaScriptModules:
+        app: '@typo3/form/backend/form-editor.js'
+        mediator: '@typo3/form/backend/form-editor/mediator.js'
+        viewModel: '@typo3/form/backend/form-editor/view-model.js'
+      addInlineSettings: {  }
+      maximumUndoSteps: 10
+      stylesheets:
+        200: 'EXT:form/Resources/Public/Css/form.css'
+      formEditorFluidConfiguration:
+        templatePathAndFilename: 'EXT:form/Resources/Private/Backend/Templates/FormEditor/InlineTemplates.fluid.html'
+        partialRootPaths:
+          10: 'EXT:form/Resources/Private/Backend/Partials/FormEditor/'
+        layoutRootPaths:
+          10: 'EXT:form/Resources/Private/Backend/Layouts/FormEditor/'
+
+      formEditorPartials:
+        FormElement-_ElementToolbar: Stage/_ElementToolbar
+        FormElement-_UnknownElement: Stage/_UnknownElement
+        Modal-InsertElements: Modals/InsertElements
+        Modal-InsertPages: Modals/InsertPages
+        Modal-ValidationErrors: Modals/ValidationErrors
+        Inspector-FormElementHeaderEditor: Inspector/FormElementHeaderEditor
+        Inspector-CollectionElementHeaderEditor: Inspector/CollectionElementHeaderEditor
+        Inspector-TextEditor: Inspector/TextEditor
+        Inspector-PropertyGridEditor: Inspector/PropertyGridEditor
+        Inspector-SingleSelectEditor: Inspector/SingleSelectEditor
+        Inspector-MultiSelectEditor: Inspector/MultiSelectEditor
+        Inspector-GridColumnViewPortConfigurationEditor: Inspector/GridColumnViewPortConfigurationEditor
+        Inspector-TextareaEditor: Inspector/TextareaEditor
+        Inspector-RemoveElementEditor: Inspector/RemoveElementEditor
+        Inspector-FinishersEditor: Inspector/FinishersEditor
+        Inspector-ValidatorsEditor: Inspector/ValidatorsEditor
+        Inspector-RequiredValidatorEditor: Inspector/RequiredValidatorEditor
+        Inspector-CheckboxEditor: Inspector/CheckboxEditor
+        Inspector-ValidationErrorMessageEditor: Inspector/ValidationErrorMessageEditor
+        Inspector-Typo3WinBrowserEditor: Inspector/Typo3WinBrowserEditor
+        Inspector-MaximumFileSizeEditor: Inspector/MaximumFileSizeEditor
+        Inspector-CountrySelectEditor: Inspector/CountrySelectEditor
+        Inspector-DateEditor: Inspector/DateEditor
+        # WapplerSystems fork: visual variants/conditions editor
+        Inspector-VariantsEditor: Inspector/VariantsEditor
+        # WapplerSystems fork: email content modal editor (HTML + plain + template + preview)
+        Inspector-EmailContentEditor: Inspector/EmailContentEditor
+        # WapplerSystems fork: per-site-language translation editor (labels/placeholders/options)
+        Inspector-TranslationEditor: Inspector/TranslationEditor
+        # WapplerSystems fork: form-wide translation overview (all fields × all languages)
+        Inspector-TranslationOverviewEditor: Inspector/TranslationOverviewEditor
+
+      formElementPropertyValidatorsDefinition:
+        NotEmpty:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.NotEmpty.label
+        Integer:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.Integer.label
+        NaiveEmail:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.NaiveEmail.label
+        NaiveEmailOrEmpty:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.NaiveEmail.label
+        FormElementIdentifierWithinCurlyBracesInclusive:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.FormElementIdentifierWithinCurlyBraces.label
+        FormElementIdentifierWithinCurlyBracesExclusive:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.FormElementIdentifierWithinCurlyBraces.label
+        FileSize:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.FileSize.label
+        RFC3339FullDate:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.RFC3339FullDate.label
+        RegularExpressionPattern:
+          errorMessage: formEditor.formElementPropertyValidatorsDefinition.RegularExpressionPattern.label
+
+      formElementGroups:
+        input:
+          label: formEditor.formElementGroups.input.label
+        html5:
+          label: formEditor.formElementGroups.html5.label
+        select:
+          label: formEditor.formElementGroups.select.label
+        custom:
+          label: formEditor.formElementGroups.custom.label
+        container:
+          label: formEditor.formElementGroups.container.label
+        page:
+          label: formEditor.formElementGroups.page.label
+
+    formEngine:
+      translationFiles:
+        10: 'EXT:form/Resources/Private/Language/Database.xlf'
+
+formManager:
+  dynamicJavaScriptModules:
+    app: '@typo3/form/backend/form-manager.js'
+    viewModel: '@typo3/form/backend/form-manager/view-model.js'
+  stylesheets:
+    100: 'EXT:form/Resources/Public/Css/form.css'
+  translationFiles:
+    10: 'EXT:form/Resources/Private/Language/Database.xlf'
+  selectablePrototypesConfiguration:
+    100:
+      identifier: standard
+      label: formManager.selectablePrototypesConfiguration.standard.label
+      newFormTemplates:
+        100:
+          templatePath: 'EXT:form/Resources/Private/Backend/Templates/FormEditor/Yaml/NewForms/BlankForm.yaml'
+          label: formManager.selectablePrototypesConfiguration.standard.newFormTemplates.blankForm.label
+        200:
+          templatePath: 'EXT:form/Resources/Private/Backend/Templates/FormEditor/Yaml/NewForms/SimpleContactForm.yaml'
+          label: formManager.selectablePrototypesConfiguration.standard.newFormTemplates.simpleContactForm.label
+  controller:
+    deleteAction:
+      errorTitle: formManagerController.deleteAction.error.title
+      errorMessage: formManagerController.deleteAction.error.body

@@ -31,6 +31,7 @@ use TYPO3\CMS\Form\Domain\Exception\UnknownCompositRenderableException;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
 use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractSection;
 use TYPO3\CMS\Form\Domain\Model\Renderable\CompositeRenderableInterface;
+use TYPO3\CMS\Form\Event\BeforeRenderableIsAddedToFormEvent;
 
 /**
  * A factory that creates a FormDefinition from an array
@@ -56,12 +57,18 @@ class ArrayFormFactory extends AbstractFormFactory
         }
         $persistenceIdentifier = $configuration['persistenceIdentifier'] ?? null;
 
+        // Get prototype configuration once and reuse it
+        $prototypeConfiguration = GeneralUtility::makeInstance(ConfigurationService::class)
+            ->getPrototypeConfiguration($prototypeName);
+
+        // Get RTE property paths for proper sanitization
+        $rtePropertyPaths = $this->getFormDefinitionConversionService()->extractRtePropertyPaths($prototypeConfiguration);
+
+        $configuration = $this->getFormDefinitionConversionService()->sanitizeHtml($configuration, $rtePropertyPaths);
+
         if ($configuration['invalid'] ?? false) {
             throw new RenderingException($configuration['label'], 1529710560);
         }
-
-        $prototypeConfiguration = GeneralUtility::makeInstance(ConfigurationService::class)
-            ->getPrototypeConfiguration($prototypeName);
 
         $form = GeneralUtility::makeInstance(
             FormDefinition::class,
@@ -91,9 +98,7 @@ class ArrayFormFactory extends AbstractFormFactory
         $form->setOptions($configuration);
         $form->setRequest($request);
 
-        $this->triggerFormBuildingFinished($form);
-
-        return $form;
+        return $this->triggerFormBuildingFinished($form);
     }
 
     /**
@@ -122,11 +127,9 @@ class ArrayFormFactory extends AbstractFormFactory
             throw new UnknownCompositRenderableException('Unknown composit renderable "' . get_class($parentRenderable) . '"', 1479593622);
         }
 
-        if (isset($nestedRenderableConfiguration['renderables']) && is_array($nestedRenderableConfiguration['renderables'])) {
-            $childRenderables = $nestedRenderableConfiguration['renderables'];
-        } else {
-            $childRenderables = [];
-        }
+        $childRenderables = is_array($nestedRenderableConfiguration['renderables'] ?? null)
+            ? $nestedRenderableConfiguration['renderables']
+            : [];
 
         unset($nestedRenderableConfiguration['type']);
         unset($nestedRenderableConfiguration['identifier']);
@@ -140,6 +143,6 @@ class ArrayFormFactory extends AbstractFormFactory
             }
         }
 
-        return $renderable;
+        return $this->eventDispatcher->dispatch(new BeforeRenderableIsAddedToFormEvent($renderable))->renderable;
     }
 }

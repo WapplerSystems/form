@@ -12,9 +12,6 @@
 Properties
 ==========
 
-..  _prototypes.prototypeIdentifier.formelementsdefinition.form.renderingoptions.templateVariant:
-..  include:: renderingOptions/templateVariant.rst.txt
-
 ..  _prototypes.prototypeIdentifier.formelementsdefinition.form.renderingoptions.translation.translationfiles:
 ..  include:: renderingOptions/translation/translationFiles.rst.txt
 
@@ -143,9 +140,6 @@ Properties
 
 ..  _prototypes.prototypeIdentifier.formelementsdefinition.form.formeditor.modalremoveelementlastavailablepageflashmessagemessage:
 ..  include:: formEditor/modalRemoveElementLastAvailablePageFlashMessageMessage.rst.txt
-
-..  _prototypes.prototypeIdentifier.formelementsdefinition.form.formeditor.inspectoreditorformelementselectornoelements:
-..  include:: formEditor/inspectorEditorFormElementSelectorNoElements.rst.txt
 
 ..  _prototypes.prototypeIdentifier.formelementsdefinition.form.formeditor.paginationtitle:
 ..  include:: formEditor/paginationTitle.rst.txt

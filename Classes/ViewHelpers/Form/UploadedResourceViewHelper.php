@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Form\ViewHelpers\Form;
 
 use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFieldViewHelper;
 use TYPO3\CMS\Form\Security\HashScope;
@@ -40,17 +41,11 @@ final class UploadedResourceViewHelper extends AbstractFormFieldViewHelper
      */
     protected $tagName = 'input';
 
-    protected HashService $hashService;
-    protected PropertyMapper $propertyMapper;
-
-    public function injectHashService(HashService $hashService)
-    {
-        $this->hashService = $hashService;
-    }
-
-    public function injectPropertyMapper(PropertyMapper $propertyMapper)
-    {
-        $this->propertyMapper = $propertyMapper;
+    public function __construct(
+        private readonly HashService $hashService,
+        private readonly PropertyMapper $propertyMapper,
+    ) {
+        parent::__construct();
     }
 
     public function initializeArguments(): void
@@ -59,6 +54,7 @@ final class UploadedResourceViewHelper extends AbstractFormFieldViewHelper
         $this->registerArgument('as', 'string', '');
         $this->registerArgument('accept', 'array', 'Values for the accept attribute', false, []);
         $this->registerArgument('errorClass', 'string', 'CSS class to set if there are errors for this ViewHelper', false, 'f3-form-error');
+        $this->registerArgument('multiple', 'boolean', 'Defines the upload element accepting multiple files', false, false);
     }
 
     public function render(): string
@@ -68,6 +64,7 @@ final class UploadedResourceViewHelper extends AbstractFormFieldViewHelper
         $name = $this->getName();
         $as = $this->arguments['as'];
         $accept = $this->arguments['accept'];
+        $multiple = $this->arguments['multiple'];
         $resource = $this->getUploadedResource();
 
         if (!empty($accept)) {
@@ -75,17 +72,24 @@ final class UploadedResourceViewHelper extends AbstractFormFieldViewHelper
         }
 
         if ($resource !== null) {
-            $resourcePointerIdAttribute = '';
-            if (isset($this->additionalArguments['id'])) {
-                $resourcePointerIdAttribute = ' id="' . htmlspecialchars($this->additionalArguments['id']) . '-file-reference"';
+            if ($resource instanceof FileReference) {
+                $resourcePointerValue = $resource->getUid() ?? ('file:' . $resource->getOriginalResource()->getOriginalFile()->getUid());
+                $output .= $this->buildResourcePointerInput(
+                    0,
+                    (string)$resourcePointerValue,
+                    $this->buildResourcePointerIdAttribute(),
+                );
+            } elseif ($resource instanceof ObjectStorage) {
+                foreach ($resource as $file) {
+                    $index = $resource->getPosition($file);
+                    $resourcePointerValue = $file->getUid() ?? ('file:' . $file->getOriginalResource()->getOriginalFile()->getUid());
+                    $output .= $this->buildResourcePointerInput(
+                        $index,
+                        (string)$resourcePointerValue,
+                        $this->buildResourcePointerIdAttribute('-' . $index),
+                    );
+                }
             }
-            $resourcePointerValue = $resource->getUid();
-            if ($resourcePointerValue === null) {
-                // Newly created file reference which is not persisted yet.
-                // Use the file UID instead, but prefix it with "file:" to communicate this to the type converter
-                $resourcePointerValue = 'file:' . $resource->getOriginalResource()->getOriginalFile()->getUid();
-            }
-            $output .= '<input type="hidden" name="' . htmlspecialchars($this->getName()) . '[submittedFile][resourcePointer]" value="' . htmlspecialchars($this->hashService->appendHmac((string)$resourcePointerValue, HashScope::ResourcePointer->prefix())) . '"' . $resourcePointerIdAttribute . ' />';
 
             $this->templateVariableContainer->add($as, $resource);
             $output .= $this->renderChildren();
@@ -97,8 +101,9 @@ final class UploadedResourceViewHelper extends AbstractFormFieldViewHelper
         }
         $this->tag->addAttribute('type', 'file');
 
-        if (isset($this->additionalArguments['multiple'])) {
+        if ($multiple === true) {
             $this->tag->addAttribute('name', $name . '[]');
+            $this->tag->addAttribute('multiple', true);
         } else {
             $this->tag->addAttribute('name', $name);
         }
@@ -109,17 +114,47 @@ final class UploadedResourceViewHelper extends AbstractFormFieldViewHelper
         return $output;
     }
 
+    private function buildResourcePointerInput(int $index, string $resourcePointerValue, string $idAttribute): string
+    {
+        $name = htmlspecialchars($this->getName());
+        $hmac = htmlspecialchars($this->hashService->appendHmac($resourcePointerValue, HashScope::ResourcePointer->prefix()));
+        return '<input type="hidden"'
+            . ' name="' . $name . '[__submittedFiles][' . $index . '][submittedFile][resourcePointer]"'
+            . ' value="' . $hmac . '"'
+            . $idAttribute
+            . ' />';
+    }
+
+    private function buildResourcePointerIdAttribute(string $suffix = ''): string
+    {
+        if (!isset($this->additionalArguments['id'])) {
+            return '';
+        }
+        return ' id="' . htmlspecialchars($this->additionalArguments['id']) . '-file-reference' . $suffix . '"';
+    }
+
     /**
      * Return a previously uploaded resource.
      * Return NULL if errors occurred during property mapping for this property.
      */
-    protected function getUploadedResource(): ?FileReference
+    private function getUploadedResource(): FileReference|ObjectStorage|null
     {
         if ($this->getMappingResultsForProperty()->hasErrors()) {
             return null;
         }
         $resource = $this->getValueAttribute();
+        if ($resource instanceof ObjectStorage) {
+            return $resource;
+        }
         if ($resource instanceof FileReference) {
+            // When multiple uploads are enabled but the stored value is a single
+            // FileReference, wrap it in an ObjectStorage so that the Fluid template's
+            // f:for ViewHelper receives an iterable instead of crashing.
+            if ($this->arguments['multiple']) {
+                $storage = new ObjectStorage();
+                $storage->attach($resource);
+                return $storage;
+            }
             return $resource;
         }
         return $this->propertyMapper->convert($resource, FileReference::class);

@@ -17,18 +17,25 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Domain\Finishers;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
+use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
+use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use TYPO3\CMS\Fluid\View\TemplatePaths;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
-use TYPO3\CMS\Form\Service\TranslationService;
+use TYPO3\CMS\Form\Event\BeforeEmailFinisherInitializedEvent;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
+// WapplerSystems fork additions:
+use TYPO3\CMS\Form\Event\AfterMailSentEvent;
+use TYPO3\CMS\Form\Event\MailBeforeSendingEvent;
 
 /**
  * This finisher sends an email to one recipient
@@ -68,15 +75,23 @@ class EmailFinisher extends AbstractFinisher
         'attachUploads' => true,
     ];
 
+    public function __construct(
+        protected readonly EventDispatcherInterface $eventDispatcher,
+        protected readonly TemplatedEmailFactory $templatedEmailFactory,
+        protected readonly MailerInterface $mailer,
+    ) {}
+
     /**
      * Executes this finisher
      * @see AbstractFinisher::execute()
      *
      * @throws FinisherException
      */
-    protected function executeInternal()
+    protected function executeInternal(): void
     {
-        $languageBackup = null;
+        $this->options = $this->eventDispatcher
+            ->dispatch(new BeforeEmailFinisherInitializedEvent($this->finisherContext, $this->options))
+            ->getOptions();
         // Flexform overrides write strings instead of integers so
         // we need to cast the string '0' to false.
         if (
@@ -95,7 +110,7 @@ class EmailFinisher extends AbstractFinisher
         $replyToRecipients = $this->getRecipients('replyToRecipients');
         $carbonCopyRecipients = $this->getRecipients('carbonCopyRecipients');
         $blindCarbonCopyRecipients = $this->getRecipients('blindCarbonCopyRecipients');
-        $addHtmlPart = $this->parseOption('addHtmlPart') ? true : false;
+        $addHtmlPart = (bool)$this->parseOption('addHtmlPart');
         $attachUploads = $this->parseOption('attachUploads');
         $title = (string)$this->parseOption('title') ?: $subject;
 
@@ -110,12 +125,6 @@ class EmailFinisher extends AbstractFinisher
         }
 
         $formRuntime = $this->finisherContext->getFormRuntime();
-
-        $translationService = GeneralUtility::makeInstance(TranslationService::class);
-        if (is_string($this->options['translation']['language'] ?? null) && $this->options['translation']['language'] !== '') {
-            $languageBackup = $translationService->getLanguage();
-            $translationService->setLanguage($this->options['translation']['language']);
-        }
 
         $mail = $this
             ->initializeFluidEmail($formRuntime)
@@ -137,8 +146,45 @@ class EmailFinisher extends AbstractFinisher
             $mail->bcc(...$blindCarbonCopyRecipients);
         }
 
-        if (!empty($languageBackup)) {
-            $translationService->setLanguage($languageBackup);
+        if (is_string($this->options['translation']['language'] ?? null) && $this->options['translation']['language'] !== '') {
+            $mail->assign('languageKey', $this->options['translation']['language']);
+        }
+
+        $message = $this->parseOption('message');
+        if (is_string($message) && $message !== '') {
+            // Remove whitespace between HTML tags to prevent lib.parseFunc_RTE
+            // from converting newlines into additional blank lines in the email output
+            $message = preg_replace('/>\s+</', '><', $message);
+            $placeholderPos = strpos($message, '{formValues}');
+            if ($placeholderPos !== false) {
+                $mail->assign('messageBefore', substr($message, 0, $placeholderPos));
+                $mail->assign('messageAfter', substr($message, $placeholderPos + strlen('{formValues}')));
+            } else {
+                // No placeholder - show message only, no form values
+                $mail->assign('messageBefore', $message);
+                $mail->assign('messageAfter', '');
+                $mail->assign('hideFormValues', true);
+            }
+        }
+
+        // WapplerSystems fork (Feature 3): dedicated plain-text body.
+        // If "plainMessage" is set, the plain-text mail part uses it verbatim
+        // (split around the {formValues} placeholder, just like the HTML body).
+        // If it is empty, the plain-text template falls back to the stripped
+        // HTML "message" (legacy behaviour) — so existing forms are unaffected.
+        $plainMessage = $this->parseOption('plainMessage');
+        if (is_string($plainMessage) && $plainMessage !== '') {
+            $mail->assign('plainMessageProvided', true);
+            $placeholderPos = strpos($plainMessage, '{formValues}');
+            if ($placeholderPos !== false) {
+                $mail->assign('plainMessageBefore', substr($plainMessage, 0, $placeholderPos));
+                $mail->assign('plainMessageAfter', substr($plainMessage, $placeholderPos + strlen('{formValues}')));
+            } else {
+                // No placeholder - show plain message only, no form values
+                $mail->assign('plainMessageBefore', $plainMessage);
+                $mail->assign('plainMessageAfter', '');
+                $mail->assign('hidePlainFormValues', true);
+            }
         }
 
         if ($attachUploads) {
@@ -147,44 +193,56 @@ class EmailFinisher extends AbstractFinisher
                     continue;
                 }
                 $file = $formRuntime[$element->getIdentifier()];
-                if ($file) {
-                    if ($file instanceof FileReference) {
-                        $file = $file->getOriginalResource();
-                    }
+                if ($file instanceof FileReference) {
+                    $file = $file->getOriginalResource();
+                }
+                if ($file instanceof FileInterface) {
                     $mail->attach($file->getContents(), $file->getName(), $file->getMimeType());
+                } elseif ($file instanceof ObjectStorage) {
+                    foreach ($file as $singleFile) {
+                        if ($singleFile instanceof FileReference) {
+                            $singleFile = $singleFile->getOriginalResource();
+                        }
+                        if ($singleFile instanceof FileInterface) {
+                            $mail->attach($singleFile->getContents(), $singleFile->getName(), $singleFile->getMimeType());
+                        }
+                    }
                 }
             }
         }
 
-        // TODO: DI should be used to inject the MailerInterface
-        GeneralUtility::makeInstance(MailerInterface::class)->send($mail);
-    }
+        // WapplerSystems fork: listeners can mutate the FluidEmail (recipients,
+        // headers, attachments) before transport. Dispatched after FluidEmail
+        // is fully populated, before the mailer transport runs.
+        $this->eventDispatcher->dispatch(
+            new MailBeforeSendingEvent($mail, $this->finisherContext, $this),
+        );
 
-    protected function initializeTemplatePaths(array $globalConfig, array $localConfig): TemplatePaths
-    {
-        $templatePaths = new TemplatePaths();
-        $templatePaths->setTemplateRootPaths(array_replace(
-            $globalConfig['templateRootPaths'] ?? [],
-            $localConfig['templateRootPaths'] ?? [],
-        ));
-        $templatePaths->setLayoutRootPaths(array_replace(
-            $globalConfig['layoutRootPaths'] ?? [],
-            $localConfig['layoutRootPaths'] ?? [],
-        ));
-        $templatePaths->setPartialRootPaths(array_replace(
-            $globalConfig['partialRootPaths'] ?? [],
-            $localConfig['partialRootPaths'] ?? [],
-        ));
-        return $templatePaths;
+        try {
+            $this->mailer->send($mail);
+        } catch (TransportExceptionInterface $e) {
+            throw new FinisherException(
+                'Failed to send the email: ' . $e->getMessage(),
+                1754047320,
+                $e
+            );
+        }
+
+        // WapplerSystems fork: fires only after a successful transport — the
+        // reliable hook for "delivered" audit logging / post-delivery actions.
+        $this->eventDispatcher->dispatch(
+            new AfterMailSentEvent($mail, $this->finisherContext, $this),
+        );
     }
 
     protected function initializeFluidEmail(FormRuntime $formRuntime): FluidEmail
     {
-        $templatePaths = $this->initializeTemplatePaths(
-            $GLOBALS['TYPO3_CONF_VARS']['MAIL'],
-            $this->options,
+        $mailMessage = $this->templatedEmailFactory->createWithOverrides(
+            $this->options['templateRootPaths'] ?? [],
+            $this->options['layoutRootPaths'] ?? [],
+            $this->options['partialRootPaths'] ?? [],
+            $this->finisherContext->getRequest(),
         );
-        $fluidEmail = GeneralUtility::makeInstance(FluidEmail::class, $templatePaths);
 
         if (!isset($this->options['templateName']) || $this->options['templateName'] === '') {
             throw new FinisherException('The option "templateName" must be set to use FluidEmail.', 1599834020);
@@ -195,8 +253,7 @@ class EmailFinisher extends AbstractFinisher
             $this->options['templateName'] = 'Default';
         }
 
-        $fluidEmail
-            ->setRequest($this->finisherContext->getRequest())
+        $mailMessage
             ->setTemplate($this->options['templateName'])
             ->assignMultiple([
                 'finisherVariableProvider' => $this->finisherContext->getFinisherVariableProvider(),
@@ -204,21 +261,16 @@ class EmailFinisher extends AbstractFinisher
             ]);
 
         if (is_array($this->options['variables'] ?? null)) {
-            $fluidEmail->assignMultiple($this->options['variables']);
+            $mailMessage->assignMultiple($this->options['variables']);
         }
 
-        $fluidEmail
+        $mailMessage
             ->getViewHelperVariableContainer()
             ->addOrUpdate(RenderRenderableViewHelper::class, 'formRuntime', $formRuntime);
 
-        return $fluidEmail;
+        return $mailMessage;
     }
 
-    /**
-     * Get mail recipients
-     *
-     * @param string $listOption List option name
-     */
     protected function getRecipients(string $listOption): array
     {
         $recipients = $this->parseOption($listOption) ?? [];
@@ -242,7 +294,7 @@ class EmailFinisher extends AbstractFinisher
             $address = trim((string)$address);
 
             if (!GeneralUtility::validEmail($address)) {
-                // Drop entries without valid address
+                // Drop entries without a valid address
                 continue;
             }
             $addresses[] = new Address($address, $name);

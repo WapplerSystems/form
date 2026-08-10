@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Domain\Model\FormElements;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Form\Domain\Exception\IdentifierNotValidException;
 use TYPO3\CMS\Form\Domain\Model\Renderable\AbstractRenderable;
 
@@ -41,8 +40,8 @@ class UnknownFormElement extends AbstractRenderable implements FormElementInterf
      */
     public function __construct(string $identifier, string $type)
     {
-        if (!is_string($identifier) || strlen($identifier) === 0) {
-            throw new IdentifierNotValidException('The given identifier was not a string or the string was empty.', 1382364370);
+        if ($identifier === '') {
+            throw new IdentifierNotValidException('The given identifier was empty.', 1382364370);
         }
         $this->identifier = $identifier;
         $this->type = $type;
@@ -51,17 +50,7 @@ class UnknownFormElement extends AbstractRenderable implements FormElementInterf
     /**
      * Sets up the form element
      */
-    public function initializeFormElement()
-    {
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['initializeFormElement'] ?? [] as $className) {
-            $hookObj = GeneralUtility::makeInstance($className);
-            if (method_exists($hookObj, 'initializeFormElement')) {
-                $hookObj->initializeFormElement(
-                    $this
-                );
-            }
-        }
-    }
+    public function initializeFormElement() {}
 
     /**
      * Returns a unique identifier of this element.

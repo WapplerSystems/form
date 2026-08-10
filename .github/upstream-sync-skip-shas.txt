@@ -1,0 +1,4 @@
+# SHAs of upstream commits that should be permanently ignored by upstream-sync.
+# One SHA per line (full or short; resolved via `git rev-parse`).
+# Use this when a commit is irrelevant to the fork and you don't want a PR
+# to be (re-)opened for it ever.

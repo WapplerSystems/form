@@ -1,53 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-    <file source-language="en" datatype="plaintext" original="EXT:form/Tests/Unit/Service/Fixtures/locallang_text.xlf" date="2017-01-30T03:38:32Z" product-name="form">
-        <header/>
-        <body>
-            <trans-unit id="element.Page.renderingOptions.nextButtonLabel">
-                <source>TEXT EN</source>
-            </trans-unit>
-
-            <trans-unit id="form-runtime-identifier.element.form-element-identifier.properties.label">
-                <source>form-element-identifier LABEL EN</source>
-            </trans-unit>
-            <trans-unit id="element.form-element-identifier.properties.label">
-                <source>form-element-identifier LABEL EN 1</source>
-            </trans-unit>
-            <trans-unit id="element.Text.properties.label">
-                <source>form-element-identifier LABEL EN 2</source>
-            </trans-unit>
-
-            <trans-unit id="form-runtime-identifier.element.form-element-identifier.properties.placeholder">
-                <source>form-element-identifier PLACEHOLDER EN</source>
-            </trans-unit>
-            <trans-unit id="form-runtime-identifier.element.form-element-identifier-page.renderingOptions.nextButtonLabel">
-                <source>form-element-identifier nextButtonLabel EN</source>
-            </trans-unit>
-
-            <trans-unit id="form-runtime-identifier.element.form-element-identifier.properties.aria-label">
-                <source>form-element-identifier ARIA-LABEL EN</source>
-            </trans-unit>
-
-            <trans-unit id="form-runtime-identifier.element.options-form-element-identifier.properties.options.optionValue1">
-                <source>options-form-element-identifier option 1 EN</source>
-            </trans-unit>
-            <trans-unit id="form-runtime-identifier.element.options-form-element-identifier.properties.options.optionValue2">
-                <source>options-form-element-identifier option 2 EN</source>
-            </trans-unit>
-
-            <trans-unit id="element.options-form-element-identifier.properties.options.optionValue1">
-                <source>options-form-element-identifier option 1 EN</source>
-            </trans-unit>
-            <trans-unit id="element.options-form-element-identifier.properties.options.optionValue2">
-                <source>options-form-element-identifier option 2 EN</source>
-            </trans-unit>
-
-            <trans-unit id="form-runtime-identifier.finisher.SaveToDatabase.subject">
-                <source>form-element-identifier SaveToDatabase subject EN</source>
-            </trans-unit>
-            <trans-unit id="finisher.SaveToDatabase.subject">
-                <source>form-element-identifier SaveToDatabase subject EN 1</source>
-            </trans-unit>
-        </body>
-    </file>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:form/Tests/Unit/Service/Fixtures/locallang_text.xlf" date="2017-01-30T03:38:32Z" product-name="form">
+    <header/>
+    <body>
+      <trans-unit id="element.Page.renderingOptions.nextButtonLabel">
+        <source>TEXT EN</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.element.form-element-identifier.properties.label">
+        <source>form-element-identifier LABEL EN</source>
+      </trans-unit>
+      <trans-unit id="element.form-element-identifier.properties.label">
+        <source>form-element-identifier LABEL EN 1</source>
+      </trans-unit>
+      <trans-unit id="element.Text.properties.label">
+        <source>form-element-identifier LABEL EN 2</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.element.form-element-identifier.properties.placeholder">
+        <source>form-element-identifier PLACEHOLDER EN</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.element.form-element-identifier.properties.defaultValue">
+        <source>form-element-identifier DEFAULTVALUE EN</source>
+      </trans-unit>
+      <trans-unit id="element.form-element-identifier.properties.defaultValue">
+        <source>form-element-identifier DEFAULTVALUE EN 1</source>
+      </trans-unit>
+      <trans-unit id="element.Text.properties.defaultValue">
+        <source>form-element-identifier DEFAULTVALUE EN 2</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.element.form-element-identifier-page.renderingOptions.nextButtonLabel">
+        <source>form-element-identifier nextButtonLabel EN</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.element.form-element-identifier.properties.aria-label">
+        <source>form-element-identifier ARIA-LABEL EN</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.element.options-form-element-identifier.properties.options.optionValue1">
+        <source>options-form-element-identifier option 1 EN</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.element.options-form-element-identifier.properties.options.optionValue2">
+        <source>options-form-element-identifier option 2 EN</source>
+      </trans-unit>
+      <trans-unit id="element.options-form-element-identifier.properties.options.optionValue1">
+        <source>options-form-element-identifier option 1 EN</source>
+      </trans-unit>
+      <trans-unit id="element.options-form-element-identifier.properties.options.optionValue2">
+        <source>options-form-element-identifier option 2 EN</source>
+      </trans-unit>
+      <trans-unit id="form-runtime-identifier.finisher.SaveToDatabase.subject">
+        <source>form-element-identifier SaveToDatabase subject EN</source>
+      </trans-unit>
+      <trans-unit id="finisher.SaveToDatabase.subject">
+        <source>form-element-identifier SaveToDatabase subject EN 1</source>
+      </trans-unit>
+    </body>
+  </file>
 </xliff>

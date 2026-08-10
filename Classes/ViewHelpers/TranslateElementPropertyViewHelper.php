@@ -17,12 +17,11 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\ViewHelpers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Form\Domain\Model\Renderable\RootRenderableInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3Fluid\Fluid\Core\ViewHelper\InvalidArgumentValueException;
 
 /**
  * Translate form element properties.
@@ -33,11 +32,16 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
  */
 final class TranslateElementPropertyViewHelper extends AbstractViewHelper
 {
+    public function __construct(
+        private readonly TranslationService $translationService
+    ) {}
+
     public function initializeArguments(): void
     {
         $this->registerArgument('element', RootRenderableInterface::class, 'Form Element to translate', true);
         $this->registerArgument('property', 'mixed', 'Property to translate');
         $this->registerArgument('renderingOptionProperty', 'mixed', 'Property to translate');
+        $this->registerArgument('languageKey', 'string', 'Language key ("da" for example) or "default" to use. Also a Locale object is possible. If empty, use current locale from the request.');
     }
 
     /**
@@ -64,10 +68,10 @@ final class TranslateElementPropertyViewHelper extends AbstractViewHelper
         $formRuntime = $this->renderingContext
             ->getViewHelperVariableContainer()
             ->get(RenderRenderableViewHelper::class, 'formRuntime');
-        return GeneralUtility::makeInstance(TranslationService::class)->translateFormElementValue($element, $propertyParts, $formRuntime);
+        return $this->translationService->translateFormElementValue($element, $propertyParts, $formRuntime, $this->arguments['languageKey']);
     }
 
-    protected static function assertArgumentTypes(array $arguments): void
+    private static function assertArgumentTypes(array $arguments): void
     {
         foreach (['property', 'renderingOptionProperty'] as $argumentName) {
             if (
@@ -77,7 +81,7 @@ final class TranslateElementPropertyViewHelper extends AbstractViewHelper
             ) {
                 continue;
             }
-            throw new Exception(
+            throw new InvalidArgumentValueException(
                 sprintf(
                     'Arguments "%s" either must be string or array',
                     $argumentName

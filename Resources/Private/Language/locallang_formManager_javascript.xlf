@@ -1,140 +1,167 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-    <file source-language="en" datatype="plaintext" original="EXT:form/Resources/Private/Language/locallang_formManager_javascript.xlf" date="2016-10-09T03:38:32Z" product-name="form">
-        <header/>
-        <body>
-            <trans-unit id="formManager.form_name">
-                <source>Name</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_name_description">
-                <source>Enter a meaningful and descriptive name for the form. The name is displayed only in the TYPO3 backend.</source>
-            </trans-unit>
-            <trans-unit id="formManager.new_form_name">
-                <source>New form name</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_save_path">
-                <source>Storage</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_save_path_description">
-                <source>Select the storage where you want to save your form definition.</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_prototype">
-                <source>Form prototype</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_template">
-                <source>Template</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_template_description">
-                <source>Select a template on which you want to build your new form.</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_headline_general">
-                <source>General</source>
-            </trans-unit>
-            <trans-unit id="formManager.form_copied">
-                <source>Copied form</source>
-            </trans-unit>
-            <trans-unit id="formManager.cancel">
-                <source>Cancel</source>
-            </trans-unit>
-            <trans-unit id="formManager.remove_form">
-                <source>Delete</source>
-            </trans-unit>
-            <trans-unit id="formManager.remove_form_title">
-                <source>Confirm deletion</source>
-            </trans-unit>
-            <trans-unit id="formManager.remove_form_message">
-                <source>Do you really want to delete the form "{0}" permanently? You cannot revert this action!</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step1.title">
-                <source>Create new form</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step1.progressLabel">
-                <source>Choose</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step1.noStorages">
-                <source>No accessible form storage folders</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step2.title">
-                <source>Settings</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step3.title">
-                <source>Ready?</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step3.progressLabel">
-                <source>Check</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step3.message">
-                <source>Just check and confirm the settings you have entered. Done? Then you are ready to go.</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step3.check">
-                <source>Check and confirm</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step4.errorTitle">
-                <source>Create</source>
-            </trans-unit>
-            <trans-unit id="formManager.newFormWizard.step4.errorMessage">
-                <source>The form could not be saved</source>
-            </trans-unit>
-            <trans-unit id="formManager.duplicateFormWizard.step1.title">
-                <source>Duplicate form "{0}"</source>
-            </trans-unit>
-            <trans-unit id="formManager.duplicateFormWizard.step2.title">
-                <source>Ready?</source>
-            </trans-unit>
-            <trans-unit id="formManager.duplicateFormWizard.step2.progressLabel">
-                <source>Check</source>
-            </trans-unit>
-            <trans-unit id="formManager.duplicateFormWizard.step2.check">
-                <source>Check and confirm</source>
-            </trans-unit>
-            <trans-unit id="formManager.duplicateFormWizard.step2.message">
-                <source>Just check and confirm the settings you have entered. Done? Then you are ready to go.</source>
-            </trans-unit>
-            <trans-unit id="formManager.duplicateFormWizard.step3.errorTitle">
-                <source>Duplicate</source>
-            </trans-unit>
-            <trans-unit id="formManager.duplicateFormWizard.step3.errorMessage">
-                <source>The form could not be saved</source>
-            </trans-unit>
-            <trans-unit id="formManager.no_references">
-                <source>There are no references yet.</source>
-            </trans-unit>
-            <trans-unit id="formManager.table.field.control">
-                <source>Control</source>
-            </trans-unit>
-            <trans-unit id="formManager.table.field.uid">
-                <source>Uid</source>
-            </trans-unit>
-            <trans-unit id="formManager.table.field.title">
-                <source>Title</source>
-            </trans-unit>
-            <trans-unit id="formManager.btn.edit.title">
-                <source>Edit</source>
-            </trans-unit>
-            <trans-unit id="formManager.references.title">
-                <source>Form: {0}</source>
-            </trans-unit>
-            <trans-unit id="formManager.references.headline">
-                <source>References to this item</source>
-            </trans-unit>
-            <trans-unit id="formManager.blankForm.label">
-                <source>Blank form</source>
-            </trans-unit>
-            <trans-unit id="formManager.blankForm.subtitle">
-                <source>Start fresh</source>
-            </trans-unit>
-            <trans-unit id="formManager.blankForm.description">
-                <source>Create a new form from scratch.</source>
-            </trans-unit>
-            <trans-unit id="formManager.predefinedForm.label">
-                <source>Predefined form</source>
-            </trans-unit>
-            <trans-unit id="formManager.predefinedForm.subtitle">
-                <source>Use a form template</source>
-            </trans-unit>
-            <trans-unit id="formManager.predefinedForm.description">
-                <source>Create a new form and use an existing form template for it.</source>
-            </trans-unit>
-        </body>
-    </file>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:form/Resources/Private/Language/locallang_formManager_javascript.xlf" date="2016-10-09T03:38:32Z" product-name="form">
+    <header/>
+    <body>
+      <trans-unit id="formManager.form_name">
+        <source>Name</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_name_description">
+        <source>Enter a meaningful and descriptive name for the form. The name is displayed only in the TYPO3 backend.</source>
+      </trans-unit>
+      <trans-unit id="formManager.new_form_name">
+        <source>New form name</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_save_path" x-unused-since="14.2">
+        <source>Storage</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_save_path_description" x-unused-since="14.2">
+        <source>Select the storage where your form definition will be saved.</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_storageLocation">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_storageLocation_description">
+        <source>Select the location where the form will be saved.</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_prototype">
+        <source>Form prototype</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_template">
+        <source>Template</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_template_description">
+        <source>Select a template for building your new form.</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_headline_general">
+        <source>General</source>
+      </trans-unit>
+      <trans-unit id="formManager.form_copied">
+        <source>Copied form</source>
+      </trans-unit>
+      <trans-unit id="formManager.cancel">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="formManager.remove_form">
+        <source>Delete</source>
+      </trans-unit>
+      <trans-unit id="formManager.remove_form_title">
+        <source>Confirm deletion</source>
+      </trans-unit>
+      <trans-unit id="formManager.remove_form_message">
+        <source>Delete form "{0}"? Forms saved as files are permanently deleted and cannot be restored from the Recycler.</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step1.title">
+        <source>Create new form</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step.modes.summary.title">
+        <source>Mode</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step1.progressLabel">
+        <source>Choose</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step1.noStorages">
+        <source>You do not have permission to create forms. Please contact your administrator.</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step2.title">
+        <source>Settings</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step3.title">
+        <source>Ready?</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step3.progressLabel">
+        <source>Check</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step3.message">
+        <source>Just check and confirm the settings you have entered. Done? Then you are ready to go.</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step3.check">
+        <source>Check and confirm</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step4.errorTitle">
+        <source>Create</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step4.errorMessage">
+        <source>The form could not be saved</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step.storages.title">
+        <source>Storage location</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step.storages.description">
+        <source>Choose how the form should be saved:</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step.storages.progressLabel">
+        <source>Storage</source>
+      </trans-unit>
+      <trans-unit id="formManager.newFormWizard.step.storages.summary.title">
+        <source>Storage</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicateFormWizard.step1.title">
+        <source>Duplicate form "{0}"</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicateFormWizard.step2.title">
+        <source>Ready?</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicateFormWizard.step2.progressLabel">
+        <source>Check</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicateFormWizard.step2.check">
+        <source>Check and confirm</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicateFormWizard.step2.message">
+        <source>Just check and confirm the settings you have entered. Done? Then you are ready to go.</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicateFormWizard.step3.errorTitle">
+        <source>Duplicate</source>
+      </trans-unit>
+      <trans-unit id="formManager.duplicateFormWizard.step3.errorMessage">
+        <source>The form could not be saved</source>
+      </trans-unit>
+      <trans-unit id="formManager.no_references">
+        <source>There are no references yet.</source>
+      </trans-unit>
+      <trans-unit id="formManager.table.field.control">
+        <source>Control</source>
+      </trans-unit>
+      <trans-unit id="formManager.table.field.uid">
+        <source>Uid</source>
+      </trans-unit>
+      <trans-unit id="formManager.table.field.title">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="formManager.btn.edit.title">
+        <source>Edit</source>
+      </trans-unit>
+      <trans-unit id="formManager.references.title">
+        <source>Form: {0}</source>
+      </trans-unit>
+      <trans-unit id="formManager.references.headline">
+        <source>References to this item</source>
+      </trans-unit>
+      <trans-unit id="formManager.blankForm.label">
+        <source>Blank form</source>
+      </trans-unit>
+      <trans-unit id="formManager.blankForm.subtitle">
+        <source>Start fresh</source>
+      </trans-unit>
+      <trans-unit id="formManager.blankForm.description">
+        <source>Create a new form from scratch.</source>
+      </trans-unit>
+      <trans-unit id="formManager.predefinedForm.label">
+        <source>Predefined form</source>
+      </trans-unit>
+      <trans-unit id="formManager.predefinedForm.subtitle">
+        <source>Use a form template</source>
+      </trans-unit>
+      <trans-unit id="formManager.predefinedForm.description">
+        <source>Create a new form and use an existing form template for it.</source>
+      </trans-unit>
+      <trans-unit id="formManager.finisher.redirect.success.title">
+        <source>Form created</source>
+      </trans-unit>
+      <trans-unit id="formManager.finisher.redirect.success.description">
+        <source>The form has been successfully created. Click "Finish" to be redirected to the newly created form.</source>
+      </trans-unit>
+    </body>
+  </file>
 </xliff>

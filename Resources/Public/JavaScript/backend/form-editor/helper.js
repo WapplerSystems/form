@@ -10,4 +10,138 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import o from"jquery";let s=null,r=null;const E={domElementClassNames:{active:"active",buttonCollectionElementRemove:"formeditor-inspector-collection-element-remove-button",buttonFormEditor:"formeditor-button",disabled:"disabled",hidden:"hidden",icon:"formeditor-icon",sortableHover:"sortable-hover"},domElementDataAttributeNames:{elementIdentifier:"data-element-identifier-path",identifier:"data-identifier",template:"data-template-name",templateProperty:"data-template-property"},domElementSelectorPattern:{bracesWithKey:"[{0}]",bracesWithKeyValue:'[{0}="{1}"]',class:".{0}",id:"#{0}",keyValue:'{0}="{1}"'}};function c(){return s}function l(){return c().getUtility()}function a(e,n,t){return c().assert(e,n,t)}function b(e){return a(o.type(e)==="object",'Invalid parameter "partialConfiguration"',1478950623),r=o.extend(!0,E,e),this}function f(e,n){let t;a(!l().isUndefinedOrNull(r.domElementSelectorPattern[e]),'Invalid parameter "patternIdentifier" ('+e+")",1478801251),a(o.type(n)==="array",'Invalid parameter "replacements"',1478801252),t=r.domElementSelectorPattern[e];for(let m=0,p=n.length;m<p;++m)t=t.replace("{"+m+"}",n[m]);return t}function i(e,n){return a(!l().isUndefinedOrNull(r.domElementSelectorPattern[e]),'Invalid parameter "selectorIdentifier" ('+e+")",1478372374),f(e,n)}function D(e,n){let t;return a(!l().isUndefinedOrNull(r.domElementClassNames[e]),'Invalid parameter "classNameIdentifier" ('+e+")",1478803906),t=r.domElementClassNames[e],n&&(t=i("class",[t])),t}function N(e,n){let t;return a(!l().isUndefinedOrNull(r.domElementIdNames[e]),'Invalid parameter "domElementIdNames" ('+e+")",1479251518),t=r.domElementIdNames[e],n&&(t=i("id",[t])),t}function d(e){return a(!l().isUndefinedOrNull(r.domElementDataAttributeValues[e]),'Invalid parameter "dataAttributeValueIdentifier" ('+e+")",1478806884),r.domElementDataAttributeValues[e]}function u(e,n,t){return a(!l().isUndefinedOrNull(r.domElementDataAttributeNames[e]),'Invalid parameter "dataAttributeIdentifier" ('+e+")",1478808035),l().isUndefinedOrNull(n)?r.domElementDataAttributeNames[e]:(t=t||[],i(n,[r.domElementDataAttributeNames[e]].concat(t)))}function y(e){return u("identifier","bracesWithKeyValue",[d(e)])}function g(e){return l().isUndefinedOrNull(r.domElementDataAttributeValues[e])||(e=d(e)),o(u("template","bracesWithKeyValue",[e]))}function v(e,n){return o(u("templateProperty","bracesWithKeyValue",[e]),o(n))}function h(e){s=e}export{h as bootstrap,f as buildDomElementSelectorHelper,D as getDomElementClassName,u as getDomElementDataAttribute,d as getDomElementDataAttributeValue,y as getDomElementDataIdentifierSelector,N as getDomElementIdName,i as getDomElementSelector,g as getTemplate,v as getTemplatePropertyDomElement,b as setConfiguration};
+/**
+ * Module: @typo3/form/backend/form-editor/helper
+ */
+import { merge } from 'lodash-es';
+let formEditorApp = null;
+let configuration = null;
+const defaultConfiguration = {
+    domElementClassNames: {
+        active: 'active',
+        buttonCollectionElementRemove: 'formeditor-inspector-collection-element-remove-button',
+        buttonFormEditor: 'formeditor-button',
+        disabled: 'disabled',
+        hidden: 'hidden',
+        icon: 'formeditor-icon',
+        sortableHover: 'sortable-hover'
+    },
+    domElementDataAttributeNames: {
+        elementIdentifier: 'data-element-identifier-path',
+        identifier: 'data-identifier',
+        template: 'data-template-name',
+        templateProperty: 'data-template-property'
+    },
+    domElementSelectorPattern: {
+        bracesWithKey: '[{0}]',
+        bracesWithKeyValue: '[{0}="{1}"]',
+        class: '.{0}',
+        id: '#{0}',
+        keyValue: '{0}="{1}"'
+    }
+};
+function getFormEditorApp() {
+    return formEditorApp;
+}
+function getUtility() {
+    return getFormEditorApp().getUtility();
+}
+function assert(test, message, messageCode) {
+    return getFormEditorApp().assert(test, message, messageCode);
+}
+/**
+ * @throws 1478950623
+ */
+export function setConfiguration(customConfiguration) {
+    assert(typeof customConfiguration === 'object' && customConfiguration !== null && !Array.isArray(customConfiguration), 'Invalid parameter "partialConfiguration"', 1478950623);
+    configuration = merge({}, defaultConfiguration, customConfiguration);
+    return this;
+}
+/**
+ * @throws 1478801251
+ * @throws 1478801252
+ */
+export function buildDomElementSelectorHelper(patternIdentifier, replacements) {
+    let newString;
+    assert(!getUtility().isUndefinedOrNull(configuration.domElementSelectorPattern[patternIdentifier]), 'Invalid parameter "patternIdentifier" (' + patternIdentifier + ')', 1478801251);
+    assert(Array.isArray(replacements), 'Invalid parameter "replacements"', 1478801252);
+    newString = configuration.domElementSelectorPattern[patternIdentifier];
+    for (let i = 0, len = replacements.length; i < len; ++i) {
+        newString = newString.replace('{' + i + '}', replacements[i]);
+    }
+    return newString;
+}
+/**
+ * @throws 1478372374
+ */
+export function getDomElementSelector(selectorIdentifier, args) {
+    assert(!getUtility().isUndefinedOrNull(configuration.domElementSelectorPattern[selectorIdentifier]), 'Invalid parameter "selectorIdentifier" (' + selectorIdentifier + ')', 1478372374);
+    return buildDomElementSelectorHelper(selectorIdentifier, args);
+}
+/**
+ * @throws 1478803906
+ */
+export function getDomElementClassName(classNameIdentifier, asSelector) {
+    let className;
+    assert(!getUtility().isUndefinedOrNull(configuration.domElementClassNames[classNameIdentifier]), 'Invalid parameter "classNameIdentifier" (' + classNameIdentifier + ')', 1478803906);
+    className = configuration.domElementClassNames[classNameIdentifier];
+    if (asSelector) {
+        className = getDomElementSelector('class', [className]);
+    }
+    return className;
+}
+/**
+ * @throws 1479251518
+ */
+export function getDomElementIdName(idNameIdentifier, asSelector) {
+    let idName;
+    assert(!getUtility().isUndefinedOrNull(configuration.domElementIdNames[idNameIdentifier]), 'Invalid parameter "domElementIdNames" (' + idNameIdentifier + ')', 1479251518);
+    idName = configuration.domElementIdNames[idNameIdentifier];
+    if (asSelector) {
+        idName = getDomElementSelector('id', [idName]);
+    }
+    return idName;
+}
+/**
+ * @throws 1478806884
+ */
+export function getDomElementDataAttributeValue(dataAttributeValueIdentifier) {
+    assert(!getUtility().isUndefinedOrNull(configuration.domElementDataAttributeValues[dataAttributeValueIdentifier]), 'Invalid parameter "dataAttributeValueIdentifier" (' + dataAttributeValueIdentifier + ')', 1478806884);
+    return configuration.domElementDataAttributeValues[dataAttributeValueIdentifier];
+}
+/**
+ * @throws 1478808035
+ */
+export function getDomElementDataAttribute(dataAttributeIdentifier, selectorIdentifier, additionalSelectorArgs) {
+    assert(!getUtility().isUndefinedOrNull(configuration.domElementDataAttributeNames[dataAttributeIdentifier]), 'Invalid parameter "dataAttributeIdentifier" (' + dataAttributeIdentifier + ')', 1478808035);
+    if (getUtility().isUndefinedOrNull(selectorIdentifier)) {
+        return configuration.domElementDataAttributeNames[dataAttributeIdentifier];
+    }
+    additionalSelectorArgs = additionalSelectorArgs || [];
+    return getDomElementSelector(selectorIdentifier, [configuration.domElementDataAttributeNames[dataAttributeIdentifier]].concat(additionalSelectorArgs));
+}
+/**
+ * Return a string like [data-identifier="someValue"]
+ */
+export function getDomElementDataIdentifierSelector(dataAttributeValueIdentifier) {
+    return getDomElementDataAttribute('identifier', 'bracesWithKeyValue', [getDomElementDataAttributeValue(dataAttributeValueIdentifier)]);
+}
+/**
+ * Returns the template container element matching the given name.
+ * Note: callers typically need the *inner content* of the container, not the
+ * container itself. Use `element.innerHTML` or `element.firstElementChild`
+ * to obtain the actual template markup, analogous to the deprecated
+ * `getTemplate()` + jQuery's `.html()` pattern.
+ */
+export function getTemplateElement(templateName) {
+    if (!getUtility().isUndefinedOrNull(configuration.domElementDataAttributeValues[templateName])) {
+        templateName = getDomElementDataAttributeValue(templateName);
+    }
+    return document.querySelector(getDomElementDataAttribute('template', 'bracesWithKeyValue', [templateName]));
+}
+export function getTemplatePropertyElement(templatePropertyName, templateDomElement) {
+    return templateDomElement.querySelector(getDomElementDataAttribute('templateProperty', 'bracesWithKeyValue', [templatePropertyName]));
+}
+export function bootstrap(_formEditorApp) {
+    formEditorApp = _formEditorApp;
+}

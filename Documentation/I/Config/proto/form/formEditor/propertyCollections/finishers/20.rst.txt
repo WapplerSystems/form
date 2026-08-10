@@ -46,7 +46,7 @@ formEditor.propertyCollections.finishers.20
                        propertyPath: options.recipients
                        propertyValidators:
                          10: NotEmpty
-                       fieldExplanationText: formEditor.elements.Form.finisher.EmailToReceiver.editor.recipients.fieldExplanationText
+                       description: formEditor.elements.Form.finisher.EmailToReceiver.editor.recipients.description
                        isSortable: true
                        enableAddRow: true
                        enableDeleteRow: true
@@ -55,9 +55,11 @@ formEditor.propertyCollections.finishers.20
                          -
                            name: value
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.value.title
+                           enableFormelementSelectionButton: true
                          -
                            name: label
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.label.title
+                           enableFormelementSelectionButton: true
                      500:
                        identifier: senderAddress
                        templateName: Inspector-TextEditor
@@ -89,9 +91,11 @@ formEditor.propertyCollections.finishers.20
                          -
                            name: value
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.value.title
+                           enableFormelementSelectionButton: true
                          -
                            name: label
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.label.title
+                           enableFormelementSelectionButton: true
                      850:
                        identifier: carbonCopyRecipients
                        templateName: Inspector-PropertyGridEditor
@@ -105,9 +109,11 @@ formEditor.propertyCollections.finishers.20
                          -
                            name: value
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.value.title
+                           enableFormelementSelectionButton: true
                          -
                            name: label
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.label.title
+                           enableFormelementSelectionButton: true
                      950:
                        identifier: blindCarbonCopyRecipients
                        templateName: Inspector-PropertyGridEditor
@@ -121,15 +127,17 @@ formEditor.propertyCollections.finishers.20
                          -
                            name: value
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.value.title
+                           enableFormelementSelectionButton: true
                          -
                            name: label
                            title: formEditor.elements.Form.finisher.EmailToSender.editor.recipients.gridColumns.label.title
+                           enableFormelementSelectionButton: true
                      1050:
                        identifier: addHtmlPart
                        templateName: Inspector-CheckboxEditor
                        label: formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.label
                        propertyPath: options.addHtmlPart
-                       fieldExplanationText: formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.fieldExplanationText
+                       description: formEditor.elements.Form.finisher.EmailToReceiver.editor.addHtmlPart.description
                      1100:
                        identifier: attachUploads
                        templateName: Inspector-CheckboxEditor
@@ -149,7 +157,7 @@ formEditor.propertyCollections.finishers.20
                        templateName: Inspector-TextEditor
                        label: formEditor.elements.Form.finisher.EmailToReceiver.editor.title.label
                        propertyPath: options.title
-                       fieldExplanationText: formEditor.elements.Form.finisher.EmailToReceiver.editor.title.fieldExplanationText
+                       description: formEditor.elements.Form.finisher.EmailToReceiver.editor.title.description
                        enableFormelementSelectionButton: true
                        propertyValidators:
                          10: FormElementIdentifierWithinCurlyBracesInclusive

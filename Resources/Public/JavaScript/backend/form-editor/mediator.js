@@ -10,4 +10,595 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import d from"jquery";import*as b from"@typo3/form/backend/form-editor/helper.js";let m=null,g=null;function r(){return m}function e(){return g}function w(){return r().getUtility()}function v(i,t,o){return r().assert(i,t,o)}function c(i){return w().isUndefinedOrNull(i)?b.setConfiguration(e().getConfiguration()):b.setConfiguration(i)}function u(){return r().getCurrentlySelectedFormElement()}function n(){return r().getPublisherSubscriber()}function l(){return r().getRootFormElement()}function f(){window.onbeforeunload=function(i){if(r().getUnsavedContent())return i=i||window.event,i&&(i.returnValue=r().getFormElementDefinition(l(),"modalCloseDialogMessage")),r().getFormElementDefinition(l(),"modalCloseDialogTitle")},n().subscribe("view/ready",()=>{e().onViewReadyBatch()}),n().subscribe("core/applicationState/add",(i,[t,o,s])=>{e().disableButton(d(c().getDomElementDataIdentifierSelector("buttonHeaderRedo"))),s>1&&o<=s?e().enableButton(d(c().getDomElementDataIdentifierSelector("buttonHeaderUndo"))):e().disableButton(d(c().getDomElementDataIdentifierSelector("buttonHeaderUndo")))}),n().subscribe("core/ajax/saveFormDefinition/success",(i,[t])=>{r().setUnsavedContent(!1),e().setPreviewMode(!1),e().showSaveSuccessMessage(),e().showSaveButtonSaveIcon(),r().setFormDefinition(t.formDefinition),e().addStructureRootElementSelection(),r().setCurrentlySelectedFormElement(l()),e().setStructureRootElementTitle(),e().setStageHeadline(),e().renderAbstractStageArea(),e().renewStructure(),e().renderPagination(),e().renderInspectorEditors()}),n().subscribe("core/ajax/saveFormDefinition/error",(i,[t])=>{e().showSaveButtonSaveIcon(),e().showSaveErrorMessage({message:t.message})}),n().subscribe("core/ajax/renderFormDefinitionPage/success",(i,[t,o])=>{e().renderPreviewStageArea(t)}),n().subscribe("core/ajax/error",(i,[t,o,s])=>{t.status!==0&&(e().showErrorFlashMessage(o,s),e().renderPreviewStageArea(t.responseText))}),n().subscribe("view/header/button/save/clicked",()=>{r().validationResultsHasErrors(r().validateFormElementRecursive(l(),!0))?e().showValidationErrorsModal():(e().showSaveButtonSpinnerIcon(),r().saveFormDefinition())}),n().subscribe("view/header/formSettings/clicked",()=>{e().setPreviewMode(!1),e().addStructureRootElementSelection(),r().setCurrentlySelectedFormElement(l()),e().renderAbstractStageArea(),e().renewStructure(),e().renderPagination(),e().showInspectorSidebar(),e().renderInspectorEditors()}),n().subscribe("view/header/button/newPage/clicked",(i,[t])=>{r().isRootFormElementSelected()&&e().selectPageBatch(0),e().showInsertPagesModal(t)}),n().subscribe("view/header/button/close/clicked",()=>{e().showCloseConfirmationModal()}),n().subscribe("view/undoButton/clicked",()=>{e().disableButton(d(c().getDomElementDataIdentifierSelector("buttonHeaderUndo"))),e().disableButton(d(c().getDomElementDataIdentifierSelector("buttonHeaderRedo"))),r().undoApplicationState(),e().getPreviewMode()?r().renderCurrentFormPage():e().renderAbstractStageArea(),r().setUnsavedContent(!0),e().renewStructure(),e().renderPagination(),e().renderInspectorEditors()}),n().subscribe("view/redoButton/clicked",()=>{e().disableButton(d(c().getDomElementDataIdentifierSelector("buttonHeaderUndo"))),e().disableButton(d(c().getDomElementDataIdentifierSelector("buttonHeaderRedo"))),r().redoApplicationState(),e().getPreviewMode()?r().renderCurrentFormPage():e().renderAbstractStageArea(),r().setUnsavedContent(!0),e().renewStructure(),e().renderPagination(),e().renderInspectorEditors()}),n().subscribe("view/stage/element/clicked",(i,[t])=>{u().get("__identifierPath")!==t&&(r().setCurrentlySelectedFormElement(t),e().renewStructure(),e().refreshSelectedElementItemsBatch(),e().addAbstractViewValidationResults(),e().renderInspectorEditors())}),n().subscribe("view/stage/abstract/elementToolbar/button/newElement/clicked",(i,[t,o])=>{r().isRootFormElementSelected()&&e().selectPageBatch(0),e().showInsertElementsModal(t,o)}),n().subscribe("view/stage/abstract/button/newElement/clicked",(i,[t,o])=>{r().isRootFormElementSelected()&&e().selectPageBatch(0),e().showInsertElementsModal(t,o||void 0)}),n().subscribe("view/stage/abstract/dnd/start",(i,[t,o])=>{e().onAbstractViewDndStartBatch(t,o)}),n().subscribe("view/stage/abstract/dnd/stop",(i,[t])=>{r().setCurrentlySelectedFormElement(t),e().renewStructure(),e().setPreviewMode(!1),e().renderAbstractStageArea(!1,!1),e().refreshSelectedElementItemsBatch(),e().addAbstractViewValidationResults(),e().renderInspectorEditors()}),n().subscribe("view/stage/abstract/dnd/change",(i,[t,o,s])=>{e().onAbstractViewDndChangeBatch(t,o,s)}),n().subscribe("view/stage/abstract/dnd/update",(i,[t,o,s,a])=>{e().onAbstractViewDndUpdateBatch(t,o,s,a)}),n().subscribe("view/viewModeButton/abstract/clicked",()=>{e().getPreviewMode()&&(e().setPreviewMode(!1),e().renderAbstractStageArea())}),n().subscribe("view/viewModeButton/preview/clicked",()=>{e().getPreviewMode()||(e().setPreviewMode(!0),r().renderCurrentFormPage())}),n().subscribe("view/paginationPrevious/clicked",()=>{e().selectPageBatch(r().getCurrentlySelectedPageIndex()-1),e().getPreviewMode()?r().renderCurrentFormPage():e().renderAbstractStageArea()}),n().subscribe("view/paginationNext/clicked",()=>{e().selectPageBatch(r().getCurrentlySelectedPageIndex()+1),e().getPreviewMode()?r().renderCurrentFormPage():e().renderAbstractStageArea()}),n().subscribe("view/stage/abstract/render/postProcess",()=>{e().renderUndoRedo(),e().addAbstractViewValidationResults()}),n().subscribe("view/stage/preview/render/postProcess",()=>{e().renderUndoRedo()}),n().subscribe("view/tree/node/clicked",(i,[t])=>{let o;u().get("__identifierPath")!==t&&(o=r().getCurrentlySelectedPageIndex(),r().setCurrentlySelectedFormElement(t),e().setPreviewMode(!1),o!==r().getCurrentlySelectedPageIndex()?e().renderAbstractStageArea():e().renderAbstractStageArea(!1),e().renderPagination(),e().addAbstractViewValidationResults(),e().renderInspectorEditors())}),n().subscribe("view/tree/node/changed",(i,[t,o])=>{const s=r().getFormElementByIdentifierPath(t);s.set("label",o),e().getStructure().setTreeNodeTitle(null,s),u().get("__identifierPath")===t&&e().renderInspectorEditors(t,!1)}),n().subscribe("view/structure/root/selected",()=>{r().isRootFormElementSelected()||(e().addStructureRootElementSelection(),r().setCurrentlySelectedFormElement(l()),e().setPreviewMode(!1),e().renderAbstractStageArea(),e().renewStructure(),e().renderPagination(),e().renderInspectorEditors())}),n().subscribe("view/structure/button/newPage/clicked",(i,[t])=>{r().isRootFormElementSelected()&&e().selectPageBatch(0),e().showInsertPagesModal(t)}),n().subscribe("view/tree/dnd/stop",(i,[t])=>{r().setCurrentlySelectedFormElement(t),e().renewStructure(),e().renderPagination(),e().setPreviewMode(!1),e().renderAbstractStageArea(),e().addAbstractViewValidationResults(),e().renderInspectorEditors()}),n().subscribe("view/tree/dnd/change",(i,[t,o,s])=>{e().onStructureDndChangeBatch(t,o,s)}),n().subscribe("view/tree/dnd/update",(i,[t,o,s,a])=>{e().onStructureDndUpdateBatch(t,o,s,a)}),n().subscribe("view/structure/renew/postProcess",()=>{e().addStructureValidationResults()}),n().subscribe("view/inspector/removeCollectionElement/perform",(i,[t,o,s])=>{e().removePropertyCollectionElement(t,o,s||void 0)}),n().subscribe("view/inspector/collectionElement/new/selected",(i,[t,o])=>{e().createAndAddPropertyCollectionElement(t,o)}),n().subscribe("view/inspector/collectionElement/existing/selected",(i,[t,o])=>{e().renderInspectorCollectionElementEditors(o,t)}),n().subscribe("view/inspector/collectionElements/dnd/update",(i,[t,o,s,a])=>{s?e().movePropertyCollectionElement(t,"before",s,a):o?e().movePropertyCollectionElement(t,"after",o,a):v(!1,"Next element or previous element need to be set.",1477407673)}),n().subscribe("core/formElement/somePropertyChanged",(i,[t,o,s,a])=>{t!=="renderables"&&(!r().isRootFormElementSelected()&&t==="label"?e().getStructure().setTreeNodeTitle():!r().getUtility().isUndefinedOrNull(a)&&l().get("__identifierPath")===a&&(e().setStructureRootElementTitle(),e().setStageHeadline()),e().getPreviewMode()?r().renderCurrentFormPage():e().renderAbstractStageArea(!1,!1),e().addStructureValidationResults()),r().setUnsavedContent(!0)}),n().subscribe("view/formElement/removed",(i,[t])=>{r().setCurrentlySelectedFormElement(t),e().renewStructure(),e().renderAbstractStageArea(),e().renderPagination(),e().renderInspectorEditors()}),n().subscribe("view/formElement/inserted",(i,[t])=>{r().setCurrentlySelectedFormElement(t),e().renewStructure(),e().renderAbstractStageArea(),e().renderPagination(),e().renderInspectorEditors()}),n().subscribe("view/collectionElement/new/added",()=>{e().renderInspectorEditors()}),n().subscribe("view/collectionElement/moved",()=>{e().renderInspectorEditors(void 0,!1)}),n().subscribe("view/collectionElement/removed",()=>{e().renderInspectorEditors(void 0,!1)}),n().subscribe("view/insertElements/perform/bottom",(i,[t])=>{const o=r().getLastTopLevelElementOnCurrentPage();o?!r().getFormElementDefinition(o,"_isTopLevelFormElement")&&r().getFormElementDefinition(o,"_isCompositeFormElement")?e().createAndAddFormElement(t,r().getCurrentlySelectedPage()):e().createAndAddFormElement(t,o):e().createAndAddFormElement(t,r().getCurrentlySelectedPage())}),n().subscribe("view/insertElements/perform/after",(i,[t])=>{let o;o=e().createAndAddFormElement(t,void 0,!0),o=e().moveFormElement(o,"after",r().getCurrentlySelectedFormElement()),n().publish("view/formElement/inserted",[o])}),n().subscribe("view/insertElements/perform/inside",(i,[t])=>{e().createAndAddFormElement(t)}),n().subscribe("view/insertPages/perform",(i,[t])=>{e().createAndAddFormElement(t)}),n().subscribe("view/modal/close/perform",()=>{r().setUnsavedContent(!1),e().closeEditor()}),n().subscribe("view/modal/removeFormElement/perform",(i,[t])=>{e().removeFormElement(t)}),n().subscribe("view/modal/removeCollectionElement/perform",(i,[t,o,s])=>{e().removePropertyCollectionElement(t,o,s)}),n().subscribe("view/modal/validationErrors/element/clicked",(i,[t])=>{let o;u().get("__identifierPath")!==t&&(o=r().getCurrentlySelectedPageIndex(),r().setCurrentlySelectedFormElement(t),e().getPreviewMode()&&e().setPreviewMode(!1),o!==r().getCurrentlySelectedPageIndex()?e().renderAbstractStageArea():e().renderAbstractStageArea(!1),e().renderPagination(),e().renderInspectorEditors())})}function p(i,t){m=i,g=t,b.bootstrap(m),f()}export{p as bootstrap};
+/**
+ * Module: @typo3/form/backend/form-editor/mediator
+ */
+import * as Helper from '@typo3/form/backend/form-editor/helper.js';
+let formEditorApp = null;
+let viewModel = null;
+function getFormEditorApp() {
+    return formEditorApp;
+}
+function getViewModel() {
+    return viewModel;
+}
+function getUtility() {
+    return getFormEditorApp().getUtility();
+}
+function assert(test, message, messageCode) {
+    return getFormEditorApp().assert(test, message, messageCode);
+}
+function getHelper(_configuration) {
+    if (getUtility().isUndefinedOrNull(_configuration)) {
+        return Helper.setConfiguration(getViewModel().getConfiguration());
+    }
+    return Helper.setConfiguration(_configuration);
+}
+function getCurrentlySelectedFormElement() {
+    return getFormEditorApp().getCurrentlySelectedFormElement();
+}
+function getPublisherSubscriber() {
+    return getFormEditorApp().getPublisherSubscriber();
+}
+function getRootFormElement() {
+    return getFormEditorApp().getRootFormElement();
+}
+function subscribeEvents() {
+    /* *********************************************************
+     * Misc
+     * ********************************************************/
+    window.onbeforeunload = function (e) {
+        if (!getFormEditorApp().getUnsavedContent()) {
+            return undefined;
+        }
+        e = e || window.event;
+        if (e) {
+            e.returnValue = getFormEditorApp().getFormElementDefinition(getRootFormElement(), 'modalCloseDialogMessage');
+        }
+        return getFormEditorApp().getFormElementDefinition(getRootFormElement(), 'modalCloseDialogTitle');
+    };
+    /**
+     * @subscribe view/ready
+     */
+    getPublisherSubscriber().subscribe('view/ready', () => {
+        getViewModel().onViewReadyBatch();
+    });
+    /**
+     * @subscribe core/applicationState/add
+     */
+    getPublisherSubscriber().subscribe('core/applicationState/add', (topic, [applicationState, // eslint-disable-line @typescript-eslint/no-unused-vars
+    currentStackPointer, currentStackSize]) => {
+        getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
+        if (currentStackSize > 1 && currentStackPointer <= currentStackSize) {
+            getViewModel().enableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
+        }
+        else {
+            getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
+        }
+    });
+    /* *********************************************************
+     * Ajax
+     * ********************************************************/
+    /**
+     * @subscribe core/ajax/saveFormDefinition/success
+     */
+    getPublisherSubscriber().subscribe('core/ajax/saveFormDefinition/success', (topic, [data]) => {
+        getFormEditorApp().setUnsavedContent(false);
+        getViewModel().setPreviewMode(false);
+        getViewModel().showSaveSuccessMessage();
+        getViewModel().showSaveButtonSaveIcon();
+        getFormEditorApp().setFormDefinition(data.formDefinition);
+        getViewModel().addStructureRootElementSelection();
+        getFormEditorApp().setCurrentlySelectedFormElement(getRootFormElement());
+        getViewModel().setStructureRootElementTitle();
+        getViewModel().setStageHeadline();
+        getViewModel().renderAbstractStageArea();
+        getViewModel().renewStructure();
+        getViewModel().renderPagination();
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe core/ajax/saveFormDefinition/error
+     */
+    getPublisherSubscriber().subscribe('core/ajax/saveFormDefinition/error', (topic, [data]) => {
+        getViewModel().showSaveButtonSaveIcon();
+        getViewModel().showSaveErrorMessage({ message: data.message });
+    });
+    /**
+     * @subscribe core/ajax/renderFormDefinitionPage/success
+     */
+    getPublisherSubscriber().subscribe('core/ajax/renderFormDefinitionPage/success', (topic, [htmldata, pageIndex] // eslint-disable-line @typescript-eslint/no-unused-vars
+    ) => {
+        getViewModel().renderPreviewStageArea(htmldata);
+    });
+    /**
+     * @subscribe core/ajax/saveFormDefinition/error
+     */
+    getPublisherSubscriber().subscribe('core/ajax/error', (topic, [statusText, responseBody]) => {
+        getViewModel().showErrorFlashMessage(statusText, responseBody);
+        getViewModel().renderPreviewStageArea(responseBody);
+    });
+    /* *********************************************************
+     * Header
+     * ********************************************************/
+    /**
+     * @subscribe view/header/button/save/clicked
+     */
+    getPublisherSubscriber().subscribe('view/header/button/save/clicked', () => {
+        if (getFormEditorApp().validationResultsHasErrors(getFormEditorApp().validateFormElementRecursive(getRootFormElement(), true))) {
+            getViewModel().showValidationErrorsModal();
+        }
+        else {
+            getViewModel().showSaveButtonSpinnerIcon();
+            getFormEditorApp().saveFormDefinition();
+        }
+    });
+    /**
+     * @subscribe view/header/formSettings/clicked
+     */
+    getPublisherSubscriber().subscribe('view/header/formSettings/clicked', () => {
+        getViewModel().setPreviewMode(false);
+        getViewModel().addStructureRootElementSelection();
+        getFormEditorApp().setCurrentlySelectedFormElement(getRootFormElement());
+        getViewModel().renderAbstractStageArea();
+        getViewModel().renewStructure();
+        getViewModel().renderPagination();
+        getViewModel().showInspectorSidebar();
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/header/button/newPage/clicked
+     */
+    getPublisherSubscriber().subscribe('view/header/button/newPage/clicked', (topic, [targetEvent]) => {
+        if (getFormEditorApp().isRootFormElementSelected()) {
+            getViewModel().selectPageBatch(0);
+        }
+        getViewModel().showInsertPagesModal(targetEvent);
+    });
+    /**
+     * @subscribe view/header/button/close/clicked
+     */
+    getPublisherSubscriber().subscribe('view/header/button/close/clicked', () => {
+        getViewModel().showCloseConfirmationModal();
+    });
+    /**
+     * @subscribe view/undoButton/clicked
+     */
+    getPublisherSubscriber().subscribe('view/undoButton/clicked', () => {
+        getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
+        getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
+        getFormEditorApp().undoApplicationState();
+        if (getViewModel().getPreviewMode()) {
+            getFormEditorApp().renderCurrentFormPage();
+        }
+        else {
+            getViewModel().renderAbstractStageArea();
+        }
+        getFormEditorApp().setUnsavedContent(true);
+        getViewModel().renewStructure();
+        getViewModel().renderPagination();
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/redoButton/clicked
+     */
+    getPublisherSubscriber().subscribe('view/redoButton/clicked', () => {
+        getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
+        getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
+        getFormEditorApp().redoApplicationState();
+        if (getViewModel().getPreviewMode()) {
+            getFormEditorApp().renderCurrentFormPage();
+        }
+        else {
+            getViewModel().renderAbstractStageArea();
+        }
+        getFormEditorApp().setUnsavedContent(true);
+        getViewModel().renewStructure();
+        getViewModel().renderPagination();
+        getViewModel().renderInspectorEditors();
+    });
+    /* *********************************************************
+     * Stage
+     * ********************************************************/
+    /**
+     * @subscribe view/stage/element/clicked
+     */
+    getPublisherSubscriber().subscribe('view/stage/element/clicked', (topic, [formElementIdentifierPath]) => {
+        if (getViewModel().getPreviewMode()) {
+            return;
+        }
+        if (getCurrentlySelectedFormElement().get('__identifierPath') !== formElementIdentifierPath) {
+            getFormEditorApp().setCurrentlySelectedFormElement(formElementIdentifierPath);
+            getViewModel().selectStructureNode();
+            getViewModel().renewStructure();
+            getViewModel().refreshSelectedElementItemsBatch();
+            getViewModel().addAbstractViewValidationResults();
+            getViewModel().showInspectorSidebar();
+            getViewModel().renderInspectorEditors();
+            getViewModel().focusFirstInspectorInput();
+        }
+    });
+    /**
+     * @subscribe view/stage/abstract/elementToolbar/button/newElement/clicked
+     */
+    getPublisherSubscriber().subscribe('view/stage/abstract/elementToolbar/button/newElement/clicked', (topic, [targetEvent, modalConfiguration]) => {
+        if (getFormEditorApp().isRootFormElementSelected()) {
+            getViewModel().selectPageBatch(0);
+        }
+        getViewModel().showInsertElementsModal(targetEvent, modalConfiguration);
+    });
+    /**
+     * @subscribe view/newElementButton/clicked
+     */
+    getPublisherSubscriber().subscribe('view/stage/abstract/button/newElement/clicked', (topic, [targetEvent, modalConfiguration]) => {
+        if (getFormEditorApp().isRootFormElementSelected()) {
+            getViewModel().selectPageBatch(0);
+        }
+        getViewModel().showInsertElementsModal(targetEvent, modalConfiguration || undefined);
+    });
+    /**
+     * @subscribe view/stage/abstract/dnd/start
+     */
+    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/start', (topic, [draggedFormElementDomElement, draggedFormPlaceholderDomElement]) => {
+        getViewModel().onAbstractViewDndStartBatch(draggedFormElementDomElement, draggedFormPlaceholderDomElement);
+    });
+    /**
+     * @subscribe view/stage/abstract/dnd/stop
+     */
+    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/stop', (topic, [draggedFormElementIdentifierPath]) => {
+        getFormEditorApp().setCurrentlySelectedFormElement(draggedFormElementIdentifierPath);
+        getViewModel().renewStructure();
+        getViewModel().setPreviewMode(false);
+        getViewModel().renderAbstractStageArea();
+        getViewModel().refreshSelectedElementItemsBatch();
+        getViewModel().addAbstractViewValidationResults();
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/stage/abstract/dnd/change
+     */
+    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/change', (topic, [placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement]) => {
+        getViewModel().onAbstractViewDndChangeBatch(placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement);
+    });
+    /**
+     * @subscribe view/stage/abstract/dnd/update
+     */
+    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/update', (topic, [movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath]) => {
+        getViewModel().onAbstractViewDndUpdateBatch(movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath);
+    });
+    /**
+     * @subscribe view/viewModeButton/abstract/clicked
+     */
+    getPublisherSubscriber().subscribe('view/viewModeButton/abstract/clicked', () => {
+        if (getViewModel().getPreviewMode()) {
+            getViewModel().setPreviewMode(false);
+            getViewModel().renderAbstractStageArea();
+        }
+    });
+    /**
+     * @subscribe view/viewModeButton/preview/clicked
+     */
+    getPublisherSubscriber().subscribe('view/viewModeButton/preview/clicked', () => {
+        if (!getViewModel().getPreviewMode()) {
+            getViewModel().setPreviewMode(true);
+            getFormEditorApp().renderCurrentFormPage();
+        }
+    });
+    /**
+     * @subscribe view/paginationPrevious/clicked
+     */
+    getPublisherSubscriber().subscribe('view/paginationPrevious/clicked', () => {
+        getViewModel().selectPageBatch(getFormEditorApp().getCurrentlySelectedPageIndex() - 1);
+        if (getViewModel().getPreviewMode()) {
+            getFormEditorApp().renderCurrentFormPage();
+        }
+        else {
+            getViewModel().renderAbstractStageArea();
+        }
+    });
+    /**
+     * @subscribe view/paginationNext/clicked
+     */
+    getPublisherSubscriber().subscribe('view/paginationNext/clicked', () => {
+        getViewModel().selectPageBatch(getFormEditorApp().getCurrentlySelectedPageIndex() + 1);
+        if (getViewModel().getPreviewMode()) {
+            getFormEditorApp().renderCurrentFormPage();
+        }
+        else {
+            getViewModel().renderAbstractStageArea();
+        }
+    });
+    /**
+     * @subscribe view/stage/abstract/render/postProcess
+     */
+    getPublisherSubscriber().subscribe('view/stage/abstract/render/postProcess', () => {
+        getViewModel().renderUndoRedo();
+        getViewModel().addAbstractViewValidationResults();
+    });
+    /**
+     * @subscribe view/stage/preview/render/postProcess
+     */
+    getPublisherSubscriber().subscribe('view/stage/preview/render/postProcess', () => {
+        getViewModel().renderUndoRedo();
+    });
+    /* *********************************************************
+     * Structure
+     * ********************************************************/
+    /**
+     * @subscribe view/tree/node/clicked
+     */
+    getPublisherSubscriber().subscribe('view/tree/node/clicked', (topic, [formElementIdentifierPath]) => {
+        if (getCurrentlySelectedFormElement().get('__identifierPath') !== formElementIdentifierPath) {
+            getFormEditorApp().setCurrentlySelectedFormElement(formElementIdentifierPath);
+            getViewModel().setPreviewMode(false);
+            getViewModel().renderAbstractStageArea();
+            getViewModel().renderPagination();
+            getViewModel().addAbstractViewValidationResults();
+            getViewModel().showInspectorSidebar();
+            getViewModel().renderInspectorEditors();
+            getViewModel().focusFirstInspectorInput();
+        }
+    });
+    /**
+     * @subscribe view/tree/node/clicked
+     */
+    getPublisherSubscriber().subscribe('view/tree/node/changed', (topic, [formElementIdentifierPath, newLabel]) => {
+        const formElement = getFormEditorApp().getFormElementByIdentifierPath(formElementIdentifierPath);
+        formElement.set('label', newLabel);
+        getViewModel().getStructure().setTreeNodeTitle(null, formElement);
+        if (getCurrentlySelectedFormElement().get('__identifierPath') === formElementIdentifierPath) {
+            getViewModel().renderInspectorEditors(formElementIdentifierPath);
+        }
+    });
+    /**
+     * @subscribe view/structure/root/selected
+     */
+    getPublisherSubscriber().subscribe('view/structure/root/selected', () => {
+        if (!getFormEditorApp().isRootFormElementSelected()) {
+            getViewModel().addStructureRootElementSelection();
+            getFormEditorApp().setCurrentlySelectedFormElement(getRootFormElement());
+            getViewModel().setPreviewMode(false);
+            getViewModel().renderAbstractStageArea();
+            getViewModel().renewStructure();
+            getViewModel().renderPagination();
+            getViewModel().renderInspectorEditors();
+        }
+    });
+    /**
+     * @subscribe view/header/button/newPage/clicked
+     */
+    getPublisherSubscriber().subscribe('view/structure/button/newPage/clicked', (topic, [targetEvent]) => {
+        if (getFormEditorApp().isRootFormElementSelected()) {
+            getViewModel().selectPageBatch(0);
+        }
+        getViewModel().showInsertPagesModal(targetEvent);
+    });
+    /**
+     * @subscribe view/tree/dnd/stop
+     */
+    getPublisherSubscriber().subscribe('view/tree/dnd/stop', (topic, [draggedFormElementIdentifierPath]) => {
+        getFormEditorApp().setCurrentlySelectedFormElement(draggedFormElementIdentifierPath);
+        getViewModel().renewStructure();
+        getViewModel().renderPagination();
+        getViewModel().setPreviewMode(false);
+        getViewModel().renderAbstractStageArea();
+        getViewModel().addAbstractViewValidationResults();
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/tree/dnd/change
+     */
+    getPublisherSubscriber().subscribe('view/tree/dnd/change', (topic, [placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement]) => {
+        getViewModel().onStructureDndChangeBatch(placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement);
+    });
+    /**
+     * @subscribe view/tree/dnd/update
+     */
+    getPublisherSubscriber().subscribe('view/tree/dnd/update', (topic, [movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath]) => {
+        getViewModel().onStructureDndUpdateBatch(movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath);
+    });
+    /**
+     * @subscribe view/structure/renew/postProcess
+     */
+    getPublisherSubscriber().subscribe('view/structure/renew/postProcess', () => {
+        getViewModel().addStructureValidationResults();
+    });
+    /* *********************************************************
+     * Inspector
+     * ********************************************************/
+    /**
+     * @subscribe view/inspector/removeCollectionElement/perform
+     */
+    getPublisherSubscriber().subscribe('view/inspector/removeCollectionElement/perform', (topic, [collectionElementIdentifier, collectionName, formElement]) => {
+        getViewModel().removePropertyCollectionElement(collectionElementIdentifier, collectionName, formElement || undefined);
+    });
+    /**
+     * @subscribe view/inspector/collectionElement/selected
+     */
+    getPublisherSubscriber().subscribe('view/inspector/collectionElement/new/selected', (topic, [collectionElementIdentifier, collectionName,]) => {
+        getViewModel().createAndAddPropertyCollectionElement(collectionElementIdentifier, collectionName);
+    });
+    /**
+     * @subscribe view/inspector/collectionElement/selected
+     */
+    getPublisherSubscriber().subscribe('view/inspector/collectionElement/existing/selected', (topic, [collectionElementIdentifier, collectionName,]) => {
+        getViewModel().renderInspectorCollectionElementEditors(collectionName, collectionElementIdentifier);
+    });
+    /**
+     * @subscribe view/inspector/collectionElements/dnd/update
+     * @throws 1477407673
+     */
+    getPublisherSubscriber().subscribe('view/inspector/collectionElements/dnd/update', (topic, [movedCollectionElementIdentifier, previousCollectionElementIdentifier, nextCollectionElementIdentifier, collectionName]) => {
+        if (nextCollectionElementIdentifier) {
+            getViewModel().movePropertyCollectionElement(movedCollectionElementIdentifier, 'before', nextCollectionElementIdentifier, collectionName);
+        }
+        else if (previousCollectionElementIdentifier) {
+            getViewModel().movePropertyCollectionElement(movedCollectionElementIdentifier, 'after', previousCollectionElementIdentifier, collectionName);
+        }
+        else {
+            assert(false, 'Next element or previous element need to be set.', 1477407673);
+        }
+    });
+    /* *********************************************************
+     * Form element
+     * ********************************************************/
+    /**
+     * @subscribe core/formElement/somePropertyChanged
+     */
+    getPublisherSubscriber().subscribe('core/formElement/somePropertyChanged', (topic, [propertyPath, value, // eslint-disable-line @typescript-eslint/no-unused-vars
+    oldValue, // eslint-disable-line @typescript-eslint/no-unused-vars
+    formElementIdentifierPath]) => {
+        if ('renderables' !== propertyPath) {
+            if (!getFormEditorApp().isRootFormElementSelected() && 'label' === propertyPath) {
+                // setTreeNodeTitle() internally calls renew(), so no additional renewStructure() needed
+                getViewModel().getStructure().setTreeNodeTitle();
+            }
+            else {
+                if (!getFormEditorApp().getUtility().isUndefinedOrNull(formElementIdentifierPath) && getRootFormElement().get('__identifierPath') === formElementIdentifierPath) {
+                    getViewModel().setStructureRootElementTitle();
+                    getViewModel().setStageHeadline();
+                }
+                // Renew the tree for all other property changes (e.g. renderingOptions.enabled)
+                getViewModel().renewStructure();
+            }
+            if (getViewModel().getPreviewMode()) {
+                getFormEditorApp().renderCurrentFormPage();
+            }
+            else {
+                getViewModel().renderAbstractStageArea();
+            }
+            getViewModel().addStructureValidationResults();
+        }
+        getFormEditorApp().setUnsavedContent(true);
+    });
+    /**
+     * @subscribe view/formElement/removed
+     */
+    getPublisherSubscriber().subscribe('view/formElement/removed', (topic, [parentFormElement]) => {
+        getFormEditorApp().setCurrentlySelectedFormElement(parentFormElement);
+        getViewModel().renewStructure();
+        getViewModel().renderAbstractStageArea();
+        getViewModel().renderPagination();
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/formElement/inserted
+     */
+    getPublisherSubscriber().subscribe('view/formElement/inserted', (topic, [newFormElement]) => {
+        getFormEditorApp().setCurrentlySelectedFormElement(newFormElement);
+        getViewModel().renewStructure();
+        getViewModel().renderAbstractStageArea();
+        getViewModel().renderPagination();
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/collectionElement/new/added
+     */
+    getPublisherSubscriber().subscribe('view/collectionElement/new/added', () => {
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/collectionElement/moved
+     */
+    getPublisherSubscriber().subscribe('view/collectionElement/moved', () => {
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/collectionElement/removed
+     */
+    getPublisherSubscriber().subscribe('view/collectionElement/removed', () => {
+        getViewModel().renderInspectorEditors();
+    });
+    /**
+     * @subscribe view/insertElements/perform/bottom
+     */
+    getPublisherSubscriber().subscribe('view/insertElements/perform/bottom', (topic, [formElementType]) => {
+        const lastRenderable = getFormEditorApp().getLastTopLevelElementOnCurrentPage();
+        if (!lastRenderable) {
+            getViewModel().createAndAddFormElement(formElementType, getFormEditorApp().getCurrentlySelectedPage());
+        }
+        else {
+            if (!getFormEditorApp().getFormElementDefinition(lastRenderable, '_isTopLevelFormElement')
+                && getFormEditorApp().getFormElementDefinition(lastRenderable, '_isCompositeFormElement')) {
+                getViewModel().createAndAddFormElement(formElementType, getFormEditorApp().getCurrentlySelectedPage());
+            }
+            else {
+                getViewModel().createAndAddFormElement(formElementType, lastRenderable);
+            }
+        }
+    });
+    /**
+     * @publish view/formElement/inserted
+     * @subscribe view/insertElements/perform/before
+     */
+    getPublisherSubscriber().subscribe('view/insertElements/perform/before', (topic, [formElementType]) => {
+        let newFormElement;
+        newFormElement = getViewModel().createAndAddFormElement(formElementType, undefined, true);
+        newFormElement = getViewModel().moveFormElement(newFormElement, 'before', getFormEditorApp().getCurrentlySelectedFormElement());
+        getPublisherSubscriber().publish('view/formElement/inserted', [newFormElement]);
+    });
+    /**
+     * @publish view/formElement/inserted
+     * @subscribe view/insertElements/perform/after
+     */
+    getPublisherSubscriber().subscribe('view/insertElements/perform/after', (topic, [formElementType]) => {
+        let newFormElement;
+        newFormElement = getViewModel().createAndAddFormElement(formElementType, undefined, true);
+        newFormElement = getViewModel().moveFormElement(newFormElement, 'after', getFormEditorApp().getCurrentlySelectedFormElement());
+        getPublisherSubscriber().publish('view/formElement/inserted', [newFormElement]);
+    });
+    /**
+     * @subscribe view/insertElements/perform/inside
+     */
+    getPublisherSubscriber().subscribe('view/insertElements/perform/inside', (topic, [formElementType]) => {
+        getViewModel().createAndAddFormElement(formElementType);
+    });
+    /**
+     * @subscribe view/insertElements/perform/after
+     */
+    getPublisherSubscriber().subscribe('view/insertPages/perform', (topic, [formElementType]) => {
+        getViewModel().createAndAddFormElement(formElementType);
+    });
+    /* *********************************************************
+     * Modals
+     * ********************************************************/
+    /**
+     * @subscribe view/modal/close/perform
+     */
+    getPublisherSubscriber().subscribe('view/modal/close/perform', () => {
+        getFormEditorApp().setUnsavedContent(false);
+        getViewModel().closeEditor();
+    });
+    /**
+     * @subscribe view/modal/removeFormElement/perform
+     */
+    getPublisherSubscriber().subscribe('view/modal/removeFormElement/perform', (topic, [formElement]) => {
+        getViewModel().removeFormElement(formElement);
+    });
+    /**
+     * @subscribe view/modal/removeCollectionElement/perform
+     */
+    getPublisherSubscriber().subscribe('view/modal/removeCollectionElement/perform', (topic, [collectionElementIdentifier, collectionName, formElement,]) => {
+        getViewModel().removePropertyCollectionElement(collectionElementIdentifier, collectionName, formElement);
+    });
+    /**
+     * @subscribe view/modal/validationErrors/element/clicked
+     */
+    getPublisherSubscriber().subscribe('view/modal/validationErrors/element/clicked', (topic, [formElementIdentifierPath]) => {
+        if (getCurrentlySelectedFormElement().get('__identifierPath') !== formElementIdentifierPath) {
+            getFormEditorApp().setCurrentlySelectedFormElement(formElementIdentifierPath);
+            if (getViewModel().getPreviewMode()) {
+                getViewModel().setPreviewMode(false);
+            }
+            getViewModel().renderAbstractStageArea();
+            getViewModel().renderPagination();
+            getViewModel().renderInspectorEditors();
+        }
+    });
+}
+export function bootstrap(_formEditorApp, _viewModel) {
+    formEditorApp = _formEditorApp;
+    viewModel = _viewModel;
+    Helper.bootstrap(formEditorApp);
+    subscribeEvents();
+}

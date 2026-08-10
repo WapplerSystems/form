@@ -25,6 +25,9 @@ use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFieldViewHelper;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
+use TYPO3Fluid\Fluid\Core\Parser\ParsingState;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
+use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperNodeInitializedEventInterface;
 
 /**
  * Displays two select-boxes for hour and minute selection.
@@ -32,19 +35,19 @@ use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
  * Scope: frontend
  *
  * @see https://docs.typo3.org/permalink/t3viewhelper:typo3-form-form-timepicker
+ * @deprecated since v14, will be removed in v15.
  */
-final class TimePickerViewHelper extends AbstractFormFieldViewHelper
+final class TimePickerViewHelper extends AbstractFormFieldViewHelper implements ViewHelperNodeInitializedEventInterface
 {
     /**
      * @var string
      */
     protected $tagName = 'select';
 
-    protected PropertyMapper $propertyMapper;
-
-    public function injectPropertyMapper(PropertyMapper $propertyMapper)
-    {
-        $this->propertyMapper = $propertyMapper;
+    public function __construct(
+        private readonly PropertyMapper $propertyMapper,
+    ) {
+        parent::__construct();
     }
 
     public function initializeArguments(): void
@@ -77,7 +80,7 @@ final class TimePickerViewHelper extends AbstractFormFieldViewHelper
         return $content;
     }
 
-    protected function getSelectedDate(): ?\DateTime
+    private function getSelectedDate(): ?\DateTime
     {
         /** @var FormRuntime $formRuntime */
         $formRuntime = $this->renderingContext
@@ -102,7 +105,7 @@ final class TimePickerViewHelper extends AbstractFormFieldViewHelper
         return null;
     }
 
-    protected function buildHourSelector(?\DateTime $date = null): string
+    private function buildHourSelector(?\DateTime $date = null): string
     {
         $value = $date !== null ? $date->format('H') : null;
         $hourSelector = clone $this->tag;
@@ -117,7 +120,7 @@ final class TimePickerViewHelper extends AbstractFormFieldViewHelper
         return $hourSelector->render();
     }
 
-    protected function buildMinuteSelector(?\DateTime $date = null): string
+    private function buildMinuteSelector(?\DateTime $date = null): string
     {
         $value = $date !== null ? $date->format('i') : null;
         $minuteSelector = clone $this->tag;
@@ -133,5 +136,13 @@ final class TimePickerViewHelper extends AbstractFormFieldViewHelper
         }
         $minuteSelector->setContent($options);
         return $minuteSelector->render();
+    }
+
+    public static function nodeInitializedEvent(ViewHelperNode $node, array $arguments, ParsingState $parsingState): void
+    {
+        trigger_error(
+            'The TimePickerViewHelper is deprecated since TYPO3 v14 and will be removed in v15.',
+            E_USER_DEPRECATED
+        );
     }
 }

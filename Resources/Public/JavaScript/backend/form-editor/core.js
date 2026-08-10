@@ -10,4 +10,1461 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import s from"jquery";function o(g,e,t){if(typeof g=="function"&&(g=g()!==!1),!g)throw e=e||"Assertion failed",t&&(e=e+" ("+t+")"),typeof Error<"u"?new Error(e):e}class R{assert(e,t,i){o(e,t,i)}isUndefinedOrNull(e){return e==null}isNonEmptyArray(e){return Array.isArray(e)&&e.length>0}isNonEmptyString(e){return typeof e=="string"&&e.length>0}canBeInterpretedAsInteger(e){if(typeof e=="number")return!0;if(typeof e!="string")return!1;const t=e;return(t*1).toString()===t.toString()&&t.toString().indexOf(".")===-1}buildPropertyPath(e,t,i,r,n){let a="";return n=!!n,this.isNonEmptyString(t)||this.isNonEmptyString(i)?(o(this.isNonEmptyString(t),'Invalid parameter "collectionElementIdentifier"',1475412569),o(this.isNonEmptyString(i),'Invalid parameter "collectionName"',1475412570),a=i+"."+S.getIndexFromPropertyCollectionElementByIdentifier(t,i,r)):a="",this.isUndefinedOrNull(e)||(o(this.isNonEmptyString(e),'Invalid parameter "propertyPath"',1475415988),this.isNonEmptyString(a)?a=a+"."+e:a=e),n||o(this.isNonEmptyString(a),"The property path could not be resolved",1475663210),a}convertToSimpleObject(e){o(s.type(e)==="object",'Invalid parameter "formElement"',1475377782);const t={},i="getObjectData"in e&&typeof e.getObjectData=="function"?e.getObjectData():e,r=i.renderables;delete i.renderables;for(const[n,a]of Object.entries(i))n.match(/^__/)||(a!==null&&typeof a=="object"&&!Array.isArray(a)?t[n]=this.convertToSimpleObject(a):s.type(a)!=="function"&&s.type(a)!=="undefined"&&(t[n]=a));if(s.type(r)==="array"){t.renderables=[];for(let n=0,a=r.length;n<a;++n)t.renderables.push(this.convertToSimpleObject(r[n]))}return t}}class V{constructor(){this.validators={}}addValidatorIdentifiersToFormElementProperty(e,t,i,r,n,a){o(s.type(e)==="object",'Invalid parameter "formElement"',1475661025),o(s.type(t)==="array",'Invalid parameter "validators"',1475661026),o(s.type(t)==="array",'Invalid parameter "validators"',1479238074);const l=e.get("__identifierPath");i=d.buildPropertyPath(i,r,n,e);const p=u().getCurrentState("propertyValidationServiceRegisteredValidators");d.isUndefinedOrNull(p[l])&&(p[l]={}),d.isUndefinedOrNull(p[l][i])&&(p[l][i]={validators:[],configuration:a});for(const c of t)p[l][i].validators.indexOf(c)===-1&&p[l][i].validators.push(c);u().setCurrentState("propertyValidationServiceRegisteredValidators",p)}removeValidatorIdentifiersFromFormElementProperty(e,t){o(s.type(e)==="object",'Invalid parameter "formElement"',1475700618),o(d.isNonEmptyString(t),'Invalid parameter "propertyPath"',1475706896);const i=e.get("__identifierPath"),r={},n=u().getCurrentState("propertyValidationServiceRegisteredValidators");if(i in n)for(const a of Object.keys(n[i]||{}))a.indexOf(t)>-1||(r[a]=n[i][a]);n[i]=r,u().setCurrentState("propertyValidationServiceRegisteredValidators",n)}removeAllValidatorIdentifiersFromFormElement(e){o(s.type(e)==="object",'Invalid parameter "formElement"',1475668189);const t={},i=u().getCurrentState("propertyValidationServiceRegisteredValidators");for(const r of Object.keys(i||{}))r===e.get("__identifierPath")||r.indexOf(e.get("__identifierPath")+"/")>-1||(t[r]=i[r]);u().setCurrentState("propertyValidationServiceRegisteredValidators",t)}addValidator(e,t){o(d.isNonEmptyString(e),'Invalid parameter "validatorIdentifier"',1475669143),o(s.type(t)==="function",'Invalid parameter "func"',1475669144),o(s.type(this.validators[e])!=="function",'The validator "'+e+'" is already registered',1475669145),this.validators[e]=t}validateFormElementProperty(e,t){let i;o(s.type(e)==="object",'Invalid parameter "formElement"',1475676517),o(d.isNonEmptyString(t),'Invalid parameter "propertyPath"',1475676518);const r=e.get("__identifierPath"),n=[],a=u().getCurrentState("propertyValidationServiceRegisteredValidators");if(i={propertyValidatorsMode:"AND"},!d.isUndefinedOrNull(a[r])&&s.type(a[r][t])==="object"&&s.type(a[r][t].validators)==="array"){i=a[r][t].configuration;for(let l=0,p=a[r][t].validators.length;l<p;++l){const c=a[r][t].validators[l];if(s.type(this.validators[c])!=="function")continue;const f=this.validators[c](e,t);d.isNonEmptyString(f)&&n.push(f)}}return n.length>0&&i.propertyValidatorsMode==="OR"&&n.length!==a[r][t].validators.length?[]:n}validateFormElement(e){o(s.type(e)==="object",'Invalid parameter "formElement"',1475749668);const t=e.get("__identifierPath"),i=[],r=u().getCurrentState("propertyValidationServiceRegisteredValidators");if(!d.isUndefinedOrNull(r[t]))for(const n of Object.keys(r[t]))i.push({propertyPath:n,validationResults:this.validateFormElementProperty(e,n)});return i}validationResultsHasErrors(e){o(s.type(e)==="array",'Invalid parameter "validationResults"',1478613477);for(let t=0,i=e.length;t<i;++t)for(let r=0,n=e[t].validationResults.length;r<n;++r)if(e[t].validationResults[r].validationResults&&e[t].validationResults[r].validationResults.length>0)return!0;return!1}validateFormElementRecursive(e,t,i){if(o(s.type(e)==="object",'Invalid parameter "formElement"',1475756764),t=!!t,i=i||[],i.push({formElementIdentifierPath:e.get("__identifierPath"),validationResults:this.validateFormElement(e)}),t&&this.validationResultsHasErrors(i))return i;const r=e.get("renderables");if(s.type(r)==="array"){for(let n=0,a=r.length;n<a;++n)if(this.validateFormElementRecursive(r[n],t,i),t&&this.validationResultsHasErrors(i))return i}return i}addValidatorIdentifiersFromFormElementPropertyCollections(e){o(s.type(e)==="object",'Invalid parameter "formElement"',1475707334);const t=S.getFormEditorDefinition("formElements",e.get("type"));if(!d.isUndefinedOrNull(t.propertyCollections)){for(const i of Object.keys(t.propertyCollections))if(Array.isArray(t.propertyCollections[i])){for(let r=0,n=t.propertyCollections[i].length;r<n;++r)if(!(s.type(t.propertyCollections[i][r].editors)!=="array"||S.getIndexFromPropertyCollectionElementByIdentifier(t.propertyCollections[i][r].identifier,i,e)===-1))for(let a=0,l=t.propertyCollections[i][r].editors.length;a<l;++a){if(s.type(t.propertyCollections[i][r].editors[a].propertyValidators)!=="array")continue;const p={propertyValidatorsMode:"AND"};!d.isUndefinedOrNull(t.propertyCollections[i][r].editors[a].propertyValidatorsMode)&&t.propertyCollections[i][r].editors[a].propertyValidatorsMode==="OR"&&(p.propertyValidatorsMode="OR"),this.addValidatorIdentifiersToFormElementProperty(e,t.propertyCollections[i][r].editors[a].propertyValidators,t.propertyCollections[i][r].editors[a].propertyPath,t.propertyCollections[i][r].identifier,i,p)}}}}}class P{constructor(){this.topics={},this.subscriberUid=-1}publish(e,t){if(o(d.isNonEmptyString(e),'Invalid parameter "topic"',1475358066),d.isUndefinedOrNull(this.topics[e]))return;const i=this.topics[e];for(const r of i)r.func(e,t)}subscribe(e,t){o(d.isNonEmptyString(e),'Invalid parameter "topic"',1475358067),o(s.type(t)==="function",'Invalid parameter "func"',1475411986),d.isUndefinedOrNull(this.topics[e])&&(this.topics[e]=[]);const i=(++this.subscriberUid).toString();return this.topics[e].push({token:i,func:t}),i}unsubscribe(e){o(d.isNonEmptyString(e),'Invalid parameter "token"',1475358068);for(const t of Object.values(this.topics)){const i=t;for(let r=0,n=i.length;r<n;++r)if(i[r].token===e)return i.splice(r,1),e}return null}}function E(g,e,t,i){if(o(s.type(g)==="object",'Invalid parameter "modelToExtend"',1475358069),o(s.type(e)==="object"||s.type(e)==="array",'Invalid parameter "modelExtension"',1475358070),i=!!i,t=t||"",s.isEmptyObject(e))o(t!=="","Empty path is not allowed",1474640022),g.on(t,"core/formElement/somePropertyChanged"),g.set(t,e,i);else{const r={...e};for(const n of Object.keys(r)){const a=t===""?n:t+"."+n;g.on(a,"core/formElement/somePropertyChanged"),r[n]!==null&&(typeof r[n]=="object"||Array.isArray(r[n]))?E(g,r[n],a,i):t==="properties.options"?g.set(t,e,i):g.set(a,r[n],i)}}}class N{constructor(){this.objectData={},this.publisherTopics={}}get(e){let t,i;for(o(d.isNonEmptyString(e),'Invalid parameter "key"',1475361755),i=this.objectData;e.indexOf(".")>0;){if(t=e.slice(0,e.indexOf(".")),e=e.slice(t.length+1),!(t in i))return;i=i[t]}return i[e]}set(e,t,i){let r,n,a,l,p;o(d.isNonEmptyString(e),'Invalid parameter "key"',1475361756),i=!!i;const c=this.get(e);for(p=this.objectData,r=e;r.indexOf(".")>0;)n=r.slice(0,r.indexOf(".")),r=r.slice(n.length+1),s.isNumeric(n)&&(n=parseInt(n,10)),l=r.indexOf("."),a=l===-1?r:r.slice(0,l),s.type(p[n])==="undefined"?s.isNumeric(a)?p[n]=[]:p[n]={}:s.isNumeric(a)===!1&&s.type(p[n])==="array"&&(p[n]={...p[n]}),p=p[n];if(p[r]=t,!d.isUndefinedOrNull(this.publisherTopics[e])&&!i)for(let f=0,m=this.publisherTopics[e].length;f<m;++f)b.publish(this.publisherTopics[e][f],[e,t,c,this.objectData.__identifierPath])}unset(e,t){let i,r,n;o(d.isNonEmptyString(e),'Invalid parameter "key"',1489321637),t=!!t;const a=this.get(e);if(e.indexOf(".")>0?(r=e.split("."),n=r.pop(),r=r.join("."),i=this.get(r),typeof i<"u"&&delete i[n]):o(!1,"remove toplevel properties is not supported",1489319753),!d.isUndefinedOrNull(this.publisherTopics[e])&&!t)for(let l=0,p=this.publisherTopics[e].length;l<p;++l)b.publish(this.publisherTopics[e][l],[e,void 0,a,this.objectData.__identifierPath])}on(e,t){o(d.isNonEmptyString(e),'Invalid parameter "key"',1475361757),o(d.isNonEmptyString(t),'Invalid parameter "topicName"',1475361758),s.type(this.publisherTopics[e])!=="array"&&(this.publisherTopics[e]=[]),this.publisherTopics[e].indexOf(t)===-1&&this.publisherTopics[e].push(t)}off(e,t){o(d.isNonEmptyString(e),'Invalid parameter "key"',1475361759),o(d.isNonEmptyString(t),'Invalid parameter "topicName"',1475361760),s.type(this.publisherTopics[e])==="array"&&(this.publisherTopics[e]=this.publisherTopics[e].filter(i=>t!==i))}getObjectData(){return s.extend(!0,{},this.objectData)}toString(){const e=this.getObjectData(),{renderables:t,__parentRenderable:i,...r}=e,n=t||null;let a=null;d.isUndefinedOrNull(i)||(a=i.getObjectData().__identifierPath+" (filtered)");const l=r;if(a!==null&&(l.__parentRenderable=a),n!==null&&Array.isArray(n)){const p=[];for(let c=0,f=n.length;c<f;++c){const m=n[c];p.push(JSON.parse(m.toString()))}l.renderables=p}return JSON.stringify(l,null,2)}clone(){const e=this.getObjectData(),t=e.renderables||null;delete e.renderables,delete e.__parentRenderable,e.renderables=t?!0:null;const i=new N;if(E(i,e,"",!0),t!==null&&Array.isArray(t)){const r=[];for(let n=0,a=t.length;n<a;++n){let l=t[n];l=l.clone(),l.set("__parentRenderable",i,!0),r.push(l)}i.set("renderables",r,!0)}return i}}function U(g){g=g||{};const e=new N;return E(e,g,"",!0),e}class T{setFormEditorDefinitions(e){o(s.type(e)==="object",'Invalid parameter "formEditorDefinitions"',1475364394);for(const t of Object.keys(e)){const i=t;if(!(e[i]!==null&&typeof e[i]!="object"))for(const r of Object.keys(e[i]))(e[i][r]===null||typeof e[i][r]!="object")&&(e[i][r]={})}this.formEditorDefinitions=e}getFormEditorDefinition(e,t){return o(d.isNonEmptyString(e),'Invalid parameter "definitionName"',1475364952),o(d.isNonEmptyString(t),'Invalid parameter "subject"',1475364953),s.extend(!0,{},this.formEditorDefinitions[e][t])}getRootFormElement(){return u().getCurrentState("formDefinition")}addFormElement(e,t,i,r){let n,a,l;o(s.type(e)==="object",'Invalid parameter "formElement"',1475436224),o(s.type(t)==="object",'Invalid parameter "referenceFormElement"',1475364956),d.isUndefinedOrNull(r)&&(r=!0),r=!!r,i=!!i;const p=this.getFormEditorDefinition("formElements",e.get("type")),c=this.getFormEditorDefinition("formElements",t.get("type"));if(!p._isTopLevelFormElement&&c._isCompositeFormElement?(s.type(t.get("renderables"))!=="array"&&t.set("renderables",[],r),e.set("__parentRenderable",t,r),e.set("__identifierPath",t.get("__identifierPath")+"/"+e.get("identifier"),r),t.get("renderables").push(e)):(t.get("__identifierPath")===u().getCurrentState("formDefinition").get("__identifierPath")?(l=t.get("renderables"),t=l[l.length-1]):p._isTopLevelFormElement&&!c._isTopLevelFormElement?t=this.findEnclosingCompositeFormElementWhichIsOnTopLevel(t):p._isCompositeFormElement&&(n=this.findEnclosingCompositeFormElementWhichIsNotOnTopLevel(t),n&&(t=n)),e.set("__parentRenderable",t.get("__parentRenderable"),r),e.set("__identifierPath",t.get("__parentRenderable").get("__identifierPath")+"/"+e.get("identifier"),r),a=t.get("__parentRenderable").get("renderables"),a.splice(a.indexOf(t)+1,0,e)),i&&s.type(p.editors)==="array")for(let f=0,m=p.editors.length;f<m;++f){if(s.type(p.editors[f].propertyValidators)!=="array")continue;const C={propertyValidatorsMode:"AND"};!d.isUndefinedOrNull(p.editors[f].propertyValidatorsMode)&&p.editors[f].propertyValidatorsMode==="OR"&&(C.propertyValidatorsMode="OR"),F.addValidatorIdentifiersToFormElementProperty(e,p.editors[f].propertyValidators,p.editors[f].propertyPath,void 0,void 0,C)}return e}removeFormElement(e,t,i){d.isUndefinedOrNull(i)&&(i=!0),i=!!i,t=!!t,o(s.type(e)==="object",'Invalid parameter "formElement"',1475364957),o(s.type(e.get("__parentRenderable"))==="object","Removing the root element is not allowed",1472553024);const r=e.get("__parentRenderable").get("renderables");r.splice(r.indexOf(e),1),e.get("__parentRenderable").set("renderables",r,i),t&&F.removeAllValidatorIdentifiersFromFormElement(e)}moveFormElement(e,t,i,r){let n,a,l;o(s.type(e)==="object",'Invalid parameter "formElementToMove"',1475364958),o(t==="after"||t==="before"||t==="inside",'Invalid position "'+t+'"',1475364959),o(s.type(i)==="object",'Invalid parameter "referenceFormElement"',1475364960),d.isUndefinedOrNull(r)&&(r=!0),r=!!r;const p=this.getFormEditorDefinition("formElements",e.get("type")),c=this.getFormEditorDefinition("formElements",i.get("type"));this.removeFormElement(e,!1);const f=(m,C)=>{o(s.type(m)==="object",'Invalid parameter "formElement"',1475364961),o(d.isNonEmptyString(C),'Invalid parameter "pathPrefix"',1475364962);const v=m.get("__identifierPath"),y=C+"/"+m.get("identifier"),I=u().getCurrentState("propertyValidationServiceRegisteredValidators");d.isUndefinedOrNull(I[v])||(I[y]=I[v],delete I[v]),u().setCurrentState("propertyValidationServiceRegisteredValidators",I),m.set("__identifierPath",y,r);const _=m.get("renderables");if(s.type(_)==="array")for(let j=0,D=_.length;j<D;++j)f(_[j],m.get("__identifierPath"))};return t==="inside"?(o(!p._isTopLevelFormElement,"This move is not allowed",1476993731),o(c._isCompositeFormElement,"This move is not allowed",1476993732),e.set("__parentRenderable",i,r),f(e,i.get("__identifierPath")),a=i.get("renderables"),d.isUndefinedOrNull(a)&&(a=[]),a.splice(0,0,e),i.set("renderables",a,r)):p._isTopLevelFormElement&&c._isTopLevelFormElement?(n=i.get("__parentRenderable").get("renderables"),l=n.indexOf(i),t==="after"?n.splice(l+1,0,e):n.splice(l,0,e),i.get("__parentRenderable").set("renderables",n,r)):(e.get("__parentRenderable").get("identifier")===i.get("__parentRenderable").get("identifier")?(n=i.get("__parentRenderable").get("renderables"),l=n.indexOf(i)):(e.set("__parentRenderable",i.get("__parentRenderable"),r),f(e,i.get("__parentRenderable").get("__identifierPath")),n=i.get("__parentRenderable").get("renderables"),l=n.indexOf(i)),t==="after"?n.splice(l+1,0,e):n.splice(l,0,e),i.get("__parentRenderable").set("renderables",n,r)),e}getIndexForEnclosingCompositeFormElementWhichIsOnTopLevelForFormElement(e){let t;o(s.type(e)==="object",'Invalid parameter "formElement"',1475364963);const i=this.getFormEditorDefinition("formElements",e.get("type"));return i._isTopLevelFormElement&&i._isCompositeFormElement?t=e:e.get("__identifierPath")===u().getCurrentState("formDefinition").get("__identifierPath")?t=u().getCurrentState("formDefinition").get("renderables")[0]:t=this.findEnclosingCompositeFormElementWhichIsOnTopLevel(e),t.get("__parentRenderable").get("renderables").indexOf(t)}findEnclosingCompositeFormElementWhichIsOnTopLevel(e){let t;for(o(s.type(e)==="object",'Invalid parameter "formElement"',1475364964),o(s.type(e.get("__parentRenderable"))==="object","The root element is never encloused by anything",1472556223),t=this.getFormEditorDefinition("formElements",e.get("type"));!t._isTopLevelFormElement;)e=e.get("__parentRenderable"),t=this.getFormEditorDefinition("formElements",e.get("type"));return e}findEnclosingGridRowFormElement(e){let t;for(o(s.type(e)==="object",'Invalid parameter "formElement"',1490520271),t=this.getFormEditorDefinition("formElements",e.get("type"));!t._isGridRowFormElement;){if(t._isTopLevelFormElement)return null;e=e.get("__parentRenderable"),t=this.getFormEditorDefinition("formElements",e.get("type"))}return t._isTopLevelFormElement?null:e}findEnclosingCompositeFormElementWhichIsNotOnTopLevel(e){let t;for(o(s.type(e)==="object",'Invalid parameter "formElement"',1475364965),t=this.getFormEditorDefinition("formElements",e.get("type"));!t._isCompositeFormElement;){if(t._isTopLevelFormElement)return null;e=e.get("__parentRenderable"),t=this.getFormEditorDefinition("formElements",e.get("type"))}return t._isTopLevelFormElement?null:e}getNonCompositeNonToplevelFormElements(){const e=[],t=i=>{o(s.type(i)==="object",'Invalid parameter "formElement"',1475364961);const r=this.getFormEditorDefinition("formElements",i.get("type"));!r._isTopLevelFormElement&&!r._isCompositeFormElement&&e.push(i);const n=i.get("renderables");if(s.type(n)==="array")for(let a=0,l=n.length;a<l;++a)t(n[a])};return t(this.getRootFormElement()),e}isFormElementIdentifierUsed(e){let t;o(d.isNonEmptyString(e),'Invalid parameter "identifier"',1475364966);const i=r=>{let n;if(r.get("identifier")===e&&(t=!0),!t&&(n=r.get("renderables"),s.type(n)==="array"))for(let a=0,l=n.length;a<l&&(i(n[a]),!t);++a);};return i(u().getCurrentState("formDefinition")),t}getNextFreeFormElementIdentifier(e){let t;o(d.isNonEmptyString(e),'Invalid parameter "formElementType"',1475373676);const i=e.toLowerCase().replace(/[^a-z0-9]/g,"-")+"-";for(t=1;this.isFormElementIdentifierUsed(i+t);)t++;return i+t}findFormElementByIdentifierPath(e){let t,i;o(d.isNonEmptyString(e),'Invalid parameter "identifierPath"',1475373677);let r=u().getCurrentState("formDefinition");const n=e.split("/"),a=n.length;for(let l=0;l<a;++l){const p=n[l];if(l===0||l===a){o(p===r.get("identifier"),'"'+p+'" does not exist in path "'+e+'"',1472424333);continue}if(i=r.get("renderables"),Array.isArray(i)){t=null;for(let c=0,f=i.length;c<f;++c)if(p===i[c].get("identifier")){t=i[c];break}o(s.type(t)!=="null",'Could not find form element "'+p+'" in path "'+e+'"',1472424334),r=t}else o(!1,"No form elements found",1472424330)}return r}findFormElement(e){return typeof e=="object"&&(e=e.get("__identifierPath")),this.findFormElementByIdentifierPath(e)}findCollectionElementByIdentifierPath(e,t){o(d.isNonEmptyString(e),'Invalid parameter "collectionElementIdentifier"',1475375281),o(s.type(t)==="array",'Invalid parameter "collection"',1475375282);for(let i=0,r=t.length;i<r;++i)if(t[i].identifier===e)return t[i]}getIndexFromPropertyCollectionElementByIdentifier(e,t,i){o(d.isNonEmptyString(e),'Invalid parameter "collectionElementIdentifier"',1475375283),o(s.type(i)==="object",'Invalid parameter "formElement"',1475375284),o(d.isNonEmptyString(t),'Invalid parameter "collectionName"',1475375285);const r=i.get(t);if(s.type(r)==="array"){for(let n=0,a=r.length;n<a;++n)if(r[n].identifier===e)return n}return-1}addPropertyCollectionElement(e,t,i,r,n){let a,l;o(s.type(e)==="object",'Invalid parameter "collectionElementToAdd"',1475375686),o(s.type(i)==="object",'Invalid parameter "formElement"',1475375687),o(d.isNonEmptyString(t),'Invalid parameter "collectionName"',1475375688),d.isUndefinedOrNull(n)&&(n=!0),n=!!n,a=i.get(t),s.type(a)!=="array"&&(E(i,[],t,!0),a=i.get(t)),d.isUndefinedOrNull(r)?l=0:(l=this.getIndexFromPropertyCollectionElementByIdentifier(r,t,i)+1,o(-1<l,"Could not find collection element "+r+" within collection "+t,1477413154)),a.splice(l,0,e),i.set(t,a,!0),F.removeValidatorIdentifiersFromFormElementProperty(i,t);for(let p=0,c=a.length;p<c;++p)E(i,a[p],t+"."+p,!0);return i.set(t,a,!0),F.addValidatorIdentifiersFromFormElementPropertyCollections(i),i.set(t,a,n),i}removePropertyCollectionElementByIdentifier(e,t,i,r){o(d.isNonEmptyString(t),'Invalid parameter "collectionElementIdentifier"',1475375689),o(s.type(e)==="object",'Invalid parameter "formElement"',1475375690),o(d.isNonEmptyString(i),'Invalid parameter "collectionName"',1475375691);const n=e.get(i);o(s.type(n)==="array",'The collection "'+i+'" does not exist',1475375692),d.isUndefinedOrNull(r)&&(r=!0),r=!!r,F.removeValidatorIdentifiersFromFormElementProperty(e,i);const a=this.getIndexFromPropertyCollectionElementByIdentifier(t,i,e);n.splice(a,1),e.set(i,n,r),F.addValidatorIdentifiersFromFormElementPropertyCollections(e)}movePropertyCollectionElement(e,t,i,r,n,a){let l;o(t==="after"||t==="before",'Invalid position "'+t+'"',1477404485),o(s.type(i)==="string",'Invalid parameter "referenceCollectionElementIdentifier"',1477404486),o(s.type(n)==="object",'Invalid parameter "formElement"',1477404488);const p=n.get(r);o(s.type(p)==="array",'The collection "'+r+'" does not exist',1477404490);const c=this.findCollectionElementByIdentifierPath(e,p);o(s.type(c)==="object",'Invalid parameter "collectionElementToMove"',1477404484),this.removePropertyCollectionElementByIdentifier(n,e,r);const f=this.getIndexFromPropertyCollectionElementByIdentifier(i,r,n);o(-1<f,"Could not find collection element "+i+" within collection "+r,1477404489),t==="before"&&(l=p[f-1],d.isUndefinedOrNull(l)?i=void 0:i=l.identifier),this.addPropertyCollectionElement(c,r,n,i,a)}}class k{createFormElement(e,t,i,r,n){let a;o(s.type(e)==="object",'Invalid parameter "configuration"',1475375693),o(d.isNonEmptyString(e.identifier),'"identifier" must not be empty',1475436040),o(d.isNonEmptyString(e.type),'"type" must not be empty',1475604050),r=!!r,d.isUndefinedOrNull(n)&&(n=!0),n=!!n;const l=S.getFormEditorDefinition("formElements",e.type),p=e.renderables;delete e.renderables;const c={},f=l.predefinedDefaults||{};for(const y of Object.keys(e))d.isUndefinedOrNull(S.formEditorDefinitions[y])||(f[y]=f[y]||{},c[y]=s.extend(f[y]||{},e[y]),delete f[y],delete e[y]);t=t||"";const m=t===""?e.identifier:t+"/"+e.identifier,C={...f,...e,renderables:p?!0:null,__parentRenderable:null,__identifierPath:m},v=U(C);v.set("__parentRenderable",i||null,n);for(const[y,I]of Object.entries(c)){let _=0;for(const j of Object.values(I)){let D;const w=this.createPropertyCollectionElement(j.identifier,j,y);_>0&&(D=c[y][_-1].identifier),S.addPropertyCollectionElement(w,y,v,D,!0),++_}}if(Array.isArray(l.editors))for(const y of l.editors)y.propertyPath&&v.on(y.propertyPath,"core/formElement/somePropertyChanged");if(r&&s.type(l.editors)==="array")for(let y=0,I=l.editors.length;y<I;++y){if(s.type(l.editors[y].propertyValidators)!=="array")continue;const _={propertyValidatorsMode:"AND"};!d.isUndefinedOrNull(l.editors[y].propertyValidatorsMode)&&l.editors[y].propertyValidatorsMode==="OR"&&(_.propertyValidatorsMode="OR"),F.addValidatorIdentifiersToFormElementProperty(v,l.editors[y].propertyValidators,l.editors[y].propertyPath,void 0,void 0,_)}if(s.type(p)==="array"){a=[];for(let y=0,I=p.length;y<I;++y)a.push(this.createFormElement(p[y],m,v,r,n));v.set("renderables",a,n)}return v}createPropertyCollectionElement(e,t,i){let r;o(d.isNonEmptyString(e),'Invalid parameter "collectionElementIdentifier"',1475377160),o(s.type(t)==="object",'Invalid parameter "collectionElementConfiguration"',1475377161),o(d.isNonEmptyString(i),'Invalid parameter "collectionName"',1475377162),t.identifier=e;const n=S.getFormEditorDefinition(i,e);return"predefinedDefaults"in n&&n.predefinedDefaults?r=n.predefinedDefaults:r={},s.extend(r,t)}}class O{constructor(){this.endpoints={},this.prototypeName=null,this.persistenceIdentifier=null}setEndpoints(e){o(s.type(e)==="object",'Invalid parameter "endpoints"',1475377488),this.endpoints=e}setPrototypeName(e){o(d.isNonEmptyString(e),'Invalid parameter "prototypeName"',1475928095),this.prototypeName=e}setPersistenceIdentifier(e){o(d.isNonEmptyString(e),'Invalid parameter "persistenceIdentifier"',1475377489),this.persistenceIdentifier=e}saveFormDefinition(){o(d.isNonEmptyString(this.endpoints.saveForm),'The endpoint "saveForm" is not configured',1475520918),h.saveForm&&h.saveForm.abort(),h.saveForm=s.post(this.endpoints.saveForm,{formPersistenceIdentifier:this.persistenceIdentifier,formDefinition:JSON.stringify(d.convertToSimpleObject(u().getCurrentState("formDefinition")))},(e,t,i)=>{h.saveForm===i&&(h.saveForm=null,e.status==="success"?b.publish("core/ajax/saveFormDefinition/success",[e]):b.publish("core/ajax/saveFormDefinition/error",[e]))}),h.saveForm.fail((e,t,i)=>{b.publish("core/ajax/error",[e,t,i])})}renderFormDefinitionPage(e){o(s.isNumeric(e),'Invalid parameter "pageIndex"',1475377781),o(d.isNonEmptyString(this.endpoints.formPageRenderer),'The endpoint "formPageRenderer" is not configured',1473447677),h.renderFormDefinitionPage&&h.renderFormDefinitionPage.abort(),h.renderFormDefinitionPage=s.post(this.endpoints.formPageRenderer,{formDefinition:JSON.stringify(d.convertToSimpleObject(u().getCurrentState("formDefinition"))),pageIndex:e,prototypeName:this.prototypeName,formPersistenceIdentifier:this.persistenceIdentifier},(t,i,r)=>{h.renderFormDefinitionPage===r&&(h.renderFormDefinitionPage=null,b.publish("core/ajax/renderFormDefinitionPage/success",[t,e]))}),h.renderFormDefinitionPage.fail((t,i,r)=>{b.publish("core/ajax/error",[t,i,r])})}}class x{constructor(){this.stackSize=10,this.stackPointer=0,this.stack=[]}add(e,t){o(s.type(e)==="object",'Invalid parameter "applicationState"',1477847415),t=!!t,s.extend(e,{propertyValidationServiceRegisteredValidators:s.extend(!0,{},this.getCurrentState("propertyValidationServiceRegisteredValidators"))}),this.stack.splice(0,0,e),this.stack.length>this.stackSize&&this.stack.splice(this.stackSize-1,this.stack.length-this.stackSize),t||b.publish("core/applicationState/add",[e,this.getCurrentStackPointer(),this.getCurrentStackSize()])}addAndReset(e,t){o(s.type(e)==="object",'Invalid parameter "applicationState"',1477872641),this.stackPointer>0&&this.stack.splice(0,this.stackPointer),this.stackPointer=0,this.add(e,!0),t||b.publish("core/applicationState/add",[this.getCurrentState(),this.getCurrentStackPointer(),this.getCurrentStackSize()])}getCurrentState(e){if(e===void 0)return this.stack[this.stackPointer]||void 0;if(o(e==="formDefinition"||e==="currentlySelectedPageIndex"||e==="currentlySelectedFormElementIdentifierPath"||e==="propertyValidationServiceRegisteredValidators",'Invalid parameter "type"',1477932754),s.type(this.stack[this.stackPointer])!=="undefined")return this.stack[this.stackPointer][e]}setCurrentState(e,t){o(e==="formDefinition"||e==="currentlySelectedPageIndex"||e==="currentlySelectedFormElementIdentifierPath"||e==="propertyValidationServiceRegisteredValidators",'Invalid parameter "type"',1477934111),this.stack[this.stackPointer][e]=t}setMaximalStackSize(e){o(s.type(e)==="number",'Invalid parameter "size"',1477846933),this.stackSize=e}getMaximalStackSize(){return this.stackSize}getCurrentStackSize(){return this.stack.length}getCurrentStackPointer(){return this.stackPointer}setCurrentStackPointer(e){o(s.type(e)==="number",'Invalid parameter "size"',1477852138),e<0?this.stackPointer=0:e>this.stack.length-1?this.stackPointer=this.stack.length-1:this.stackPointer=e}decrementCurrentStackPointer(){this.setCurrentStackPointer(--this.stackPointer)}incrementCurrentStackPointer(){this.setCurrentStackPointer(++this.stackPointer)}}function A(g){return o(d.isNonEmptyString(g),'Invalid parameter "ajaxRequestIdentifier"',1475358064),h[g]||null}const d=new R,L=new O,h={},F=new V,B=new x,b=new P,S=new T,z=new k;function W(){return d}function M(){return L}function J(){return F}function u(){return B}function H(){return b}function q(){return z}function G(){return S}export{x as ApplicationStateStack,O as DataBackend,k as Factory,N as Model,V as PropertyValidationService,P as PublisherSubscriber,T as Repository,R as Utility,o as assert,u as getApplicationStateStack,M as getDataBackend,q as getFactory,J as getPropertyValidationService,H as getPublisherSubscriber,G as getRepository,A as getRunningAjaxRequest,W as getUtility};
+/**
+ * Module: @typo3/form/backend/form-editor/core
+ */
+import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
+import { AjaxResponse } from '@typo3/core/ajax/ajax-response.js';
+import { cloneDeep } from 'lodash-es';
+export function assert(test, message, messageCode) {
+    if (typeof test === 'function') {
+        test = (test() !== false);
+    }
+    if (!test) {
+        message = message || 'Assertion failed';
+        if (messageCode) {
+            message = message + ' (' + messageCode + ')';
+        }
+        if ('undefined' !== typeof Error) {
+            throw new Error(message);
+        }
+        throw message;
+    }
+}
+export class Utility {
+    assert(test, message, messageCode) {
+        assert(test, message, messageCode);
+    }
+    isUndefinedOrNull(value) {
+        return value === undefined || value === null;
+    }
+    isNonEmptyArray(value) {
+        return Array.isArray(value) && value.length > 0;
+    }
+    isNonEmptyString(value) {
+        return typeof value === 'string' && value.length > 0;
+    }
+    canBeInterpretedAsInteger(value) {
+        if (typeof value === 'number') {
+            return true;
+        }
+        if (typeof value !== 'string') {
+            return false;
+        }
+        const v = value;
+        return (v * 1).toString() === v.toString() && v.toString().indexOf('.') === -1;
+    }
+    /**
+     * @throws 1475412569
+     * @throws 1475412570
+     * @throws 1475415988
+     * @throws 1475663210
+     */
+    buildPropertyPath(propertyPath, collectionElementIdentifier, collectionName, formElement, allowEmptyReturnValue) {
+        let newPropertyPath = '';
+        allowEmptyReturnValue = !!allowEmptyReturnValue;
+        if (this.isNonEmptyString(collectionElementIdentifier) || this.isNonEmptyString(collectionName)) {
+            assert(this.isNonEmptyString(collectionElementIdentifier), 'Invalid parameter "collectionElementIdentifier"', 1475412569);
+            assert(this.isNonEmptyString(collectionName), 'Invalid parameter "collectionName"', 1475412570);
+            newPropertyPath = collectionName + '.' + repository.getIndexFromPropertyCollectionElementByIdentifier(collectionElementIdentifier, collectionName, formElement);
+        }
+        else {
+            newPropertyPath = '';
+        }
+        if (!this.isUndefinedOrNull(propertyPath)) {
+            assert(this.isNonEmptyString(propertyPath), 'Invalid parameter "propertyPath"', 1475415988);
+            if (this.isNonEmptyString(newPropertyPath)) {
+                newPropertyPath = newPropertyPath + '.' + propertyPath;
+            }
+            else {
+                newPropertyPath = propertyPath;
+            }
+        }
+        if (!allowEmptyReturnValue) {
+            assert(this.isNonEmptyString(newPropertyPath), 'The property path could not be resolved', 1475663210);
+        }
+        return newPropertyPath;
+    }
+    /**
+     * @throws 1475377782
+     */
+    convertToSimpleObject(formElement) {
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475377782);
+        const simpleObject = {};
+        const objectData = ('getObjectData' in formElement && typeof formElement.getObjectData === 'function') ? formElement.getObjectData() : formElement;
+        const childFormElements = objectData.renderables;
+        delete objectData.renderables;
+        for (const [key, value] of Object.entries(objectData)) {
+            if (key.match(/^__/)) {
+                continue;
+            }
+            if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+                simpleObject[key] = this.convertToSimpleObject(value);
+            }
+            else if (typeof value !== 'function' && typeof value !== 'undefined') {
+                simpleObject[key] = value;
+            }
+        }
+        if (Array.isArray(childFormElements)) {
+            simpleObject.renderables = [];
+            for (let i = 0, len = childFormElements.length; i < len; ++i) {
+                simpleObject.renderables.push(this.convertToSimpleObject(childFormElements[i]));
+            }
+        }
+        return simpleObject;
+    }
+}
+export class PropertyValidationService {
+    constructor() {
+        this.validators = {};
+    }
+    /**
+     * @throws 1475661025
+     * @throws 1475661026
+     * @throws 1479238074
+     */
+    addValidatorIdentifiersToFormElementProperty(formElement, validators, propertyPath, collectionElementIdentifier, collectionName, configuration) {
+        assert(Array.isArray(validators), 'Invalid parameter "validators"', 1475661026);
+        assert(Array.isArray(validators), 'Invalid parameter "validators"', 1479238074);
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475661025);
+        const formElementIdentifierPath = formElement.get('__identifierPath');
+        propertyPath = utility.buildPropertyPath(propertyPath, collectionElementIdentifier, collectionName, formElement);
+        const propertyValidationServiceRegisteredValidators = getApplicationStateStack().getCurrentState('propertyValidationServiceRegisteredValidators');
+        if (utility.isUndefinedOrNull(propertyValidationServiceRegisteredValidators[formElementIdentifierPath])) {
+            propertyValidationServiceRegisteredValidators[formElementIdentifierPath] = {};
+        }
+        if (utility.isUndefinedOrNull(propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath])) {
+            propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath] = {
+                validators: [],
+                configuration: configuration
+            };
+        }
+        for (const validator of validators) {
+            if (propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath].validators.indexOf(validator) === -1) {
+                propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath].validators.push(validator);
+            }
+        }
+        getApplicationStateStack().setCurrentState('propertyValidationServiceRegisteredValidators', propertyValidationServiceRegisteredValidators);
+    }
+    /**
+     * @throws 1475700618
+     * @throws 1475706896
+     */
+    removeValidatorIdentifiersFromFormElementProperty(formElement, propertyPath) {
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475700618);
+        assert(utility.isNonEmptyString(propertyPath), 'Invalid parameter "propertyPath"', 1475706896);
+        const formElementIdentifierPath = formElement.get('__identifierPath');
+        const registeredValidators = {};
+        const propertyValidationServiceRegisteredValidators = getApplicationStateStack().getCurrentState('propertyValidationServiceRegisteredValidators');
+        if (formElementIdentifierPath in propertyValidationServiceRegisteredValidators) {
+            for (const registeredPropertyPath of Object.keys(propertyValidationServiceRegisteredValidators[formElementIdentifierPath] || {})) {
+                if (registeredPropertyPath.indexOf(propertyPath) > -1) {
+                    continue;
+                }
+                registeredValidators[registeredPropertyPath] = propertyValidationServiceRegisteredValidators[formElementIdentifierPath][registeredPropertyPath];
+            }
+        }
+        propertyValidationServiceRegisteredValidators[formElementIdentifierPath] = registeredValidators;
+        getApplicationStateStack().setCurrentState('propertyValidationServiceRegisteredValidators', propertyValidationServiceRegisteredValidators);
+    }
+    /**
+     * @throws 1475668189
+     */
+    removeAllValidatorIdentifiersFromFormElement(formElement) {
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475668189);
+        const registeredValidators = {};
+        const propertyValidationServiceRegisteredValidators = getApplicationStateStack().getCurrentState('propertyValidationServiceRegisteredValidators');
+        for (const formElementIdentifierPath of Object.keys(propertyValidationServiceRegisteredValidators || {})) {
+            if (formElementIdentifierPath === formElement.get('__identifierPath')
+                || formElementIdentifierPath.indexOf(formElement.get('__identifierPath') + '/') > -1) {
+                continue;
+            }
+            registeredValidators[formElementIdentifierPath] = propertyValidationServiceRegisteredValidators[formElementIdentifierPath];
+        }
+        getApplicationStateStack().setCurrentState('propertyValidationServiceRegisteredValidators', registeredValidators);
+    }
+    /**
+     * @throws 1475669143
+     * @throws 1475669144
+     * @throws 1475669145
+     */
+    addValidator(validatorIdentifier, func) {
+        assert(utility.isNonEmptyString(validatorIdentifier), 'Invalid parameter "validatorIdentifier"', 1475669143);
+        assert(typeof func === 'function', 'Invalid parameter "func"', 1475669144);
+        assert(typeof this.validators[validatorIdentifier] !== 'function', 'The validator "' + validatorIdentifier + '" is already registered', 1475669145);
+        this.validators[validatorIdentifier] = func;
+    }
+    /**
+     * @throws 1475676517
+     * @throws 1475676518
+     */
+    validateFormElementProperty(formElement, propertyPath) {
+        let configuration;
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475676517);
+        assert(utility.isNonEmptyString(propertyPath), 'Invalid parameter "propertyPath"', 1475676518);
+        const formElementIdentifierPath = formElement.get('__identifierPath');
+        const validationResults = [];
+        const propertyValidationServiceRegisteredValidators = getApplicationStateStack().getCurrentState('propertyValidationServiceRegisteredValidators');
+        configuration = {
+            propertyValidatorsMode: 'AND'
+        };
+        if (!utility.isUndefinedOrNull(propertyValidationServiceRegisteredValidators[formElementIdentifierPath])
+            && typeof propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath] === 'object' && propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath] !== null && !Array.isArray(propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath])
+            && Array.isArray(propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath].validators)) {
+            configuration = propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath].configuration;
+            for (let i = 0, len = propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath].validators.length; i < len; ++i) {
+                const validatorIdentifier = propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath].validators[i];
+                if (typeof this.validators[validatorIdentifier] !== 'function') {
+                    continue;
+                }
+                const validationResult = this.validators[validatorIdentifier](formElement, propertyPath);
+                if (utility.isNonEmptyString(validationResult)) {
+                    validationResults.push(validationResult);
+                }
+            }
+        }
+        if (validationResults.length > 0
+            && configuration.propertyValidatorsMode === 'OR'
+            && validationResults.length !== propertyValidationServiceRegisteredValidators[formElementIdentifierPath][propertyPath].validators.length) {
+            return [];
+        }
+        return validationResults;
+    }
+    /**
+     * @throws 1475749668
+     */
+    validateFormElement(formElement) {
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475749668);
+        const formElementIdentifierPath = formElement.get('__identifierPath');
+        const validationResults = [];
+        const propertyValidationServiceRegisteredValidators = getApplicationStateStack().getCurrentState('propertyValidationServiceRegisteredValidators');
+        if (!utility.isUndefinedOrNull(propertyValidationServiceRegisteredValidators[formElementIdentifierPath])) {
+            for (const registeredPropertyPath of Object.keys(propertyValidationServiceRegisteredValidators[formElementIdentifierPath])) {
+                validationResults.push({
+                    propertyPath: registeredPropertyPath,
+                    validationResults: this.validateFormElementProperty(formElement, registeredPropertyPath)
+                });
+            }
+        }
+        return validationResults;
+    }
+    /**
+     * @throws 1478613477
+     */
+    validationResultsHasErrors(validationResults) {
+        assert(Array.isArray(validationResults), 'Invalid parameter "validationResults"', 1478613477);
+        for (let i = 0, len = validationResults.length; i < len; ++i) {
+            for (let j = 0, len2 = validationResults[i].validationResults.length; j < len2; ++j) {
+                if (validationResults[i].validationResults[j].validationResults
+                    && validationResults[i].validationResults[j].validationResults.length > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /**
+     * @throws 1475749668
+     */
+    validateFormElementRecursive(formElement, returnAfterFirstMatch, validationResults) {
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475756764);
+        returnAfterFirstMatch = !!returnAfterFirstMatch;
+        validationResults = validationResults || [];
+        validationResults.push({
+            formElementIdentifierPath: formElement.get('__identifierPath'),
+            validationResults: this.validateFormElement(formElement)
+        });
+        if (returnAfterFirstMatch && this.validationResultsHasErrors(validationResults)) {
+            return validationResults;
+        }
+        const formElements = formElement.get('renderables');
+        if (Array.isArray(formElements)) {
+            for (let i = 0, len = formElements.length; i < len; ++i) {
+                this.validateFormElementRecursive(formElements[i], returnAfterFirstMatch, validationResults);
+                if (returnAfterFirstMatch && this.validationResultsHasErrors(validationResults)) {
+                    return validationResults;
+                }
+            }
+        }
+        return validationResults;
+    }
+    /**
+     * @throws 1475707334
+     */
+    addValidatorIdentifiersFromFormElementPropertyCollections(formElement) {
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475707334);
+        const formElementTypeDefinition = repository.getFormEditorDefinition('formElements', formElement.get('type'));
+        if (!utility.isUndefinedOrNull(formElementTypeDefinition.propertyCollections)) {
+            for (const collectionName of Object.keys(formElementTypeDefinition.propertyCollections)) {
+                if (!Array.isArray(formElementTypeDefinition.propertyCollections[collectionName])) {
+                    continue;
+                }
+                for (let i = 0, len1 = formElementTypeDefinition.propertyCollections[collectionName].length; i < len1; ++i) {
+                    if (!Array.isArray(formElementTypeDefinition.propertyCollections[collectionName][i].editors)
+                        || repository.getIndexFromPropertyCollectionElementByIdentifier(formElementTypeDefinition.propertyCollections[collectionName][i].identifier, collectionName, formElement) === -1) {
+                        continue;
+                    }
+                    for (let j = 0, len2 = formElementTypeDefinition.propertyCollections[collectionName][i].editors.length; j < len2; ++j) {
+                        if (!Array.isArray(formElementTypeDefinition.propertyCollections[collectionName][i].editors[j].propertyValidators)) {
+                            continue;
+                        }
+                        const propertyValidatorConfiguration = {
+                            propertyValidatorsMode: 'AND'
+                        };
+                        if (!utility.isUndefinedOrNull(formElementTypeDefinition.propertyCollections[collectionName][i].editors[j].propertyValidatorsMode)
+                            && formElementTypeDefinition.propertyCollections[collectionName][i].editors[j].propertyValidatorsMode === 'OR') {
+                            propertyValidatorConfiguration.propertyValidatorsMode = 'OR';
+                        }
+                        this.addValidatorIdentifiersToFormElementProperty(formElement, formElementTypeDefinition.propertyCollections[collectionName][i].editors[j].propertyValidators, formElementTypeDefinition.propertyCollections[collectionName][i].editors[j].propertyPath, formElementTypeDefinition.propertyCollections[collectionName][i].identifier, collectionName, propertyValidatorConfiguration);
+                    }
+                }
+            }
+        }
+    }
+}
+/**
+ * Implements the "Publish/Subscribe Pattern"
+ * @credits Addy Osmani https://addyosmani.com/resources/essentialjsdesignpatterns/book/#highlighter_634280
+ */
+export class PublisherSubscriber {
+    constructor() {
+        this.topics = {};
+        this.subscriberUid = -1;
+    }
+    /**
+     * @throws 1475358066
+     */
+    publish(topic, args) {
+        assert(utility.isNonEmptyString(topic), 'Invalid parameter "topic"', 1475358066);
+        if (utility.isUndefinedOrNull(this.topics[topic])) {
+            return;
+        }
+        const topicFunctions = this.topics[topic];
+        for (const entry of topicFunctions) {
+            entry.func(topic, args);
+        }
+    }
+    /**
+     * @throws 1475358067
+     */
+    subscribe(topic, func) {
+        assert(utility.isNonEmptyString(topic), 'Invalid parameter "topic"', 1475358067);
+        assert(typeof func === 'function', 'Invalid parameter "func"', 1475411986);
+        if (utility.isUndefinedOrNull(this.topics[topic])) {
+            this.topics[topic] = [];
+        }
+        const token = (++this.subscriberUid).toString();
+        this.topics[topic].push({
+            token: token,
+            //func: func as PublisherSubscriberFunction<U, U>
+            func: func
+            //func: func as F
+        });
+        return token;
+    }
+    /**
+     * @throws 1475358068
+     */
+    unsubscribe(token) {
+        assert(utility.isNonEmptyString(token), 'Invalid parameter "token"', 1475358068);
+        for (const tmp of Object.values(this.topics)) {
+            const entries = tmp;
+            for (let i = 0, len = entries.length; i < len; ++i) {
+                if (entries[i].token === token) {
+                    entries.splice(i, 1);
+                    return token;
+                }
+            }
+        }
+        return null;
+    }
+}
+/**
+ * @throws 1474640022
+ * @throws 1475358069
+ * @throws 1475358070
+ * @publish core/formElement/somePropertyChanged
+ */
+function extendModel(modelToExtend, modelExtension, pathPrefix, disablePublishersOnSet) {
+    assert(typeof modelToExtend === 'object' && modelToExtend !== null && !Array.isArray(modelToExtend), 'Invalid parameter "modelToExtend"', 1475358069);
+    assert(typeof modelExtension === 'object' && modelExtension !== null, 'Invalid parameter "modelExtension"', 1475358070);
+    disablePublishersOnSet = !!disablePublishersOnSet;
+    pathPrefix = pathPrefix || '';
+    if (typeof modelExtension === 'object' && Object.keys(modelExtension).length === 0) {
+        assert('' !== pathPrefix, 'Empty path is not allowed', 1474640022);
+        modelToExtend.on(pathPrefix, 'core/formElement/somePropertyChanged');
+        modelToExtend.set(pathPrefix, modelExtension, disablePublishersOnSet);
+    }
+    else {
+        const _modelExtension = { ...modelExtension };
+        for (const key of Object.keys(_modelExtension)) {
+            const path = (pathPrefix === '') ? key : pathPrefix + '.' + key;
+            modelToExtend.on(path, 'core/formElement/somePropertyChanged');
+            if (_modelExtension[key] !== null && (typeof (_modelExtension[key]) === 'object' || Array.isArray(_modelExtension[key]))) {
+                extendModel(modelToExtend, _modelExtension[key], path, disablePublishersOnSet);
+            }
+            else if (pathPrefix === 'properties.options') {
+                modelToExtend.set(pathPrefix, modelExtension, disablePublishersOnSet);
+            }
+            else {
+                modelToExtend.set(path, _modelExtension[key], disablePublishersOnSet);
+            }
+        }
+    }
+}
+export class Model {
+    constructor() {
+        this.objectData = {};
+        this.publisherTopics = {};
+    }
+    /**
+     * @throws 1475361755
+     */
+    get(key) {
+        let firstPartOfPath;
+        let obj;
+        assert(utility.isNonEmptyString(key), 'Invalid parameter "key"', 1475361755);
+        obj = this.objectData;
+        while (key.indexOf('.') > 0) {
+            firstPartOfPath = key.slice(0, key.indexOf('.'));
+            key = key.slice(firstPartOfPath.length + 1);
+            if (!(firstPartOfPath in obj)) {
+                return undefined;
+            }
+            obj = obj[firstPartOfPath];
+        }
+        return obj[key];
+    }
+    /**
+     * @throws 1475361756
+     * @publish mixed
+     */
+    set(key, value, disablePublishersOnSet) {
+        let path;
+        let firstPartOfPath;
+        let nextPartOfPath;
+        let index;
+        let obj;
+        assert(utility.isNonEmptyString(key), 'Invalid parameter "key"', 1475361756);
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        const oldValue = this.get(key);
+        obj = this.objectData;
+        path = key;
+        while (path.indexOf('.') > 0) {
+            firstPartOfPath = path.slice(0, path.indexOf('.'));
+            path = path.slice(firstPartOfPath.length + 1);
+            if (!isNaN(Number(firstPartOfPath))) {
+                firstPartOfPath = parseInt(firstPartOfPath, 10);
+            }
+            index = path.indexOf('.');
+            nextPartOfPath = index === -1 ? path : path.slice(0, index);
+            // initialize objects case they are undefined by looking up the type
+            // of the next path segment, the target type is guessed(!), thus e.g.
+            // "key" results in having an object, "123" results in having an array
+            if (typeof obj[firstPartOfPath] === 'undefined') {
+                if (!isNaN(Number(nextPartOfPath))) {
+                    obj[firstPartOfPath] = [];
+                }
+                else {
+                    obj[firstPartOfPath] = {};
+                }
+                // in case the previous guess was wrong, the initialized array
+                // is converted to an object when a non-numeric path segment is found
+            }
+            else if (isNaN(Number(nextPartOfPath)) && Array.isArray(obj[firstPartOfPath])) {
+                obj[firstPartOfPath] = { ...obj[firstPartOfPath] };
+            }
+            obj = obj[firstPartOfPath];
+        }
+        obj[path] = value;
+        if (!utility.isUndefinedOrNull(this.publisherTopics[key]) && !disablePublishersOnSet) {
+            for (let i = 0, len = this.publisherTopics[key].length; i < len; ++i) {
+                publisherSubscriber.publish(this.publisherTopics[key][i], [key, value, oldValue, this.objectData.__identifierPath]);
+            }
+        }
+    }
+    /**
+     * @throws 1489321637
+     * @throws 1489319753
+     * @publish mixed
+     */
+    unset(key, disablePublishersOnSet) {
+        let parentPropertyData, parentPropertyPath, propertyToRemove;
+        assert(utility.isNonEmptyString(key), 'Invalid parameter "key"', 1489321637);
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        const oldValue = this.get(key);
+        if (key.indexOf('.') > 0) {
+            parentPropertyPath = key.split('.');
+            propertyToRemove = parentPropertyPath.pop();
+            parentPropertyPath = parentPropertyPath.join('.');
+            parentPropertyData = this.get(parentPropertyPath);
+            if (typeof parentPropertyData !== 'undefined') {
+                delete parentPropertyData[propertyToRemove];
+            }
+        }
+        else {
+            assert(false, 'remove toplevel properties is not supported', 1489319753);
+        }
+        if (!utility.isUndefinedOrNull(this.publisherTopics[key]) && !disablePublishersOnSet) {
+            for (let i = 0, len = this.publisherTopics[key].length; i < len; ++i) {
+                publisherSubscriber.publish(this.publisherTopics[key][i], [key, undefined, oldValue, this.objectData.__identifierPath]);
+            }
+        }
+    }
+    /**
+     * @throws 1475361757
+     * @throws 1475361758
+     */
+    on(key, topicName) {
+        assert(utility.isNonEmptyString(key), 'Invalid parameter "key"', 1475361757);
+        assert(utility.isNonEmptyString(topicName), 'Invalid parameter "topicName"', 1475361758);
+        if (!Array.isArray(this.publisherTopics[key])) {
+            this.publisherTopics[key] = [];
+        }
+        if (this.publisherTopics[key].indexOf(topicName) === -1) {
+            this.publisherTopics[key].push(topicName);
+        }
+    }
+    /**
+     * @throws 1475361759
+     * @throws 1475361760
+     */
+    off(key, topicName) {
+        assert(utility.isNonEmptyString(key), 'Invalid parameter "key"', 1475361759);
+        assert(utility.isNonEmptyString(topicName), 'Invalid parameter "topicName"', 1475361760);
+        if (Array.isArray(this.publisherTopics[key])) {
+            this.publisherTopics[key] = this.publisherTopics[key].filter((currentTopicName) => topicName !== currentTopicName);
+        }
+    }
+    getObjectData() {
+        // Return dereferenced object
+        return cloneDeep(this.objectData);
+    }
+    toString() {
+        const objectData = this.getObjectData();
+        const { renderables, __parentRenderable, ...restObjectData } = objectData;
+        const childFormElements = renderables || null;
+        let parentRenderable = null;
+        if (!utility.isUndefinedOrNull(__parentRenderable)) {
+            parentRenderable = __parentRenderable.getObjectData().__identifierPath + ' (filtered)';
+        }
+        const myObjectData = restObjectData;
+        if (parentRenderable !== null) {
+            myObjectData.__parentRenderable = parentRenderable;
+        }
+        if (childFormElements !== null && Array.isArray(childFormElements)) {
+            const renderables = [];
+            for (let i = 0, len = childFormElements.length; i < len; ++i) {
+                const childFormElement = childFormElements[i];
+                renderables.push(JSON.parse(childFormElement.toString()));
+            }
+            myObjectData.renderables = renderables;
+        }
+        return JSON.stringify(myObjectData, null, 2);
+    }
+    clone() {
+        const objectData = this.getObjectData();
+        const childFormElements = objectData.renderables || null;
+        delete objectData.renderables;
+        delete objectData.__parentRenderable;
+        objectData.renderables = (childFormElements) ? true : null;
+        const newModel = new Model();
+        extendModel(newModel, objectData, '', true);
+        if (null !== childFormElements && Array.isArray(childFormElements)) {
+            const newRenderables = [];
+            for (let i = 0, len = childFormElements.length; i < len; ++i) {
+                let childFormElement = childFormElements[i];
+                childFormElement = childFormElement.clone();
+                childFormElement.set('__parentRenderable', newModel, true);
+                newRenderables.push(childFormElement);
+            }
+            newModel.set('renderables', newRenderables, true);
+        }
+        return newModel;
+    }
+}
+function createModel(modelExtension) {
+    modelExtension = modelExtension || {};
+    const newModel = new Model();
+    extendModel(newModel, modelExtension, '', true);
+    return newModel;
+}
+export class Repository {
+    /**
+     * @throws 1475364394
+     */
+    setFormEditorDefinitions(formEditorDefinitions) {
+        assert(typeof formEditorDefinitions === 'object' && formEditorDefinitions !== null && !Array.isArray(formEditorDefinitions), 'Invalid parameter "formEditorDefinitions"', 1475364394);
+        for (const _key1 of Object.keys(formEditorDefinitions)) {
+            const key1 = _key1;
+            if (formEditorDefinitions[key1] !== null && typeof formEditorDefinitions[key1] !== 'object') {
+                continue;
+            }
+            for (const key2 of Object.keys(formEditorDefinitions[key1])) {
+                if (formEditorDefinitions[key1][key2] === null ||
+                    typeof formEditorDefinitions[key1][key2] !== 'object') {
+                    formEditorDefinitions[key1][key2] = {};
+                }
+            }
+        }
+        this.formEditorDefinitions = formEditorDefinitions;
+    }
+    /**
+     * @throws 1475364952
+     * @throws 1475364953
+     */
+    getFormEditorDefinition(definitionName, subject) {
+        assert(utility.isNonEmptyString(definitionName), 'Invalid parameter "definitionName"', 1475364952);
+        assert(utility.isNonEmptyString(subject), 'Invalid parameter "subject"', 1475364953);
+        // Return dereferenced object
+        return cloneDeep(this.formEditorDefinitions[definitionName][subject]);
+    }
+    getRootFormElement() {
+        return getApplicationStateStack().getCurrentState('formDefinition');
+    }
+    /**
+     * @throws 1475436224
+     * @throws 1475364956
+     */
+    addFormElement(formElement, referenceFormElement, registerPropertyValidators, disablePublishersOnSet) {
+        let enclosingCompositeFormElement, parentFormElementsArray, referenceFormElementElements;
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475436224);
+        assert(typeof referenceFormElement === 'object' && referenceFormElement !== null && !Array.isArray(referenceFormElement), 'Invalid parameter "referenceFormElement"', 1475364956);
+        if (utility.isUndefinedOrNull(disablePublishersOnSet)) {
+            disablePublishersOnSet = true;
+        }
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        registerPropertyValidators = !!registerPropertyValidators;
+        const formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        const referenceFormElementTypeDefinition = this.getFormEditorDefinition('formElements', referenceFormElement.get('type'));
+        // formElement != Page / SummaryPage && referenceFormElement == Page / Fieldset / GridRow
+        if (!formElementTypeDefinition._isTopLevelFormElement && referenceFormElementTypeDefinition._isCompositeFormElement) {
+            if (!Array.isArray(referenceFormElement.get('renderables'))) {
+                referenceFormElement.set('renderables', [], disablePublishersOnSet);
+            }
+            formElement.set('__parentRenderable', referenceFormElement, disablePublishersOnSet);
+            formElement.set('__identifierPath', referenceFormElement.get('__identifierPath') + '/' + formElement.get('identifier'), disablePublishersOnSet);
+            referenceFormElement.get('renderables').push(formElement);
+        }
+        else {
+            // referenceFormElement == root form element
+            if (referenceFormElement.get('__identifierPath') === getApplicationStateStack().getCurrentState('formDefinition').get('__identifierPath')) {
+                referenceFormElementElements = referenceFormElement.get('renderables');
+                // referenceFormElement = last page
+                referenceFormElement = referenceFormElementElements[referenceFormElementElements.length - 1];
+                // if formElement == Page / SummaryPage && referenceFormElement != Page / SummaryPage
+            }
+            else if (formElementTypeDefinition._isTopLevelFormElement && !referenceFormElementTypeDefinition._isTopLevelFormElement) {
+                // referenceFormElement = parent Page
+                referenceFormElement = this.findEnclosingCompositeFormElementWhichIsOnTopLevel(referenceFormElement);
+                // formElement == Page / SummaryPage / Fieldset / GridRow
+            }
+            else if (formElementTypeDefinition._isCompositeFormElement) {
+                enclosingCompositeFormElement = this.findEnclosingCompositeFormElementWhichIsNotOnTopLevel(referenceFormElement);
+                if (enclosingCompositeFormElement) {
+                    // referenceFormElement = parent Fieldset / GridRow
+                    referenceFormElement = enclosingCompositeFormElement;
+                }
+            }
+            formElement.set('__parentRenderable', referenceFormElement.get('__parentRenderable'), disablePublishersOnSet);
+            formElement.set('__identifierPath', referenceFormElement.get('__parentRenderable').get('__identifierPath') + '/' + formElement.get('identifier'), disablePublishersOnSet);
+            parentFormElementsArray = referenceFormElement.get('__parentRenderable').get('renderables');
+            parentFormElementsArray.splice(parentFormElementsArray.indexOf(referenceFormElement) + 1, 0, formElement);
+        }
+        if (registerPropertyValidators) {
+            if (Array.isArray(formElementTypeDefinition.editors)) {
+                for (let i = 0, len1 = formElementTypeDefinition.editors.length; i < len1; ++i) {
+                    if (!Array.isArray(formElementTypeDefinition.editors[i].propertyValidators)) {
+                        continue;
+                    }
+                    const propertyValidatorConfiguration = {
+                        propertyValidatorsMode: 'AND'
+                    };
+                    if (!utility.isUndefinedOrNull(formElementTypeDefinition.editors[i].propertyValidatorsMode)
+                        && formElementTypeDefinition.editors[i].propertyValidatorsMode === 'OR') {
+                        propertyValidatorConfiguration.propertyValidatorsMode = 'OR';
+                    }
+                    propertyValidationService.addValidatorIdentifiersToFormElementProperty(formElement, formElementTypeDefinition.editors[i].propertyValidators, formElementTypeDefinition.editors[i].propertyPath, undefined, undefined, propertyValidatorConfiguration);
+                }
+            }
+        }
+        return formElement;
+    }
+    /**
+     * @throws 1472553024
+     * @throws 1475364957
+     */
+    removeFormElement(formElement, removeRegisteredPropertyValidators, disablePublishersOnSet) {
+        if (utility.isUndefinedOrNull(disablePublishersOnSet)) {
+            disablePublishersOnSet = true;
+        }
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        removeRegisteredPropertyValidators = !!removeRegisteredPropertyValidators;
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475364957);
+        assert(typeof formElement.get('__parentRenderable') === 'object' && formElement.get('__parentRenderable') !== null && !Array.isArray(formElement.get('__parentRenderable')), 'Removing the root element is not allowed', 1472553024);
+        const parentFormElementElements = formElement.get('__parentRenderable').get('renderables');
+        parentFormElementElements.splice(parentFormElementElements.indexOf(formElement), 1);
+        formElement.get('__parentRenderable').set('renderables', parentFormElementElements, disablePublishersOnSet);
+        if (removeRegisteredPropertyValidators) {
+            propertyValidationService.removeAllValidatorIdentifiersFromFormElement(formElement);
+        }
+    }
+    /**
+     * @throws 1475364958
+     * @throws 1475364959
+     * @throws 1475364960
+     * @throws 1475364961
+     * @throws 1475364962
+     * @throws 1476993731
+     * @throws 1476993732
+     */
+    moveFormElement(formElementToMove, position, referenceFormElement, disablePublishersOnSet) {
+        let referenceFormElementParentElements, referenceFormElementElements, referenceFormElementIndex;
+        assert(typeof formElementToMove === 'object' && formElementToMove !== null && !Array.isArray(formElementToMove), 'Invalid parameter "formElementToMove"', 1475364958);
+        assert('after' === position || 'before' === position || 'inside' === position, 'Invalid position "' + position + '"', 1475364959);
+        assert(typeof referenceFormElement === 'object' && referenceFormElement !== null && !Array.isArray(referenceFormElement), 'Invalid parameter "referenceFormElement"', 1475364960);
+        if (utility.isUndefinedOrNull(disablePublishersOnSet)) {
+            disablePublishersOnSet = true;
+        }
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        const formElementToMoveTypeDefinition = this.getFormEditorDefinition('formElements', formElementToMove.get('type'));
+        const referenceFormElementTypeDefinition = this.getFormEditorDefinition('formElements', referenceFormElement.get('type'));
+        this.removeFormElement(formElementToMove, false);
+        const reSetIdentifierPath = (formElement, pathPrefix) => {
+            assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475364961);
+            assert(utility.isNonEmptyString(pathPrefix), 'Invalid parameter "pathPrefix"', 1475364962);
+            const oldIdentifierPath = formElement.get('__identifierPath');
+            const newIdentifierPath = pathPrefix + '/' + formElement.get('identifier');
+            const propertyValidationServiceRegisteredValidators = getApplicationStateStack().getCurrentState('propertyValidationServiceRegisteredValidators');
+            if (!utility.isUndefinedOrNull(propertyValidationServiceRegisteredValidators[oldIdentifierPath])) {
+                propertyValidationServiceRegisteredValidators[newIdentifierPath] = propertyValidationServiceRegisteredValidators[oldIdentifierPath];
+                delete propertyValidationServiceRegisteredValidators[oldIdentifierPath];
+            }
+            getApplicationStateStack().setCurrentState('propertyValidationServiceRegisteredValidators', propertyValidationServiceRegisteredValidators);
+            formElement.set('__identifierPath', newIdentifierPath, disablePublishersOnSet);
+            const formElements = formElement.get('renderables');
+            if (Array.isArray(formElements)) {
+                for (let i = 0, len = formElements.length; i < len; ++i) {
+                    reSetIdentifierPath(formElements[i], formElement.get('__identifierPath'));
+                }
+            }
+        };
+        /**
+         * This is true on:
+         * * Drag a Element on a Page Element (tree)
+         * * Drag a Element on a Section Element (tree)
+         */
+        if (position === 'inside') {
+            // formElementToMove == Page / SummaryPage
+            assert(!formElementToMoveTypeDefinition._isTopLevelFormElement, 'This move is not allowed', 1476993731);
+            // referenceFormElement != Page / Fieldset / GridRow
+            assert(referenceFormElementTypeDefinition._isCompositeFormElement, 'This move is not allowed', 1476993732);
+            formElementToMove.set('__parentRenderable', referenceFormElement, disablePublishersOnSet);
+            reSetIdentifierPath(formElementToMove, referenceFormElement.get('__identifierPath'));
+            referenceFormElementElements = referenceFormElement.get('renderables');
+            if (utility.isUndefinedOrNull(referenceFormElementElements)) {
+                referenceFormElementElements = [];
+            }
+            referenceFormElementElements.splice(0, 0, formElementToMove);
+            referenceFormElement.set('renderables', referenceFormElementElements, disablePublishersOnSet);
+        }
+        else {
+            /**
+             * This is true on:
+             * * Drag a Page before another Page (tree)
+             * * Drag a Page after another Page (tree)
+             */
+            if (formElementToMoveTypeDefinition._isTopLevelFormElement && referenceFormElementTypeDefinition._isTopLevelFormElement) {
+                referenceFormElementParentElements = referenceFormElement.get('__parentRenderable').get('renderables');
+                referenceFormElementIndex = referenceFormElementParentElements.indexOf(referenceFormElement);
+                if (position === 'after') {
+                    referenceFormElementParentElements.splice(referenceFormElementIndex + 1, 0, formElementToMove);
+                }
+                else {
+                    referenceFormElementParentElements.splice(referenceFormElementIndex, 0, formElementToMove);
+                }
+                referenceFormElement.get('__parentRenderable').set('renderables', referenceFormElementParentElements, disablePublishersOnSet);
+            }
+            else {
+                /**
+                 * This is true on:
+                 * * Drag a Element before another Element within the same level (tree)
+                 * * Drag a Element after another Element within the same level (tree)
+                 * * Drag a Element before another Element (stage)
+                 * * Drag a Element after another Element (stage)
+                 */
+                if (formElementToMove.get('__parentRenderable').get('identifier') === referenceFormElement.get('__parentRenderable').get('identifier')) {
+                    referenceFormElementParentElements = referenceFormElement.get('__parentRenderable').get('renderables');
+                    referenceFormElementIndex = referenceFormElementParentElements.indexOf(referenceFormElement);
+                }
+                else {
+                    /**
+                     * This is true on:
+                     * * Drag a Element before an Element on another page (tree / stage)
+                     * * Drag a Element after an Element on another page (tree / stage)
+                     */
+                    formElementToMove.set('__parentRenderable', referenceFormElement.get('__parentRenderable'), disablePublishersOnSet);
+                    reSetIdentifierPath(formElementToMove, referenceFormElement.get('__parentRenderable').get('__identifierPath'));
+                    referenceFormElementParentElements = referenceFormElement.get('__parentRenderable').get('renderables');
+                    referenceFormElementIndex = referenceFormElementParentElements.indexOf(referenceFormElement);
+                }
+                if (position === 'after') {
+                    referenceFormElementParentElements.splice(referenceFormElementIndex + 1, 0, formElementToMove);
+                }
+                else {
+                    referenceFormElementParentElements.splice(referenceFormElementIndex, 0, formElementToMove);
+                }
+                referenceFormElement.get('__parentRenderable').set('renderables', referenceFormElementParentElements, disablePublishersOnSet);
+            }
+        }
+        return formElementToMove;
+    }
+    /**
+     * @throws 1475364963
+     */
+    getIndexForEnclosingCompositeFormElementWhichIsOnTopLevelForFormElement(formElement) {
+        let enclosingCompositeFormElementWhichIsOnTopLevel;
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475364963);
+        const formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        if (formElementTypeDefinition._isTopLevelFormElement && formElementTypeDefinition._isCompositeFormElement) {
+            enclosingCompositeFormElementWhichIsOnTopLevel = formElement;
+        }
+        else if (formElement.get('__identifierPath') === getApplicationStateStack().getCurrentState('formDefinition').get('__identifierPath')) {
+            enclosingCompositeFormElementWhichIsOnTopLevel = getApplicationStateStack().getCurrentState('formDefinition').get('renderables')[0];
+        }
+        else {
+            enclosingCompositeFormElementWhichIsOnTopLevel = this.findEnclosingCompositeFormElementWhichIsOnTopLevel(formElement);
+        }
+        return enclosingCompositeFormElementWhichIsOnTopLevel.get('__parentRenderable').get('renderables').indexOf(enclosingCompositeFormElementWhichIsOnTopLevel);
+    }
+    /**
+     * @throws 1472556223
+     * @throws 1475364964
+     */
+    findEnclosingCompositeFormElementWhichIsOnTopLevel(formElement) {
+        let formElementTypeDefinition;
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475364964);
+        assert(typeof formElement.get('__parentRenderable') === 'object' && formElement.get('__parentRenderable') !== null && !Array.isArray(formElement.get('__parentRenderable')), 'The root element is never encloused by anything', 1472556223);
+        formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        while (!formElementTypeDefinition._isTopLevelFormElement) {
+            formElement = formElement.get('__parentRenderable');
+            formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        }
+        return formElement;
+    }
+    /**
+     * @throws 1490520271
+     */
+    findEnclosingGridRowFormElement(formElement) {
+        let formElementTypeDefinition;
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1490520271);
+        formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        while (!formElementTypeDefinition._isGridRowFormElement) {
+            if (formElementTypeDefinition._isTopLevelFormElement) {
+                return null;
+            }
+            formElement = formElement.get('__parentRenderable');
+            formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        }
+        if (formElementTypeDefinition._isTopLevelFormElement) {
+            return null;
+        }
+        return formElement;
+    }
+    /**
+     * @throws 1475364965
+     */
+    findEnclosingCompositeFormElementWhichIsNotOnTopLevel(formElement) {
+        let formElementTypeDefinition;
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475364965);
+        formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        while (!formElementTypeDefinition._isCompositeFormElement) {
+            if (formElementTypeDefinition._isTopLevelFormElement) {
+                return null;
+            }
+            formElement = formElement.get('__parentRenderable');
+            formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+        }
+        if (formElementTypeDefinition._isTopLevelFormElement) {
+            return null;
+        }
+        return formElement;
+    }
+    getNonCompositeNonToplevelFormElements() {
+        const nonCompositeNonToplevelFormElements = [];
+        const collect = (formElement) => {
+            assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475364961);
+            const formElementTypeDefinition = this.getFormEditorDefinition('formElements', formElement.get('type'));
+            if (!formElementTypeDefinition._isTopLevelFormElement && !formElementTypeDefinition._isCompositeFormElement) {
+                nonCompositeNonToplevelFormElements.push(formElement);
+            }
+            const formElements = formElement.get('renderables');
+            if (Array.isArray(formElements)) {
+                for (let i = 0, len = formElements.length; i < len; ++i) {
+                    collect(formElements[i]);
+                }
+            }
+        };
+        collect(this.getRootFormElement());
+        return nonCompositeNonToplevelFormElements;
+    }
+    /**
+     * @throws 1475364966
+     */
+    isFormElementIdentifierUsed(identifier) {
+        let identifierFound;
+        assert(utility.isNonEmptyString(identifier), 'Invalid parameter "identifier"', 1475364966);
+        const checkIdentifier = (formElement) => {
+            let formElements;
+            if (formElement.get('identifier') === identifier) {
+                identifierFound = true;
+            }
+            if (!identifierFound) {
+                formElements = formElement.get('renderables');
+                if (Array.isArray(formElements)) {
+                    for (let i = 0, len = formElements.length; i < len; ++i) {
+                        checkIdentifier(formElements[i]);
+                        if (identifierFound) {
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+        checkIdentifier(getApplicationStateStack().getCurrentState('formDefinition'));
+        return identifierFound;
+    }
+    /**
+     * @throws 1475373676
+     */
+    getNextFreeFormElementIdentifier(formElementType) {
+        let i;
+        assert(utility.isNonEmptyString(formElementType), 'Invalid parameter "formElementType"', 1475373676);
+        const prefix = formElementType.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-';
+        i = 1;
+        while (this.isFormElementIdentifierUsed(prefix + i)) {
+            i++;
+        }
+        return prefix + i;
+    }
+    /**
+     * @throws 1472424333
+     * @throws 1472424334
+     * @throws 1472424330
+     * @throws 1475373677
+     */
+    findFormElementByIdentifierPath(identifierPath) {
+        let obj, formElements;
+        assert(utility.isNonEmptyString(identifierPath), 'Invalid parameter "identifierPath"', 1475373677);
+        let formElement = getApplicationStateStack().getCurrentState('formDefinition');
+        const pathParts = identifierPath.split('/');
+        const pathPartsLength = pathParts.length;
+        for (let i = 0; i < pathPartsLength; ++i) {
+            const key = pathParts[i];
+            if (i === 0 || i === pathPartsLength) {
+                assert(key === formElement.get('identifier'), '"' + key + '" does not exist in path "' + identifierPath + '"', 1472424333);
+                continue;
+            }
+            formElements = formElement.get('renderables');
+            if (Array.isArray(formElements)) {
+                obj = null;
+                for (let j = 0, len = formElements.length; j < len; ++j) {
+                    if (key === formElements[j].get('identifier')) {
+                        obj = formElements[j];
+                        break;
+                    }
+                }
+                assert(obj !== null, 'Could not find form element "' + key + '" in path "' + identifierPath + '"', 1472424334);
+                formElement = obj;
+            }
+            else {
+                assert(false, 'No form elements found', 1472424330);
+            }
+        }
+        return formElement;
+    }
+    findFormElement(formElement) {
+        if (typeof formElement === 'object') {
+            formElement = formElement.get('__identifierPath');
+        }
+        return this.findFormElementByIdentifierPath(formElement);
+    }
+    /**
+     * @throws 1475375281
+     * @throws 1475375282
+     */
+    findCollectionElementByIdentifierPath(collectionElementIdentifier, collection) {
+        assert(utility.isNonEmptyString(collectionElementIdentifier), 'Invalid parameter "collectionElementIdentifier"', 1475375281);
+        assert(Array.isArray(collection), 'Invalid parameter "collection"', 1475375282);
+        for (let i = 0, len = collection.length; i < len; ++i) {
+            if (collection[i].identifier === collectionElementIdentifier) {
+                return collection[i];
+            }
+        }
+        return undefined;
+    }
+    /**
+     * @throws 1475375283
+     * @throws 1475375284
+     * @throws 1475375285
+     */
+    getIndexFromPropertyCollectionElementByIdentifier(collectionElementIdentifier, collectionName, formElement) {
+        assert(utility.isNonEmptyString(collectionElementIdentifier), 'Invalid parameter "collectionElementIdentifier"', 1475375283);
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475375284);
+        assert(utility.isNonEmptyString(collectionName), 'Invalid parameter "collectionName"', 1475375285);
+        const collection = formElement.get(collectionName);
+        if (Array.isArray(collection)) {
+            for (let i = 0, len = collection.length; i < len; ++i) {
+                if (collection[i].identifier === collectionElementIdentifier) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    /**
+     * @throws 1475375686
+     * @throws 1475375687
+     * @throws 1475375688
+     * @throws 1477413154
+     */
+    addPropertyCollectionElement(collectionElementToAdd, collectionName, formElement, referenceCollectionElementIdentifier, disablePublishersOnSet) {
+        let collection, newCollectionElementIndex;
+        assert(typeof collectionElementToAdd === 'object' && collectionElementToAdd !== null, 'Invalid parameter "collectionElementToAdd"', 1475375686);
+        assert(typeof formElement === 'object' && formElement !== null, 'Invalid parameter "formElement"', 1475375687);
+        assert(utility.isNonEmptyString(collectionName), 'Invalid parameter "collectionName"', 1475375688);
+        if (utility.isUndefinedOrNull(disablePublishersOnSet)) {
+            disablePublishersOnSet = true;
+        }
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        collection = formElement.get(collectionName);
+        if (!Array.isArray(collection)) {
+            extendModel(formElement, [], collectionName, true);
+            collection = formElement.get(collectionName);
+        }
+        if (utility.isUndefinedOrNull(referenceCollectionElementIdentifier)) {
+            newCollectionElementIndex = 0;
+        }
+        else {
+            newCollectionElementIndex = this.getIndexFromPropertyCollectionElementByIdentifier(referenceCollectionElementIdentifier, collectionName, formElement) + 1;
+            assert(-1 < newCollectionElementIndex, 'Could not find collection element ' + referenceCollectionElementIdentifier + ' within collection ' + collectionName, 1477413154);
+        }
+        collection.splice(newCollectionElementIndex, 0, collectionElementToAdd);
+        formElement.set(collectionName, collection, true);
+        propertyValidationService.removeValidatorIdentifiersFromFormElementProperty(formElement, collectionName);
+        for (let i = 0, len = collection.length; i < len; ++i) {
+            extendModel(formElement, collection[i], collectionName + '.' + i, true);
+        }
+        formElement.set(collectionName, collection, true);
+        propertyValidationService.addValidatorIdentifiersFromFormElementPropertyCollections(formElement);
+        formElement.set(collectionName, collection, disablePublishersOnSet);
+        return formElement;
+    }
+    /**
+     * @throws 1475375689
+     * @throws 1475375690
+     * @throws 1475375691
+     * @throws 1475375692
+     */
+    removePropertyCollectionElementByIdentifier(formElement, collectionElementIdentifier, collectionName, disablePublishersOnSet) {
+        assert(utility.isNonEmptyString(collectionElementIdentifier), 'Invalid parameter "collectionElementIdentifier"', 1475375689);
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1475375690);
+        assert(utility.isNonEmptyString(collectionName), 'Invalid parameter "collectionName"', 1475375691);
+        const collection = formElement.get(collectionName);
+        assert(Array.isArray(collection), 'The collection "' + collectionName + '" does not exist', 1475375692);
+        if (utility.isUndefinedOrNull(disablePublishersOnSet)) {
+            disablePublishersOnSet = true;
+        }
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        propertyValidationService.removeValidatorIdentifiersFromFormElementProperty(formElement, collectionName);
+        const collectionElementIndex = this.getIndexFromPropertyCollectionElementByIdentifier(collectionElementIdentifier, collectionName, formElement);
+        collection.splice(collectionElementIndex, 1);
+        formElement.set(collectionName, collection, disablePublishersOnSet);
+        propertyValidationService.addValidatorIdentifiersFromFormElementPropertyCollections(formElement);
+    }
+    /**
+     * @throws 1477404484
+     * @throws 1477404485
+     * @throws 1477404486
+     * @throws 1477404488
+     * @throws 1477404489
+     * @throws 1477404490
+     */
+    movePropertyCollectionElement(collectionElementToMoveIdentifier, position, referenceCollectionElementIdentifier, collectionName, formElement, disablePublishersOnSet) {
+        let referenceCollectionElement;
+        assert('after' === position || 'before' === position, 'Invalid position "' + position + '"', 1477404485);
+        assert(typeof referenceCollectionElementIdentifier === 'string', 'Invalid parameter "referenceCollectionElementIdentifier"', 1477404486);
+        assert(typeof formElement === 'object' && formElement !== null && !Array.isArray(formElement), 'Invalid parameter "formElement"', 1477404488);
+        const collection = formElement.get(collectionName);
+        assert(Array.isArray(collection), 'The collection "' + collectionName + '" does not exist', 1477404490);
+        const collectionElementToMove = this.findCollectionElementByIdentifierPath(collectionElementToMoveIdentifier, collection);
+        assert(typeof collectionElementToMove === 'object' && collectionElementToMove !== null && !Array.isArray(collectionElementToMove), 'Invalid parameter "collectionElementToMove"', 1477404484);
+        this.removePropertyCollectionElementByIdentifier(formElement, collectionElementToMoveIdentifier, collectionName);
+        const referenceCollectionElementIndex = this.getIndexFromPropertyCollectionElementByIdentifier(referenceCollectionElementIdentifier, collectionName, formElement);
+        assert(-1 < referenceCollectionElementIndex, 'Could not find collection element ' + referenceCollectionElementIdentifier + ' within collection ' + collectionName, 1477404489);
+        if ('before' === position) {
+            referenceCollectionElement = collection[referenceCollectionElementIndex - 1];
+            if (utility.isUndefinedOrNull(referenceCollectionElement)) {
+                referenceCollectionElementIdentifier = undefined;
+            }
+            else {
+                referenceCollectionElementIdentifier = referenceCollectionElement.identifier;
+            }
+        }
+        this.addPropertyCollectionElement(collectionElementToMove, collectionName, formElement, referenceCollectionElementIdentifier, disablePublishersOnSet);
+    }
+}
+export class Factory {
+    /**
+     * @throws 1475375693
+     * @throws 1475436040
+     * @throws 1475604050
+     */
+    createFormElement(configuration, identifierPathPrefix, parentFormElement, registerPropertyValidators, disablePublishersOnSet) {
+        let currentChildFormElements;
+        assert(typeof configuration === 'object' && configuration !== null && !Array.isArray(configuration), 'Invalid parameter "configuration"', 1475375693);
+        assert(utility.isNonEmptyString(configuration.identifier), '"identifier" must not be empty', 1475436040);
+        assert(utility.isNonEmptyString(configuration.type), '"type" must not be empty', 1475604050);
+        registerPropertyValidators = !!registerPropertyValidators;
+        if (utility.isUndefinedOrNull(disablePublishersOnSet)) {
+            disablePublishersOnSet = true;
+        }
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        const formElementTypeDefinition = repository.getFormEditorDefinition('formElements', configuration.type);
+        const rawChildFormElements = configuration.renderables;
+        delete configuration.renderables;
+        const collections = {};
+        const predefinedDefaults = formElementTypeDefinition.predefinedDefaults || {};
+        for (const collectionName of Object.keys(configuration)) {
+            if (utility.isUndefinedOrNull(repository.formEditorDefinitions[collectionName])) {
+                continue;
+            }
+            predefinedDefaults[collectionName] = predefinedDefaults[collectionName] || {};
+            collections[collectionName] = Object.assign(predefinedDefaults[collectionName] || {}, configuration[collectionName]);
+            delete predefinedDefaults[collectionName];
+            delete configuration[collectionName];
+        }
+        identifierPathPrefix = identifierPathPrefix || '';
+        const identifierPath = (identifierPathPrefix === '') ? configuration.identifier : identifierPathPrefix + '/' + configuration.identifier;
+        const concreteConfiguration = {
+            ...predefinedDefaults,
+            ...configuration,
+            ...{
+                renderables: (rawChildFormElements) ? true : null,
+                __parentRenderable: null,
+                __identifierPath: identifierPath
+            }
+        };
+        const formElement = createModel(concreteConfiguration);
+        formElement.set('__parentRenderable', parentFormElement || null, disablePublishersOnSet);
+        for (const [collectionName, collectionElementConfigurations] of Object.entries(collections)) {
+            let i = 0;
+            for (const collectionElementConfiguration of Object.values(collectionElementConfigurations)) {
+                let previousCreatePropertyCollectionElementIdentifier;
+                const propertyCollectionElement = this.createPropertyCollectionElement(collectionElementConfiguration.identifier, collectionElementConfiguration, collectionName);
+                if (i > 0) {
+                    previousCreatePropertyCollectionElementIdentifier = collections[collectionName][i - 1].identifier;
+                }
+                repository.addPropertyCollectionElement(propertyCollectionElement, collectionName, formElement, previousCreatePropertyCollectionElementIdentifier, true);
+                ++i;
+            }
+        }
+        // Register property change publishers for properties that have not
+        // been configured yet, but may be added by inspector components.
+        if (Array.isArray(formElementTypeDefinition.editors)) {
+            for (const editorConfig of formElementTypeDefinition.editors) {
+                if (editorConfig.propertyPath) {
+                    formElement.on(editorConfig.propertyPath, 'core/formElement/somePropertyChanged');
+                }
+            }
+        }
+        if (registerPropertyValidators) {
+            if (Array.isArray(formElementTypeDefinition.editors)) {
+                for (let i = 0, len1 = formElementTypeDefinition.editors.length; i < len1; ++i) {
+                    if (!Array.isArray(formElementTypeDefinition.editors[i].propertyValidators)) {
+                        continue;
+                    }
+                    const propertyValidatorConfiguration = {
+                        propertyValidatorsMode: 'AND'
+                    };
+                    if (!utility.isUndefinedOrNull(formElementTypeDefinition.editors[i].propertyValidatorsMode)
+                        && formElementTypeDefinition.editors[i].propertyValidatorsMode === 'OR') {
+                        propertyValidatorConfiguration.propertyValidatorsMode = 'OR';
+                    }
+                    propertyValidationService.addValidatorIdentifiersToFormElementProperty(formElement, formElementTypeDefinition.editors[i].propertyValidators, formElementTypeDefinition.editors[i].propertyPath, undefined, undefined, propertyValidatorConfiguration);
+                }
+            }
+        }
+        if (Array.isArray(rawChildFormElements)) {
+            currentChildFormElements = [];
+            for (let i = 0, len = rawChildFormElements.length; i < len; ++i) {
+                currentChildFormElements.push(this.createFormElement(rawChildFormElements[i], identifierPath, formElement, registerPropertyValidators, disablePublishersOnSet));
+            }
+            formElement.set('renderables', currentChildFormElements, disablePublishersOnSet);
+        }
+        return formElement;
+    }
+    /**
+     * @throws 1475377160
+     * @throws 1475377161
+     * @throws 1475377162
+     */
+    createPropertyCollectionElement(collectionElementIdentifier, collectionElementConfiguration, collectionName) {
+        let collectionElementPresets;
+        assert(utility.isNonEmptyString(collectionElementIdentifier), 'Invalid parameter "collectionElementIdentifier"', 1475377160);
+        assert(typeof collectionElementConfiguration === 'object' && collectionElementConfiguration !== null && !Array.isArray(collectionElementConfiguration), 'Invalid parameter "collectionElementConfiguration"', 1475377161);
+        assert(utility.isNonEmptyString(collectionName), 'Invalid parameter "collectionName"', 1475377162);
+        collectionElementConfiguration.identifier = collectionElementIdentifier;
+        const collectionDefinition = repository.getFormEditorDefinition(collectionName, collectionElementIdentifier);
+        if ('predefinedDefaults' in collectionDefinition && collectionDefinition.predefinedDefaults) {
+            collectionElementPresets = collectionDefinition.predefinedDefaults;
+        }
+        else {
+            collectionElementPresets = {};
+        }
+        return Object.assign(collectionElementPresets, collectionElementConfiguration);
+    }
+}
+export class DataBackend {
+    constructor() {
+        this.endpoints = {};
+        this.prototypeName = null;
+        this.persistenceIdentifier = null;
+    }
+    /**
+     * @throws 1475377488
+     */
+    setEndpoints(endpoints) {
+        assert(typeof endpoints === 'object' && endpoints !== null && !Array.isArray(endpoints), 'Invalid parameter "endpoints"', 1475377488);
+        this.endpoints = endpoints;
+    }
+    /**
+     * @throws 1475377489
+     */
+    setPrototypeName(prototypeName) {
+        assert(utility.isNonEmptyString(prototypeName), 'Invalid parameter "prototypeName"', 1475928095);
+        this.prototypeName = prototypeName;
+    }
+    /**
+     * @throws 1475377489
+     */
+    setPersistenceIdentifier(persistenceIdentifier) {
+        assert(utility.isNonEmptyString(persistenceIdentifier), 'Invalid parameter "persistenceIdentifier"', 1475377489);
+        this.persistenceIdentifier = persistenceIdentifier;
+    }
+    /**
+     * @publish core/ajax/saveFormDefinition/success
+     * @publish core/ajax/error
+     * @throws 1475520918
+     */
+    saveFormDefinition() {
+        assert(utility.isNonEmptyString(this.endpoints.saveForm), 'The endpoint "saveForm" is not configured', 1475520918);
+        if (runningAjaxRequests.saveForm) {
+            runningAjaxRequests.saveForm.abort();
+        }
+        const request = new AjaxRequest(this.endpoints.saveForm);
+        runningAjaxRequests.saveForm = request;
+        request.post({
+            formPersistenceIdentifier: this.persistenceIdentifier,
+            formDefinition: JSON.stringify(utility.convertToSimpleObject(getApplicationStateStack().getCurrentState('formDefinition')))
+        }).then(async (response) => {
+            if (runningAjaxRequests.saveForm !== request) {
+                return;
+            }
+            runningAjaxRequests.saveForm = null;
+            const data = await response.resolve();
+            if (data.status === 'success') {
+                publisherSubscriber.publish('core/ajax/saveFormDefinition/success', [data]);
+            }
+            else {
+                publisherSubscriber.publish('core/ajax/saveFormDefinition/error', [data]);
+            }
+        }).catch(async (error) => {
+            if (error instanceof AjaxResponse) {
+                const responseBody = await error.resolve();
+                publisherSubscriber.publish('core/ajax/error', [error.response.statusText, responseBody]);
+            }
+        });
+    }
+    /**
+     * @publish core/ajax/renderFormDefinitionPage/success
+     * @publish core/ajax/error
+     * @throws 1473447677
+     * @throws 1475377781
+     * @throws 1475377782
+     */
+    renderFormDefinitionPage(pageIndex) {
+        assert(!isNaN(Number(pageIndex)), 'Invalid parameter "pageIndex"', 1475377781);
+        assert(utility.isNonEmptyString(this.endpoints.formPageRenderer), 'The endpoint "formPageRenderer" is not configured', 1473447677);
+        if (runningAjaxRequests.renderFormDefinitionPage) {
+            runningAjaxRequests.renderFormDefinitionPage.abort();
+        }
+        const request = new AjaxRequest(this.endpoints.formPageRenderer);
+        runningAjaxRequests.renderFormDefinitionPage = request;
+        request.post({
+            formDefinition: JSON.stringify(utility.convertToSimpleObject(getApplicationStateStack().getCurrentState('formDefinition'))),
+            pageIndex: pageIndex,
+            prototypeName: this.prototypeName,
+            formPersistenceIdentifier: this.persistenceIdentifier
+        }).then(async (response) => {
+            if (runningAjaxRequests.renderFormDefinitionPage !== request) {
+                return;
+            }
+            runningAjaxRequests.renderFormDefinitionPage = null;
+            const data = await response.resolve();
+            publisherSubscriber.publish('core/ajax/renderFormDefinitionPage/success', [data, pageIndex]);
+        }).catch(async (error) => {
+            if (error instanceof AjaxResponse) {
+                const responseBody = await error.resolve();
+                publisherSubscriber.publish('core/ajax/error', [error.response.statusText, responseBody]);
+            }
+        });
+    }
+}
+export class ApplicationStateStack {
+    constructor() {
+        this.stackSize = 10;
+        this.stackPointer = 0;
+        this.stack = [];
+    }
+    /**
+     * @publish core/applicationState/add
+     * @throws 1477847415
+     */
+    add(applicationState, disablePublishersOnSet) {
+        assert(typeof applicationState === 'object' && applicationState !== null && !Array.isArray(applicationState), 'Invalid parameter "applicationState"', 1477847415);
+        disablePublishersOnSet = !!disablePublishersOnSet;
+        Object.assign(applicationState, {
+            propertyValidationServiceRegisteredValidators: cloneDeep(this.getCurrentState('propertyValidationServiceRegisteredValidators') ?? {})
+        });
+        this.stack.splice(0, 0, applicationState);
+        if (this.stack.length > this.stackSize) {
+            this.stack.splice(this.stackSize - 1, (this.stack.length - this.stackSize));
+        }
+        if (!disablePublishersOnSet) {
+            publisherSubscriber.publish('core/applicationState/add', [
+                applicationState,
+                this.getCurrentStackPointer(),
+                this.getCurrentStackSize()
+            ]);
+        }
+    }
+    /**
+     * @publish core/applicationState/add
+     * @throws 1477872641
+     */
+    addAndReset(applicationState, disablePublishersOnSet) {
+        assert(typeof applicationState === 'object' && applicationState !== null && !Array.isArray(applicationState), 'Invalid parameter "applicationState"', 1477872641);
+        if (this.stackPointer > 0) {
+            this.stack.splice(0, this.stackPointer);
+        }
+        this.stackPointer = 0;
+        this.add(applicationState, true);
+        if (!disablePublishersOnSet) {
+            publisherSubscriber.publish('core/applicationState/add', [
+                this.getCurrentState(),
+                this.getCurrentStackPointer(),
+                this.getCurrentStackSize()
+            ]);
+        }
+    }
+    /**
+     * @throws 1477932754
+     */
+    getCurrentState(type) {
+        if (type === undefined) {
+            return this.stack[this.stackPointer] || undefined;
+        }
+        assert('formDefinition' === type
+            || 'currentlySelectedPageIndex' === type
+            || 'currentlySelectedFormElementIdentifierPath' === type
+            || 'propertyValidationServiceRegisteredValidators' === type, 'Invalid parameter "type"', 1477932754);
+        if (typeof this.stack[this.stackPointer] === 'undefined') {
+            return undefined;
+        }
+        return (this.stack[this.stackPointer][type]);
+    }
+    /**
+     * @throws 1477934111
+     */
+    setCurrentState(type, value) {
+        assert('formDefinition' === type
+            || 'currentlySelectedPageIndex' === type
+            || 'currentlySelectedFormElementIdentifierPath' === type
+            || 'propertyValidationServiceRegisteredValidators' === type, 'Invalid parameter "type"', 1477934111);
+        this.stack[this.stackPointer][type] = value;
+    }
+    /**
+     * @throws 1477846933
+     */
+    setMaximalStackSize(stackSize) {
+        assert(typeof stackSize === 'number', 'Invalid parameter "size"', 1477846933);
+        this.stackSize = stackSize;
+    }
+    getMaximalStackSize() {
+        return this.stackSize;
+    }
+    getCurrentStackSize() {
+        return this.stack.length;
+    }
+    getCurrentStackPointer() {
+        return this.stackPointer;
+    }
+    /**
+     * @throws 1477852138
+     */
+    setCurrentStackPointer(stackPointer) {
+        assert(typeof stackPointer === 'number', 'Invalid parameter "size"', 1477852138);
+        if (stackPointer < 0) {
+            this.stackPointer = 0;
+        }
+        else if (stackPointer > this.stack.length - 1) {
+            this.stackPointer = this.stack.length - 1;
+        }
+        else {
+            this.stackPointer = stackPointer;
+        }
+    }
+    decrementCurrentStackPointer() {
+        this.setCurrentStackPointer(--this.stackPointer);
+    }
+    incrementCurrentStackPointer() {
+        this.setCurrentStackPointer(++this.stackPointer);
+    }
+}
+/**
+ * @throws 1475358064
+ */
+export function getRunningAjaxRequest(ajaxRequestIdentifier) {
+    assert(utility.isNonEmptyString(ajaxRequestIdentifier), 'Invalid parameter "ajaxRequestIdentifier"', 1475358064);
+    return runningAjaxRequests[ajaxRequestIdentifier] || null;
+}
+const utility = new Utility();
+const dataBackend = new DataBackend();
+const runningAjaxRequests = {};
+const propertyValidationService = new PropertyValidationService();
+const applicationStateStack = new ApplicationStateStack();
+const publisherSubscriber = new PublisherSubscriber();
+const repository = new Repository();
+const factory = new Factory();
+export function getUtility() {
+    return utility;
+}
+export function getDataBackend() {
+    return dataBackend;
+}
+export function getPropertyValidationService() {
+    return propertyValidationService;
+}
+export function getApplicationStateStack() {
+    return applicationStateStack;
+}
+export function getPublisherSubscriber() {
+    return publisherSubscriber;
+}
+export function getFactory() {
+    return factory;
+}
+export function getRepository() {
+    return repository;
+}

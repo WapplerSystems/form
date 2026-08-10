@@ -1,0 +1,6 @@
+# Build staging output (not the shipped assets — those live in ../Resources/Public/JavaScript)
+/JavaScript/
+# tsc incremental cache
+/.cache/
+# symlink to the reused monorepo toolchain
+/node_modules

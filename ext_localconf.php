@@ -6,7 +6,7 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 use TYPO3\CMS\Form\Controller\FormFrontendController;
 use TYPO3\CMS\Form\Evaluation\EmailOrFormElementIdentifier;
-use TYPO3\CMS\Form\Hooks\FormElementHooks;
+use TYPO3\CMS\Form\Hooks\FormDefinitionDataHandlerHook;
 use TYPO3\CMS\Form\Hooks\ImportExportHook;
 use TYPO3\CMS\Form\Mvc\Property\PropertyMappingConfiguration;
 
@@ -17,35 +17,32 @@ if (ExtensionManagementUtility::isLoaded('impexp')) {
         = ImportExportHook::class . '->beforeAddSysFileRecordOnImport';
 }
 
-// Add module configuration
-ExtensionManagementUtility::addTypoScriptSetup('
-module.tx_form {
-    settings {
-        yamlConfigurations {
-            10 = EXT:form/Configuration/Yaml/FormSetup.yaml
-        }
-    }
+// Register RTE presets for form extension
+// form-label: Simple formatting for labels (bold, italic, link)
+if (empty($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['form-label'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['form-label'] = 'EXT:form/Configuration/RTE/FormLabel.yaml';
 }
-');
+// form-content: Extended formatting for content fields (includes lists)
+if (empty($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['form-content'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['form-content'] = 'EXT:form/Configuration/RTE/FormContent.yaml';
+}
 
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterSubmit'][1489772699] = FormElementHooks::class;
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['beforeRendering'][1489772699] = FormElementHooks::class;
+// Deny direct DataHandler write access to form_definition: only DatabaseStorageAdapter may persist form definitions
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['form'] = FormDefinitionDataHandlerHook::class;
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['form'] = FormDefinitionDataHandlerHook::class;
 
 // FE file upload processing
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterBuildingFinished'][1489772699] = PropertyMappingConfiguration::class;
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterFormStateInitialized'][1613296803] = PropertyMappingConfiguration::class;
-
-// Register "formvh:" namespace
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['formvh'][] = 'TYPO3\\CMS\\Form\\ViewHelpers';
 
 // Add validation call for input which contains email or form element identifier
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tce']['formevals'][EmailOrFormElementIdentifier::class] = '';
 
 // Register FE plugin
-ExtensionUtility::configurePlugin(
-    'Form',
-    'Formframework',
-    [FormFrontendController::class => ['render', 'perform']],
-    [FormFrontendController::class => ['perform']],
-    ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
-);
+ExtensionUtility::configurePlugin('Form', 'Formframework', [FormFrontendController::class => ['render', 'perform']], [FormFrontendController::class => ['perform']]);
+
+// WapplerSystems fork: ship the fork's own German labels (de.Database.xlf) as an
+// override so they are merged even when a downloaded "form" language pack
+// (var/labels/de/form/...) is present — the pack would otherwise win and the
+// fork's backend-editor labels would fall back to English.
+$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/Database.xlf'][]
+    = 'EXT:form/Resources/Private/Language/de.Database.xlf';

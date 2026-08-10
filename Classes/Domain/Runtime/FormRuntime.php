@@ -22,9 +22,11 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Domain\Runtime;
 
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Crypto\HashAlgo;
 use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Error\Http\BadRequestException;
 use TYPO3\CMS\Core\Exception\Crypto\InvalidHashStringException;
@@ -56,7 +58,19 @@ use TYPO3\CMS\Form\Domain\Renderer\RendererInterface;
 use TYPO3\CMS\Form\Domain\Runtime\Exception\PropertyMappingException;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime\FormSession;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime\Lifecycle\AfterFormStateInitializedInterface;
+use TYPO3\CMS\Form\Event\AfterCurrentPageIsResolvedEvent;
+use TYPO3\CMS\Form\Event\BeforeRenderableIsValidatedEvent;
 use TYPO3\CMS\Form\Exception as FormException;
+// WapplerSystems fork additions:
+use TYPO3\CMS\Form\Event\AfterFormIsValidatedEvent;
+use TYPO3\CMS\Form\Event\AfterFormStateInitializedEvent;
+use TYPO3\CMS\Form\Event\AfterFormRenderedEvent;
+use TYPO3\CMS\Form\Event\AfterFormSubmittedEvent;
+use TYPO3\CMS\Form\Event\AfterRenderableIsValidatedEvent;
+use TYPO3\CMS\Form\Event\AfterVariantAppliedEvent;
+use TYPO3\CMS\Form\Event\BeforeFinishersInvokedEvent;
+use TYPO3\CMS\Form\Event\BeforeFormIsValidatedEvent;
+use TYPO3\CMS\Form\Event\BeforeFormPageProcessedEvent;
 use TYPO3\CMS\Form\Mvc\Validation\EmptyValidator;
 use TYPO3\CMS\Form\Security\HashScope;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
@@ -165,6 +179,7 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         protected readonly HashService $hashService,
         protected readonly ValidatorResolver $validatorResolver,
         private readonly Context $context,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->response = new Response();
     }
@@ -238,11 +253,12 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
             $this->formState = GeneralUtility::makeInstance(FormState::class);
         } else {
             try {
-                $serializedFormState = $this->hashService->validateAndStripHmac($serializedFormStateWithHmac, HashScope::FormState->prefix());
+                $serializedFormState = $this->hashService->validateAndStripHmac($serializedFormStateWithHmac, HashScope::FormState->prefix(), HashAlgo::SHA3_256);
             } catch (InvalidHashStringException $e) {
                 throw new BadRequestException('The HMAC of the form state could not be validated.', 1581862823);
             }
-            $this->formState = unserialize(base64_decode($serializedFormState));
+            /* @phpstan-ignore unserialize.allowedClasses.insecure (Integrity check already happens via HMAC validation) */
+            $this->formState = unserialize(base64_decode($serializedFormState), ['allowed_classes' => true]);
         }
     }
 
@@ -254,12 +270,17 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 $hookObj->afterFormStateInitialized($this);
             }
         }
+
+        // WapplerSystems fork: PSR-14 replacement for the legacy hook above.
+        // Canonical point to prefill form values (fe_user, GET/POST, session)
+        // via the FormRuntime ArrayAccess API.
+        $this->eventDispatcher->dispatch(new AfterFormStateInitializedEvent($this));
     }
 
     /**
      * Initializes the current page data based on the current request, also modifiable by a hook
      */
-    protected function initializeCurrentPageFromRequest()
+    protected function initializeCurrentPageFromRequest(): void
     {
         // If there was no previous form submissions or if the current request
         // can't be processed (no POST request and/or cached) then display the first
@@ -270,26 +291,44 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
             if (!$this->currentPage->isEnabled()) {
                 throw new FormException('Disabling the first page is not allowed', 1527186844);
             }
-
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterInitializeCurrentPage'] ?? [] as $className) {
-                $hookObj = GeneralUtility::makeInstance($className);
-                if (method_exists($hookObj, 'afterInitializeCurrentPage')) {
-                    $this->currentPage = $hookObj->afterInitializeCurrentPage(
-                        $this,
-                        $this->currentPage,
-                        null,
-                        $this->request->getArguments()
-                    );
-                }
-            }
+            $this->dispatchCurrentPageInitializedEvent();
             return;
         }
 
         $this->lastDisplayedPage = $this->formDefinition->getPageByIndex($this->formState->getLastDisplayedPageIndex());
+        $currentPageIndex = $this->determineCurrentPageIndex();
+
+        if ($this->isLastPage($currentPageIndex)) {
+            $this->currentPage = null;
+        } else {
+            $this->currentPage = $this->formDefinition->getPageByIndex($currentPageIndex);
+            if (!$this->currentPage->isEnabled()) {
+                if ($currentPageIndex === 0) {
+                    throw new FormException('Disabling the first page is not allowed', 1527186845);
+                }
+                if ($this->userWentBackToPreviousStep()) {
+                    $this->currentPage = $this->getPreviousEnabledPage();
+                } else {
+                    $this->currentPage = $this->getNextEnabledPage();
+                }
+            }
+        }
+        $this->dispatchCurrentPageInitializedEvent($this->lastDisplayedPage);
+    }
+
+    private function isLastPage(int $currentPageIndex): bool
+    {
+        return $currentPageIndex >= count($this->formDefinition->getPages());
+    }
+
+    /**
+     * Get the current page index by resolving the request
+     */
+    private function determineCurrentPageIndex(): int
+    {
         /** @var ExtbaseRequestParameters $extbaseRequestParameters */
         $extbaseRequestParameters = $this->request->getAttribute('extbase');
         $currentPageIndex = (int)$extbaseRequestParameters->getInternalArgument('__currentPage');
-
         if ($this->userWentBackToPreviousStep()) {
             if ($currentPageIndex < $this->lastDisplayedPage->getIndex()) {
                 $currentPageIndex = $this->lastDisplayedPage->getIndex();
@@ -299,37 +338,23 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 $currentPageIndex = $this->lastDisplayedPage->getIndex() + 1;
             }
         }
+        return $currentPageIndex;
+    }
 
-        if ($currentPageIndex >= count($this->formDefinition->getPages())) {
-            // Last Page
-            $this->currentPage = null;
-        } else {
-            $this->currentPage = $this->formDefinition->getPageByIndex($currentPageIndex);
-
-            if (!$this->currentPage->isEnabled()) {
-                if ($currentPageIndex === 0) {
-                    throw new FormException('Disabling the first page is not allowed', 1527186845);
-                }
-
-                if ($this->userWentBackToPreviousStep()) {
-                    $this->currentPage = $this->getPreviousEnabledPage();
-                } else {
-                    $this->currentPage = $this->getNextEnabledPage();
-                }
-            }
-        }
-
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterInitializeCurrentPage'] ?? [] as $className) {
-            $hookObj = GeneralUtility::makeInstance($className);
-            if (method_exists($hookObj, 'afterInitializeCurrentPage')) {
-                $this->currentPage = $hookObj->afterInitializeCurrentPage(
-                    $this,
-                    $this->currentPage,
-                    $this->lastDisplayedPage,
-                    $this->request->getArguments()
-                );
-            }
-        }
+    /**
+     * Dispatches the AfterCurrentPageIsInitializedEvent event and sets the current page
+     */
+    private function dispatchCurrentPageInitializedEvent(?Page $lastDisplayedPage = null): void
+    {
+        $event = $this->eventDispatcher->dispatch(
+            new AfterCurrentPageIsResolvedEvent(
+                $this->currentPage,
+                $this,
+                $lastDisplayedPage,
+                $this->request,
+            )
+        );
+        $this->currentPage = $event->currentPage;
     }
 
     /**
@@ -466,9 +491,57 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 foreach ($variants as $variant) {
                     if ($variant->conditionMatches($conditionResolver)) {
                         $variant->apply();
+                        // WapplerSystems fork: notify listeners after each applied variant
+                        $this->eventDispatcher->dispatch(
+                            new AfterVariantAppliedEvent($renderable, $variant, $this)
+                        );
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * WapplerSystems fork: apply condition-based variants defined ON A FINISHER.
+     *
+     * Finishers are not renderables, so {@see processVariants()} cannot reach
+     * them. A finisher may carry a `variants` list inside its options, each entry
+     * being `{condition: <expr>, ...overrides}`. Every variant whose condition
+     * matches (evaluated with the same resolver as element variants — formValues,
+     * stepType, finisherIdentifier are in scope) is merged into the finisher
+     * options before execution. The primary use case is toggling
+     * `renderingOptions.enabled` based on a submitted form value (e.g. a
+     * "send me a copy" checkbox), replacing the dedicated CopyToSenderEmail finisher.
+     */
+    protected function processFinisherVariants(FinisherInterface $finisher): void
+    {
+        $options = $finisher->getOptions();
+        $variants = $options['variants'] ?? null;
+        if (!is_array($variants) || $variants === []) {
+            return;
+        }
+
+        $conditionResolver = $this->getConditionResolver();
+        $changed = false;
+        foreach ($variants as $variant) {
+            if (!is_array($variant)) {
+                continue;
+            }
+            $condition = (string)($variant['condition'] ?? '');
+            if ($condition === '' || !(bool)$conditionResolver->evaluate($condition, [])) {
+                continue;
+            }
+            $overrides = $variant;
+            unset($overrides['condition'], $overrides['identifier']);
+            if ($overrides === []) {
+                continue;
+            }
+            ArrayUtility::mergeRecursiveWithOverrule($options, $overrides);
+            $changed = true;
+        }
+
+        if ($changed) {
+            $finisher->setOptions($options);
         }
     }
 
@@ -515,6 +588,14 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
      */
     protected function processSubmittedFormValues()
     {
+        // WapplerSystems fork: dispatched before a submitted page is mapped and validated
+        $this->eventDispatcher->dispatch(
+            new BeforeFormPageProcessedEvent(
+                $this->lastDisplayedPage,
+                $this,
+                $this->request,
+            )
+        );
         $result = $this->mapAndValidatePage($this->lastDisplayedPage);
         if ($result->hasErrors() && !$this->userWentBackToPreviousStep()) {
             $this->currentPage = $this->lastDisplayedPage;
@@ -541,6 +622,11 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         $result = GeneralUtility::makeInstance(Result::class);
         $requestArguments = $this->request->getArguments();
 
+        // WapplerSystems fork: aggregate-level companion to BeforeRenderableIsValidatedEvent
+        $this->eventDispatcher->dispatch(
+            new BeforeFormIsValidatedEvent($page, $this, $this->request)
+        );
+
         $propertyPathsForWhichPropertyMappingShouldHappen = [];
         $registerPropertyPaths = static function ($propertyPath) use (&$propertyPathsForWhichPropertyMappingShouldHappen) {
             $propertyPathParts = explode('.', $propertyPath);
@@ -552,19 +638,14 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
             }
         };
 
-        $value = null;
-
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterSubmit'] ?? [] as $className) {
-            $hookObj = GeneralUtility::makeInstance($className);
-            if (method_exists($hookObj, 'afterSubmit')) {
-                $value = $hookObj->afterSubmit(
-                    $this,
-                    $page,
-                    $value,
-                    $requestArguments
-                );
-            }
-        }
+        $this->eventDispatcher->dispatch(
+            new BeforeRenderableIsValidatedEvent(
+                null,
+                $this,
+                $page,
+                $this->request,
+            )
+        );
 
         foreach ($page->getElementsRecursively() as $element) {
             if (!$this->isRenderableEnabled($element)) {
@@ -577,17 +658,15 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 $value = null;
             }
 
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterSubmit'] ?? [] as $className) {
-                $hookObj = GeneralUtility::makeInstance($className);
-                if (method_exists($hookObj, 'afterSubmit')) {
-                    $value = $hookObj->afterSubmit(
-                        $this,
-                        $element,
-                        $value,
-                        $requestArguments
-                    );
-                }
-            }
+            $event = $this->eventDispatcher->dispatch(
+                new BeforeRenderableIsValidatedEvent(
+                    $value,
+                    $this,
+                    $element,
+                    $this->request,
+                )
+            );
+            $value = $event->value;
 
             $this->formState->setFormValue($element->getIdentifier(), $value);
             $registerPropertyPaths($element->getIdentifier());
@@ -615,8 +694,30 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 }
                 $result->forProperty($this->getIdentifier() . '.' . $propertyPath)->merge($processingRule->getProcessingMessages());
                 $this->formState->setFormValue($propertyPath, $value);
+
+                // WapplerSystems fork: per-renderable companion to BeforeRenderableIsValidatedEvent.
+                // Fires after this field's processing rule ran; listeners can inspect or add
+                // field-scoped errors via $event->validationResult->addError(...).
+                $validatedRenderable = $this->formDefinition->getElementByIdentifier($propertyPath);
+                if ($validatedRenderable instanceof RenderableInterface) {
+                    $this->eventDispatcher->dispatch(
+                        new AfterRenderableIsValidatedEvent(
+                            $validatedRenderable,
+                            $value,
+                            $this,
+                            $this->request,
+                            $result->forProperty($this->getIdentifier() . '.' . $propertyPath)
+                        )
+                    );
+                }
             }
         }
+
+        // WapplerSystems fork: cross-field validators and validation-logging listeners hook here.
+        // Listeners can mutate $result via forProperty(...)->addError(...).
+        $this->eventDispatcher->dispatch(
+            new AfterFormIsValidatedEvent($page, $this, $this->request, $result)
+        );
 
         return $result;
     }
@@ -647,6 +748,13 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         }
         $this->processVariants();
 
+        // WapplerSystems fork (Feature 6): elements whose visibility is driven by a
+        // same-page condition must be rendered so the frontend module can toggle them
+        // live. processVariants() may have disabled them for the initial state; re-enable
+        // those client-managed ones for rendering (the client applies the initial state,
+        // the server re-evaluates authoritatively on submit).
+        $this->reEnableClientConditionElements();
+
         $this->formState->setLastDisplayedPageIndex($this->currentPage->getIndex());
 
         if ($this->formDefinition->getRendererClassName() === '') {
@@ -659,7 +767,59 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         }
 
         $renderer->setFormRuntime($this);
-        return $renderer->render();
+
+        // WapplerSystems fork: markup post-processing hook (tracking pixel, JSON
+        // island for client-side logic, CSP nonces). Listeners may rewrite the markup.
+        $event = $this->eventDispatcher->dispatch(
+            new AfterFormRenderedEvent($this, (string)$renderer->render())
+        );
+        return $event->renderedContent;
+    }
+
+    /**
+     * WapplerSystems fork (Feature 6): re-enable elements that a same-page variant
+     * disabled, so the frontend live-conditions module can show/hide them. Only
+     * elements with a variant that (a) sets renderingOptions.enabled and (b) has a
+     * client-evaluable condition (references traverse(formValues, …) and no
+     * server-only context like stepType/finisherIdentifier) are touched. Server-only
+     * conditional fields keep their server-decided visibility.
+     */
+    protected function reEnableClientConditionElements(): void
+    {
+        foreach ($this->formDefinition->getRenderablesRecursively() as $renderable) {
+            if (!$renderable instanceof VariableRenderableInterface) {
+                continue;
+            }
+            if (($renderable->getRenderingOptions()['enabled'] ?? true) !== false) {
+                continue;
+            }
+            foreach ($renderable->getVariants() as $variant) {
+                $condition = $variant->getCondition();
+                $options = $variant->getOptions();
+                $setsEnabled = array_key_exists('enabled', $options['renderingOptions'] ?? []);
+                if ($setsEnabled && $this->isClientEvaluableCondition($condition)) {
+                    $renderable->setRenderingOption('enabled', true);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * A condition is client-evaluable if it reads submitted values via
+     * traverse(formValues, …) and uses no server-only context.
+     */
+    protected function isClientEvaluableCondition(string $condition): bool
+    {
+        if (!str_contains($condition, 'traverse(formValues')) {
+            return false;
+        }
+        foreach (['stepType', 'finisherIdentifier', 'previousPage', 'currentPage', 'finisher'] as $serverOnly) {
+            if (str_contains($condition, $serverOnly)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -677,9 +837,21 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         $this->response->getBody()->rewind();
         $originalContent = $this->response->getBody()->getContents();
         $this->response->getBody()->write('');
-        foreach ($this->formDefinition->getFinishers() as $finisher) {
+
+        // WapplerSystems fork: fires once before the chain. Listeners may
+        // reorder/filter/inject finishers (mutable $finishers) or cancel the
+        // whole chain via the FinisherContext.
+        $beforeEvent = $this->eventDispatcher->dispatch(
+            new BeforeFinishersInvokedEvent($this, $this->formDefinition->getFinishers(), $finisherContext)
+        );
+
+        foreach ($beforeEvent->finishers as $finisher) {
+            if ($finisherContext->isCancelled()) {
+                break;
+            }
             $this->currentFinisher = $finisher;
             $this->processVariants();
+            $this->processFinisherVariants($finisher);
 
             $finisherOutput = $finisher->execute($finisherContext);
             if (is_string($finisherOutput) && !empty($finisherOutput)) {
@@ -696,6 +868,18 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
         }
         $this->response->getBody()->rewind();
         $this->response->getBody()->write($originalContent);
+
+        // WapplerSystems fork: fires exactly once after the whole finisher
+        // chain — the hook for "submission complete" actions (conversion /
+        // analytics tracking, CRM sync, single follow-up action).
+        $this->eventDispatcher->dispatch(
+            new AfterFormSubmittedEvent(
+                $this,
+                $this->getFormState()?->getFormValues() ?? [],
+                $output,
+                $finisherContext->isCancelled()
+            )
+        );
 
         return $output;
     }

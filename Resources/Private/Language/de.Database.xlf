@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="EXT:form/Resources/Private/Language/Database.xlf" date="2026-06-28T00:00:00Z" product-name="form">
+    <header/>
+    <body>
+      <!-- Fork: backend editor section labels (resolved via editorConfiguration) -->
+      <trans-unit id="formEditor.elements.FormElement.editor.variants.label">
+        <source>Variants &amp; conditions</source>
+        <target>Varianten &amp; Bedingungen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.FormElement.editor.translations.label">
+        <source>Translations</source>
+        <target>Übersetzungen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.translationsOverview.label">
+        <source>Form translations</source>
+        <target>Formularübersetzungen</target>
+      </trans-unit>
+
+      <!-- Fork: email content editor (modal labels, resolved via editorConfiguration) -->
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.editButton">
+        <source>Edit email content</source>
+        <target>E-Mail-Inhalt bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.modalTitle">
+        <source>Email content</source>
+        <target>E-Mail-Inhalt</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.template">
+        <source>Template</source>
+        <target>Vorlage</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.html">
+        <source>HTML</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.plain">
+        <source>Plain text</source>
+        <target>Klartext</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.tab.preview">
+        <source>Preview</source>
+        <target>Vorschau</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.refreshPreview">
+        <source>Refresh preview</source>
+        <target>Vorschau aktualisieren</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.close">
+        <source>Close</source>
+        <target>Schließen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.plainHint">
+        <source>Leave empty to derive the plain-text part from the HTML body automatically. Use {formValues} to position the submitted values.</source>
+        <target>Leer lassen, um den Klartext-Teil automatisch aus dem HTML-Inhalt abzuleiten. Verwenden Sie {formValues}, um die übermittelten Werte zu platzieren.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.insertMarker">
+        <source>Insert field marker…</source>
+        <target>Feldmarkierung einfügen…</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.allValuesMarker">
+        <source>All form values (table)</source>
+        <target>Alle Formularwerte (Tabelle)</target>
+      </trans-unit>
+
+      <!-- Fork: per-site-language email finisher option -->
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.language.label">
+        <source>Translation language</source>
+        <target>Übersetzungssprache</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.Email.editor.language.option.frontend">
+        <source>Same as frontend rendering</source>
+        <target>Wie Frontend-Ausgabe</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.language.label">
+        <source>Translation language</source>
+        <target>Übersetzungssprache</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.language.label">
+        <source>Translation language</source>
+        <target>Übersetzungssprache</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.language.label">
+        <source>Translation language</source>
+        <target>Übersetzungssprache</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.language.label">
+        <source>Translation language</source>
+        <target>Übersetzungssprache</target>
+      </trans-unit>
+
+      <!-- Fork: additional finisher header labels -->
+      <trans-unit id="formEditor.elements.Form.finisher.RedirectToUri.editor.header.label">
+        <source>Redirect to URI</source>
+        <target>Weiterleitung zu URI</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.FeUser.editor.header.label">
+        <source>Frontend user registration (fe_users)</source>
+        <target>Frontend-Benutzerregistrierung (fe_users)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.AttachUploadsToObject.editor.header.label">
+        <source>Attach uploads to a database record (FAL)</source>
+        <target>Uploads an einen Datenbankdatensatz anhängen (FAL)</target>
+      </trans-unit>
+
+      <!-- Fork: editor JS labels (delivered via TYPO3.settings.FormEditor.labels) -->
+      <trans-unit id="formEditor.js.conditionBuilder.title">
+        <source>Condition builder</source>
+        <target>Bedingungs-Editor</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.cancel">
+        <source>Cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.apply">
+        <source>Apply</source>
+        <target>Übernehmen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.addRule">
+        <source>+ Add rule</source>
+        <target>+ Regel hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.addGroup">
+        <source>+ Add group</source>
+        <target>+ Gruppe hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.removeGroup">
+        <source>Remove group</source>
+        <target>Gruppe entfernen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.removeRule">
+        <source>Remove rule</source>
+        <target>Regel entfernen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.value">
+        <source>value</source>
+        <target>Wert</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.fieldPlaceholder">
+        <source>— field —</source>
+        <target>— Feld —</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.valuePlaceholder">
+        <source>— value —</source>
+        <target>— Wert —</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.and">
+        <source>AND — all must match</source>
+        <target>UND — alle müssen zutreffen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.or">
+        <source>OR — any may match</source>
+        <target>ODER — eine genügt</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.unparsed">
+        <source>This condition could not be parsed into the visual builder and is shown as raw expression. Edit it directly below.</source>
+        <target>Diese Bedingung konnte nicht in den visuellen Editor übernommen werden und wird als Rohausdruck angezeigt. Bearbeiten Sie sie direkt unten.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.alwaysTrue">
+        <source>(always true — no rules)</source>
+        <target>(immer wahr — keine Regeln)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.eq">
+        <source>equals</source>
+        <target>ist gleich</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.neq">
+        <source>not equals</source>
+        <target>ungleich</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.lt">
+        <source>less than</source>
+        <target>kleiner als</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.lte">
+        <source>less than or equal</source>
+        <target>kleiner oder gleich</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.gt">
+        <source>greater than</source>
+        <target>größer als</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.gte">
+        <source>greater than or equal</source>
+        <target>größer oder gleich</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.in">
+        <source>is one of</source>
+        <target>ist eines von</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.conditionBuilder.op.notIn">
+        <source>is not one of</source>
+        <target>ist keines von</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.add">
+        <source>Add variant</source>
+        <target>Variante hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.variantPrefix">
+        <source>Variant</source>
+        <target>Variante</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.build">
+        <source>Build…</source>
+        <target>Erstellen…</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.conditionPlaceholder">
+        <source>e.g. traverse(formValues, "fieldId") == 1</source>
+        <target>z. B. traverse(formValues, "fieldId") == 1</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.variants.requiredWhen">
+        <source>Required when condition matches</source>
+        <target>Pflichtfeld, wenn Bedingung zutrifft</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.editButton">
+        <source>Edit email content</source>
+        <target>E-Mail-Inhalt bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.html">
+        <source>HTML</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainText">
+        <source>Plain text</source>
+        <target>Klartext</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.templatePrefix">
+        <source>Template</source>
+        <target>Vorlage</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainLabel">
+        <source>plain text</source>
+        <target>Klartext</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainCustom">
+        <source>custom</source>
+        <target>benutzerdefiniert</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.plainAuto">
+        <source>auto (from HTML)</source>
+        <target>automatisch (aus HTML)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.sendTest">
+        <source>Send test email</source>
+        <target>Test-E-Mail senden</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.loadingPreview">
+        <source>Loading preview…</source>
+        <target>Vorschau wird geladen…</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testTitle">
+        <source>Test email</source>
+        <target>Test-E-Mail</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testEndpointUnavailable">
+        <source>The test-send endpoint is not available.</source>
+        <target>Der Endpunkt zum Test-Versand ist nicht verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testSent">
+        <source>Test email sent.</source>
+        <target>Test-E-Mail gesendet.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.email.testFailed">
+        <source>Could not send the test email.</source>
+        <target>Test-E-Mail konnte nicht gesendet werden.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.edit">
+        <source>Translate…</source>
+        <target>Übersetzen…</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.editWholeForm">
+        <source>Translate whole form…</source>
+        <target>Gesamtes Formular übersetzen…</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.translationsLabel">
+        <source>Translations</source>
+        <target>Übersetzungen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.completenessLabel">
+        <source>Completeness</source>
+        <target>Vollständigkeit</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.noLanguages">
+        <source>No additional site languages configured.</source>
+        <target>Keine weiteren Sprachen konfiguriert.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.elementNothing">
+        <source>This element has no label, placeholder, options or custom validation messages to translate.</source>
+        <target>Dieses Element hat kein Label, keinen Platzhalter, keine Optionen und keine eigenen Validierungsmeldungen zum Übersetzen.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.field">
+        <source>Field</source>
+        <target>Feld</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.modalTitle">
+        <source>Translations</source>
+        <target>Übersetzungen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.formModalTitle">
+        <source>Form translations</source>
+        <target>Formularübersetzungen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.nothingHere">
+        <source>Nothing translatable here.</source>
+        <target>Hier gibt es nichts zu übersetzen.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.translation.noLanguagesForSite">
+        <source>No additional site languages are configured for this site.</source>
+        <target>Für diese Website sind keine weiteren Sprachen konfiguriert.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.js.common.close">
+        <source>Close</source>
+        <target>Schließen</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -25,6 +25,7 @@ use TYPO3\CMS\Core\Country\CountryProvider;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\FormElements\StringableFormElementInterface;
@@ -95,14 +96,14 @@ final class RenderFormValueViewHelper extends AbstractViewHelper
      * @param mixed $value
      * @return mixed
      */
-    protected function processElementValue(
+    private function processElementValue(
         FormElementInterface $element,
         $value
     ) {
         $properties = $element->getProperties();
         $options = $properties['options'] ?? null;
         if ($element->getType() === 'CountrySelect') {
-            $country = GeneralUtility::makeInstance(CountryProvider::class)->getByIsoCode($value);
+            $country = GeneralUtility::makeInstance(CountryProvider::class)->getByIsoCode($value ?? '');
             if ($country !== null) {
                 return (string)LocalizationUtility::translate($country->getLocalizedNameLabel());
             }
@@ -119,6 +120,13 @@ final class RenderFormValueViewHelper extends AbstractViewHelper
             }
             return self::mapValueToOption($value, $options);
         }
+        if ($value instanceof ObjectStorage) {
+            $result = [];
+            foreach ($value as $item) {
+                $result[] = is_object($item) ? self::processObject($element, $item) : $item;
+            }
+            return $result;
+        }
         if (is_object($value)) {
             return self::processObject($element, $value);
         }
@@ -130,7 +138,7 @@ final class RenderFormValueViewHelper extends AbstractViewHelper
      *
      * @see mapValueToOption()
      */
-    protected static function mapValuesToOptions(array $value, array $options): array
+    private static function mapValuesToOptions(array $value, array $options): array
     {
         $result = [];
         foreach ($value as $key) {
@@ -146,7 +154,7 @@ final class RenderFormValueViewHelper extends AbstractViewHelper
      * @param mixed $value
      * @return mixed
      */
-    protected static function mapValueToOption($value, array $options)
+    private static function mapValueToOption($value, array $options)
     {
         return $options[$value] ?? $value;
     }
@@ -156,7 +164,7 @@ final class RenderFormValueViewHelper extends AbstractViewHelper
      *
      * @param object $object
      */
-    protected static function processObject(FormElementInterface $element, $object): string
+    private static function processObject(FormElementInterface $element, $object): string
     {
         if ($element instanceof StringableFormElementInterface) {
             return $element->valueToString($object);
@@ -181,13 +189,13 @@ final class RenderFormValueViewHelper extends AbstractViewHelper
         return 'Object [' . get_class($object) . ']';
     }
 
-    protected static function isEnabled(RenderableInterface $renderable): bool
+    private static function isEnabled(RenderableInterface $renderable): bool
     {
         if (!$renderable->isEnabled()) {
             return false;
         }
         while ($renderable = $renderable->getParentRenderable()) {
-            if ($renderable instanceof RenderableInterface && !$renderable->isEnabled()) {
+            if (!$renderable->isEnabled()) {
                 return false;
             }
         }

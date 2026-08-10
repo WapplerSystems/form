@@ -10,4 +10,26 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import l from"@typo3/core/document-service.js";import"@typo3/backend/input/clearable.js";class a{constructor(){this.clearableElements=null,l.ready().then(()=>{this.clearableElements=document.querySelectorAll(".t3js-clearable"),this.initializeClearableElements()})}initializeClearableElements(){this.clearableElements.forEach(e=>e.clearable())}}var t=new a;export{t as default};
+import DocumentService from '@typo3/core/document-service.js';
+import RegularEvent from '@typo3/core/event/regular-event.js';
+/**
+ * Module: @typo3/form/backend/form-manager/main
+ * JavaScript for form manager
+ * @exports @typo3/form/backend/form-manager/main
+ */
+class FormManager {
+    constructor() {
+        DocumentService.ready().then(() => {
+            const searchField = document.getElementById('search_field');
+            if (searchField !== null) {
+                const searchResultShown = searchField.value !== '';
+                new RegularEvent('search', () => {
+                    if (searchField.value === '' && searchResultShown) {
+                        searchField.closest('form').requestSubmit();
+                    }
+                }).bindTo(searchField);
+            }
+        });
+    }
+}
+export default new FormManager();

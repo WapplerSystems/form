@@ -29,6 +29,19 @@ interface RenderableVariantInterface
     public function getIdentifier(): string;
 
     /**
+     * WapplerSystems fork: raw condition expression of this variant.
+     */
+    public function getCondition(): string;
+
+    /**
+     * WapplerSystems fork: override options carried by this variant
+     * (condition/identifier/variants stripped).
+     *
+     * @return array<string, mixed>
+     */
+    public function getOptions(): array;
+
+    /**
      * Apply the specified variant to this form element
      * regardless of their conditions
      */

@@ -1,0 +1,16 @@
+prototypes:
+  standard:
+    finishersDefinition:
+      FeUser:
+        implementationClassName: TYPO3\CMS\Form\Domain\Finishers\FeUserFinisher
+        formEditor:
+          iconIdentifier: form-finisher
+          label: formEditor.elements.Form.finisher.FeUser.editor.header.label
+          predefinedDefaults:
+            options:
+              mode: 'insert'
+              pid: ''
+              elements: {}
+              databaseColumnMappings: {}
+              whereClause: {}
+              dataProcessors: {}

@@ -37,6 +37,14 @@ class MultiValuePropertiesExtractor extends AbstractExtractor
             && $value !== 'Inspector-MultiSelectEditor'
             && $value !== 'Inspector-CountrySelectEditor'
             && $value !== 'Inspector-ValidationErrorMessageEditor'
+            // WapplerSystems fork: finisher variants editor — its propertyPath
+            // ("options.variants") is a multi-value prefix so nested finisher
+            // variant paths survive the editor save.
+            && $value !== 'Inspector-VariantsEditor'
+            // WapplerSystems fork (Feature 7): finisher translation editor — its
+            // propertyPath ("options.translation.overrides") is a multi-value prefix so
+            // per-language finisher option overrides survive the editor save.
+            && $value !== 'Inspector-TranslationEditor'
         ) {
             return;
         }
@@ -62,6 +70,13 @@ class MultiValuePropertiesExtractor extends AbstractExtractor
         if (
             $value === 'Inspector-PropertyGridEditor'
             || $value === 'Inspector-MultiSelectEditor'
+            // WapplerSystems fork: register the finisher variants editor's
+            // propertyPath under the collection element so finishers.<n>.options.variants.*
+            // is allowed on save.
+            || $value === 'Inspector-VariantsEditor'
+            // WapplerSystems fork (Feature 7): same for the finisher translation editor,
+            // so finishers.<n>.options.translation.overrides.* is allowed on save.
+            || $value === 'Inspector-TranslationEditor'
         ) {
             $identifierPath = implode(
                 '.',

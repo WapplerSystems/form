@@ -18,11 +18,16 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Controller;
 
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Dto\Breadcrumb\BreadcrumbNode;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Http\AllowedMethodsTrait;
+use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -42,13 +47,23 @@ use TYPO3\CMS\Extbase\Mvc\View\JsonView;
 use TYPO3\CMS\Form\Domain\Configuration\ConfigurationService;
 use TYPO3\CMS\Form\Domain\Configuration\FormDefinitionConversionService;
 use TYPO3\CMS\Form\Domain\Exception\RenderingException;
+use Symfony\Component\Mime\Address;
+use TYPO3\CMS\Core\Mail\FluidEmail;
+use TYPO3\CMS\Core\Mail\MailerInterface;
+use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
+use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Form\Domain\Factory\ArrayFormFactory;
+use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
+use TYPO3\CMS\Form\Event\BeforeFormIsSavedEvent;
 use TYPO3\CMS\Form\Exception;
 use TYPO3\CMS\Form\Mvc\Configuration\ConfigurationManagerInterface as ExtFormConfigurationManagerInterface;
 use TYPO3\CMS\Form\Mvc\Persistence\Exception\PersistenceManagerException;
 use TYPO3\CMS\Form\Mvc\Persistence\FormPersistenceManagerInterface;
+use TYPO3\CMS\Form\Service\DatabaseService;
+use TYPO3\CMS\Form\Service\FormEditorEnrichmentService;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Form\Type\FormDefinitionArray;
+use TYPO3\CMS\Form\Utility\DateRangeValidatorPatterns;
 
 /**
  * The form editor controller
@@ -74,6 +89,10 @@ class FormEditorController extends ActionController
         protected readonly UriBuilder $coreUriBuilder,
         protected readonly ArrayFormFactory $arrayFormFactory,
         protected readonly ViewFactoryInterface $viewFactory,
+        protected readonly DatabaseService $databaseService,
+        protected readonly CacheManager $cacheManager,
+        protected readonly ComponentFactory $componentFactory,
+        protected readonly FormEditorEnrichmentService $formEditorEnrichmentService,
     ) {}
 
     /**
@@ -81,10 +100,13 @@ class FormEditorController extends ActionController
      *
      * @throws PersistenceManagerException
      */
-    protected function indexAction(string $formPersistenceIdentifier, ?string $prototypeName = null): ResponseInterface
+    protected function indexAction(string $formPersistenceIdentifier = '', ?string $prototypeName = null, string $returnUrl = ''): ResponseInterface
     {
+        if ($formPersistenceIdentifier === '') {
+            return new RedirectResponse((string)$this->coreUriBuilder->buildUriFromRoute('form_manager'));
+        }
         $formSettings = $this->getFormSettings();
-        if (!$this->formPersistenceManager->isAllowedPersistencePath($formPersistenceIdentifier, $formSettings)) {
+        if (!$this->formPersistenceManager->isAllowedPersistenceIdentifier($formPersistenceIdentifier)) {
             throw new PersistenceManagerException(sprintf('Read "%s" is not allowed', $formPersistenceIdentifier), 1614500662);
         }
         if (PathUtility::isExtensionPath($formPersistenceIdentifier)
@@ -92,7 +114,7 @@ class FormEditorController extends ActionController
         ) {
             throw new PersistenceManagerException('Edit an extension formDefinition is not allowed.', 1478265661);
         }
-        $formDefinition = $this->formPersistenceManager->load($formPersistenceIdentifier, $formSettings, []);
+        $formDefinition = $this->formPersistenceManager->load($formPersistenceIdentifier);
         if ($prototypeName === null) {
             $prototypeName = $formDefinition['prototypeName'] ?? 'standard';
         } else {
@@ -124,11 +146,58 @@ class FormEditorController extends ActionController
             'additionalViewModelModules' => $additionalViewModelJavaScriptModules,
             'maximumUndoSteps' => $prototypeConfiguration['formEditor']['maximumUndoSteps'],
         ];
-        $moduleTemplate = $this->initializeModuleTemplate($this->request);
+        $moduleTemplate = $this->initializeModuleTemplate($this->request, $returnUrl);
         $moduleTemplate->assign('formEditorTemplates', $this->renderFormEditorTemplates($prototypeConfiguration, $formEditorDefinitions));
+        $moduleTemplate->getDocHeaderComponent()->addBreadcrumbSuffixNode(new BreadcrumbNode(
+            identifier: $formPersistenceIdentifier,
+            label: $formDefinition['label'],
+            icon: 'content-form',
+        ));
+        // WapplerSystems fork: server-resolved labels for the editor JavaScript
+        // (variants, condition builder, email content, translations). Delivered via
+        // TYPO3.settings.FormEditor.labels and localized through Database.xlf /
+        // de.Database.xlf, so the editor UI follows the backend user's language.
+        $ll = fn(string $key): string => (string)$this->getLanguageService()->sL(
+            'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.js.' . $key
+        );
+        $jsLabelKeys = [
+            'conditionBuilder.title', 'conditionBuilder.cancel', 'conditionBuilder.apply',
+            'conditionBuilder.addRule', 'conditionBuilder.addGroup', 'conditionBuilder.removeGroup',
+            'conditionBuilder.removeRule', 'conditionBuilder.value', 'conditionBuilder.fieldPlaceholder',
+            'conditionBuilder.valuePlaceholder', 'conditionBuilder.and', 'conditionBuilder.or',
+            'conditionBuilder.unparsed', 'conditionBuilder.alwaysTrue',
+            'conditionBuilder.op.eq', 'conditionBuilder.op.neq', 'conditionBuilder.op.lt',
+            'conditionBuilder.op.lte', 'conditionBuilder.op.gt', 'conditionBuilder.op.gte',
+            'conditionBuilder.op.in', 'conditionBuilder.op.notIn',
+            'variants.add', 'variants.variantPrefix', 'variants.build',
+            'variants.conditionPlaceholder', 'variants.requiredWhen',
+            'email.editButton', 'email.html', 'email.plainText', 'email.templatePrefix',
+            'email.plainLabel', 'email.plainCustom', 'email.plainAuto', 'email.sendTest',
+            'email.loadingPreview', 'email.testTitle', 'email.testEndpointUnavailable',
+            'email.testSent', 'email.testFailed',
+            'translation.edit', 'translation.editWholeForm', 'translation.translationsLabel',
+            'translation.completenessLabel', 'translation.noLanguages', 'translation.elementNothing',
+            'translation.field', 'translation.modalTitle', 'translation.formModalTitle',
+            'translation.nothingHere', 'translation.noLanguagesForSite',
+            'common.close',
+        ];
+        $jsLabels = [];
+        foreach ($jsLabelKeys as $jsLabelKey) {
+            $jsLabels[$jsLabelKey] = $ll($jsLabelKey);
+        }
         $addInlineSettings = [
             'FormEditor' => [
                 'typo3WinBrowserUrl' => (string)$this->coreUriBuilder->buildUriFromRoute('wizard_element_browser'),
+                // WapplerSystems fork (Feature 3): endpoint for the server-side email content preview
+                'emailPreviewUrl' => $this->uriBuilder->uriFor('renderEmailPreview'),
+                // WapplerSystems fork (editor helper): test-send endpoint + default recipient (BE user mail)
+                'sendTestEmailUrl' => $this->uriBuilder->uriFor('sendTestEmail'),
+                'testEmailRecipient' => (string)($GLOBALS['BE_USER']->user['email'] ?? ''),
+                'dateEditor' => [
+                    'absolutePattern' => DateRangeValidatorPatterns::RFC3339_FULL_DATE,
+                ],
+                // WapplerSystems fork: localized labels for hardcoded editor JS strings
+                'labels' => $jsLabels,
             ],
         ];
         $addInlineSettings = array_replace_recursive(
@@ -152,8 +221,7 @@ class FormEditorController extends ActionController
                 ->invoke('dispatchFormEditor', $javaScriptModules, $formEditorAppInitialData)
         );
         array_map($pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(...), $javaScriptModules);
-        $pageRenderer->addInlineSettingArray(null, $addInlineSettings);
-        $pageRenderer->addInlineLanguageLabelFile('EXT:form/Resources/Private/Language/locallang_formEditor_failSafeErrorHandling_javascript.xlf');
+        $pageRenderer->addInlineSettingArray('', $addInlineSettings);
         $stylesheets = $prototypeConfiguration['formEditor']['stylesheets'];
         foreach ($stylesheets as $stylesheet) {
             $pageRenderer->addCssFile($stylesheet);
@@ -161,7 +229,7 @@ class FormEditorController extends ActionController
         $moduleTemplate->setModuleClass($this->request->getPluginName() . '_' . $this->request->getControllerName());
         $moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
         $moduleTemplate->setTitle(
-            $this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/locallang_module.xlf:mlang_tabs_tab'),
+            $this->getLanguageService()->translate('title', 'form.module'),
             $formDefinition['label']
         );
         return $moduleTemplate->renderResponse('Backend/FormEditor/Index');
@@ -183,24 +251,20 @@ class FormEditorController extends ActionController
     protected function saveFormAction(string $formPersistenceIdentifier, FormDefinitionArray $formDefinition): ResponseInterface
     {
         $formDefinition = $formDefinition->getArrayCopy();
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['beforeFormSave'] ?? [] as $className) {
-            $hookObj = GeneralUtility::makeInstance($className);
-            if (method_exists($hookObj, 'beforeFormSave')) {
-                $formDefinition = $hookObj->beforeFormSave(
-                    $formPersistenceIdentifier,
-                    $formDefinition
-                );
-            }
-        }
+        $event = $this->eventDispatcher->dispatch(
+            new BeforeFormIsSavedEvent($formPersistenceIdentifier, $formDefinition, $this->request),
+        );
+        $formPersistenceIdentifier = $event->formPersistenceIdentifier;
+        $formDefinition = $event->form;
         $response = [
             'status' => 'success',
         ];
         try {
-            $formSettings = $this->getFormSettings();
-            if (!$this->formPersistenceManager->isAllowedPersistencePath($formPersistenceIdentifier, $formSettings)) {
+            if (!$this->formPersistenceManager->isAllowedPersistenceIdentifier($formPersistenceIdentifier)) {
                 throw new PersistenceManagerException(sprintf('Save "%s" is not allowed', $formPersistenceIdentifier), 1614500663);
             }
-            $this->formPersistenceManager->save($formPersistenceIdentifier, $formDefinition, $formSettings);
+            $this->formPersistenceManager->save($formPersistenceIdentifier, $formDefinition, []);
+            $this->flushPageCache($formPersistenceIdentifier);
             $prototypeConfiguration = $this->configurationService->getPrototypeConfiguration($formDefinition['prototypeName']);
             $formDefinition = $this->transformFormDefinitionForFormEditor($prototypeConfiguration, $formDefinition, $formPersistenceIdentifier);
             $response['formDefinition'] = $formDefinition;
@@ -245,6 +309,257 @@ class FormEditorController extends ActionController
         $form->setCurrentSiteLanguage($this->buildFakeSiteLanguage(0, 0));
         $form->overrideCurrentPage($pageIndex);
         return $this->htmlResponse($form->render());
+    }
+
+    /**
+     * WapplerSystems fork (Feature 3): render a faithful preview of an email finisher's
+     * message using the REAL Fluid email template (SystemEmail layout chrome + the
+     * form-values table), so the editor preview matches the actual email. Returns
+     * JSON { html, plain }. Renders in preview mode with empty submitted values
+     * (the form-values table shows the field labels with "-").
+     */
+    protected function renderEmailPreviewAction(
+        FormDefinitionArray $formDefinition,
+        string $finisherIdentifier = '',
+        string $message = '',
+        string $plainMessage = '',
+        string $emailTemplateName = 'Default',
+        ?string $prototypeName = null
+    ): ResponseInterface {
+        $html = '';
+        $plain = '';
+        try {
+            $sampleMap = [];
+            $fluidEmail = $this->prepareSampleEmail(
+                $formDefinition,
+                $finisherIdentifier,
+                $message,
+                $plainMessage,
+                $emailTemplateName,
+                $prototypeName,
+                $sampleMap
+            );
+            $fluidEmail->assign('title', 'Email preview');
+            $html = (string)$fluidEmail->getHtmlBody(true);
+            $plain = (string)$fluidEmail->getTextBody(true);
+        } catch (\Throwable $e) {
+            $html = '<p style="font-family:sans-serif;color:#a94442">Preview could not be rendered: '
+                . htmlspecialchars($e->getMessage()) . '</p>';
+        }
+
+        return $this->jsonResponse((string)json_encode(['html' => $html, 'plain' => $plain]));
+    }
+
+    /**
+     * WapplerSystems fork (Feature 3 / editor helper): send a TEST email of the
+     * finisher's content (with sample values + real layout) to the given recipient,
+     * so editors can see the actual mail in their inbox without submitting the form.
+     * Returns JSON { status: success|error, message }.
+     */
+    protected function sendTestEmailAction(
+        FormDefinitionArray $formDefinition,
+        string $recipient = '',
+        string $finisherIdentifier = '',
+        string $message = '',
+        string $plainMessage = '',
+        string $emailTemplateName = 'Default',
+        ?string $prototypeName = null
+    ): ResponseInterface {
+        $recipient = trim($recipient);
+        if ($recipient === '' || !GeneralUtility::validEmail($recipient)) {
+            return $this->jsonResponse((string)json_encode([
+                'status' => 'error',
+                'message' => 'Please enter a valid recipient email address.',
+            ]));
+        }
+
+        // Subject from the posted finisher options, resolved with the sample values.
+        $subject = 'Test email';
+        foreach (($formDefinition['finishers'] ?? []) as $finisher) {
+            if (is_array($finisher) && ($finisher['identifier'] ?? '') === $finisherIdentifier) {
+                $subject = (string)($finisher['options']['subject'] ?? $subject);
+                break;
+            }
+        }
+
+        try {
+            $sampleMap = [];
+            $fluidEmail = $this->prepareSampleEmail(
+                $formDefinition,
+                $finisherIdentifier,
+                $message,
+                $plainMessage,
+                $emailTemplateName,
+                $prototypeName,
+                $sampleMap
+            );
+            $subject = $subject !== '' ? strtr($subject, $sampleMap) : 'Test email';
+            $fluidEmail->assign('title', $subject);
+            $fluidEmail->subject('[Test] ' . $subject);
+            $fluidEmail->to(new Address($recipient));
+
+            $fromAddress = MailUtility::getSystemFromAddress();
+            if (is_string($fromAddress) && $fromAddress !== '') {
+                $fluidEmail->from(new Address($fromAddress, (string)(MailUtility::getSystemFromName() ?? '')));
+            }
+
+            GeneralUtility::makeInstance(MailerInterface::class)->send($fluidEmail);
+        } catch (\Throwable $e) {
+            return $this->jsonResponse((string)json_encode([
+                'status' => 'error',
+                'message' => 'Could not send the test email: ' . $e->getMessage(),
+            ]));
+        }
+
+        return $this->jsonResponse((string)json_encode([
+            'status' => 'success',
+            'message' => 'Test email sent to ' . $recipient . '.',
+        ]));
+    }
+
+    /**
+     * WapplerSystems fork: build a FluidEmail for the email content preview / test-send.
+     * Builds the form in preview mode, fills type-appropriate sample values (form state
+     * for the {formValues} table + a {field}-placeholder map returned via $sampleMap),
+     * and assigns the split message/plain body. The caller renders or sends it.
+     */
+    protected function prepareSampleEmail(
+        FormDefinitionArray $formDefinition,
+        string $finisherIdentifier,
+        string $message,
+        string $plainMessage,
+        string $emailTemplateName,
+        ?string $prototypeName,
+        array &$sampleMap
+    ): FluidEmail {
+        $prototypeName = $prototypeName ?: ($formDefinition['prototypeName'] ?? 'standard');
+        $formDefinitionArray = $formDefinition->getArrayCopy();
+        $formDefinitionArray['renderingOptions']['previewMode'] = true;
+
+        $builtForm = $this->arrayFormFactory->build($formDefinitionArray, $prototypeName, $this->request);
+        $formRuntime = $builtForm->bind($this->request);
+        $formRuntime->setCurrentSiteLanguage($this->buildFakeSiteLanguage(0, 0));
+
+        $sampleMap = [];
+        foreach ($formRuntime->getFormDefinition()->getRenderablesRecursively() as $renderable) {
+            $identifier = $renderable->getIdentifier();
+            if ($identifier === '' || $identifier === 'formValues') {
+                continue;
+            }
+            $sample = $this->buildSampleFormValue($renderable);
+            if ($sample === null) {
+                continue;
+            }
+            $formRuntime->getFormState()->setFormValue($identifier, $sample);
+            $sampleMap['{' . $identifier . '}'] = is_array($sample) ? implode(', ', $sample) : (string)$sample;
+        }
+        if ($sampleMap !== []) {
+            $message = strtr($message, $sampleMap);
+            $plainMessage = strtr($plainMessage, $sampleMap);
+        }
+
+        $prototypeConfiguration = $this->configurationService->getPrototypeConfiguration($prototypeName);
+        $finisherOptions = $prototypeConfiguration['finishersDefinition'][$finisherIdentifier]['options'] ?? [];
+        $templateRootPaths = is_array($finisherOptions['templateRootPaths'] ?? null) ? $finisherOptions['templateRootPaths'] : [];
+
+        $fluidEmail = GeneralUtility::makeInstance(TemplatedEmailFactory::class)->createWithOverrides(
+            $templateRootPaths,
+            [],
+            [],
+            $this->request
+        );
+        $fluidEmail->setTemplate($emailTemplateName !== '' ? $emailTemplateName : 'Default');
+
+        // Mirror EmailFinisher: split the HTML body around the {formValues} placeholder.
+        if ($message !== '') {
+            $message = (string)preg_replace('/>\s+</', '><', $message);
+            $placeholderPos = strpos($message, '{formValues}');
+            if ($placeholderPos !== false) {
+                $fluidEmail->assign('messageBefore', substr($message, 0, $placeholderPos));
+                $fluidEmail->assign('messageAfter', substr($message, $placeholderPos + strlen('{formValues}')));
+            } else {
+                $fluidEmail->assign('messageBefore', $message);
+                $fluidEmail->assign('messageAfter', '');
+                $fluidEmail->assign('hideFormValues', true);
+            }
+        }
+        if ($plainMessage !== '') {
+            $fluidEmail->assign('plainMessageProvided', true);
+            $placeholderPos = strpos($plainMessage, '{formValues}');
+            if ($placeholderPos !== false) {
+                $fluidEmail->assign('plainMessageBefore', substr($plainMessage, 0, $placeholderPos));
+                $fluidEmail->assign('plainMessageAfter', substr($plainMessage, $placeholderPos + strlen('{formValues}')));
+            } else {
+                $fluidEmail->assign('plainMessageBefore', $plainMessage);
+                $fluidEmail->assign('plainMessageAfter', '');
+                $fluidEmail->assign('hidePlainFormValues', true);
+            }
+        }
+
+        $fluidEmail->assign('form', $formRuntime);
+        $fluidEmail->getViewHelperVariableContainer()->addOrUpdate(
+            RenderRenderableViewHelper::class,
+            'formRuntime',
+            $formRuntime
+        );
+
+        return $fluidEmail;
+    }
+
+    /**
+     * WapplerSystems fork (Feature 3): build a type-appropriate sample value for the
+     * email preview. Returns null for elements that carry no submittable value
+     * (Form/Page/Fieldset/StaticText/Honeypot/Hidden/Password …), which are skipped.
+     *
+     * @return array<int, string>|string|null
+     */
+    protected function buildSampleFormValue(mixed $renderable): array|string|null
+    {
+        if (!is_object($renderable) || !method_exists($renderable, 'getType')) {
+            return null;
+        }
+        $type = (string)$renderable->getType();
+        $properties = method_exists($renderable, 'getProperties') ? (array)$renderable->getProperties() : [];
+        $options = is_array($properties['options'] ?? null) ? $properties['options'] : [];
+        $optionKeys = array_map('strval', array_keys($options));
+
+        return match ($type) {
+            'Text' => $this->pickSample(['Alex Johnson', 'Maria García', 'Sam Becker']),
+            'Textarea' => 'This is a sample answer shown only in the preview.',
+            'Email' => 'jane.doe@example.com',
+            'Telephone' => '+49 151 23456789',
+            'Url' => 'https://example.com',
+            'Number' => (string)random_int(1, 20),
+            'Date', 'DatePicker' => date('Y-m-d'),
+            'Time' => '14:30',
+            'Checkbox' => '1',
+            'SingleSelect', 'RadioButton' => $optionKeys !== [] ? $optionKeys[array_rand($optionKeys)] : 'option-1',
+            'MultiSelect', 'MultiCheckbox' => $this->pickSampleOptions($optionKeys),
+            'CountrySelect' => $this->pickSample(['DE', 'AT', 'CH', 'ES']),
+            'FileUpload', 'ImageUpload' => 'document.pdf',
+            default => null,
+        };
+    }
+
+    /**
+     * @param array<int, string> $samples
+     */
+    protected function pickSample(array $samples): string
+    {
+        return $samples[array_rand($samples)];
+    }
+
+    /**
+     * @param array<int, string> $optionKeys
+     * @return array<int, string>
+     */
+    protected function pickSampleOptions(array $optionKeys): array
+    {
+        if ($optionKeys === []) {
+            return ['option-1'];
+        }
+        shuffle($optionKeys);
+        return array_slice($optionKeys, 0, min(2, count($optionKeys)));
     }
 
     protected function getFormSettings(): array
@@ -352,6 +667,7 @@ class FormEditorController extends ActionController
             }
         }
         $formEditorDefinitions = ArrayUtility::reIndexNumericArrayKeysRecursive($formEditorDefinitions);
+        $formEditorDefinitions = $this->formEditorEnrichmentService->enrichFormEditorDefinitions($formEditorDefinitions);
         return $this->translationService->translateValuesRecursive(
             $formEditorDefinitions,
             $prototypeConfiguration['formEditor']['translationFiles'] ?? []
@@ -361,21 +677,17 @@ class FormEditorController extends ActionController
     /**
      * Initialize ModuleTemplate and register docheader icons.
      */
-    protected function initializeModuleTemplate(RequestInterface $request): ModuleTemplate
+    protected function initializeModuleTemplate(RequestInterface $request, string $returnUrl = ''): ModuleTemplate
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
         $getVars = $request->getArguments();
         if (isset($getVars['action']) && $getVars['action'] === 'index') {
-            $closeButton = $buttonBar->makeLinkButton()
+            $closeUrl = $returnUrl !== '' ? $returnUrl : (string)$this->coreUriBuilder->buildUriFromRoute('web_FormFormbuilder');
+            $closeButton = $this->componentFactory->createCloseButton($closeUrl)
                 ->setDataAttributes(['identifier' => 'closeButton'])
-                ->setHref((string)$this->coreUriBuilder->buildUriFromRoute('web_FormFormbuilder'))
-                ->setClasses('formeditor-element-close-form-button hidden')
-                ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:rm.closeDoc'))
-                ->setShowLabelText(true)
-                ->setIcon($this->iconFactory->getIcon('actions-close', IconSize::SMALL));
-            $buttonBar->addButton($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
-            $saveButton = $buttonBar->makeInputButton()
+                ->setClasses('formeditor-element-close-form-button hidden');
+            $moduleTemplate->addButtonToButtonBar($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
+            $saveButton = $this->componentFactory->createInputButton()
                 ->setDataAttributes(['identifier' => 'saveButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.save_button'))
                 ->setName('formeditor-save-form')
@@ -383,23 +695,23 @@ class FormEditorController extends ActionController
                 ->setClasses('formeditor-element-save-form-button hidden')
                 ->setIcon($this->iconFactory->getIcon('actions-document-save', IconSize::SMALL))
                 ->setShowLabelText(true);
-            $buttonBar->addButton($saveButton, ButtonBar::BUTTON_POSITION_LEFT, 3);
-            $undoButton = $buttonBar->makeInputButton()
+            $moduleTemplate->addButtonToButtonBar($saveButton, ButtonBar::BUTTON_POSITION_LEFT, 3);
+            $undoButton = $this->componentFactory->createInputButton()
                 ->setDataAttributes(['identifier' => 'undoButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.undo_button'))
                 ->setName('formeditor-undo-form')
                 ->setValue('undo')
                 ->setClasses('formeditor-element-undo-form-button hidden disabled')
                 ->setIcon($this->iconFactory->getIcon('actions-edit-undo', IconSize::SMALL));
-            $buttonBar->addButton($undoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
-            $redoButton = $buttonBar->makeInputButton()
+            $moduleTemplate->addButtonToButtonBar($undoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
+            $redoButton = $this->componentFactory->createInputButton()
                 ->setDataAttributes(['identifier' => 'redoButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.redo_button'))
                 ->setName('formeditor-redo-form')
                 ->setValue('redo')
                 ->setClasses('formeditor-element-redo-form-button hidden disabled')
                 ->setIcon($this->iconFactory->getIcon('actions-edit-redo', IconSize::SMALL));
-            $buttonBar->addButton($redoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
+            $moduleTemplate->addButtonToButtonBar($redoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
         }
         return $moduleTemplate;
     }
@@ -469,8 +781,7 @@ class FormEditorController extends ActionController
         }
         $formDefinition = $this->filterEmptyArrays($formDefinition);
         $formDefinition = $this->migrateEmailFinisherRecipients($formDefinition);
-        // @todo: replace with rte parsing
-        $formDefinition = ArrayUtility::stripTagsFromValuesRecursive($formDefinition);
+
         $formDefinition = $this->transformMultiValuePropertiesForFormEditor(
             $formDefinition,
             'type',
@@ -481,6 +792,16 @@ class FormEditorController extends ActionController
             'identifier',
             $multiValueFinisherProperties
         );
+
+        $rtePropertyPaths = $this->formDefinitionConversionService->extractRtePropertyPaths($prototypeConfiguration);
+        if ($rtePropertyPaths !== []) {
+            $formDefinition = $this->formDefinitionConversionService->transformRteContentForRichTextEditor(
+                $formDefinition,
+                $rtePropertyPaths
+            );
+        }
+
+        $formDefinition = $this->formDefinitionConversionService->sanitizeHtml($formDefinition, $rtePropertyPaths);
         $formDefinition = $this->formDefinitionConversionService->addHmacData($formDefinition, $formPersistenceIdentifier);
         return $this->formDefinitionConversionService->migrateFinisherConfiguration($formDefinition);
     }
@@ -614,6 +935,23 @@ class FormEditorController extends ActionController
             $formDefinition['finishers'][$i] = $finisherConfiguration;
         }
         return $formDefinition;
+    }
+
+    protected function flushPageCache(string $formPersistenceIdentifier): void
+    {
+        $pageIdList = [];
+        $referenceRows = $this->databaseService->getReferencesByPersistenceIdentifier($formPersistenceIdentifier);
+        foreach ($referenceRows as $referenceRow) {
+            $record = BackendUtility::getRecord($referenceRow['tablename'], $referenceRow['recuid']);
+            if (!$record) {
+                continue;
+            }
+            $pageIdList[] = $record['pid'];
+        }
+
+        foreach (array_unique($pageIdList) as $pageId) {
+            $this->cacheManager->flushCachesInGroupByTag('pages', 'pageId_' . $pageId);
+        }
     }
 
     protected function getLanguageService(): LanguageService

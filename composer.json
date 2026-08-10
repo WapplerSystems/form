@@ -1,28 +1,48 @@
 {
-	"name": "typo3/cms-form",
+	"name": "wapplersystems/form",
 	"type": "typo3-cms-framework",
-	"description": "TYPO3 CMS Form - Flexible TYPO3 frontend form framework that comes with a backend editor interface.",
-	"homepage": "https://typo3.org",
-	"license": ["GPL-2.0-or-later"],
-	"authors": [{
-		"name": "TYPO3 Core Team",
-		"email": "typo3cms@typo3.org",
-		"role": "Developer"
-	}],
+	"description": "WapplerSystems fork of typo3/cms-form — extended backend editor (variants/conditions UI), additional events, cross-field validators (e.g. entropy spam filter).",
+	"homepage": "https://github.com/WapplerSystems/form",
+	"license": [
+		"GPL-2.0-or-later"
+	],
+	"authors": [
+		{
+			"name": "Sven Wappler",
+			"email": "typo3@wappler.systems",
+			"role": "Maintainer of fork"
+		},
+		{
+			"name": "TYPO3 Core Team",
+			"email": "typo3cms@typo3.org",
+			"role": "Upstream developer"
+		}
+	],
 	"support": {
-		"chat": "https://typo3.org/help",
-		"docs": "https://docs.typo3.org/c/typo3/cms-form/main/en-us",
-		"issues": "https://forge.typo3.org",
-		"source": "https://github.com/typo3/typo3"
+		"issues": "https://github.com/WapplerSystems/form/issues",
+		"source": "https://github.com/WapplerSystems/form"
 	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"config": {
-		"sort-packages": true
+		"sort-packages": true,
+		"allow-plugins": {
+			"typo3/class-alias-loader": true,
+			"typo3/cms-composer-installers": true
+		}
 	},
 	"require": {
 		"psr/http-message": "^1.1 || ^2.0",
 		"symfony/expression-language": "^7.4",
 		"typo3/cms-core": "13.4.*@dev",
 		"typo3/cms-frontend": "13.4.*@dev"
+	},
+	"require-dev": {
+		"typo3/cms-rte-ckeditor": "13.4.*@dev",
+		"typo3/testing-framework": "^9.0.0"
+	},
+	"replace": {
+		"typo3/cms-form": "self.version"
 	},
 	"suggest": {
 		"typo3/cms-filelist": "Listing of files in the directory",
@@ -34,6 +54,7 @@
 	},
 	"extra": {
 		"branch-alias": {
+			"dev-release/v13": "13.4.x-dev",
 			"dev-main": "13.4.x-dev"
 		},
 		"typo3/cms": {
@@ -46,6 +67,11 @@
 	"autoload": {
 		"psr-4": {
 			"TYPO3\\CMS\\Form\\": "Classes/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"TYPO3\\CMS\\Form\\Tests\\": "Tests/"
 		}
 	}
 }
