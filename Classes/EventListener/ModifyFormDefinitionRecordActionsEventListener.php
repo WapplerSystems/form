@@ -20,11 +20,11 @@ namespace TYPO3\CMS\Form\EventListener;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListTableActionsEvent;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\Components\ActionGroup;
-use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
+use TYPO3\CMS\Backend\Template\Components\LinkButton;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Form\Domain\Repository\FormDefinitionRepository;
 
 /**
@@ -39,7 +39,6 @@ use TYPO3\CMS\Form\Domain\Repository\FormDefinitionRepository;
 final readonly class ModifyFormDefinitionRecordActionsEventListener
 {
     public function __construct(
-        private ComponentFactory $componentFactory,
         private IconFactory $iconFactory,
         private UriBuilder $uriBuilder,
     ) {}
@@ -47,38 +46,39 @@ final readonly class ModifyFormDefinitionRecordActionsEventListener
     #[AsEventListener('form-framework/modify-form-definition-record-list-actions', method: 'modifyRecordListRecordActions')]
     public function modifyRecordListRecordActions(ModifyRecordListRecordActionsEvent $event): void
     {
-        if ($event->getRecord()->getMainType() !== FormDefinitionRepository::TABLE_NAME) {
+        $record = $event->getRecord();
+        if (($record['type'] ?? '') !== FormDefinitionRepository::TABLE_NAME) {
             return;
         }
 
-        $uid = $event->getRecord()->getUid();
+        $uid = (int)$record['uid'];
         $formPersistenceIdentifier = (string)$uid;
 
         // Replace the "edit" action with a link to the Form Editor
-        if ($event->hasAction('edit', ActionGroup::primary)) {
+        if ($event->hasAction('edit', 'primary')) {
             $returnUrl = (string)$event->getRecordList()->listURL();
             $editUrl = (string)$this->uriBuilder->buildUriFromRoute('form_editor', [
                 'formPersistenceIdentifier' => $formPersistenceIdentifier,
                 'returnUrl' => $returnUrl,
             ]);
 
-            $editButton = $this->componentFactory->createLinkButton()
+            $editButton = GeneralUtility::makeInstance(LinkButton::class)
                 ->setIcon($this->iconFactory->getIcon('actions-open', IconSize::SMALL))
                 ->setTitle($GLOBALS['LANG']->sL('core.mod_web_list:edit'))
                 ->setHref($editUrl);
 
-            $event->setAction($editButton, 'edit', ActionGroup::primary);
+            $event->setAction($editButton->render(), 'edit', 'primary');
         }
 
-        // The “delete” action is being removed because references in the FlexForm are not taken into account
+        // The "delete" action is being removed because references in the FlexForm are not taken into account
         // (no warning is displayed).
-        $event->removeAction('delete', ActionGroup::primary);
+        $event->removeAction('delete', 'primary');
     }
 
     /**
-     * The “edit” action is being removed, as it is not possible to edit multiple forms simultaneously.
+     * The "edit" action is being removed, as it is not possible to edit multiple forms simultaneously.
      * The form editor should always be used for editing.
-     * The “delete” action is being removed because references in the FlexForm are not taken into account
+     * The "delete" action is being removed because references in the FlexForm are not taken into account
      * (no warning is displayed).
      */
     #[AsEventListener('form-framework/modify-form-definition-record-list-table-actions', method: 'modifyRecordListTableActions')]

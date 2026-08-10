@@ -42,3 +42,23 @@ CREATE TABLE tx_form_validation_log (
 	KEY idx_session (session_hash),
 	KEY idx_crdate (crdate)
 );
+
+#
+# WapplerSystems fork: webhook delivery log.
+# Used by the WebhookFinisher to track outgoing HTTP requests —
+# status code, attempts, success flag, response excerpt.
+#
+CREATE TABLE tx_form_webhook_log (
+	uid              INT(11) UNSIGNED        NOT NULL AUTO_INCREMENT,
+	crdate           INT(11) UNSIGNED        DEFAULT 0 NOT NULL,
+	form_identifier  VARCHAR(100)            DEFAULT '' NOT NULL,
+	url              VARCHAR(2048)           DEFAULT '' NOT NULL,
+	http_method      VARCHAR(10)             DEFAULT '' NOT NULL,
+	status_code      INT(11)                 DEFAULT 0 NOT NULL,
+	attempts         SMALLINT(5) UNSIGNED    DEFAULT 0 NOT NULL,
+	success          TINYINT(1) UNSIGNED     DEFAULT 0 NOT NULL,
+	response_excerpt TEXT,
+	PRIMARY KEY (uid),
+	KEY idx_form (form_identifier,crdate),
+	KEY idx_crdate (crdate)
+);

@@ -21,7 +21,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -77,7 +76,6 @@ class FormManagerController extends ActionController
         protected readonly CharsetConverter $charsetConverter,
         protected readonly UriBuilder $coreUriBuilder,
         protected readonly YamlSource $yamlSource,
-        protected readonly ComponentFactory $componentFactory,
     ) {}
 
     /**
@@ -509,29 +507,13 @@ class FormManagerController extends ActionController
     protected function initializeModuleTemplate(ServerRequestInterface $request, int $page, string $searchTerm): ModuleTemplate
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
-        // Create new
-        $addFormButton = $this->componentFactory->createLinkButton()
+        $addFormButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\LinkButton::class)
             ->setDataAttributes(['identifier' => 'newForm'])
             ->setHref('#')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.create_new_form'))
             ->setShowLabelText(true)
             ->setIcon($this->iconFactory->getIcon('actions-plus', IconSize::SMALL));
-        $moduleTemplate->addButtonToButtonBar($addFormButton);
-        // Shortcut
-        $arguments = [];
-        if ($searchTerm) {
-            $arguments['tx_form_web_formformbuilder']['searchTerm'] = $searchTerm;
-            $arguments['tx_form_web_formformbuilder']['controller'] = 'FormManager';
-        }
-        if ($page > 1) {
-            $arguments['tx_form_web_formformbuilder']['page'] = $page;
-            $arguments['tx_form_web_formformbuilder']['controller'] = 'FormManager';
-        }
-        $moduleTemplate->getDocHeaderComponent()->setShortcutContext(
-            'web_FormFormbuilder',
-            $this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:module.shortcut_name'),
-            $arguments
-        );
+        $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($addFormButton);
         return $moduleTemplate;
     }
 

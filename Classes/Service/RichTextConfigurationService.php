@@ -23,8 +23,7 @@ use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface;
-use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -44,8 +43,6 @@ readonly class RichTextConfigurationService
     public function __construct(
         private Richtext $richtext,
         private RteHtmlParser $rteHtmlParser,
-        private SystemResourcePublisherInterface $resourcePublisher,
-        private SystemResourceFactory $systemResourceFactory,
         private UriBuilder $uriBuilder,
     ) {}
 
@@ -311,8 +308,8 @@ readonly class RichTextConfigurationService
      */
     private function resolveUrlPath(string $value): string
     {
-        $resource = $this->systemResourceFactory->createPublicResource($value);
-        return (string)$this->resourcePublisher->generateUri($resource, null);
+        $path = GeneralUtility::getFileAbsFileName($value);
+        return PathUtility::getAbsoluteWebPath($path);
     }
 
     private function getBackendUser(): BackendUserAuthentication

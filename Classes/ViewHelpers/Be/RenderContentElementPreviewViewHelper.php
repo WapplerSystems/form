@@ -18,9 +18,6 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\ViewHelpers\Be;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
-use TYPO3\CMS\Backend\Context\PageContext;
-use TYPO3\CMS\Backend\Context\PageContextFactory;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendLayout\BackendLayout;
@@ -29,9 +26,8 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 use TYPO3\CMS\Backend\View\Drawing\DrawingConfiguration;
 use TYPO3\CMS\Backend\View\PageLayoutContext;
 use TYPO3\CMS\Backend\View\PageViewMode;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Domain\RecordFactory;
 use TYPO3\CMS\Core\Http\NormalizedParams;
+use TYPO3\CMS\Core\Site\Entity\NullSite;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
@@ -44,7 +40,6 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  * @see https://docs.typo3.org/permalink/t3viewhelper:typo3-form-be-rendercontentelementpreview
  * @internal
  */
-#[Autoconfigure(public: true)]
 final class RenderContentElementPreviewViewHelper extends AbstractViewHelper
 {
     /**
@@ -55,7 +50,6 @@ final class RenderContentElementPreviewViewHelper extends AbstractViewHelper
     protected $escapeOutput = false;
 
     public function __construct(
-        private readonly PageContextFactory $pageContextFactory,
         private readonly UriBuilder $uriBuilder,
     ) {}
 
@@ -76,36 +70,24 @@ final class RenderContentElementPreviewViewHelper extends AbstractViewHelper
         }
         if (!empty($contentRecord) && $request !== null) {
             $backendLayout = GeneralUtility::makeInstance(BackendLayout::class, 'dummy', 'dummy', []);
-            $pageId = (int)$contentRecord['pid'];
-            $pageContext = $request->getAttribute('pageContext');
-            if (!$pageContext instanceof PageContext) {
-                try {
-                    $pageContext = $this->pageContextFactory->createFromRequest($request, $pageId, $this->getBackendUser());
-                } catch (\Exception $e) {
-                    return '';
-                }
-            }
+            $pageRow = BackendUtility::getRecord('pages', $contentRecord['pid']);
 
             $manipulatedRequest = $this->getManipulatedRequestToFormEditor($request, $contentRecord);
+            $GLOBALS['TYPO3_REQUEST'] = $manipulatedRequest;
 
             $pageLayoutContext = GeneralUtility::makeInstance(
                 PageLayoutContext::class,
-                $pageContext,
+                $pageRow,
                 $backendLayout,
-                DrawingConfiguration::create($backendLayout, BackendUtility::getPagesTSconfig($pageId), PageViewMode::LayoutView),
+                $request->getAttribute('site') ?? new NullSite(),
+                DrawingConfiguration::create($backendLayout, BackendUtility::getPagesTSconfig($contentRecord['pid']), PageViewMode::LayoutView),
                 $manipulatedRequest
             );
             $gridColumn = GeneralUtility::makeInstance(GridColumn::class, $pageLayoutContext, []);
-            $contentRecord = GeneralUtility::makeInstance(RecordFactory::class)->createResolvedRecordFromDatabaseRow('tt_content', $contentRecord, null, $pageLayoutContext->getRecordIdentityMap());
             $columnItem = GeneralUtility::makeInstance(GridColumnItem::class, $pageLayoutContext, $gridColumn, $contentRecord);
             return $columnItem->getPreview();
         }
         return $content;
-    }
-
-    private function getBackendUser(): BackendUserAuthentication
-    {
-        return $GLOBALS['BE_USER'];
     }
 
     /**
@@ -136,7 +118,7 @@ final class RenderContentElementPreviewViewHelper extends AbstractViewHelper
         }
 
         $uri = $this->uriBuilder->buildUriFromRoute(
-            'form_editor',
+            'web_FormFormbuilder.FormEditor_index',
             ['formPersistenceIdentifier' => $formPersistenceIdentifier]
         );
         return (string)$uri;

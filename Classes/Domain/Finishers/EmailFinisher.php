@@ -22,7 +22,6 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
-use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -33,6 +32,7 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Event\BeforeEmailFinisherInitializedEvent;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
+use TYPO3\CMS\Fluid\View\TemplatePaths;
 // WapplerSystems fork additions:
 use TYPO3\CMS\Form\Event\AfterMailSentEvent;
 use TYPO3\CMS\Form\Event\MailBeforeSendingEvent;
@@ -77,7 +77,6 @@ class EmailFinisher extends AbstractFinisher
 
     public function __construct(
         protected readonly EventDispatcherInterface $eventDispatcher,
-        protected readonly TemplatedEmailFactory $templatedEmailFactory,
         protected readonly MailerInterface $mailer,
     ) {}
 
@@ -235,14 +234,31 @@ class EmailFinisher extends AbstractFinisher
         );
     }
 
+    protected function initializeTemplatePaths(array $globalConfig, array $localConfig): TemplatePaths
+    {
+        $templatePaths = new TemplatePaths();
+        $templatePaths->setTemplateRootPaths(array_merge(
+            $globalConfig['templateRootPaths'] ?? [],
+            $localConfig['templateRootPaths'] ?? [],
+        ));
+        $templatePaths->setLayoutRootPaths(array_merge(
+            $globalConfig['layoutRootPaths'] ?? [],
+            $localConfig['layoutRootPaths'] ?? [],
+        ));
+        $templatePaths->setPartialRootPaths(array_merge(
+            $globalConfig['partialRootPaths'] ?? [],
+            $localConfig['partialRootPaths'] ?? [],
+        ));
+        return $templatePaths;
+    }
+
     protected function initializeFluidEmail(FormRuntime $formRuntime): FluidEmail
     {
-        $mailMessage = $this->templatedEmailFactory->createWithOverrides(
-            $this->options['templateRootPaths'] ?? [],
-            $this->options['layoutRootPaths'] ?? [],
-            $this->options['partialRootPaths'] ?? [],
-            $this->finisherContext->getRequest(),
+        $templatePaths = $this->initializeTemplatePaths(
+            $GLOBALS['TYPO3_CONF_VARS']['MAIL'],
+            $this->options,
         );
+        $fluidEmail = GeneralUtility::makeInstance(FluidEmail::class, $templatePaths);
 
         if (!isset($this->options['templateName']) || $this->options['templateName'] === '') {
             throw new FinisherException('The option "templateName" must be set to use FluidEmail.', 1599834020);
@@ -253,7 +269,7 @@ class EmailFinisher extends AbstractFinisher
             $this->options['templateName'] = 'Default';
         }
 
-        $mailMessage
+        $fluidEmail
             ->setTemplate($this->options['templateName'])
             ->assignMultiple([
                 'finisherVariableProvider' => $this->finisherContext->getFinisherVariableProvider(),
@@ -261,14 +277,14 @@ class EmailFinisher extends AbstractFinisher
             ]);
 
         if (is_array($this->options['variables'] ?? null)) {
-            $mailMessage->assignMultiple($this->options['variables']);
+            $fluidEmail->assignMultiple($this->options['variables']);
         }
 
-        $mailMessage
+        $fluidEmail
             ->getViewHelperVariableContainer()
             ->addOrUpdate(RenderRenderableViewHelper::class, 'formRuntime', $formRuntime);
 
-        return $mailMessage;
+        return $fluidEmail;
     }
 
     protected function getRecipients(string $listOption): array

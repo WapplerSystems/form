@@ -18,10 +18,8 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Controller;
 
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Backend\Dto\Breadcrumb\BreadcrumbNode;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -50,7 +48,6 @@ use TYPO3\CMS\Form\Domain\Exception\RenderingException;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
-use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Form\Domain\Factory\ArrayFormFactory;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
@@ -64,6 +61,7 @@ use TYPO3\CMS\Form\Service\FormEditorEnrichmentService;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Form\Type\FormDefinitionArray;
 use TYPO3\CMS\Form\Utility\DateRangeValidatorPatterns;
+use TYPO3\CMS\Fluid\View\TemplatePaths;
 
 /**
  * The form editor controller
@@ -91,7 +89,6 @@ class FormEditorController extends ActionController
         protected readonly ViewFactoryInterface $viewFactory,
         protected readonly DatabaseService $databaseService,
         protected readonly CacheManager $cacheManager,
-        protected readonly ComponentFactory $componentFactory,
         protected readonly FormEditorEnrichmentService $formEditorEnrichmentService,
     ) {}
 
@@ -148,11 +145,6 @@ class FormEditorController extends ActionController
         ];
         $moduleTemplate = $this->initializeModuleTemplate($this->request, $returnUrl);
         $moduleTemplate->assign('formEditorTemplates', $this->renderFormEditorTemplates($prototypeConfiguration, $formEditorDefinitions));
-        $moduleTemplate->getDocHeaderComponent()->addBreadcrumbSuffixNode(new BreadcrumbNode(
-            identifier: $formPersistenceIdentifier,
-            label: $formDefinition['label'],
-            icon: 'content-form',
-        ));
         // WapplerSystems fork: server-resolved labels for the editor JavaScript
         // (variants, condition builder, email content, translations). Delivered via
         // TYPO3.settings.FormEditor.labels and localized through Database.xlf /
@@ -462,12 +454,9 @@ class FormEditorController extends ActionController
         $finisherOptions = $prototypeConfiguration['finishersDefinition'][$finisherIdentifier]['options'] ?? [];
         $templateRootPaths = is_array($finisherOptions['templateRootPaths'] ?? null) ? $finisherOptions['templateRootPaths'] : [];
 
-        $fluidEmail = GeneralUtility::makeInstance(TemplatedEmailFactory::class)->createWithOverrides(
-            $templateRootPaths,
-            [],
-            [],
-            $this->request
-        );
+        $templatePaths = new TemplatePaths();
+        $templatePaths->setTemplateRootPaths($templateRootPaths);
+        $fluidEmail = GeneralUtility::makeInstance(FluidEmail::class, $templatePaths);
         $fluidEmail->setTemplate($emailTemplateName !== '' ? $emailTemplateName : 'Default');
 
         // Mirror EmailFinisher: split the HTML body around the {formValues} placeholder.
@@ -683,11 +672,13 @@ class FormEditorController extends ActionController
         $getVars = $request->getArguments();
         if (isset($getVars['action']) && $getVars['action'] === 'index') {
             $closeUrl = $returnUrl !== '' ? $returnUrl : (string)$this->coreUriBuilder->buildUriFromRoute('web_FormFormbuilder');
-            $closeButton = $this->componentFactory->createCloseButton($closeUrl)
+            $closeButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\LinkButton::class)
+                ->setHref($closeUrl)
                 ->setDataAttributes(['identifier' => 'closeButton'])
-                ->setClasses('formeditor-element-close-form-button hidden');
-            $moduleTemplate->addButtonToButtonBar($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
-            $saveButton = $this->componentFactory->createInputButton()
+                ->setClasses('formeditor-element-close-form-button hidden btn btn-sm btn-default close')
+                ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.close'));
+            $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
+            $saveButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\InputButton::class)
                 ->setDataAttributes(['identifier' => 'saveButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.save_button'))
                 ->setName('formeditor-save-form')
@@ -695,23 +686,23 @@ class FormEditorController extends ActionController
                 ->setClasses('formeditor-element-save-form-button hidden')
                 ->setIcon($this->iconFactory->getIcon('actions-document-save', IconSize::SMALL))
                 ->setShowLabelText(true);
-            $moduleTemplate->addButtonToButtonBar($saveButton, ButtonBar::BUTTON_POSITION_LEFT, 3);
-            $undoButton = $this->componentFactory->createInputButton()
+            $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($saveButton, ButtonBar::BUTTON_POSITION_LEFT, 3);
+            $undoButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\InputButton::class)
                 ->setDataAttributes(['identifier' => 'undoButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.undo_button'))
                 ->setName('formeditor-undo-form')
                 ->setValue('undo')
                 ->setClasses('formeditor-element-undo-form-button hidden disabled')
                 ->setIcon($this->iconFactory->getIcon('actions-edit-undo', IconSize::SMALL));
-            $moduleTemplate->addButtonToButtonBar($undoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
-            $redoButton = $this->componentFactory->createInputButton()
+            $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($undoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
+            $redoButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\InputButton::class)
                 ->setDataAttributes(['identifier' => 'redoButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.redo_button'))
                 ->setName('formeditor-redo-form')
                 ->setValue('redo')
                 ->setClasses('formeditor-element-redo-form-button hidden disabled')
                 ->setIcon($this->iconFactory->getIcon('actions-edit-redo', IconSize::SMALL));
-            $moduleTemplate->addButtonToButtonBar($redoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
+            $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($redoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
         }
         return $moduleTemplate;
     }
