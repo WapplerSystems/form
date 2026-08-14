@@ -1588,6 +1588,9 @@ If you need higher values contact your administrator for help.
       <trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.bmp">
         <source>Images (bmp)</source>
       </trans-unit>
+      <trans-unit id="formEditor.elements.ImageUpload.editor.allowedMimeTypes.webp">
+        <source>Images (webp)</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.CountrySelect">
         <source>Country Select</source>
       </trans-unit>
