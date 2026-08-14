@@ -25,6 +25,12 @@ declare module '~labels/*' {
 // No @types/lodash-es is installed in the reused toolchain.
 declare module 'lodash-es';
 
+// Cross-sysext dependencies (see file header): opaque `any` at build time,
+// resolved for real at runtime via the TYPO3 importmap.
+declare module '@typo3/backend/*';
+declare module '@typo3/core/*';
+declare module '@typo3/rte-ckeditor/*';
+
 // frontend/date-picker.ts uses the global jQuery `$` (provided at runtime by the
 // page). @types/jquery only exposes `$` as a module export (`export = $`), not a
 // global, so declare the ambient global here. The named jQuery types
