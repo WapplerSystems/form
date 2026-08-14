@@ -297,13 +297,27 @@ class TranslationService implements SingletonInterface
                 $defaultValue['placeholder'] = (string)$overrides['placeholder'];
                 return $defaultValue;
             }
-            if ($property === 'options' && is_array($defaultValue) && is_array($overrides['options'] ?? null)) {
-                foreach ($overrides['options'] as $optionValue => $optionLabel) {
-                    if ($optionLabel !== '' && array_key_exists($optionValue, $defaultValue)) {
-                        $defaultValue[$optionValue] = (string)$optionLabel;
+            if (is_array($overrides['options'] ?? null)) {
+                if ($property === 'options' && is_array($defaultValue)) {
+                    // Whole options map requested at once (SingleSelect/MultiSelect
+                    // Fluid partials: translateElementProperty(property: 'options')).
+                    foreach ($overrides['options'] as $optionValue => $optionLabel) {
+                        if ($optionLabel !== '' && array_key_exists($optionValue, $defaultValue)) {
+                            $defaultValue[$optionValue] = (string)$optionLabel;
+                        }
+                    }
+                    return $defaultValue;
+                }
+                if (count($propertyParts) === 2 && $propertyParts[0] === 'options') {
+                    // Single option requested by its value (RadioButton/MultiCheckbox
+                    // Fluid partials: translateElementProperty(property: [0 => 'options', 1 => value])
+                    // — $property is then the dot-imploded 'options.<value>', which never
+                    // matches the whole-map case above, so it needs its own branch.
+                    $optionValue = $propertyParts[1];
+                    if (isset($overrides['options'][$optionValue]) && $overrides['options'][$optionValue] !== '') {
+                        return (string)$overrides['options'][$optionValue];
                     }
                 }
-                return $defaultValue;
             }
         }
 
