@@ -225,7 +225,11 @@ final class DatabaseStorageAdapterFunctionalTest extends FunctionalTestCase
         $request = (new ServerRequest())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
 
         $this->expectException(PersistenceManagerException::class);
-        $this->expectExceptionCode(1767199444);
+        // Raw string is not valid JSON syntax at all, so json_decode() throws a
+        // JsonException, which DatabaseStorageAdapter::read() maps to 1767199423
+        // ("invalid: <message>") — not 1767199444, which is only for JSON that
+        // parses fine but decodes to a non-array (see the sibling test below).
+        $this->expectExceptionCode(1767199423);
 
         $subject->read(new FormIdentifier('100'), $request);
     }
