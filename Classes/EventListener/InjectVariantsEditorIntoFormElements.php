@@ -13,15 +13,19 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\EventListener;
 
 use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Form\Event\AfterYamlConfigurationLoadedEvent;
 
 /**
- * Adds the visual "Variants" editor (Inspector-VariantsEditor) to every form
- * element / page / form definition in the form editor, so variants & conditions
- * can be edited in the backend instead of only by hand in YAML.
+ * Fallback: adds the visual "Variants" editor (Inspector-VariantsEditor) to any
+ * form element / finisher that does not already declare one itself.
  *
- * Injecting centrally via AfterYamlConfigurationLoadedEvent avoids touching all
- * ~28 element YAML files and automatically covers custom/third-party elements.
+ * The fork's own ~29 built-in elements (Configuration/Form/Base/FormElements/*.yaml)
+ * and finishers (Form.yaml propertyCollections.finishers) declare "variants"
+ * statically now, like any other editor - so site packages can override or
+ * remove it per element. This listener only still fires for element/finisher
+ * types that don't (third-party extensions' own form elements), so every
+ * element type gets the editor without every extension having to know about it.
  *
  * Because this event also feeds the save-time validation config
  * (ConfigurationService::getPrototypeConfiguration), the injected editor makes
@@ -59,12 +63,17 @@ final class InjectVariantsEditorIntoFormElements
                 // (a) Element-level variants editor (propertyPath: variants).
                 $editors = $formElement['formEditor']['editors'] ?? null;
                 if (is_array($editors) && !$this->hasVariantsEditor($editors)) {
-                    $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['editors'][self::EDITOR_INDEX] = [
+                    $editors[self::EDITOR_INDEX] = [
                         'identifier' => 'variants',
                         'templateName' => 'Inspector-VariantsEditor',
                         'label' => 'formEditor.elements.FormElement.editor.variants.label',
                         'propertyPath' => 'variants',
                     ];
+                    // Plain key assignment appends at the end of the array regardless
+                    // of the key's numeric value (PHP arrays keep insertion order) —
+                    // re-sort so e.g. the static "remove element" editor at 9999 stays
+                    // last instead of ending up before this injected one.
+                    $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['editors'] = ArrayUtility::sortArrayWithIntegerKeys($editors);
                 }
 
                 // (b) Finisher-level variants editor (propertyPath: options.variants).
@@ -78,12 +87,13 @@ final class InjectVariantsEditorIntoFormElements
                         if (!is_array($finisherEditors) || $this->hasVariantsEditor($finisherEditors)) {
                             continue;
                         }
-                        $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['propertyCollections']['finishers'][$finisherIndex]['editors'][self::EDITOR_INDEX] = [
+                        $finisherEditors[self::EDITOR_INDEX] = [
                             'identifier' => 'variants',
                             'templateName' => 'Inspector-VariantsEditor',
                             'label' => 'formEditor.elements.FormElement.editor.variants.label',
                             'propertyPath' => 'options.variants',
                         ];
+                        $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['propertyCollections']['finishers'][$finisherIndex]['editors'] = ArrayUtility::sortArrayWithIntegerKeys($finisherEditors);
                     }
                 }
             }

@@ -13,21 +13,29 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\EventListener;
 
 use TYPO3\CMS\Core\Attribute\AsEventListener;
-use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Form\Event\AfterYamlConfigurationLoadedEvent;
 
 /**
- * Adds the per-site-language translation editor (Inspector-TranslationEditor) to every
- * form element in the form editor, so editors can translate labels, placeholders and
- * options into all configured site languages directly in the backend — stored in the
- * form definition under renderingOptions.translation.overrides.<languageCode> and
- * applied at render time by the fork's TranslationService overlay.
+ * Fallback: adds the per-site-language translation editor (Inspector-TranslationEditor)
+ * to any form element / finisher that does not already declare one itself.
  *
- * The list of non-default site languages is injected into the editor config
- * (availableLanguages) so the modal can render one section per language. Injecting
- * centrally via AfterYamlConfigurationLoadedEvent covers all element types incl.
- * custom ones and feeds the save-time validation config (the editor's propertyPath
- * becomes a known multi-value prefix, see MultiValuePropertiesExtractor).
+ * The fork's own ~29 built-in elements (Configuration/Form/Base/FormElements/*.yaml)
+ * and finishers (Form.yaml propertyCollections.finishers) declare "translations" (and
+ * "translationsOverview" on the Form root) statically now, like any other editor - so
+ * site packages can override or remove it per element. This listener only still fires
+ * for element/finisher types that don't (third-party extensions' own form elements),
+ * so every element type gets the editor without every extension having to know about it.
+ *
+ * availableLanguages is deliberately NOT injected into the editor config (anymore) -
+ * the editor JS reads it once per page load from TYPO3.settings.FormEditor.availableLanguages
+ * (see FormEditorController::collectNonDefaultSiteLanguages() and getAvailableLanguages()
+ * in inspector-component.ts) instead, which is what allows "translations" to be a plain,
+ * static YAML entry instead of something only this listener could produce.
+ *
+ * Feeds the save-time validation config (the editor's propertyPath becomes a known
+ * multi-value prefix, see MultiValuePropertiesExtractor) for whichever elements it
+ * still applies to.
  */
 #[AsEventListener('wapplersystems-form/inject-translation-editor-into-form-elements')]
 final class InjectTranslationEditorIntoFormElements
@@ -35,20 +43,10 @@ final class InjectTranslationEditorIntoFormElements
     private const EDITOR_INDEX = 9700;
     private const OVERVIEW_EDITOR_INDEX = 9710;
 
-    public function __construct(
-        private readonly SiteFinder $siteFinder,
-    ) {}
-
     public function __invoke(AfterYamlConfigurationLoadedEvent $event): void
     {
         $yamlConfiguration = $event->yamlConfiguration;
         if (!is_array($yamlConfiguration['prototypes'] ?? null)) {
-            return;
-        }
-
-        $availableLanguages = $this->collectNonDefaultLanguages();
-        if ($availableLanguages === []) {
-            // Nothing to translate to — don't add the editor at all.
             return;
         }
 
@@ -59,24 +57,28 @@ final class InjectTranslationEditorIntoFormElements
             foreach ($prototype['formElementsDefinition'] as $formElementType => $formElement) {
                 $editors = $formElement['formEditor']['editors'] ?? null;
                 if (is_array($editors) && !$this->hasTranslationEditor($editors)) {
-                    $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['editors'][self::EDITOR_INDEX] = [
+                    $editors[self::EDITOR_INDEX] = [
                         'identifier' => 'translations',
                         'templateName' => 'Inspector-TranslationEditor',
                         'label' => 'formEditor.elements.FormElement.editor.translations.label',
                         'propertyPath' => 'renderingOptions.translation.overrides',
-                        'availableLanguages' => $availableLanguages,
                     ];
 
                     // Form-wide translation overview on the Form (root) element only:
                     // a single matrix of every element × every language.
                     if ($formElementType === 'Form' && !$this->hasOverviewEditor($editors)) {
-                        $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['editors'][self::OVERVIEW_EDITOR_INDEX] = [
+                        $editors[self::OVERVIEW_EDITOR_INDEX] = [
                             'identifier' => 'translationsOverview',
                             'templateName' => 'Inspector-TranslationOverviewEditor',
                             'label' => 'formEditor.elements.Form.editor.translationsOverview.label',
-                            'availableLanguages' => $availableLanguages,
                         ];
                     }
+
+                    // Plain key assignment appends at the end of the array regardless
+                    // of the key's numeric value (PHP arrays keep insertion order) —
+                    // re-sort so e.g. the static "remove element" editor at 9999 stays
+                    // last instead of ending up before these injected ones.
+                    $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['editors'] = ArrayUtility::sortArrayWithIntegerKeys($editors);
                 }
 
                 // Per-finisher translation editor (propertyPath: options.translation.overrides).
@@ -93,40 +95,19 @@ final class InjectTranslationEditorIntoFormElements
                         if (!is_array($finisherEditors) || $this->hasTranslationEditor($finisherEditors)) {
                             continue;
                         }
-                        $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['propertyCollections']['finishers'][$finisherIndex]['editors'][self::EDITOR_INDEX] = [
+                        $finisherEditors[self::EDITOR_INDEX] = [
                             'identifier' => 'translations',
                             'templateName' => 'Inspector-TranslationEditor',
                             'label' => 'formEditor.elements.FormElement.editor.translations.label',
                             'propertyPath' => 'options.translation.overrides',
-                            'availableLanguages' => $availableLanguages,
                         ];
+                        $yamlConfiguration['prototypes'][$prototypeName]['formElementsDefinition'][$formElementType]['formEditor']['propertyCollections']['finishers'][$finisherIndex]['editors'] = ArrayUtility::sortArrayWithIntegerKeys($finisherEditors);
                     }
                 }
             }
         }
 
         $event->yamlConfiguration = $yamlConfiguration;
-    }
-
-    /**
-     * @return array<int, array{code: string, title: string}>
-     */
-    private function collectNonDefaultLanguages(): array
-    {
-        $languages = [];
-        foreach ($this->siteFinder->getAllSites() as $site) {
-            foreach ($site->getLanguages() as $language) {
-                if ($language->getLanguageId() === 0) {
-                    continue;
-                }
-                $code = $language->getLocale()->getLanguageCode();
-                if ($code === '' || isset($languages[$code])) {
-                    continue;
-                }
-                $languages[$code] = ['code' => $code, 'title' => $language->getTitle()];
-            }
-        }
-        return array_values($languages);
     }
 
     /**

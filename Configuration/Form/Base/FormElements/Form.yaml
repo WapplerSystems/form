@@ -43,6 +43,28 @@ prototypes:
                 60:
                   value: Confirmation
                   label: formEditor.elements.Form.editor.finishers.Confirmation.label
+            # WapplerSystems fork: statically declared here (instead of injected via
+            # InjectTranslationEditorIntoFormElements) so site packages can override
+            # or remove it per element like any other editor. The dynamic part
+            # (which site languages exist) is resolved in JS, not here - see
+            # getAvailableLanguages() in inspector-component.ts.
+            9700:
+              identifier: translations
+              templateName: Inspector-TranslationEditor
+              label: formEditor.elements.FormElement.editor.translations.label
+              propertyPath: renderingOptions.translation.overrides
+            9710:
+              identifier: translationsOverview
+              templateName: Inspector-TranslationOverviewEditor
+              label: formEditor.elements.Form.editor.translationsOverview.label
+            # WapplerSystems fork: statically declared here (instead of injected via
+            # InjectVariantsEditorIntoFormElements) so site packages can override or
+            # remove it per element like any other editor.
+            9800:
+              identifier: variants
+              templateName: Inspector-VariantsEditor
+              label: formEditor.elements.FormElement.editor.variants.label
+              propertyPath: variants
           _isCompositeFormElement: false
           _isTopLevelFormElement: true
           saveSuccessFlashMessageTitle: formEditor.elements.Form.saveSuccessFlashMessageTitle
@@ -234,6 +256,24 @@ prototypes:
                     enableFormelementSelectionButton: true
                     propertyValidators:
                       10: FormElementIdentifierWithinCurlyBracesInclusive
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor
@@ -405,6 +445,24 @@ prototypes:
                     enableFormelementSelectionButton: true
                     propertyValidators:
                       10: FormElementIdentifierWithinCurlyBracesInclusive
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor
@@ -442,6 +500,24 @@ prototypes:
                     iconIdentifier: mimetypes-x-content-text
                     propertyPath: options.fragment
                     description: formEditor.elements.Form.finisher.Redirect.editor.fragment.description
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor
@@ -452,6 +528,24 @@ prototypes:
                     identifier: header
                     templateName: Inspector-CollectionElementHeaderEditor
                     label: formEditor.elements.Form.finisher.DeleteUploads.editor.header.label
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor
@@ -482,6 +576,24 @@ prototypes:
                     description: formEditor.elements.Form.finisher.Confirmation.editor.message.description
                     enableRichtext: true
                     richtextConfiguration: form-content
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor
@@ -492,6 +604,24 @@ prototypes:
                     identifier: header
                     templateName: Inspector-CollectionElementHeaderEditor
                     label: formEditor.elements.Form.finisher.Closure.editor.header.label
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor
@@ -502,6 +632,24 @@ prototypes:
                     identifier: header
                     templateName: Inspector-CollectionElementHeaderEditor
                     label: formEditor.elements.Form.finisher.FlashMessage.editor.header.label
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor
@@ -512,6 +660,24 @@ prototypes:
                     identifier: header
                     templateName: Inspector-CollectionElementHeaderEditor
                     label: formEditor.elements.Form.finisher.SaveToDatabase.editor.header.label
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectTranslationEditorIntoFormElements) so site packages can override
+                  # or remove it per element like any other editor. The dynamic part
+                  # (which site languages exist) is resolved in JS, not here - see
+                  # getAvailableLanguages() in inspector-component.ts.
+                  9700:
+                    identifier: translations
+                    templateName: Inspector-TranslationEditor
+                    label: formEditor.elements.FormElement.editor.translations.label
+                    propertyPath: options.translation.overrides
+                  # WapplerSystems fork: statically declared here (instead of injected via
+                  # InjectVariantsEditorIntoFormElements) so site packages can override or
+                  # remove it per element like any other editor.
+                  9800:
+                    identifier: variants
+                    templateName: Inspector-VariantsEditor
+                    label: formEditor.elements.FormElement.editor.variants.label
+                    propertyPath: options.variants
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor

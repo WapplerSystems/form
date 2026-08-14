@@ -33,6 +33,7 @@ use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -90,6 +91,7 @@ class FormEditorController extends ActionController
         protected readonly DatabaseService $databaseService,
         protected readonly CacheManager $cacheManager,
         protected readonly FormEditorEnrichmentService $formEditorEnrichmentService,
+        protected readonly SiteFinder $siteFinder,
     ) {}
 
     /**
@@ -190,6 +192,9 @@ class FormEditorController extends ActionController
                 ],
                 // WapplerSystems fork: localized labels for hardcoded editor JS strings
                 'labels' => $jsLabels,
+                // WapplerSystems fork: non-default site languages, read directly by the
+                // translations/translationsOverview editor JS (see collectNonDefaultSiteLanguages()).
+                'availableLanguages' => $this->collectNonDefaultSiteLanguages(),
             ],
         ];
         $addInlineSettings = array_replace_recursive(
@@ -581,6 +586,35 @@ class FormEditorController extends ActionController
             ],
         ];
         return GeneralUtility::makeInstance(Site::class, 'form-dummy', $pageId, $fakeSiteConfiguration)->getLanguageById($languageId);
+    }
+
+    /**
+     * WapplerSystems fork: non-default site languages, exposed once per page
+     * load via TYPO3.settings.FormEditor.availableLanguages (see indexAction)
+     * instead of being baked into every element's static formEditor.editors
+     * YAML config - the translations editor JS reads it from there directly,
+     * which is what lets "translations" be a plain, YAML-overridable editor
+     * entry like any other instead of something only a PHP event listener
+     * could inject.
+     *
+     * @return array<int, array{code: string, title: string}>
+     */
+    protected function collectNonDefaultSiteLanguages(): array
+    {
+        $languages = [];
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            foreach ($site->getLanguages() as $language) {
+                if ($language->getLanguageId() === 0) {
+                    continue;
+                }
+                $code = $language->getLocale()->getLanguageCode();
+                if ($code === '' || isset($languages[$code])) {
+                    continue;
+                }
+                $languages[$code] = ['code' => $code, 'title' => $language->getTitle()];
+            }
+        }
+        return array_values($languages);
     }
 
     /**

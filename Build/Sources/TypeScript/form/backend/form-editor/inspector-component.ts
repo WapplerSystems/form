@@ -62,6 +62,20 @@ function lll(key: string, fallback: string): string {
   return typeof value === 'string' && value.length > 0 ? value : fallback;
 }
 
+/**
+ * WapplerSystems fork: the non-default site languages, delivered once per page
+ * load via TYPO3.settings.FormEditor.availableLanguages (FormEditorController::
+ * collectNonDefaultSiteLanguages()) instead of per-editor through the YAML/PHP
+ * editor configuration - this is what lets "translations" be declared as a
+ * plain, static (and therefore YAML-overridable) editor entry like any other,
+ * with the one genuinely dynamic piece (which languages exist) resolved here
+ * in JS instead of baked into the config.
+ */
+function getAvailableLanguages(): TranslationLanguageDef[] {
+  const languages = (TYPO3 as { settings?: { FormEditor?: { availableLanguages?: TranslationLanguageDef[] } } })?.settings?.FormEditor?.availableLanguages;
+  return Array.isArray(languages) ? languages : [];
+}
+
 interface Configuration extends Partial<HelperConfiguration> {
   isSortable: boolean,
 }
@@ -3329,13 +3343,20 @@ export function renderTranslationEditor(
   collectionElementIdentifier?: string,
   collectionName?: keyof FormEditorDefinitions
 ): void {
+  const languages = editorConfiguration.availableLanguages ?? getAvailableLanguages();
+  if (languages.length === 0) {
+    // No additional site languages configured - keep the sidebar uncluttered,
+    // same as when this editor previously wasn't injected at all in that case.
+    editorHtml.style.display = 'none';
+    return;
+  }
+
   getHelper().getTemplatePropertyElement('label', editorHtml)
     ?.append(document.createTextNode(editorConfiguration.label ?? 'Translations'));
   renderDescription(editorConfiguration, editorHtml);
   editorHtml.querySelector<HTMLElement>('[data-template-property="editButtonLabel"]')
     ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? lll('translation.edit', 'Translate…')));
 
-  const languages = editorConfiguration.availableLanguages ?? [];
   const formElement = getCurrentlySelectedFormElement();
   // For finishers (collection editors) the property path is resolved against the
   // collection, e.g. finishers.<idx>.options.translation.overrides, and the translatable
@@ -3587,13 +3608,18 @@ export function renderTranslationOverviewEditor(
   editorConfiguration: TranslationEditorConfiguration,
   editorHtml: HTMLElement
 ): void {
+  const languages = editorConfiguration.availableLanguages ?? getAvailableLanguages();
+  if (languages.length === 0) {
+    editorHtml.style.display = 'none';
+    return;
+  }
+
   getHelper().getTemplatePropertyElement('label', editorHtml)
     ?.append(document.createTextNode(editorConfiguration.label ?? 'Form translations'));
   renderDescription(editorConfiguration, editorHtml);
   editorHtml.querySelector<HTMLElement>('[data-template-property="editButtonLabel"]')
     ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? lll('translation.editWholeForm', 'Translate whole form…')));
 
-  const languages = editorConfiguration.availableLanguages ?? [];
   const summaryEl = editorHtml.querySelector<HTMLElement>('[data-identifier="translationOverviewSummary"]');
   const button = editorHtml.querySelector<HTMLButtonElement>('[data-identifier="translationOverviewButton"]');
 
