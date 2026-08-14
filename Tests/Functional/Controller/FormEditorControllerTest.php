@@ -29,6 +29,7 @@ use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
@@ -88,6 +89,7 @@ final class FormEditorControllerTest extends FunctionalTestCase
                 $this->createMock(CacheManager::class),
                 $this->createMock(ComponentFactory::class),
                 $formEditorEnrichmentServiceMock,
+                $this->createMock(SiteFinder::class),
             ],
         );
         $prototypeConfiguration = [
@@ -196,6 +198,7 @@ final class FormEditorControllerTest extends FunctionalTestCase
                 $this->createMock(CacheManager::class),
                 $this->createMock(ComponentFactory::class),
                 $formEditorEnrichmentServiceMock,
+                $this->createMock(SiteFinder::class),
             ],
         );
         $prototypeConfiguration = [
@@ -600,6 +603,7 @@ final class FormEditorControllerTest extends FunctionalTestCase
                 $this->createMock(CacheManager::class),
                 $this->createMock(ComponentFactory::class),
                 $this->get(FormEditorEnrichmentService::class),
+                $this->createMock(SiteFinder::class),
             ],
         );
 
