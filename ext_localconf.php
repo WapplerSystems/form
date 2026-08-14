@@ -40,9 +40,17 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tce']['formevals'][EmailOrFormElement
 // Register FE plugin
 ExtensionUtility::configurePlugin('Form', 'Formframework', [FormFrontendController::class => ['render', 'perform']], [FormFrontendController::class => ['perform']]);
 
-// WapplerSystems fork: ship the fork's own German labels (de.Database.xlf) as an
-// override so they are merged even when a downloaded "form" language pack
-// (var/labels/de/form/...) is present — the pack would otherwise win and the
-// fork's backend-editor labels would fall back to English.
+// WapplerSystems fork: ship the fork's own German labels as an override so they
+// win even when a downloaded "form" language pack (var/labels/de/form/...) is
+// present — the pack would otherwise win and the fork's added/changed labels
+// would fall back to English. Same pattern for all label files the fork extends.
 $GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/Database.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.Database.xlf';
+$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang.xlf'][]
+    = 'EXT:form/Resources/Private/Language/de.locallang.xlf';
+$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang_module.xlf'][]
+    = 'EXT:form/Resources/Private/Language/de.locallang_module.xlf';
+$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang_formManager_javascript.xlf'][]
+    = 'EXT:form/Resources/Private/Language/de.locallang_formManager_javascript.xlf';
+$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang_formEditor_failSafeErrorHandling_javascript.xlf'][]
+    = 'EXT:form/Resources/Private/Language/de.locallang_formEditor_failSafeErrorHandling_javascript.xlf';
