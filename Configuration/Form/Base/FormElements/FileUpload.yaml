@@ -49,6 +49,18 @@ prototypes:
                 70:
                   value: application/vnd.oasis.opendocument.spreadsheet-template
                   label: formEditor.elements.FileUpload.editor.allowedMimeTypes.ods
+                80:
+                  value: image/jpeg
+                  label: formEditor.elements.ImageUpload.editor.allowedMimeTypes.jpg
+                90:
+                  value: image/png
+                  label: formEditor.elements.ImageUpload.editor.allowedMimeTypes.png
+                100:
+                  value: image/bmp
+                  label: formEditor.elements.ImageUpload.editor.allowedMimeTypes.bmp
+                110:
+                  value: image/webp
+                  label: formEditor.elements.ImageUpload.editor.allowedMimeTypes.webp
             400:
               identifier: saveToFileMount
               templateName: Inspector-SingleSelectEditor
