@@ -6,6 +6,17 @@ prototypes:
           predefinedDefaults:
             renderingOptions:
               submitButtonLabel: formEditor.elements.Form.editor.submitButtonLabel.value
+              # WapplerSystems fork: pre-fill new forms with the same values
+              # HorizontalLayoutClassViewHelper falls back to anyway, so the
+              # editor UI shows the effective values instead of empty fields.
+              layout:
+                orientation: vertical
+                labelColumns:
+                  viewPorts:
+                    sm:
+                      numbersOfColumnsToUse: 3
+                    md:
+                      numbersOfColumnsToUse: 2
           editors:
             100:
               identifier: header
@@ -43,6 +54,42 @@ prototypes:
                 60:
                   value: Confirmation
                   label: formEditor.elements.Form.editor.finishers.Confirmation.label
+            # WapplerSystems fork: horizontal label/input layout, form-wide. The
+            # actual orientation switch is typically driven externally (e.g. a
+            # site package copying a tt_content field into renderingOptions.layout.orientation
+            # before rendering) - this editor lets it also be set directly per form.
+            # See Classes/ViewHelpers/HorizontalLayoutClassViewHelper.php for how
+            # orientation + labelColumns are turned into CSS classes (fully
+            # overridable via renderingOptions.layout.classPatterns.<part>, not
+            # exposed here - only the numeric column split is editor-facing).
+            9600:
+              identifier: layoutOrientation
+              templateName: Inspector-SingleSelectEditor
+              label: formEditor.elements.Form.editor.layoutOrientation.label
+              propertyPath: renderingOptions.layout.orientation
+              selectOptions:
+                10:
+                  value: vertical
+                  label: formEditor.elements.Form.editor.layoutOrientation.option.vertical
+                20:
+                  value: horizontal
+                  label: formEditor.elements.Form.editor.layoutOrientation.option.horizontal
+            9610:
+              identifier: layoutLabelColumns
+              templateName: Inspector-GridColumnViewPortConfigurationEditor
+              label: formEditor.elements.Form.editor.layoutLabelColumns.label
+              configurationOptions:
+                viewPorts:
+                  10:
+                    viewPortIdentifier: sm
+                    label: formEditor.elements.Form.editor.layoutLabelColumns.sm.label
+                  20:
+                    viewPortIdentifier: md
+                    label: formEditor.elements.Form.editor.layoutLabelColumns.md.label
+                numbersOfColumnsToUse:
+                  label: formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.label
+                  propertyPath: 'renderingOptions.layout.labelColumns.viewPorts.{@viewPortIdentifier}.numbersOfColumnsToUse'
+                  description: formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.description
             # WapplerSystems fork: statically declared here (instead of injected via
             # InjectTranslationEditorIntoFormElements) so site packages can override
             # or remove it per element like any other editor. The dynamic part

@@ -630,6 +630,31 @@
       <trans-unit id="formEditor.elements.Form.editor.submitButtonLabel.value">
         <source>Submit</source>
       </trans-unit>
+      <!-- WapplerSystems fork: horizontal label/input layout editors -->
+      <trans-unit id="formEditor.elements.Form.editor.layoutOrientation.label">
+        <source>Layout</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutOrientation.option.vertical">
+        <source>Vertical (label above input)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutOrientation.option.horizontal">
+        <source>Horizontal (label next to input)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.label">
+        <source>Label column width</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.sm.label">
+        <source>Small screens and up</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.md.label">
+        <source>Medium screens and up</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.label">
+        <source>Columns</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.description">
+        <source>Only applies when layout is set to horizontal. Out of 12 grid columns; the input column automatically uses the remainder.</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.finishers.label">
         <source>Finishers</source>
       </trans-unit>

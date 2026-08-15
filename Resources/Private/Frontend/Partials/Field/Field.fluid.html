@@ -2,25 +2,62 @@
 <f:form.validationResults for="{element.rootForm.identifier}.{element.identifier}">
     <f:if condition="{renderFieldset} == 1">
         <f:then>
-            <fieldset data-form-element="{element.identifier}" class="{element.properties.fieldsetClassAttribute}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
-                <legend class="{f:if(condition: '{doNotShowLabel} == 1', then: ' {element.rootForm.renderingOptions.fieldProperties.visuallyHiddenClassAttribute}')}">{formvh:translateElementProperty(element: element, property: 'label')}
+            <f:variable name="columnClass">{formvh:horizontalLayoutClass(element: element, part: 'column')}</f:variable>
+            <fieldset data-form-element="{element.identifier}" class="{formvh:horizontalLayoutClass(element: element, part: 'fieldset', default: element.properties.fieldsetClassAttribute)}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
+                <legend class="{formvh:horizontalLayoutClass(element: element, part: 'legend')}{f:if(condition: '{doNotShowLabel} == 1', then: ' {element.rootForm.renderingOptions.fieldProperties.visuallyHiddenClassAttribute}')}">{formvh:translateElementProperty(element: element, property: 'label')}
                     <f:if condition="{element.required}">
                         <f:render partial="Field/Required" arguments="{element: element}"/>
                     </f:if>
                 </legend>
-                <f:render section="Element" arguments="{_all}"/>
+                <f:if condition="{columnClass}">
+                    <f:then>
+                        <div class="{columnClass}">
+                            <f:render section="Element" arguments="{_all}"/>
+                        </div>
+                    </f:then>
+                    <f:else>
+                        <f:render section="Element" arguments="{_all}"/>
+                    </f:else>
+                </f:if>
             </fieldset>
         </f:then>
         <f:else>
-            <div data-form-element="{element.identifier}" class="{element.properties.containerClassAttribute}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
+            <!--
+                When no label is rendered (doNotShowLabel == 1, e.g. a single
+                Checkbox), there is no label column to offset against, so this
+                wrap uses the "checkboxColumn" pattern (column + offset) instead
+                of the plain "column" pattern - otherwise the caller's own
+                offset wrap (if any) would be nested inside a second, redundant
+                column div. Currently only Checkbox.fluid.html renders this
+                branch with doNotShowLabel == 1.
+            -->
+            <f:if condition="{doNotShowLabel} == 1">
+                <f:then>
+                    <f:variable name="columnClass">{formvh:horizontalLayoutClass(element: element, part: 'checkboxColumn')}</f:variable>
+                </f:then>
+                <f:else>
+                    <f:variable name="columnClass">{formvh:horizontalLayoutClass(element: element, part: 'column')}</f:variable>
+                </f:else>
+            </f:if>
+            <f:variable name="labelClass">{formvh:horizontalLayoutClass(element: element, part: 'label')}</f:variable>
+            <div data-form-element="{element.identifier}" class="{formvh:horizontalLayoutClass(element: element, part: 'container', default: element.properties.containerClassAttribute)}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
                 <f:if condition="{doNotShowLabel} != 1">
-                    <label class="{element.properties.labelClassAttribute}{f:if(condition: '{doNotShowLabel} == 1', then: ' {element.rootForm.renderingOptions.fieldProperties.visuallyHiddenClassAttribute}')}" for="{element.uniqueIdentifier}">{formvh:translateElementProperty(element: element, property: 'label')}
+                    <label class="{f:if(condition: labelClass, then: labelClass, else: element.properties.labelClassAttribute)}{f:if(condition: '{doNotShowLabel} == 1', then: ' {element.rootForm.renderingOptions.fieldProperties.visuallyHiddenClassAttribute}')}" for="{element.uniqueIdentifier}">{formvh:translateElementProperty(element: element, property: 'label')}
                         <f:if condition="{element.required}">
                             <f:render partial="Field/Required" arguments="{element: element}"/>
                         </f:if>
                     </label>
                 </f:if>
-                <f:render section="Element" arguments="{_all}"/>
+                <f:if condition="{columnClass}">
+                    <f:then>
+                        <div class="{columnClass}">
+                            <f:render section="Element" arguments="{_all}"/>
+                        </div>
+                    </f:then>
+                    <f:else>
+                        <f:render section="Element" arguments="{_all}"/>
+                    </f:else>
+                </f:if>
             </div>
         </f:else>
     </f:if>
