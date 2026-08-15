@@ -1951,6 +1951,40 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <target>Formularübersetzungen</target>
       </trans-unit>
 
+      <!-- Fork: horizontal label/input layout editors -->
+      <trans-unit id="formEditor.elements.Form.editor.layoutOrientation.label">
+        <source>Layout</source>
+        <target>Layout</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutOrientation.option.vertical">
+        <source>Vertical (label above input)</source>
+        <target>Vertikal (Label über dem Feld)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutOrientation.option.horizontal">
+        <source>Horizontal (label next to input)</source>
+        <target>Horizontal (Label neben dem Feld)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.label">
+        <source>Label column width</source>
+        <target>Breite der Label-Spalte</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.sm.label">
+        <source>Small screens and up</source>
+        <target>Kleine Bildschirme und größer</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.md.label">
+        <source>Medium screens and up</source>
+        <target>Mittlere Bildschirme und größer</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.label">
+        <source>Columns</source>
+        <target>Spalten</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.description">
+        <source>Only applies when layout is set to horizontal. Out of 12 grid columns; the input column automatically uses the remainder.</source>
+        <target>Wirkt sich nur aus, wenn das Layout auf horizontal gestellt ist. Von 12 Rasterspalten; die Eingabespalte nutzt automatisch den verbleibenden Rest.</target>
+      </trans-unit>
+
       <!-- Fork: email content editor (modal labels, resolved via editorConfiguration) -->
       <trans-unit id="formEditor.elements.Form.finisher.Email.editor.emailContent.editButton">
         <source>Edit email content</source>
