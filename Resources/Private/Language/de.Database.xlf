@@ -1964,13 +1964,25 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Horizontal (label next to input)</source>
         <target>Horizontal (Label neben dem Feld)</target>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.label">
+        <source>Label column width (out of 12)</source>
+        <target>Breite der Label-Spalte (von 12)</target>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.sm.label">
-        <source>Label column width (small screens and up, out of 12)</source>
-        <target>Breite der Label-Spalte (kleine Bildschirme und größer, von 12)</target>
+        <source>Small screens and up</source>
+        <target>Kleine Bildschirme und größer</target>
       </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.md.label">
-        <source>Label column width (medium screens and up, out of 12)</source>
-        <target>Breite der Label-Spalte (mittlere Bildschirme und größer, von 12)</target>
+        <source>Medium screens and up</source>
+        <target>Mittlere Bildschirme und größer</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.label">
+        <source>Columns for viewport "{@viewPortLabel}"</source>
+        <target>Spalten für Bildschirmgröße "{@viewPortLabel}"</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.description">
+        <source>Only applies when layout is set to horizontal. The input column automatically uses the remainder.</source>
+        <target>Wirkt sich nur aus, wenn das Layout auf horizontal gestellt ist. Die Eingabespalte nutzt automatisch den verbleibenden Rest.</target>
       </trans-unit>
 
       <!-- Fork: email content editor (modal labels, resolved via editorConfiguration) -->

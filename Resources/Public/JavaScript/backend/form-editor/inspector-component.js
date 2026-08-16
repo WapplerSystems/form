@@ -173,6 +173,9 @@ function renderEditorDispatcher(editorConfiguration, editorHtml, collectionEleme
         case 'Inspector-GridColumnViewPortConfigurationEditor':
             renderGridColumnViewPortConfigurationEditor(editorConfiguration, editorHtml);
             break;
+        case 'Inspector-ViewPortColumnEditor':
+            renderViewPortColumnEditor(editorConfiguration, editorHtml);
+            break;
         case 'Inspector-PropertyGridEditor':
             renderPropertyGridEditor(editorConfiguration, editorHtml, collectionElementIdentifier, collectionName);
             break;
@@ -984,6 +987,93 @@ export function renderGridColumnViewPortConfigurationEditor(editorConfiguration,
         });
     });
 }
+/**
+ * WapplerSystems fork: same viewport-button + number-input UI as
+ * renderGridColumnViewPortConfigurationEditor() above (identical markup,
+ * Inspector/GridColumnViewPortConfigurationEditor.fluid.html is reused for
+ * both templateNames), but without that function's "only show inside a
+ * GridRow" guard - which crashes with "Cannot read properties of null
+ * (reading 'get')" for any element without a parent (e.g. the Form root),
+ * since getCurrentlySelectedFormElement().get('__parentRenderable') is null
+ * there and findFormElement(null) treats null as an object (typeof null ===
+ * 'object' in JS).
+ *
+ * Use this (Inspector-ViewPortColumnEditor) for any per-breakpoint numeric
+ * setting that is NOT about GridRow sibling column auto-division - e.g. the
+ * Form root's layoutLabelColumns editor.
+ */
+export function renderViewPortColumnEditor(editorConfiguration, editorHtml) {
+    assert(typeof editorConfiguration === 'object' && editorConfiguration !== null && !Array.isArray(editorConfiguration), 'Invalid parameter "editorConfiguration"', 1755400001);
+    assert(typeof editorHtml === 'object' && editorHtml !== null && !Array.isArray(editorHtml), 'Invalid parameter "editorHtml"', 1755400002);
+    assert(getUtility().isNonEmptyString(editorConfiguration.label), 'Invalid configuration "label"', 1755400003);
+    assert(Array.isArray(editorConfiguration.configurationOptions.viewPorts), 'Invalid configurationOptions "viewPorts"', 1755400004);
+    assert(!getUtility().isUndefinedOrNull(editorConfiguration.configurationOptions.numbersOfColumnsToUse.label), 'Invalid configurationOptions "numbersOfColumnsToUse"', 1755400005);
+    assert(!getUtility().isUndefinedOrNull(editorConfiguration.configurationOptions.numbersOfColumnsToUse.propertyPath), 'Invalid configuration "selectOptions"', 1755400006);
+    getHelper().getTemplatePropertyElement('label', editorHtml)
+        ?.append(document.createTextNode(editorConfiguration.label));
+    const viewportButtonSel = getHelper().getDomElementDataIdentifierSelector('viewportButton');
+    const viewportButtonTemplate = editorHtml.querySelector(viewportButtonSel)?.cloneNode(true);
+    editorHtml.querySelectorAll(viewportButtonSel).forEach(el => el.remove());
+    const numbersOfColumnsTemplate = getHelper().getTemplatePropertyElement('numbersOfColumnsToUse', editorHtml)?.cloneNode(true);
+    getHelper().getTemplatePropertyElement('numbersOfColumnsToUse', editorHtml)?.remove();
+    const editorControlsWrapper = getEditorControlsWrapperDomElement(editorHtml);
+    const initNumbersOfColumnsField = function (element) {
+        getHelper().getTemplatePropertyElement('numbersOfColumnsToUse', editorHtml)?.replaceChildren();
+        getHelper().getTemplatePropertyElement('numbersOfColumnsToUse', editorHtml)?.remove();
+        const numbersOfColumnsTemplateClone = numbersOfColumnsTemplate?.cloneNode(true);
+        getEditorWrapperDomElement(editorHtml)?.after(numbersOfColumnsTemplateClone);
+        numbersOfColumnsTemplateClone?.querySelector('input')?.focus();
+        const labelEl = getHelper().getTemplatePropertyElement('numbersOfColumnsToUse-label', numbersOfColumnsTemplateClone);
+        if (labelEl) {
+            labelEl.append(document.createTextNode(editorConfiguration.configurationOptions.numbersOfColumnsToUse.label
+                .replace('{@viewPortLabel}', element.dataset.viewPortLabel ?? '')));
+        }
+        const descEl = getHelper().getTemplatePropertyElement('numbersOfColumnsToUse-description', numbersOfColumnsTemplateClone);
+        if (descEl) {
+            descEl.append(document.createTextNode(editorConfiguration.configurationOptions.numbersOfColumnsToUse.description));
+        }
+        const propertyPath = editorConfiguration.configurationOptions.numbersOfColumnsToUse.propertyPath
+            .replace('{@viewPortIdentifier}', element.dataset.viewPortIdentifier ?? '');
+        const inputEl = getHelper().getTemplatePropertyElement('numbersOfColumnsToUse-propertyPath', numbersOfColumnsTemplateClone);
+        if (inputEl) {
+            inputEl.value = getCurrentlySelectedFormElement().get(propertyPath) ?? '';
+            inputEl.addEventListener('keyup', handleInput);
+            inputEl.addEventListener('paste', handleInput);
+            inputEl.addEventListener('change', handleInput);
+            function handleInput() {
+                if (this.value === '' || isNaN(Number(this.value))) {
+                    this.value = '';
+                }
+                getCurrentlySelectedFormElement().set(propertyPath, this.value);
+            }
+        }
+    };
+    for (let i = 0, len = editorConfiguration.configurationOptions.viewPorts.length; i < len; ++i) {
+        const viewPortIdentifier = editorConfiguration.configurationOptions.viewPorts[i].viewPortIdentifier;
+        const viewPortLabel = editorConfiguration.configurationOptions.viewPorts[i].label;
+        const viewportButtonTemplateClone = viewportButtonTemplate?.cloneNode(true);
+        if (!viewportButtonTemplateClone) {
+            continue;
+        }
+        viewportButtonTemplateClone.textContent = viewPortIdentifier;
+        viewportButtonTemplateClone.dataset.viewPortIdentifier = viewPortIdentifier;
+        viewportButtonTemplateClone.dataset.viewPortLabel = viewPortLabel;
+        viewportButtonTemplateClone.setAttribute('title', viewPortLabel);
+        editorControlsWrapper?.append(viewportButtonTemplateClone);
+        if (i === (len - 1)) {
+            initNumbersOfColumnsField(viewportButtonTemplateClone);
+            viewportButtonTemplateClone.classList.add(getHelper().getDomElementClassName('active'));
+        }
+    }
+    editorControlsWrapper?.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function () {
+            editorControlsWrapper.querySelectorAll('button').forEach(b => b.classList.remove(getHelper().getDomElementClassName('active')));
+            this.classList.add(getHelper().getDomElementClassName('active'));
+            initNumbersOfColumnsField(this);
+        });
+    });
+}
+
 export function renderPropertyGridEditor(editorConfiguration, editorHtml, collectionElementIdentifier, collectionName) {
     assert(typeof editorConfiguration === 'object' && editorConfiguration !== null && !Array.isArray(editorConfiguration), 'Invalid parameter "editorConfiguration"', 1475419226);
     assert(typeof editorHtml === 'object' && editorHtml !== null && !Array.isArray(editorHtml), 'Invalid parameter "editorHtml"', 1475419227);

@@ -63,7 +63,16 @@ class PropertyPathsExtractor extends AbstractExtractor
         // Special processing of "Inspector-GridColumnViewPortConfigurationEditor" inspector editors.
         // Expand the property path which contains a "{@viewPortIdentifier}" placeholder
         // to X property paths which contain all available placeholder replacements.
-        if ($templateName === 'Inspector-GridColumnViewPortConfigurationEditor') {
+        //
+        // WapplerSystems fork: "Inspector-ViewPortColumnEditor" reuses the identical
+        // viewPorts/numbersOfColumnsToUse configurationOptions shape (and Fluid
+        // partial) without the "only inside a GridRow" JS guard - see
+        // Configuration/Form/Base/config.yaml and renderViewPortColumnEditor() in
+        // inspector-component.ts/js - so it needs the same path expansion here,
+        // otherwise the templated propertyPath is left unexpanded and every save
+        // is rejected by MultiValuePropertiesExtractor-adjacent validation with
+        // "is not equal to the default value".
+        if ($templateName === 'Inspector-GridColumnViewPortConfigurationEditor' || $templateName === 'Inspector-ViewPortColumnEditor') {
             $viewPortsPath = implode(
                 '.',
                 [
