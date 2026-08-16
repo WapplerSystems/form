@@ -74,26 +74,34 @@ prototypes:
                 20:
                   value: horizontal
                   label: formEditor.elements.Form.editor.layoutOrientation.option.horizontal
-            # WapplerSystems fork: Inspector-GridColumnViewPortConfigurationEditor
-            # (used above for the "finishers" editor's sibling patterns elsewhere)
-            # cannot be reused here - its JS (renderGridColumnViewPortConfigurationEditor)
-            # is hard-wired to elements that are children of a GridRow
-            # (it looks up getCurrentlySelectedFormElement().get('__parentRenderable')
-            # and crashes with "Cannot read properties of null (reading 'get')" for
-            # any element without a parent, e.g. the Form root). Two plain
-            # Inspector-TextEditor instances (same generic, parent-independent
-            # editor already used for e.g. "submitButtonLabel" above) avoid that
-            # entirely.
+            # WapplerSystems fork: same viewport-button + number-input UI as the
+            # GridRow/GridColumn "gridColumnViewPortConfiguration" editor
+            # (Configuration/Form/Base/FormElements/Checkbox.yaml etc.), but via
+            # Inspector-ViewPortColumnEditor instead of
+            # Inspector-GridColumnViewPortConfigurationEditor - the latter's JS
+            # is hard-wired to elements that are children of a GridRow (it looks
+            # up getCurrentlySelectedFormElement().get('__parentRenderable') and
+            # crashes with "Cannot read properties of null (reading 'get')" for
+            # any element without a parent, e.g. the Form root).
+            # Inspector-ViewPortColumnEditor reuses the identical Fluid partial
+            # and JS behavior, just without that GridRow-parent guard - see
+            # renderViewPortColumnEditor() in inspector-component.ts/js.
             9610:
-              identifier: layoutLabelColumnsSm
-              templateName: Inspector-TextEditor
-              label: formEditor.elements.Form.editor.layoutLabelColumns.sm.label
-              propertyPath: renderingOptions.layout.labelColumns.viewPorts.sm.numbersOfColumnsToUse
-            9620:
-              identifier: layoutLabelColumnsMd
-              templateName: Inspector-TextEditor
-              label: formEditor.elements.Form.editor.layoutLabelColumns.md.label
-              propertyPath: renderingOptions.layout.labelColumns.viewPorts.md.numbersOfColumnsToUse
+              identifier: layoutLabelColumns
+              templateName: Inspector-ViewPortColumnEditor
+              label: formEditor.elements.Form.editor.layoutLabelColumns.label
+              configurationOptions:
+                viewPorts:
+                  10:
+                    viewPortIdentifier: sm
+                    label: formEditor.elements.Form.editor.layoutLabelColumns.sm.label
+                  20:
+                    viewPortIdentifier: md
+                    label: formEditor.elements.Form.editor.layoutLabelColumns.md.label
+                numbersOfColumnsToUse:
+                  label: formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.label
+                  propertyPath: 'renderingOptions.layout.labelColumns.viewPorts.{@viewPortIdentifier}.numbersOfColumnsToUse'
+                  description: formEditor.elements.Form.editor.layoutLabelColumns.numbersOfColumnsToUse.description
             # WapplerSystems fork: statically declared here (instead of injected via
             # InjectTranslationEditorIntoFormElements) so site packages can override
             # or remove it per element like any other editor. The dynamic part
