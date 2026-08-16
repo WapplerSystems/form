@@ -24,12 +24,16 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  * column split, editable per form via the "layoutOrientation"/"layoutLabelColumns"
  * Inspector editors on the Form root element, see Configuration/Form/Base/FormElements/Form.yaml).
  *
- * Mirrors the class-name-pattern convention already established by
- * GridColumnClassAutoConfigurationViewHelper (classPattern string with
- * {@placeholder} substitution instead of hard-coded return values), so the
- * actual CSS class vocabulary (Bootstrap by default) is fully overridable via
- * renderingOptions.layout.classPatterns.<part> without touching PHP - a site
- * package targeting a different CSS/grid framework only needs to override YAML.
+ * The set of breakpoints ("Stufen") is itself fully YAML-defined, exactly like
+ * GridRow/GridColumn's own gridColumnClassAutoConfiguration: each viewport
+ * entry under renderingOptions.layout.labelColumns.viewPorts carries its own
+ * numbersOfColumnsToUse plus its own classPattern/offsetClassPattern strings
+ * (with a {@numbersOfColumnsToUse} placeholder, same convention as
+ * GridColumnClassAutoConfigurationViewHelper's classPattern). A site package
+ * can add, remove or reorder breakpoints (e.g. add "lg"), or target a
+ * different CSS/grid framework, purely via YAML - no PHP changes needed. Only
+ * a fallback default (sm/md, Bootstrap "col-*"/"offset-*") ships here, used
+ * when renderingOptions.layout.labelColumns.viewPorts is entirely unset.
  *
  * When the form is not in horizontal orientation, this ViewHelper is a no-op:
  * additive parts (container/fieldset) pass the given $default class through
@@ -44,23 +48,26 @@ final class HorizontalLayoutClassViewHelper extends AbstractViewHelper
      */
     protected $escapeOutput = false;
 
-    private const DEFAULT_SM = 3;
-    private const DEFAULT_MD = 2;
     private const DEFAULT_GRID_SIZE = 12;
 
     /**
      * Fork-shipped Bootstrap defaults - fully overridable per form via
-     * renderingOptions.layout.classPatterns.<part> (site package or hand-authored
-     * form YAML), using the placeholders {@default}, {@sm}, {@md}, {@smInput},
-     * {@mdInput} (see render()).
+     * renderingOptions.layout.labelColumns.viewPorts (site package or
+     * hand-authored form YAML). Only used as a fallback when that path is
+     * entirely unset; once a form/site package defines its own viewPorts map,
+     * that one is used as-is (no partial merge with these defaults).
      */
-    private const DEFAULT_CLASS_PATTERNS = [
-        'container' => '{@default} row',
-        'fieldset' => '{@default} row',
-        'label' => 'col-sm-{@sm} col-md-{@md} col-form-label',
-        'legend' => 'col-sm-{@sm} col-md-{@md} col-form-label pt-0',
-        'column' => 'col-sm-{@smInput} col-md-{@mdInput}',
-        'checkboxColumn' => 'col-sm-{@smInput} col-md-{@mdInput} offset-sm-{@sm} offset-md-{@md}',
+    private const DEFAULT_VIEWPORTS = [
+        'sm' => [
+            'numbersOfColumnsToUse' => 3,
+            'classPattern' => 'col-sm-{@numbersOfColumnsToUse}',
+            'offsetClassPattern' => 'offset-sm-{@numbersOfColumnsToUse}',
+        ],
+        'md' => [
+            'numbersOfColumnsToUse' => 2,
+            'classPattern' => 'col-md-{@numbersOfColumnsToUse}',
+            'offsetClassPattern' => 'offset-md-{@numbersOfColumnsToUse}',
+        ],
     ];
 
     public function initializeArguments(): void
@@ -82,19 +89,42 @@ final class HorizontalLayoutClassViewHelper extends AbstractViewHelper
         }
 
         $part = $this->arguments['part'];
-        $pattern = $layout['classPatterns'][$part] ?? self::DEFAULT_CLASS_PATTERNS[$part] ?? '';
-        if ($pattern === '') {
-            return '';
+        if ($part === 'container' || $part === 'fieldset') {
+            return trim($default . ' row');
         }
 
         $gridSize = (int)($layout['labelColumns']['gridSize'] ?? self::DEFAULT_GRID_SIZE);
-        $sm = (int)($layout['labelColumns']['viewPorts']['sm']['numbersOfColumnsToUse'] ?? self::DEFAULT_SM);
-        $md = (int)($layout['labelColumns']['viewPorts']['md']['numbersOfColumnsToUse'] ?? self::DEFAULT_MD);
+        $viewPorts = $layout['labelColumns']['viewPorts'] ?? null;
+        if (!is_array($viewPorts) || $viewPorts === []) {
+            $viewPorts = self::DEFAULT_VIEWPORTS;
+        }
 
-        return trim(str_replace(
-            ['{@default}', '{@sm}', '{@md}', '{@smInput}', '{@mdInput}'],
-            [$default, (string)$sm, (string)$md, (string)($gridSize - $sm), (string)($gridSize - $md)],
-            $pattern
-        ));
+        $labelClasses = [];
+        $columnClasses = [];
+        $offsetClasses = [];
+        foreach ($viewPorts as $viewPortConfig) {
+            if (!is_array($viewPortConfig)) {
+                continue;
+            }
+            $numbersOfColumnsToUse = (int)($viewPortConfig['numbersOfColumnsToUse'] ?? 0);
+            $classPattern = (string)($viewPortConfig['classPattern'] ?? '');
+            $offsetClassPattern = (string)($viewPortConfig['offsetClassPattern'] ?? '');
+
+            if ($classPattern !== '') {
+                $labelClasses[] = str_replace('{@numbersOfColumnsToUse}', (string)$numbersOfColumnsToUse, $classPattern);
+                $columnClasses[] = str_replace('{@numbersOfColumnsToUse}', (string)max(0, $gridSize - $numbersOfColumnsToUse), $classPattern);
+            }
+            if ($offsetClassPattern !== '' && $numbersOfColumnsToUse > 0) {
+                $offsetClasses[] = str_replace('{@numbersOfColumnsToUse}', (string)$numbersOfColumnsToUse, $offsetClassPattern);
+            }
+        }
+
+        return match ($part) {
+            'label' => trim(implode(' ', $labelClasses) . ' col-form-label'),
+            'legend' => trim(implode(' ', $labelClasses) . ' col-form-label pt-0'),
+            'column' => trim(implode(' ', $columnClasses)),
+            'checkboxColumn' => trim(implode(' ', [...$columnClasses, ...$offsetClasses])),
+            default => '',
+        };
     }
 }
