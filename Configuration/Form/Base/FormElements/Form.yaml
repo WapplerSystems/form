@@ -6,17 +6,18 @@ prototypes:
           predefinedDefaults:
             renderingOptions:
               submitButtonLabel: formEditor.elements.Form.editor.submitButtonLabel.value
-              # WapplerSystems fork: pre-fill new forms with the same values
-              # HorizontalLayoutClassViewHelper falls back to anyway, so the
-              # editor UI shows the effective values instead of empty fields.
+              # WapplerSystems fork: pre-fill new forms' orientation only.
+              # labelColumns is intentionally left unset here - it's an
+              # all-or-nothing map (viewport identifier => numbersOfColumnsToUse
+              # + classPattern/offsetClassPattern), so a partial seed (numbers
+              # without patterns) would silently suppress the PHP-side default
+              # classPatterns in HorizontalLayoutClassViewHelper instead of
+              # using them. Leaving it unset here means new forms correctly
+              # fall through to that PHP-side default (sm=3/md=2, Bootstrap
+              # col-*/offset-* classes) until a form or site package defines
+              # its own viewPorts map.
               layout:
                 orientation: vertical
-                labelColumns:
-                  viewPorts:
-                    sm:
-                      numbersOfColumnsToUse: 3
-                    md:
-                      numbersOfColumnsToUse: 2
           editors:
             100:
               identifier: header
@@ -59,9 +60,15 @@ prototypes:
             # site package copying a tt_content field into renderingOptions.layout.orientation
             # before rendering) - this editor lets it also be set directly per form.
             # See Classes/ViewHelpers/HorizontalLayoutClassViewHelper.php for how
-            # orientation + labelColumns are turned into CSS classes (fully
-            # overridable via renderingOptions.layout.classPatterns.<part>, not
-            # exposed here - only the numeric column split is editor-facing).
+            # orientation + labelColumns are turned into CSS classes. The set of
+            # breakpoints ("Stufen") and their CSS class patterns are themselves
+            # YAML-defined, exactly like GridRow/GridColumn's own
+            # gridColumnClassAutoConfiguration - a site package can add e.g. "lg"
+            # purely via YAML (renderingOptions.layout.labelColumns.viewPorts.lg.*),
+            # no PHP changes needed. Only the numeric column split is editor-facing
+            # below (9610); which breakpoints get an editor button at all is a
+            # second, separate YAML concern (this editor's own
+            # configurationOptions.viewPorts list).
             9600:
               identifier: layoutOrientation
               templateName: Inspector-SingleSelectEditor

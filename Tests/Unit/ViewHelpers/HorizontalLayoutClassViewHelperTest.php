@@ -68,8 +68,10 @@ final class HorizontalLayoutClassViewHelperTest extends UnitTestCase
     }
 
     #[Test]
-    public function horizontalOrientationWithDefaultColumnsProducesExpectedClasses(): void
+    public function horizontalOrientationWithoutLabelColumnsFallsBackToDefaultViewports(): void
     {
+        // renderingOptions.layout.labelColumns entirely unset -> the PHP-side
+        // default viewports (sm=3, md=2, Bootstrap col-*/offset-* classes) apply.
         $element = $this->createElement(['orientation' => 'horizontal']);
         self::assertSame('form-element form-element-text mb-3 row', $this->render($element, 'container', 'form-element form-element-text mb-3'));
         self::assertSame('col-sm-3 col-md-2 col-form-label', $this->render($element, 'label'));
@@ -79,14 +81,14 @@ final class HorizontalLayoutClassViewHelperTest extends UnitTestCase
     }
 
     #[Test]
-    public function horizontalOrientationWithCustomColumnsDerivesComplementCorrectly(): void
+    public function customViewportNumbersDeriveComplementCorrectly(): void
     {
         $element = $this->createElement([
             'orientation' => 'horizontal',
             'labelColumns' => [
                 'viewPorts' => [
-                    'sm' => ['numbersOfColumnsToUse' => 4],
-                    'md' => ['numbersOfColumnsToUse' => 3],
+                    'sm' => ['numbersOfColumnsToUse' => 4, 'classPattern' => 'col-sm-{@numbersOfColumnsToUse}', 'offsetClassPattern' => 'offset-sm-{@numbersOfColumnsToUse}'],
+                    'md' => ['numbersOfColumnsToUse' => 3, 'classPattern' => 'col-md-{@numbersOfColumnsToUse}', 'offsetClassPattern' => 'offset-md-{@numbersOfColumnsToUse}'],
                 ],
             ],
         ]);
@@ -103,25 +105,53 @@ final class HorizontalLayoutClassViewHelperTest extends UnitTestCase
             'labelColumns' => [
                 'gridSize' => 24,
                 'viewPorts' => [
-                    'sm' => ['numbersOfColumnsToUse' => 6],
-                    'md' => ['numbersOfColumnsToUse' => 4],
+                    'sm' => ['numbersOfColumnsToUse' => 6, 'classPattern' => 'col-sm-{@numbersOfColumnsToUse}'],
                 ],
             ],
         ]);
-        self::assertSame('col-sm-18 col-md-20', $this->render($element, 'column'));
+        self::assertSame('col-sm-18', $this->render($element, 'column'));
     }
 
     #[Test]
-    public function classPatternsAreOverridableViaRenderingOptions(): void
+    public function arbitraryNumberOfViewportsIsSupported(): void
     {
+        // The set of breakpoints ("Stufen") is fully YAML-defined, exactly like
+        // GridRow/GridColumn's own gridColumnClassAutoConfiguration - a site
+        // package can add, remove or reorder viewports, e.g. add "lg", purely
+        // via YAML, with no PHP changes.
         $element = $this->createElement([
             'orientation' => 'horizontal',
-            'classPatterns' => [
-                'column' => 'my-grid-col-{@smInput}-{@mdInput}',
-                'label' => 'my-grid-label-{@sm}-{@md}',
+            'labelColumns' => [
+                'viewPorts' => [
+                    'xs' => ['numbersOfColumnsToUse' => 12, 'classPattern' => 'col-{@numbersOfColumnsToUse}'],
+                    'sm' => ['numbersOfColumnsToUse' => 4, 'classPattern' => 'col-sm-{@numbersOfColumnsToUse}'],
+                    'lg' => ['numbersOfColumnsToUse' => 3, 'classPattern' => 'col-lg-{@numbersOfColumnsToUse}'],
+                ],
             ],
         ]);
-        self::assertSame('my-grid-col-9-10', $this->render($element, 'column'));
-        self::assertSame('my-grid-label-3-2', $this->render($element, 'label'));
+        self::assertSame('col-12 col-sm-4 col-lg-3 col-form-label', $this->render($element, 'label'));
+        self::assertSame('col-0 col-sm-8 col-lg-9', $this->render($element, 'column'));
+    }
+
+    #[Test]
+    public function customClassPatternsAreFullyConfigurable(): void
+    {
+        // A site package targeting a different CSS/grid framework only needs
+        // to override the classPattern/offsetClassPattern strings - no PHP.
+        $element = $this->createElement([
+            'orientation' => 'horizontal',
+            'labelColumns' => [
+                'viewPorts' => [
+                    'sm' => [
+                        'numbersOfColumnsToUse' => 5,
+                        'classPattern' => 'my-grid-col-sm-{@numbersOfColumnsToUse}',
+                        'offsetClassPattern' => 'my-grid-offset-sm-{@numbersOfColumnsToUse}',
+                    ],
+                ],
+            ],
+        ]);
+        self::assertSame('my-grid-col-sm-5 col-form-label', $this->render($element, 'label'));
+        self::assertSame('my-grid-col-sm-7', $this->render($element, 'column'));
+        self::assertSame('my-grid-col-sm-7 my-grid-offset-sm-5', $this->render($element, 'checkboxColumn'));
     }
 }
