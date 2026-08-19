@@ -1,11 +1,22 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:formvh="http://typo3.org/ns/TYPO3/CMS/Form/ViewHelpers" data-namespace-typo3-fluid="true">
 <formvh:renderRenderable renderable="{element}">
     <f:form.validationResults for="{element.rootForm.identifier}.{element.identifier}">
-        <f:if condition="{element.properties.elementDescription}">
-            <f:variable name="aria" value="{describedby: '{element.uniqueIdentifier}-desc'}" />
+        <f:comment>
+            Fork: the allowed-file-types hint is opt-in per element
+            (properties.showAllowedFileExtensions) and, when shown, joins the
+            aria-describedby token list instead of replacing it - the element
+            description, the hint and the error message can all be present.
+        </f:comment>
+        <f:if condition="{element.properties.showAllowedFileExtensions}">
+            <f:variable name="allowedFileExtensions" value="{formvh:allowedFileExtensions(mimeTypes: element.properties.allowedMimeTypes)}"/>
+        </f:if>
+        <f:variable name="describedBy"><f:if condition="{element.properties.elementDescription}">{element.uniqueIdentifier}-desc </f:if><f:if condition="{allowedFileExtensions}">{element.uniqueIdentifier}-allowed </f:if><f:if condition="{validationResults.errors}">{element.uniqueIdentifier}-errors</f:if></f:variable>
+        <f:variable name="describedBy" value="{describedBy -> f:format.trim()}"/>
+        <f:if condition="{describedBy}">
+            <f:variable name="aria" value="{describedby: '{describedBy}'}"/>
         </f:if>
         <f:if condition="{validationResults.errors}">
-            <f:variable name="aria" value="{invalid: 'true', describedby: '{element.uniqueIdentifier}-errors'}" />
+            <f:variable name="aria" value="{invalid: 'true', describedby: '{describedBy}'}"/>
         </f:if>
 
         <f:render partial="Field/Field" arguments="{element: element}" contentAs="elementContent">
@@ -65,6 +76,7 @@
                     </f:if>
                 </f:if>
             </formvh:form.uploadedResource>
+            <f:render partial="Field/AllowedFileExtensions" arguments="{element: element, allowedFileExtensions: allowedFileExtensions}"/>
         </f:render>
     </f:form.validationResults>
 </formvh:renderRenderable>

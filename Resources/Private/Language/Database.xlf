@@ -606,6 +606,10 @@
       <trans-unit id="formEditor.elements.FileUploadMixin.editor.saveToFileMount.label">
         <source>Uploads save path</source>
       </trans-unit>
+      <!-- Fork: new source key/text, translation added manually (not yet in official language pack) -->
+      <trans-unit id="formEditor.elements.FileUploadMixin.editor.showAllowedFileExtensions.label">
+        <source>Show allowed file extensions</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.label">
         <source>Validators</source>
       </trans-unit>

@@ -40,6 +40,11 @@ prototypes:
                 40:
                   value: image/webp
                   label: formEditor.elements.ImageUpload.editor.allowedMimeTypes.webp
+            310:
+              identifier: showAllowedFileExtensions
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.FileUploadMixin.editor.showAllowedFileExtensions.label
+              propertyPath: properties.showAllowedFileExtensions
             400:
               identifier: saveToFileMount
               templateName: Inspector-SingleSelectEditor
@@ -227,6 +232,7 @@ prototypes:
           labelClassAttribute: form-label
           saveToFileMount: '1:/user_upload/'
           allowedMimeTypes: []
+          showAllowedFileExtensions: false
           imageLinkMaxWidth: 500
           imageMaxWidth: 500
           imageMaxHeight: 500

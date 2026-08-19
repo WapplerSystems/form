@@ -751,6 +751,11 @@
         <source>Uploads save path</source>
         <target state="final">Speicherpfad für Uploads</target>
       </trans-unit>
+      <!-- Fork: new source key/text, translation added manually (not yet in official language pack) -->
+      <trans-unit id="formEditor.elements.FileUploadMixin.editor.showAllowedFileExtensions.label" approved="yes">
+        <source>Show allowed file extensions</source>
+        <target state="final">Erlaubte Dateiendungen anzeigen</target>
+      </trans-unit>
       <trans-unit id="formEditor.elements.FileUploadMixin.editor.validators.label" approved="yes">
         <source>Validators</source>
         <target state="final">Validatoren</target>

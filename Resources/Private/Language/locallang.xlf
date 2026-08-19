@@ -129,6 +129,9 @@
       <trans-unit id="upload.remove">
         <source>Remove</source>
       </trans-unit>
+      <trans-unit id="upload.allowedFileExtensions">
+        <source>Allowed file extensions</source>
+      </trans-unit>
       <trans-unit id="form.configuration.module.provider">
         <source>Form: YAML Configuration</source>
       </trans-unit>
