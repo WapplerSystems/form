@@ -131,6 +131,10 @@
       <trans-unit id="upload.remove" resname="upload.remove" xml:space="preserve" approved="yes">
                 <source>Remove</source>
             <target state="final">Entfernen</target></trans-unit>
+      <!-- Fork: new source key/text, translation added manually (not yet in official language pack) -->
+      <trans-unit id="upload.allowedFileExtensions" resname="upload.allowedFileExtensions" xml:space="preserve" approved="yes">
+                <source>Allowed file extensions</source>
+            <target state="final">Erlaubte Dateiendungen</target></trans-unit>
       <trans-unit id="form.configuration.module.provider" resname="form.configuration.module.provider" xml:space="preserve" approved="yes">
                 <source>Form: YAML Configuration</source>
             <target state="final">Formular: YAML-Konfiguration</target></trans-unit>

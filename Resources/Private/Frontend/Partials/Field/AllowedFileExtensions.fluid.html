@@ -1,0 +1,15 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:formvh="http://typo3.org/ns/TYPO3/CMS/Form/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    WapplerSystems fork: renders the "Allowed file extensions: pdf, jpg, ..." hint below a
+    FileUpload / ImageUpload field. Opt-in per element via the Inspector checkbox
+    "Show allowed file extensions" (properties.showAllowedFileExtensions).
+
+    Expects the caller to have resolved {allowedFileExtensions} via
+    formvh:allowedFileExtensions - that ViewHelper derives the list from
+    properties.allowedMimeTypes, so the hint can never drift away from what the
+    MimeType validator actually accepts.
+</f:comment>
+<f:if condition="{allowedFileExtensions}">
+    <span id="{element.uniqueIdentifier}-allowed" class="{element.rootForm.renderingOptions.fieldProperties.descriptionClassAttribute} form-element-fileupload-allowed"><f:translate key="upload.allowedFileExtensions" domain="form" default="Allowed file extensions" />: {allowedFileExtensions -> f:join(separator: ', ')}</span>
+</f:if>
+</html>
