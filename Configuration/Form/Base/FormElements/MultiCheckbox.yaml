@@ -178,7 +178,7 @@ prototypes:
         implementationClassName: TYPO3\CMS\Form\Domain\Model\FormElements\GenericFormElement
         properties:
           renderFieldset: 1
-          fieldsetClassAttribute: 'form-element form-element-radio mb-3'
+          fieldsetClassAttribute: 'form-element form-element-multicheckbox mb-3'
           containerClassAttribute: 'form-check mb-2'
           elementClassAttribute: form-check-input
           elementErrorClassAttribute: ~
