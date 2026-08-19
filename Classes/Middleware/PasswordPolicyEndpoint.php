@@ -64,7 +64,13 @@ final class PasswordPolicyEndpoint implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($request->getUri()->getPath() !== self::PATH) {
+        // Match the path by suffix so the endpoint also fires after
+        // SiteBaseRedirectResolver has prepended a language base (e.g.
+        // /de/_form/password-policy/). With a strict comparison, sites
+        // whose default language has a non-empty base would 307-redirect
+        // the request out of our reach on the first pass, and the
+        // language-prefixed second pass would no longer match.
+        if (!str_ends_with($request->getUri()->getPath(), self::PATH)) {
             return $handler->handle($request);
         }
 
@@ -78,9 +84,33 @@ final class PasswordPolicyEndpoint implements MiddlewareInterface
         }
 
         $site = $request->getAttribute('site');
-        $language = $site !== null && method_exists($site, 'getDefaultLanguage')
-            ? $site->getDefaultLanguage()
-            : null;
+
+        // The endpoint URL carries no language prefix of its own, so the
+        // client hands us the active page language via `?lang=…`. Match it
+        // against the site's configured languages by ISO code OR hreflang
+        // (so both "en" and "en-US" resolve cleanly). Fall back to the site
+        // default when the parameter is missing or unknown - otherwise a
+        // multi-language site would always label the rules in its default
+        // language.
+        $langParam = trim((string)($request->getQueryParams()['lang'] ?? ''));
+        $language = null;
+        if ($langParam !== '' && $site !== null) {
+            foreach ($site->getLanguages() as $candidate) {
+                $locale = $candidate->getLocale();
+                if (strcasecmp($locale->getLanguageCode(), $langParam) === 0
+                    || strcasecmp($candidate->getHreflang(), $langParam) === 0
+                    || strcasecmp((string)$locale, $langParam) === 0
+                ) {
+                    $language = $candidate;
+                    break;
+                }
+            }
+        }
+        if ($language === null) {
+            $language = $site !== null && method_exists($site, 'getDefaultLanguage')
+                ? $site->getDefaultLanguage()
+                : null;
+        }
         $ls = $language !== null
             ? $this->languageServiceFactory->createFromSiteLanguage($language)
             : $this->languageServiceFactory->create('default');

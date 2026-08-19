@@ -1951,6 +1951,28 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Translations</source>
         <target>Übersetzungen</target>
       </trans-unit>
+
+      <!-- Fork: password policy indicator / reveal toggle / generator -->
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.showPasswordPolicy.label">
+        <source>Show live password requirements</source>
+        <target>Live-Passwortanforderungen anzeigen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.passwordPolicyHeading.label">
+        <source>Password policy heading</source>
+        <target>Überschrift der Passwortanforderungen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.showPasswordToggle.label">
+        <source>Show "reveal password" button</source>
+        <target>Button "Passwort anzeigen" einblenden</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.showPasswordGenerator.label">
+        <source>Show "generate password" button</source>
+        <target>Button "Passwort generieren" einblenden</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.passwordGeneratorLabel.label">
+        <source>Generate button label</source>
+        <target>Beschriftung des Generieren-Buttons</target>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.translationsOverview.label">
         <source>Form translations</source>
         <target>Formularübersetzungen</target>
