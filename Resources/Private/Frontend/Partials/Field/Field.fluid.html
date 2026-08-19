@@ -22,7 +22,7 @@
             </fieldset>
         </f:then>
         <f:else>
-            <!--
+            <f:comment>
                 When no label is rendered (doNotShowLabel == 1, e.g. a single
                 Checkbox), there is no label column to offset against, so this
                 wrap uses the "checkboxColumn" pattern (column + offset) instead
@@ -30,7 +30,7 @@
                 offset wrap (if any) would be nested inside a second, redundant
                 column div. Currently only Checkbox.fluid.html renders this
                 branch with doNotShowLabel == 1.
-            -->
+            </f:comment>
             <f:if condition="{doNotShowLabel} == 1">
                 <f:then>
                     <f:variable name="columnClass">{formvh:horizontalLayoutClass(element: element, part: 'checkboxColumn')}</f:variable>
