@@ -761,6 +761,23 @@
       <trans-unit id="formEditor.elements.FormElement.editor.translations.label">
         <source>Translations</source>
       </trans-unit>
+
+      <!-- Fork: password policy indicator / reveal toggle / generator -->
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.showPasswordPolicy.label">
+        <source>Show live password requirements</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.passwordPolicyHeading.label">
+        <source>Password policy heading</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.showPasswordToggle.label">
+        <source>Show "reveal password" button</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.showPasswordGenerator.label">
+        <source>Show "generate password" button</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.PasswordMixin.editor.passwordGeneratorLabel.label">
+        <source>Generate button label</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.translationsOverview.label">
         <source>Form translations</source>
       </trans-unit>
