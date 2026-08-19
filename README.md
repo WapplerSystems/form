@@ -119,7 +119,9 @@ for database-stored forms too.
 - Extra form elements (`Time`) and finishers (`RedirectToUri`, `FeUser`,
   `AttachUploadsToObject`) and view helpers.
 - Opt-in site-sender feature and opt-in validation-failure logging.
-- Password-policy JSON endpoint.
+- Live password-policy indicator on `Password` / `AdvancedPassword`, plus an
+  optional reveal toggle and a policy-compliant password generator, backed by a
+  password-policy JSON endpoint.
 - A self-contained build pipeline for the editor TypeScript sources under `Build/`.
 
 ---
@@ -331,10 +333,47 @@ Response shape:
 
 Only rules the configured `CorePasswordValidator` actually enforces are emitted; a policy
 that disables `specialCharacterRequired` simply won't return that rule, so the UI stays
-consistent with the validator. Labels are translated against the active site default
-language. The middleware is registered in `Configuration/RequestMiddlewares.php` after
-`cms-frontend/site` (so the site context is available) and before
-`cms-frontend/page-resolver` (so the JSON URL never enters page-not-found lookup).
+consistent with the validator.
+
+Labels are localized per request: the client appends `?lang=<code>` (taken from
+`document.documentElement.lang`) and the middleware matches it against the site's
+languages by ISO code, hreflang or full locale, falling back to the site default. Without
+that parameter a multi-language site would label every rule in its default language.
+
+The middleware is registered in `Configuration/RequestMiddlewares.php` after
+`cms-frontend/site` (so the site context is available) and before **both**
+`cms-frontend/base-redirect-resolver` and `cms-frontend/page-resolver`. The
+base-redirect-resolver ordering matters: the endpoint URL deliberately carries no language
+prefix, and that middleware 404s any path outside a configured language base — so on a
+site whose languages live under `/de/` and `/en/`, the unprefixed URL (the only one the
+client ever requests) would otherwise never reach this endpoint. The path is matched by
+suffix, so a language-prefixed URL keeps working too.
+
+#### Frontend rendering
+
+The `Password` and `AdvancedPassword` elements render the indicator themselves — no
+template overrides needed — and gained these properties:
+
+| Property | Default (`Password` / `AdvancedPassword`) | Effect |
+| --- | --- | --- |
+| `showPasswordPolicy` | `true` / `true` | Renders the live requirement list under the field. |
+| `passwordPolicyHeading` | `'Password must meet:'` | Heading above the list. |
+| `showPasswordToggle` | `false` / `true` | Adds a button that reveals/masks the value (and the confirmation, on `AdvancedPassword`). |
+| `passwordToggleShowLabel` / `passwordToggleHideLabel` | `'Show'` / `'Hide'` | Button labels for the two states. |
+| `showPasswordGenerator` | `false` / `true` | Adds a button that fills in a random password satisfying the active policy, and reveals it. |
+| `passwordGeneratorLabel` | `'Generate password'` | Generator button label. |
+
+The toggle and generator default to off for `Password`, which is frequently a login or
+"current password" field, and on for `AdvancedPassword`, which always means "set a new
+password". All labels are per-element properties, so they translate through the normal
+form translation files. The JS and CSS are emitted only when at least one of the three
+features is enabled, so a plain password field stays asset-free; both degrade gracefully
+without JavaScript, since the server-side validator remains authoritative.
+
+The generator mirrors the policy: one character is seeded from every required class,
+character pools omit visually ambiguous glyphs, randomness comes from
+`crypto.getRandomValues()` via rejection sampling, and the result is shuffled
+Fisher–Yates.
 
 ### Site-sender feature (opt-in via extension flag)
 
