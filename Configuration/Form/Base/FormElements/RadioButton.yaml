@@ -149,4 +149,4 @@ prototypes:
           elementErrorClassAttribute: ~
           labelClassAttribute: form-check-wrapping-label
           labelTextClassAttribute: form-check-label
-          legendVisuallyHidden: 1
+          legendVisuallyHidden: 0
