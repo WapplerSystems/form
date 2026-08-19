@@ -319,6 +319,18 @@ class TranslationService implements SingletonInterface
                     }
                 }
             }
+            // Generic fallback for every remaining scalar property/renderingOption
+            // addressed by its plain name - elementDescription on any element,
+            // submitButtonLabel on the form, previous/nextButtonLabel on a page.
+            // Without this the overlay covered only label/placeholder/options, so a
+            // fully translated form still fell back to the default language for those.
+            if (
+                $property !== 'label'
+                && is_string($overrides[$property] ?? null)
+                && $overrides[$property] !== ''
+            ) {
+                return (string)$overrides[$property];
+            }
         }
 
         if (isset($renderingOptions['translation']['translatePropertyValueIfEmpty'])) {
