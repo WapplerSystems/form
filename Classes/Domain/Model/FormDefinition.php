@@ -22,6 +22,8 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Domain\Model;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Extbase\Validation\ValidatorResolver;
+use TYPO3\CMS\Form\Domain\Model\Exception\ValidatorPresetNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
@@ -365,10 +367,61 @@ class FormDefinition extends AbstractCompositeRenderable implements VariableRend
             }
         }
 
+        // WapplerSystems fork: accept `validators` on the form itself, spelled
+        // exactly like on any other renderable. AbstractRenderable handles this
+        // key for elements and pages, but FormDefinition overrides setOptions()
+        // and left it out, so the form root was the one place where the
+        // conventional spelling did not work. Validators land on the root form's
+        // processing rule under the form identifier; core never evaluates that
+        // rule (processing rules are applied per element during property
+        // mapping), so the RunFormLevelValidators listener runs them after
+        // per-element validation.
+        if (isset($options['validators'])) {
+            foreach ($options['validators'] as $validatorConfiguration) {
+                $this->createFormLevelValidator(
+                    (string)($validatorConfiguration['identifier'] ?? ''),
+                    $validatorConfiguration['options'] ?? []
+                );
+            }
+        }
+
         ArrayUtility::assertAllArrayKeysAreValid(
             $options,
-            ['rendererClassName', 'renderingOptions', 'finishers', 'formEditor', 'label', 'variants']
+            ['rendererClassName', 'renderingOptions', 'finishers', 'formEditor', 'label', 'variants', 'validators']
         );
+    }
+
+    /**
+     * Registers a validator on the form itself.
+     *
+     * AbstractRenderable::createValidator() cannot be reused here: it resolves
+     * the validator definition through getRootForm(), which walks *upwards* from
+     * parentRenderable and therefore throws for the form root itself. The
+     * definition and the processing rule are both available directly on $this.
+     *
+     * @param array<string, mixed> $options
+     * @throws ValidatorPresetNotFoundException
+     */
+    private function createFormLevelValidator(string $validatorIdentifier, array $options = []): void
+    {
+        $definition = $this->validatorsDefinition[$validatorIdentifier] ?? null;
+        if (!is_array($definition) || !isset($definition['implementationClassName'])) {
+            throw new ValidatorPresetNotFoundException(
+                'The validator preset identified by "' . $validatorIdentifier . '" could not be found, or the implementationClassName was not specified.',
+                1787183000
+            );
+        }
+
+        $validatorOptions = $definition['options'] ?? [];
+        ArrayUtility::mergeRecursiveWithOverrule($validatorOptions, $options);
+
+        $validator = GeneralUtility::getContainer()
+            ->get(ValidatorResolver::class)
+            ->createValidator($definition['implementationClassName'], $validatorOptions, $this->request);
+
+        if ($validator !== null) {
+            $this->getProcessingRule($this->getIdentifier())->addValidator($validator);
+        }
     }
 
     /**

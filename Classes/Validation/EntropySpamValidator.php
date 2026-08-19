@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Validation;
 
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Extbase\Error\Error;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Rejects form submissions whose human-entered free text looks machine-generated.
  *
@@ -116,9 +120,9 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
 
         // Check 2 (random gibberish) runs per field and is independent of the
         // combined-length gate, so a single random field is caught on its own.
-        foreach ($fields as $fieldValue) {
+        foreach ($fields as $fieldIdentifier => $fieldValue) {
             if ($this->containsGibberishToken($fieldValue)) {
-                $this->reject();
+                $this->reject((string)$fieldIdentifier);
                 return;
             }
         }
@@ -133,15 +137,65 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
         if ($entropy < (float)$this->options['minimumEntropy']
             || $entropy > (float)$this->options['maximumEntropy']
         ) {
-            $this->reject();
+            // Anchor on the longest analysed field — usually the message body,
+            // which is where the offending text actually is.
+            $anchor = null;
+            $longest = -1;
+            foreach ($fields as $identifier => $fieldValue) {
+                $length = mb_strlen((string)$fieldValue);
+                if ($length > $longest) {
+                    $longest = $length;
+                    $anchor = (string)$identifier;
+                }
+            }
+            $this->reject($anchor);
         }
     }
 
-    private function reject(): void
+    /**
+     * Attaches the rejection to the offending field when one is known.
+     *
+     * Element errors live at `<formIdentifier>.<elementIdentifier>` and every
+     * form template renders them next to the input. A form-root error, by
+     * contrast, only shows where the template has a dedicated summary block —
+     * templates that lack one reject the submission silently, leaving the user
+     * with a redisplayed form and no explanation. Anchoring on the field keeps
+     * the message visible regardless of template, and points at the text that
+     * actually tripped the filter.
+     */
+    private function reject(?string $fieldIdentifier = null): void
     {
         // Code derived from class name + a unique numeric marker so listeners
         // can suppress this specific check by error code.
-        $this->addError((string)$this->options['errorMessage'], 1717686001);
+        $message = $this->resolveErrorMessage();
+        if ($fieldIdentifier !== null && $fieldIdentifier !== '') {
+            $this->result->forProperty($fieldIdentifier)->addError(new Error($message, 1717686001));
+            return;
+        }
+        $this->addError($message, 1717686001);
+    }
+
+    /**
+     * Resolves the configured message, allowing an `LLL:` reference so the
+     * rejection text can be translated. Form-level validator options are not
+     * covered by the form XLF chain (that applies to element validators via
+     * properties.validationErrorMessages), so without this a multi-language site
+     * could only ever show one hardcoded language. Resolved against the active
+     * site language, falling back to the raw string.
+     */
+    private function resolveErrorMessage(): string
+    {
+        $message = (string)($this->options['errorMessage'] ?? '');
+        if (!str_starts_with($message, 'LLL:')) {
+            return $message;
+        }
+
+        $siteLanguage = $this->formRuntime->getCurrentSiteLanguage();
+        $languageService = $siteLanguage !== null
+            ? GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromSiteLanguage($siteLanguage)
+            : GeneralUtility::makeInstance(LanguageServiceFactory::class)->create('default');
+
+        return $languageService->sL($message) ?: $message;
     }
 
     /**
