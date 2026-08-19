@@ -34,6 +34,11 @@ final readonly class FormData
         public array $finishers,
         public array $renderables,
         public array $variants,
+        // Form-level (cross-field) validators, declared like on any other
+        // renderable. Modelled here because every top-level key this DTO does
+        // not carry is dropped silently on load — a `validators:` list on the
+        // form used to vanish without a word.
+        public array $validators = [],
     ) {}
 
     public static function fromArray(array $data): self
@@ -47,6 +52,7 @@ final readonly class FormData
             finishers: $data['finishers'] ?? [],
             renderables: $data['renderables'] ?? [],
             variants: $data['variants'] ?? [],
+            validators: $data['validators'] ?? [],
         );
     }
 
@@ -61,6 +67,7 @@ final readonly class FormData
             'finishers' => $this->finishers,
             'renderables' => $this->renderables,
             'variants' => $this->variants,
+            'validators' => $this->validators,
         ];
     }
 }
