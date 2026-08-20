@@ -223,6 +223,13 @@ final class EmailFinisherMailLogTest extends FunctionalTestCase
         $formDefinition->method('getRenderingOptions')->willReturn([]);
         $formRuntime = $this->createMock(FormRuntime::class);
         $formRuntime->method('getFormDefinition')->willReturn($formDefinition);
+        // The failure branch renders Finishers/Error, so the runtime has to offer
+        // template paths. Without them the finisher throws while building the
+        // error view and the failure path is only half exercised.
+        $formRuntime->method('getRenderingOptions')->willReturn([
+            'templateRootPaths' => ['EXT:form/Resources/Private/Frontend/Templates/'],
+            'partialRootPaths' => ['EXT:form/Resources/Private/Frontend/Partials/'],
+        ]);
 
         $finisher->execute(new FinisherContext($formRuntime, $this->createMock(Request::class)));
     }
