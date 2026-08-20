@@ -2327,10 +2327,6 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>JavaScript challenge</source>
         <target state="final">JavaScript-Challenge</target>
       </trans-unit>
-      <trans-unit id="formEditor.elements.Form.editor.challenge.enable.label" resname="formEditor.elements.Form.editor.challenge.enable.label" approved="yes">
-        <source>Spam shield: require JavaScript challenge</source>
-        <target state="final">Spam-Schutz: JavaScript-Challenge verlangen</target>
-      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.challenge.delay.label" resname="formEditor.elements.Form.editor.challenge.delay.label" approved="yes">
         <source>Challenge delay (seconds)</source>
         <target state="final">Verzögerung der Challenge (Sekunden)</target>

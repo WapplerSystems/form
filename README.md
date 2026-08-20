@@ -428,21 +428,35 @@ the form binding and (optionally) the age. A client that never ran JavaScript su
 nothing usable, and one that copies the challenge back verbatim submits a string whose
 signature does not verify.
 
-Switched on per form, or prototype-wide to cover every form of a site at once:
+Putting the validator on a form is the only switch, and every setting lives on it:
 
 ```yaml
 type: Form
 identifier: contact
-renderingOptions:
-  challenge:
-    enable: true
-    delay: 3                        # seconds the browser waits before answering
-    obfuscationMethod: rot13reverse # rot13reverse | rot13 | reverse | base64 | none
-    maxAge: 0                       # 0 = no expiry check (see below)
+validators:
+  -
+    identifier: Challenge
+    options:
+      delay: 3                        # seconds the browser waits before answering
+      obfuscationMethod: rot13reverse # rot13reverse | rot13 | reverse | base64 | none
+      maxAge: 0                       # 0 = no expiry check (see below)
 ```
 
-`enable`, `delay` and `obfuscationMethod` are editable in the form editor on the form
-root. `maxAge` is deliberately YAML-only, because it interacts with the page cache.
+`delay` and `obfuscationMethod` shape the markup and are read by
+`InjectFormChallenge` off the validator; `maxAge` and `errorMessage` shape the verdict and
+are read by the validator itself. They sit together because they are one feature — an
+earlier version split them between the validator and a `renderingOptions.challenge`
+block, which meant configuring one thing in two places.
+
+`delay` and `obfuscationMethod` are editable in the form editor, in the *Form-wide
+validators* inspector alongside the validator itself. `maxAge` is deliberately not
+editor-facing, because it interacts with the page cache and a wrong value silently
+rejects legitimate submissions.
+
+> **Trade-off worth knowing:** a `validators` list on the form root cannot be defaulted
+> prototype-wide, so there is no longer a one-line way to arm every form of a site at
+> once. If you want that, add the validator from a listener on `AfterFormIsBuiltEvent`
+> rather than reintroducing a parallel settings block.
 
 **The obfuscation is not cryptography** and is not meant to be — the reversing algorithm
 ships to every visitor. Its only job is that a bot copying values out of the markup into
