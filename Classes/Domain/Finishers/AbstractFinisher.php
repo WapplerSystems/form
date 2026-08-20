@@ -36,6 +36,7 @@ use TYPO3\CMS\Form\Service\TranslationService;
 // WapplerSystems fork additions:
 use TYPO3\CMS\Form\Event\AfterFinisherExecutedEvent;
 use TYPO3\CMS\Form\Event\BeforeFinisherExecutedEvent;
+use TYPO3\CMS\Form\Event\FinisherFailedEvent;
 
 /**
  * Finisher base class.
@@ -181,6 +182,13 @@ abstract class AbstractFinisher implements FinisherInterface, LoggerAwareInterfa
             return $result;
         } catch (FinisherException $e) {
             $this->logger->error('Failed to execute finisher', ['exception' => $e]);
+            // WapplerSystems fork: third branch of the Before/AfterFinisherExecuted
+            // pair, so the failure path is observable from outside at all — a PSR-3
+            // line alone let a broken notification mail go unnoticed for days.
+            // Dispatched after the log record (which stays the last-resort trace
+            // even if a listener misbehaves) and before cancel() and the error
+            // view, both of which can themselves throw.
+            $this->eventDispatcher?->dispatch(new FinisherFailedEvent($this, $finisherContext, $e));
             $this->finisherContext->cancel();
             $formRuntime = $this->finisherContext->getFormRuntime();
             $renderingOptions = $formRuntime->getRenderingOptions();
