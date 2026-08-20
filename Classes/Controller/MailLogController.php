@@ -13,16 +13,12 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Controller;
 
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
-use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
-use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Pagination\QueryBuilderPaginator;
 use TYPO3\CMS\Core\Pagination\SimplePagination;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Form\Domain\DTO\MailLogDemand;
 use TYPO3\CMS\Form\Domain\Repository\MailLogRepository;
 use TYPO3\CMS\Form\Enum\MailLogStatus;
@@ -42,22 +38,16 @@ use TYPO3\CMS\Form\Enum\MailLogStatus;
  *
  * @internal not part of public TYPO3 Core API
  */
-class MailLogController extends ActionController
+class MailLogController extends AbstractFormLogController
 {
-    protected const PAGINATION_MAX = 20;
-
-    /**
-     * Window the form-identifier dropdown is built from. Longer than the default
-     * listing range so a form that stopped sending recently is still selectable.
-     */
-    protected const FILTER_OPTIONS_DAYS = 180;
-
     public function __construct(
-        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
-        protected readonly ComponentFactory $componentFactory,
-        protected readonly IconFactory $iconFactory,
+        ModuleTemplateFactory $moduleTemplateFactory,
+        ComponentFactory $componentFactory,
+        IconFactory $iconFactory,
         protected readonly MailLogRepository $mailLogRepository,
-    ) {}
+    ) {
+        parent::__construct($moduleTemplateFactory, $componentFactory, $iconFactory);
+    }
 
     /**
      * @param array<string, mixed> $filter
@@ -72,7 +62,11 @@ class MailLogController extends ActionController
             self::PAGINATION_MAX,
         );
 
-        $moduleTemplate = $this->initializeModuleTemplate($this->request, $page, $demand);
+        $arguments = ['filter' => $demand->toArray()];
+        if ($page > 1) {
+            $arguments['page'] = $page;
+        }
+        $moduleTemplate = $this->createModuleTemplate($this->request, 'mailLog.headline', $arguments);
         $moduleTemplate->assignMultiple([
             'paginator' => $paginator,
             'pagination' => new SimplePagination($paginator),
@@ -94,7 +88,7 @@ class MailLogController extends ActionController
             return $this->redirect('index');
         }
 
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate = $this->createModuleTemplate($this->request, 'mailLog.headline');
         $moduleTemplate->addButtonToButtonBar(
             $this->componentFactory->createLinkButton()
                 ->setHref($this->uriBuilder->uriFor('index'))
@@ -102,7 +96,6 @@ class MailLogController extends ActionController
                 ->setShowLabelText(true)
                 ->setIcon($this->iconFactory->getIcon('actions-view-go-back', IconSize::SMALL))
         );
-        $moduleTemplate->setTitle($this->translate('mailLog.headline'));
         $moduleTemplate->assignMultiple([
             'entry' => $row,
             'status' => MailLogStatus::tryFrom((int)$row['status']),
@@ -160,43 +153,5 @@ class MailLogController extends ActionController
         }
 
         return $options;
-    }
-
-    protected function initializeModuleTemplate(
-        ServerRequestInterface $request,
-        int $page,
-        MailLogDemand $demand,
-    ): ModuleTemplate {
-        $moduleTemplate = $this->moduleTemplateFactory->create($request);
-
-        $arguments = ['filter' => $demand->toArray()];
-        if ($page > 1) {
-            $arguments['page'] = $page;
-        }
-        $moduleTemplate->getDocHeaderComponent()->setShortcutContext(
-            'form_log',
-            $this->translate('mailLog.headline'),
-            // The plugin namespace Extbase derives from the module identifier —
-            // not the container's, which is the mistake in FormManagerController.
-            ['tx_form_form_log' => $arguments]
-        );
-
-        $moduleTemplate->setModuleClass($this->request->getPluginName() . '_' . $this->request->getControllerName());
-        $moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
-        $moduleTemplate->setTitle($this->translate('mailLog.headline'));
-
-        return $moduleTemplate;
-    }
-
-    protected function translate(string $key): string
-    {
-        return $this->getLanguageService()->sL(
-            'LLL:EXT:form/Resources/Private/Language/Database.xlf:' . $key
-        );
-    }
-
-    protected function getLanguageService(): LanguageService
-    {
-        return $GLOBALS['LANG'];
     }
 }
