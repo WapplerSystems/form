@@ -2627,6 +2627,126 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Deletes rows from tx_form_mail_log older than the configured retention window. Run daily. Matters more than for the validation log, because a row here can hold a recipient address.</source>
         <target state="final">Löscht Zeilen aus tx_form_mail_log, die älter als die eingestellte Aufbewahrung sind. Täglich laufen lassen. Wichtiger als beim Validierungs-Protokoll, weil eine Zeile hier eine Empfängeradresse enthalten kann.</target>
       </trans-unit>
+      <trans-unit id="formLog.views" resname="formLog.views" approved="yes">
+        <source>View</source>
+        <target state="final">Ansicht</target>
+      </trans-unit>
+      <trans-unit id="validationStats.headline" resname="validationStats.headline" approved="yes">
+        <source>Validation statistics</source>
+        <target state="final">Validierungs-Statistik</target>
+      </trans-unit>
+      <trans-unit id="validationStats.intro" resname="validationStats.intro" approved="yes">
+        <source>What visitors got wrong on the way to submitting — and which of them were not visitors. Counted per session rather than per row, because one automated submission trips several validators at once.</source>
+        <target state="final">Woran Besucher beim Absenden gescheitert sind — und welche davon keine Besucher waren. Gezählt pro Session statt pro Zeile, weil eine automatisierte Übertragung mehrere Validatoren gleichzeitig auslöst.</target>
+      </trans-unit>
+      <trans-unit id="validationStats.filter.audience" resname="validationStats.filter.audience" approved="yes">
+        <source>Who</source>
+        <target state="final">Wer</target>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.all" resname="validationStats.audience.all" approved="yes">
+        <source>Everyone</source>
+        <target state="final">Alle</target>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.bots" resname="validationStats.audience.bots" approved="yes">
+        <source>Bots</source>
+        <target state="final">Bots</target>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.bots.description" resname="validationStats.audience.bots.description" approved="yes">
+        <source>Sessions that filled the honeypot or tripped the entropy filter at least once. Both are conclusive: nobody fills a field positioned off-screen, and nobody types machine-generated gibberish into a name field.</source>
+        <target state="final">Sessions, die mindestens einmal den Honeypot ausgefüllt oder den Entropie-Filter ausgelöst haben. Beides ist eindeutig: niemand füllt ein aus dem Bild geschobenes Feld aus, und niemand tippt maschinell erzeugten Zeichensalat in ein Namensfeld.</target>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.suspected" resname="validationStats.audience.suspected" approved="yes">
+        <source>Suspected</source>
+        <target state="final">Verdächtig</target>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.suspected.description" resname="validationStats.audience.suspected.description" approved="yes">
+        <source>Sessions that only ever submitted faster than the minimum fill-in time. Mostly automated, but a real visitor on a short form genuinely can fall below the threshold — so these are kept separate rather than counted as bots.</source>
+        <target state="final">Sessions, die ausschließlich schneller als die Mindest-Ausfüllzeit abgeschickt haben. Meist automatisiert, aber ein echter Besucher kann bei einem kurzen Formular tatsächlich darunter liegen — deshalb getrennt geführt statt als Bot gezählt.</target>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.humans" resname="validationStats.audience.humans" approved="yes">
+        <source>Real visitors</source>
+        <target state="final">Echte Besucher</target>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.humans.description" resname="validationStats.audience.humans.description" approved="yes">
+        <source>Sessions with no automation signal at all. This is the bucket worth reading: what real people struggle with, which the attack volume otherwise buries.</source>
+        <target state="final">Sessions ohne jedes Automatisierungs-Signal. Das ist der interessante Eimer: woran echte Menschen scheitern — was das Angriffsvolumen sonst begräbt.</target>
+      </trans-unit>
+      <trans-unit id="validationStats.sessions.total" resname="validationStats.sessions.total" approved="yes">
+        <source>Sessions total</source>
+        <target state="final">Sessions gesamt</target>
+      </trans-unit>
+      <trans-unit id="validationStats.sessionsShort" resname="validationStats.sessionsShort" approved="yes">
+        <source>sessions</source>
+        <target state="final">Sessions</target>
+      </trans-unit>
+      <trans-unit id="validationStats.rows.inSelection" resname="validationStats.rows.inSelection" approved="yes">
+        <source>%s recorded failures in this selection</source>
+        <target state="final">%s protokollierte Fehler in dieser Auswahl</target>
+      </trans-unit>
+      <trans-unit id="validationStats.classification" resname="validationStats.classification" approved="yes">
+        <source>Classified per session: conclusive bot signals are error codes %s (honeypot, entropy filter); code %s (too fast) counts as suspected only. The challenge failure is deliberately not a bot signal — it fires for every visitor without JavaScript.</source>
+        <target state="final">Klassifiziert pro Session: eindeutige Bot-Signale sind die Fehlercodes %s (Honeypot, Entropie-Filter); Code %s (zu schnell) gilt nur als verdächtig. Der Challenge-Fehler ist bewusst kein Bot-Signal — er trifft jeden Besucher ohne JavaScript.</target>
+      </trans-unit>
+      <trans-unit id="validationStats.breakdown" resname="validationStats.breakdown" approved="yes">
+        <source>What failed</source>
+        <target state="final">Was gescheitert ist</target>
+      </trans-unit>
+      <trans-unit id="validationStats.daily" resname="validationStats.daily" approved="yes">
+        <source>Per day</source>
+        <target state="final">Pro Tag</target>
+      </trans-unit>
+      <trans-unit id="validationStats.busiest" resname="validationStats.busiest" approved="yes">
+        <source>Busiest sessions</source>
+        <target state="final">Aktivste Sessions</target>
+      </trans-unit>
+      <trans-unit id="validationStats.busiest.hint" resname="validationStats.busiest.hint" approved="yes">
+        <source>A uniform cadence across several sessions is the signature of a script, not of people. The session identifier is an HMAC and identifies nobody; it only tells two sessions apart.</source>
+        <target state="final">Ein gleichmäßiger Takt über mehrere Sessions ist die Signatur eines Skripts, nicht von Menschen. Die Session-Kennung ist ein HMAC und identifiziert niemanden; sie unterscheidet nur zwei Sessions.</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.element" resname="validationStats.column.element" approved="yes">
+        <source>Field</source>
+        <target state="final">Feld</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.message" resname="validationStats.column.message" approved="yes">
+        <source>Message</source>
+        <target state="final">Meldung</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.hits" resname="validationStats.column.hits" approved="yes">
+        <source>Hits</source>
+        <target state="final">Treffer</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.sessions" resname="validationStats.column.sessions" approved="yes">
+        <source>Sessions</source>
+        <target state="final">Sessions</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.perSession" resname="validationStats.column.perSession" approved="yes">
+        <source>Per session</source>
+        <target state="final">Pro Session</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.session" resname="validationStats.column.session" approved="yes">
+        <source>Session</source>
+        <target state="final">Session</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.span" resname="validationStats.column.span" approved="yes">
+        <source>Span</source>
+        <target state="final">Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.cadence" resname="validationStats.column.cadence" approved="yes">
+        <source>Cadence</source>
+        <target state="final">Takt</target>
+      </trans-unit>
+      <trans-unit id="validationStats.column.window" resname="validationStats.column.window" approved="yes">
+        <source>Window</source>
+        <target state="final">Fenster</target>
+      </trans-unit>
+      <trans-unit id="validationStats.empty" resname="validationStats.empty" approved="yes">
+        <source>Nothing recorded for this selection.</source>
+        <target state="final">Für diese Auswahl ist nichts protokolliert.</target>
+      </trans-unit>
+      <trans-unit id="validationStats.empty.hint" resname="validationStats.empty.hint" approved="yes">
+        <source>Validation logging is opt-in per form via renderingOptions.recordValidationFailures. With the filter set to real visitors, an empty result is good news.</source>
+        <target state="final">Das Validierungs-Protokoll wird pro Formular über renderingOptions.recordValidationFailures aktiviert. Steht der Filter auf echte Besucher, ist ein leeres Ergebnis eine gute Nachricht.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

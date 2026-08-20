@@ -1958,6 +1958,96 @@ If you need higher values contact your administrator for help.
       <trans-unit id="scheduler.cleanupMailLog.description">
         <source>Deletes rows from tx_form_mail_log older than the configured retention window. Run daily. Matters more than for the validation log, because a row here can hold a recipient address.</source>
       </trans-unit>
+      <trans-unit id="formLog.views">
+        <source>View</source>
+      </trans-unit>
+      <trans-unit id="validationStats.headline">
+        <source>Validation statistics</source>
+      </trans-unit>
+      <trans-unit id="validationStats.intro">
+        <source>What visitors got wrong on the way to submitting — and which of them were not visitors. Counted per session rather than per row, because one automated submission trips several validators at once.</source>
+      </trans-unit>
+      <trans-unit id="validationStats.filter.audience">
+        <source>Who</source>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.all">
+        <source>Everyone</source>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.bots">
+        <source>Bots</source>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.bots.description">
+        <source>Sessions that filled the honeypot or tripped the entropy filter at least once. Both are conclusive: nobody fills a field positioned off-screen, and nobody types machine-generated gibberish into a name field.</source>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.suspected">
+        <source>Suspected</source>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.suspected.description">
+        <source>Sessions that only ever submitted faster than the minimum fill-in time. Mostly automated, but a real visitor on a short form genuinely can fall below the threshold — so these are kept separate rather than counted as bots.</source>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.humans">
+        <source>Real visitors</source>
+      </trans-unit>
+      <trans-unit id="validationStats.audience.humans.description">
+        <source>Sessions with no automation signal at all. This is the bucket worth reading: what real people struggle with, which the attack volume otherwise buries.</source>
+      </trans-unit>
+      <trans-unit id="validationStats.sessions.total">
+        <source>Sessions total</source>
+      </trans-unit>
+      <trans-unit id="validationStats.sessionsShort">
+        <source>sessions</source>
+      </trans-unit>
+      <trans-unit id="validationStats.rows.inSelection">
+        <source>%s recorded failures in this selection</source>
+      </trans-unit>
+      <trans-unit id="validationStats.classification">
+        <source>Classified per session: conclusive bot signals are error codes %s (honeypot, entropy filter); code %s (too fast) counts as suspected only. The challenge failure is deliberately not a bot signal — it fires for every visitor without JavaScript.</source>
+      </trans-unit>
+      <trans-unit id="validationStats.breakdown">
+        <source>What failed</source>
+      </trans-unit>
+      <trans-unit id="validationStats.daily">
+        <source>Per day</source>
+      </trans-unit>
+      <trans-unit id="validationStats.busiest">
+        <source>Busiest sessions</source>
+      </trans-unit>
+      <trans-unit id="validationStats.busiest.hint">
+        <source>A uniform cadence across several sessions is the signature of a script, not of people. The session identifier is an HMAC and identifies nobody; it only tells two sessions apart.</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.element">
+        <source>Field</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.message">
+        <source>Message</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.hits">
+        <source>Hits</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.sessions">
+        <source>Sessions</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.perSession">
+        <source>Per session</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.session">
+        <source>Session</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.span">
+        <source>Span</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.cadence">
+        <source>Cadence</source>
+      </trans-unit>
+      <trans-unit id="validationStats.column.window">
+        <source>Window</source>
+      </trans-unit>
+      <trans-unit id="validationStats.empty">
+        <source>Nothing recorded for this selection.</source>
+      </trans-unit>
+      <trans-unit id="validationStats.empty.hint">
+        <source>Validation logging is opt-in per form via renderingOptions.recordValidationFailures. With the filter set to real visitors, an empty result is good news.</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -3,6 +3,7 @@
 use TYPO3\CMS\Form\Controller\FormEditorController;
 use TYPO3\CMS\Form\Controller\FormManagerController;
 use TYPO3\CMS\Form\Controller\MailLogController;
+use TYPO3\CMS\Form\Controller\ValidationStatsController;
 
 /**
  * Definitions for modules provided by EXT:form
@@ -47,6 +48,9 @@ return [
         'controllerActions' => [
             MailLogController::class => [
                 'index', 'show',
+            ],
+            ValidationStatsController::class => [
+                'index',
             ],
         ],
     ],
