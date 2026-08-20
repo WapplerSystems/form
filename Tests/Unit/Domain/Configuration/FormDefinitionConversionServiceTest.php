@@ -441,4 +441,76 @@ final class FormDefinitionConversionServiceTest extends UnitTestCase
         self::assertSame('form-label', $result['_finishers']['Confirmation']['options.message']);
         self::assertArrayNotHasKey('options.subject', $result['_finishers']['EmailToSender'] ?? []);
     }
+
+    /**
+     * Regression guard for the WapplerSystems fork: the form root can carry both
+     * property collections since form-wide validators became editable there.
+     * Upstream picked one collection per element and named it after the element
+     * type, so a form with finishers skipped its validators entirely, and a form
+     * without finishers had its validator hashes written out under a `finishers`
+     * key — a phantom finisher the editor would then load and persist.
+     */
+    #[Test]
+    public function addHmacDataCoversFinishersAndValidatorsOnTheSameFormRoot(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] = '';
+
+        $formDefinitionConversionService = $this->getAccessibleMock(
+            FormDefinitionConversionService::class,
+            ['generateSessionToken', 'persistSessionToken'],
+            [$this->createMock(RichTextConfigurationService::class)]
+        );
+        $formDefinitionConversionService->method('generateSessionToken')->willReturn('123');
+
+        $data = $formDefinitionConversionService->addHmacData([
+            'prototypeName' => 'standard',
+            'identifier' => 'test',
+            'type' => 'Form',
+            'finishers' => [
+                ['identifier' => 'Redirect', 'options' => ['pageUid' => '17']],
+            ],
+            'validators' => [
+                ['identifier' => 'MinimumFillTime', 'options' => ['minimumSeconds' => '5']],
+            ],
+        ], '1:/form_definitions/test.form.yaml');
+
+        // Both collections get their own hashes, in place.
+        self::assertSame('17', $data['finishers'][0]['options']['_orig_pageUid']['value']);
+        self::assertSame('5', $data['validators'][0]['options']['_orig_minimumSeconds']['value']);
+        self::assertSame('Redirect', $data['finishers'][0]['_orig_identifier']['value']);
+        self::assertSame('MinimumFillTime', $data['validators'][0]['_orig_identifier']['value']);
+
+        // The hashes are bound to the collection they belong to, so a validator
+        // hash cannot be replayed as a finisher hash of the same name.
+        self::assertNotSame(
+            $data['finishers'][0]['_orig_identifier']['hmac'],
+            $data['validators'][0]['_orig_identifier']['hmac']
+        );
+    }
+
+    #[Test]
+    public function addHmacDataWritesValidatorHashesUnderValidatorsOnAFormWithoutFinishers(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] = '';
+
+        $formDefinitionConversionService = $this->getAccessibleMock(
+            FormDefinitionConversionService::class,
+            ['generateSessionToken', 'persistSessionToken'],
+            [$this->createMock(RichTextConfigurationService::class)]
+        );
+        $formDefinitionConversionService->method('generateSessionToken')->willReturn('123');
+
+        $data = $formDefinitionConversionService->addHmacData([
+            'prototypeName' => 'standard',
+            'identifier' => 'test',
+            'type' => 'Form',
+            'validators' => [
+                ['identifier' => 'MinimumFillTime', 'options' => ['minimumSeconds' => '5']],
+            ],
+        ], '1:/form_definitions/test.form.yaml');
+
+        self::assertSame('5', $data['validators'][0]['options']['_orig_minimumSeconds']['value']);
+        // No phantom finisher invented out of the validators collection.
+        self::assertArrayNotHasKey('finishers', $data);
+    }
 }
