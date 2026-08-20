@@ -2045,9 +2045,6 @@ If you need higher values contact your administrator for help.
       <trans-unit id="validationStats.empty.hint">
         <source>Validation logging is opt-in per form via renderingOptions.recordValidationFailures. With the filter set to real visitors, an empty result is good news.</source>
       </trans-unit>
-      <trans-unit id="formManager.open_log">
-        <source>Form log</source>
-      </trans-unit>
     </body>
   </file>
 </xliff>

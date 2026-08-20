@@ -31,8 +31,8 @@ return [
             ],
         ],
     ],
-    // WapplerSystems fork: the form log. Sibling of the form builder, not a child
-    // of it — see the note below on why that distinction is load-bearing.
+    // WapplerSystems fork: the form log, in the administration section next to
+    // the other operational logs rather than next to the form builder.
     //
     // Deliberately a separate icon: form_manager and form_editor both use
     // `module-form`, and a third identical entry would be unreadable.
@@ -41,22 +41,22 @@ return [
     // statistics are one more entry in `controllerActions` rather than a second
     // module.
     //
-    // Why not `parent => web_FormFormbuilder`: BackendModuleValidator remembers
-    // the last third-level module a user opened and makes it the landing page of
-    // its second-level parent (`$parentModuleData['action']`, unconditional and
-    // not opt-out-able). As a child of the form builder, one visit to the log
-    // permanently turned "Forms" in the module menu into the log — and since the
-    // module menu only renders two levels, the form list then had no reachable
-    // entry point at all. A monitoring view must not be able to displace the
-    // thing it monitors.
+    // Why NOT `parent => web_FormFormbuilder`, which looks like the natural
+    // home: BackendModuleValidator remembers the last third-level module a user
+    // opened and makes it the landing page of its second-level parent
+    // (`$parentModuleData['action']`, unconditional and not opt-out-able). As a
+    // child of the form builder, one visit to the log permanently turned "Forms"
+    // in the module menu into the log — and since the module menu renders only
+    // two levels, the form list was then left with no reachable entry point at
+    // all. A monitoring view must not be able to displace the thing it monitors.
+    // Keep this module on the second level.
     //
     // The path stays below /module/form so existing links and bookmarks keep
     // working; backend routes are flat and do not have to mirror the hierarchy.
     'form_log' => [
-        'parent' => 'content',
-        'position' => ['after' => 'web_FormFormbuilder'],
+        'parent' => 'admin',
+        'position' => ['after' => 'system_log'],
         'access' => 'user',
-        'inheritNavigationComponentFromMainModule' => false,
         'path' => '/module/form/log',
         'iconIdentifier' => 'actions-envelope',
         'labels' => 'form.modules.form_log',

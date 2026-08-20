@@ -776,16 +776,16 @@ after a policy change — that is what makes the table auditable rather than mer
 
 #### Reading it
 
-Backend module **Content → Form log**, first of its two views (the doc header switches to
-the validation statistics). Also reachable from the form manager's doc header, and directly
-under `/typo3/module/form/log`.
+Backend module **Administration → Form log**, next to the other operational logs. This is
+the first of its two views; the doc header switches to the validation statistics. Direct URL
+`/typo3/module/form/log`.
 
-It is a sibling of *Forms* in the module menu rather than a third entry inside it, and that
-is deliberate: TYPO3 remembers the last third-level module a user opened and makes it the
-landing page of its second-level parent. Registered under *Forms*, one visit to the log
-turned the *Forms* menu entry into the log permanently — and because the module menu renders
-only two levels, the form list was then left with no reachable entry point at all. A
-monitoring view must not be able to displace the thing it monitors.
+It sits on the second level on purpose, not inside *Forms*: TYPO3 remembers the last
+third-level module a user opened and makes it the landing page of its second-level parent.
+Registered under *Forms*, one visit to the log turned the *Forms* menu entry into the log
+permanently — and because the module menu renders only two levels, the form list was then
+left with no reachable entry point at all. A monitoring view must not be able to displace
+the thing it monitors.
 
 Filters by date range (default: last 30 days), status and form; the status filter's *Needs
 attention* entry means "failed, or abandoned past the grace period" and shares its SQL with

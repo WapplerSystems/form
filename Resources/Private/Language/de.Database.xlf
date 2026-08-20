@@ -2743,10 +2743,6 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Validation logging is opt-in per form via renderingOptions.recordValidationFailures. With the filter set to real visitors, an empty result is good news.</source>
         <target state="final">Das Validierungs-Protokoll wird pro Formular über renderingOptions.recordValidationFailures aktiviert. Steht der Filter auf echte Besucher, ist ein leeres Ergebnis eine gute Nachricht.</target>
       </trans-unit>
-      <trans-unit id="formManager.open_log" resname="formManager.open_log" approved="yes">
-        <source>Form log</source>
-        <target state="final">Formular-Protokoll</target>
-      </trans-unit>
     </body>
   </file>
 </xliff>
