@@ -4,16 +4,16 @@
     <header/>
     <body>
       <trans-unit id="title" resname="title" approved="yes">
-        <source>Mail log</source>
-        <target state="final">Mail-Protokoll</target>
+        <source>Form log</source>
+        <target state="final">Formular-Protokoll</target>
       </trans-unit>
       <trans-unit id="short_description" resname="short_description" approved="yes">
-        <source>Did the notification mails go out?</source>
-        <target state="final">Sind die Benachrichtigungen rausgegangen?</target>
+        <source>Did the mails go out, and what did visitors get wrong?</source>
+        <target state="final">Sind die Mails rausgegangen, und woran scheitern Besucher?</target>
       </trans-unit>
       <trans-unit id="description" resname="description" approved="yes">
-        <source>One row per notification mail a form tried to send, with its outcome. Shows failed and abandoned sends that would otherwise only appear in the system log.</source>
-        <target state="final">Eine Zeile pro Benachrichtigungs-Mail, die ein Formular zu senden versucht hat, mit ihrem Ergebnis. Zeigt fehlgeschlagene und abgebrochene Versände, die sonst nur im System-Log auftauchen.</target>
+        <source>Two views on form traffic: one row per notification mail a form tried to send with its outcome, and statistics on failed validations with a bot filter. Surfaces failed and abandoned sends that would otherwise only appear in the system log.</source>
+        <target state="final">Zwei Ansichten auf den Formularverkehr: eine Zeile pro Benachrichtigungs-Mail mit ihrem Ergebnis, und eine Statistik der fehlgeschlagenen Validierungen mit Bot-Filter. Macht fehlgeschlagene und abgebrochene Versände sichtbar, die sonst nur im System-Log auftauchen.</target>
       </trans-unit>
     </body>
   </file>

@@ -4,13 +4,13 @@
     <header/>
     <body>
       <trans-unit id="title">
-        <source>Mail log</source>
+        <source>Form log</source>
       </trans-unit>
       <trans-unit id="short_description">
-        <source>Did the notification mails go out?</source>
+        <source>Did the mails go out, and what did visitors get wrong?</source>
       </trans-unit>
       <trans-unit id="description">
-        <source>One row per notification mail a form tried to send, with its outcome. Shows failed and abandoned sends that would otherwise only appear in the system log.</source>
+        <source>Two views on form traffic: one row per notification mail a form tried to send with its outcome, and statistics on failed validations with a bot filter. Surfaces failed and abandoned sends that would otherwise only appear in the system log.</source>
       </trans-unit>
     </body>
   </file>
