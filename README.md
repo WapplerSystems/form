@@ -67,6 +67,11 @@ One production contact form, 27 days, with layers 1 and 2 active and logging on:
 | Attempts per bot session | ~125, paced at **7.0 s**, in ~15-minute bursts |
 | Submitted values stored | **none** |
 
+The last row is about the validation log, which stores no user input at all. The
+separate [mail log](#outgoing-mail-log-opt-in-per-form) can optionally store a
+recipient address for forms that opt in — see that section for what it does and
+does not keep.
+
 The traffic was almost entirely automated — 125 attacking sessions against 10 real ones —
 and none of it reached the mailbox. What the logging then makes visible is the other
 1.3 %: of the ten genuine visitors who tripped a validator, nine had left the message
@@ -186,6 +191,9 @@ for database-stored forms too.
 - Cross-field / form-level validators (entropy-based spam filter, JavaScript
   challenge/response, minimum fill-in time), editable on the form root in the
   form editor rather than YAML-only.
+- Outgoing-mail log with a backend module and a CLI check, so a notification mail
+  that fails or gets stuck is visible instead of ending up as one line in
+  `var/log` that nobody reads.
 - Extra form elements (`Time`) and finishers (`RedirectToUri`, `FeUser`,
   `AttachUploadsToObject`) and view helpers.
 - Opt-in site-sender feature and opt-in validation-failure logging.
@@ -250,6 +258,7 @@ are distinct from the upstream ones, so the two sets never collide.
 | `AfterVariantAppliedEvent` | `FormRuntime::processVariants()` | `VariableRenderableInterface`, `RenderableVariantInterface`, `FormRuntime` | React to dynamic form structure changes (cache invalidation, condition-match analytics) |
 | `BeforeFinisherExecutedEvent` | `AbstractFinisher::execute()` | `FinisherInterface`, `FinisherContext` | Inject runtime values, log finisher invocations, call `$context->cancel()` to skip the rest of the chain |
 | `AfterFinisherExecutedEvent` | `AbstractFinisher::execute()` | `FinisherInterface`, `FinisherContext`, `mixed` (executeInternal result) | Post-finisher logging, output transformation, follow-up actions. Does **not** fire on FinisherException. |
+| `FinisherFailedEvent` | `AbstractFinisher::execute()` catch block | `FinisherInterface`, `FinisherContext`, `FinisherException` | Record, alert on or count finisher failures. Fires only for `FinisherException` — an RFC-invalid sender address, a Fluid error in a mail template (rendered lazily inside `send()`) or a hard abort produce **no** terminal event at all, so consumers must treat "neither After nor Failed" as its own outcome. Listeners must not throw. |
 | `AfterYamlConfigurationLoadedEvent` | `ConfigurationManager::getYamlConfiguration()` | mutable `array $yamlConfiguration` | Inject runtime-computed values into the form-editor configuration (site languages, file mounts, dynamic option lists). Fires on every load, not cache-gated — listeners must be cheap. |
 | `MailBeforeSendingEvent` | `EmailFinisher::executeInternal()` | `FluidEmail` (mutable), `FinisherContext`, `EmailFinisher` | Mutate the email immediately before transport — extra recipients, custom headers, conditional attachments, audit logging. Does **not** fire if EmailFinisher throws before reaching the transport step. |
 | `AfterMailSentEvent` | `EmailFinisher::executeInternal()` | `FluidEmail`, `FinisherContext`, `EmailFinisher` | Fires **only after a successful** `MailerInterface::send()` — the reliable "delivered" hook for audit logging / post-delivery follow-ups (unlike `MailBeforeSendingEvent`, which can't tell success from a later transport failure). |
@@ -647,6 +656,149 @@ The `tx_form_retention_days` TCA field controls how old rows must be before dele
 (default 90 days, range 1–3650). Schedule it daily for production sites with active
 validation logging — without it the table grows indefinitely. Manual run from CLI:
 `ddev typo3 scheduler:execute --task=<uid>` after the task instance is created.
+
+### Outgoing-mail log (opt-in per form)
+
+Answers the one question the form framework otherwise leaves open: **did the notification
+mail actually go out?**
+
+The failure that prompted this is worth stating, because it shaped the design. On a live
+site a daily monitoring form failed on *every* run for over ten days with
+`FinisherException: The option "senderAddress" must be set` — and nothing raised its hand,
+because the thing that was broken *was* the mail monitoring. The failure existed only as a
+line in `var/log`, and a log without a reader is not monitoring.
+
+#### What is recorded
+
+One row per mail an Email finisher attempts, in `tx_form_mail_log`. The row is opened
+**before** the finisher runs and advanced as its outcome becomes known:
+
+| Status | Meaning |
+| --- | --- |
+| `PENDING` | The finisher started; the mail object does not exist yet. |
+| `PREPARED` | The mail is built and about to be handed to the transport. |
+| `SENT` | The transport accepted it. |
+| `FAILED` | A `FinisherException` was caught; `error_code` says which kind. |
+
+Opening the row first is the whole point. There are three failure classes, not one:
+
+1. **A missing `subject`/`recipients`/`senderAddress`** throws while `EmailFinisher`
+   validates its options — *before* any mail object and therefore before any mail-specific
+   event exists. This is the production case, and a log that started at
+   `MailBeforeSendingEvent` would never have written a row for it.
+2. **A transport error** throws from `send()` and is wrapped as `FinisherException`
+   1754047320.
+3. **Neither** — an RFC-invalid sender address throws `RfcComplianceException`, a broken
+   Fluid mail template surfaces inside `send()` because `FluidEmail` renders lazily, and
+   OOM or a timeout throws nothing at all. None of these is caught anywhere.
+
+Class 3 is why a row left in a non-terminal status is a feature: the trace exists, and the
+module reports it as **outcome unknown** rather than showing nothing. Whether a row counts
+as abandoned is **derived** from its age at query time (15 min grace), never written by a
+sweep task — a monitoring feature that only tells the truth once someone remembers to
+schedule a second task would lie until they did.
+
+#### Configuration
+
+Off by default. The master switch is the extension configuration:
+
+```
+featureMailLog   = 0   # nothing is recorded at all
+mailLogAllForms  = 1   # also record personal-data-free rows for forms that did not opt in
+```
+
+Per form, and per finisher, via rendering options:
+
+```yaml
+type: Form
+identifier: contact
+renderingOptions:
+  mailLog:
+    enable: true        # null inherits the instance default; false excludes this form
+    recipients: domain  # full | hashed | domain | none   (default: domain)
+    subject: false      # subjects often interpolate {name}   (default: off)
+    sender: false
+    replyTo: false
+    errorDetail: true
+
+finishers:
+  - identifier: EmailToSender
+    options:
+      mailLog:
+        recipients: none   # this one mails the visitor, not us
+```
+
+The per-finisher level is not decoration. "The recipient is our own inbox, so there is no
+personal data" is true for `EmailToReceiver` and **false** for `EmailToSender`, where the
+recipient is the visitor — one form-wide setting cannot be right for both.
+
+#### The privacy design: columns are gated, not rows
+
+A row carrying only form, finisher, status, error code and timestamps contains **no
+personal data**, so it needs no opt-in. Recipient, subject, sender and reply-to do, so
+those stay opt-in per form.
+
+Gating the whole row instead is the obvious design and it is wrong: the form nobody watches
+is precisely the form nobody opts in. With row-level opt-in the broken monitoring form
+would have produced no rows and stayed invisible for a second ten days. Set
+`mailLogAllForms = 0` if you want strict per-form opt-in anyway — same code, both policies.
+
+Two consequences worth knowing:
+
+- **Configuration errors keep their text even without an opt-in.** "The option
+  senderAddress must be set" names no person and is the most useful string this log holds.
+  A **transport** error is different — an SMTP rejection quotes the recipient
+  (`550 <john.doe@example.com>: user unknown`), so that text needs the same opt-in as the
+  recipient column. Judged per error code, not by one blanket switch.
+- **`recipients: hashed` uses `HashService::hmac()`, not a bare `sha256()`.** A plain
+  digest of an e-mail address is not pseudonymisation — the address space is enumerable, so
+  the digest is a reversible identifier. Only the instance's `encryptionKey` makes it
+  defensible.
+
+Never stored, in any configuration: message body, submitted field values, CC/BCC (a "send
+me a copy" checkbox puts the visitor there), attachment **filenames** (only the count), IP,
+user agent. `recipient_mode` is stored alongside each row so old rows stay interpretable
+after a policy change — that is what makes the table auditable rather than merely small.
+
+#### Reading it
+
+Backend module **Content → Forms → Mail log**. Filters by date range (default: last 30
+days), status and form; the status filter's *Needs attention* entry means "failed, or
+abandoned past the grace period" and shares its SQL with the CLI check below, so an alert
+and the screen you check it against cannot disagree.
+
+For servers, where it matters more:
+
+```bash
+# anything wrong in the last 24 h? exit code 1 if so
+bin/typo3 form:maillog:check
+
+# that form must have sent at least once — catches "stopped sending entirely",
+# which no list-based check can see, because absence looks like silence
+bin/typo3 form:maillog:check --form=monitoring-Mail-Test --min-sent=1 --max-age=1500
+```
+
+The second form is the one that closes the original incident: the monitoring cron gets a
+second line that checks the result of the first.
+
+#### Limits
+
+- **`SENT` means the transport accepted the mail, not that it was delivered.** With a spool
+  transport that means queued; with the `null` transport it means discarded. The
+  `transport` column is stored so the status stays interpretable, and the module shows it.
+- **A finisher that never runs leaves no row.** A `RedirectFinisher` placed *before* the
+  Email finisher throws `PropagateResponseException` and unwinds the chain; a finisher
+  disabled by a variant returns before the first event. Both are invisible here — use
+  `--min-sent` to turn an absence into an alert.
+- **The backend's "send test email" is not logged.** It does not go through a finisher.
+- **No TCA, by design** (like the validation log), so the table stays out of the record
+  list, reference index, workspaces and impexp. The flip side: there is no DataHandler
+  deletion path, so an erasure request needs the cleanup task or a manual query.
+
+**Periodic cleanup.** `TYPO3\CMS\Form\Task\CleanupMailLogTask`, registered as **Form:
+clean up mail log**, reusing the same `tx_form_retention_days` field. Schedule it daily.
+This matters more than for the validation log: rows here can hold a recipient address, so
+retention is storage limitation under Art. 5(1)(e) GDPR, not housekeeping.
 
 ---
 

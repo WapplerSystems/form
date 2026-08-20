@@ -53,3 +53,10 @@ services:
   # autowire their constructors, so a private service would not be reachable.
   TYPO3\CMS\Form\Security\FormChallengeService:
     public: true
+
+  # WapplerSystems fork: mail log. Public because scheduler tasks are built by
+  # the scheduler, not by the container — CleanupMailLogTask has to reach for
+  # the repository through GeneralUtility::makeInstance(), which cannot autowire
+  # a private service's constructor.
+  TYPO3\CMS\Form\Domain\Repository\MailLogRepository:
+    public: true

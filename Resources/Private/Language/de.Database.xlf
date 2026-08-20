@@ -2427,6 +2427,206 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>JavaScript challenge</source>
         <target state="final">JavaScript-Challenge</target>
       </trans-unit>
+      <trans-unit id="mailLog.headline" resname="mailLog.headline" approved="yes">
+        <source>Mail log</source>
+        <target state="final">Mail-Protokoll</target>
+      </trans-unit>
+      <trans-unit id="mailLog.intro" resname="mailLog.intro" approved="yes">
+        <source>One row per notification mail a form tried to send. Rows for forms that did not opt in carry no recipient, subject or sender — only whether the send worked.</source>
+        <target state="final">Eine Zeile pro Benachrichtigungs-Mail, die ein Formular zu senden versucht hat. Zeilen von Formularen ohne Opt-in enthalten keinen Empfänger, Betreff oder Absender — nur, ob der Versand geklappt hat.</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.headline" resname="mailLog.detail.headline" approved="yes">
+        <source>Mail log entry</source>
+        <target state="final">Eintrag im Mail-Protokoll</target>
+      </trans-unit>
+      <trans-unit id="mailLog.reload" resname="mailLog.reload" approved="yes">
+        <source>Reload</source>
+        <target state="final">Neu laden</target>
+      </trans-unit>
+      <trans-unit id="mailLog.back" resname="mailLog.back" approved="yes">
+        <source>Back to the list</source>
+        <target state="final">Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="mailLog.empty" resname="mailLog.empty" approved="yes">
+        <source>No mails recorded for this filter.</source>
+        <target state="final">Für diesen Filter sind keine Mails protokolliert.</target>
+      </trans-unit>
+      <trans-unit id="mailLog.empty.hint" resname="mailLog.empty.hint" approved="yes">
+        <source>The log is off by default. Switch it on in the extension configuration (Mail log) — and note that the backend's "send test email" does not go through a form finisher, so it never appears here.</source>
+        <target state="final">Das Protokoll ist standardmäßig aus. Einschalten in der Extension-Konfiguration (Mail log) — und beachte: der Backend-Testversand läuft nicht über einen Formular-Finisher und erscheint hier daher nie.</target>
+      </trans-unit>
+      <trans-unit id="mailLog.status.pending" resname="mailLog.status.pending" approved="yes">
+        <source>Pending</source>
+        <target state="final">Offen</target>
+      </trans-unit>
+      <trans-unit id="mailLog.status.prepared" resname="mailLog.status.prepared" approved="yes">
+        <source>Prepared</source>
+        <target state="final">Vorbereitet</target>
+      </trans-unit>
+      <trans-unit id="mailLog.status.sent" resname="mailLog.status.sent" approved="yes">
+        <source>Sent</source>
+        <target state="final">Gesendet</target>
+      </trans-unit>
+      <trans-unit id="mailLog.status.failed" resname="mailLog.status.failed" approved="yes">
+        <source>Failed</source>
+        <target state="final">Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="mailLog.status.inflight" resname="mailLog.status.inflight" approved="yes">
+        <source>In flight</source>
+        <target state="final">Läuft</target>
+      </trans-unit>
+      <trans-unit id="mailLog.status.aborted" resname="mailLog.status.aborted" approved="yes">
+        <source>Aborted</source>
+        <target state="final">Abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="mailLog.status.aborted.description" resname="mailLog.status.aborted.description" approved="yes">
+        <source>The send was started but never reported an outcome. The process was most likely killed — a timeout, or memory exhausted while reading upload attachments. Whether the mail went out is genuinely unknown.</source>
+        <target state="final">Der Versand wurde begonnen, hat aber nie ein Ergebnis gemeldet. Sehr wahrscheinlich wurde der Prozess beendet — Timeout oder Speicher erschöpft beim Einlesen von Upload-Anhängen. Ob die Mail rausging, ist tatsächlich unbekannt.</target>
+      </trans-unit>
+      <trans-unit id="mailLog.count.open" resname="mailLog.count.open" approved="yes">
+        <source>Unknown</source>
+        <target state="final">Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="mailLog.count.total" resname="mailLog.count.total" approved="yes">
+        <source>Total</source>
+        <target state="final">Gesamt</target>
+      </trans-unit>
+      <trans-unit id="mailLog.column.time" resname="mailLog.column.time" approved="yes">
+        <source>Time</source>
+        <target state="final">Zeitpunkt</target>
+      </trans-unit>
+      <trans-unit id="mailLog.column.status" resname="mailLog.column.status" approved="yes">
+        <source>Status</source>
+        <target state="final">Status</target>
+      </trans-unit>
+      <trans-unit id="mailLog.column.form" resname="mailLog.column.form" approved="yes">
+        <source>Form</source>
+        <target state="final">Formular</target>
+      </trans-unit>
+      <trans-unit id="mailLog.column.finisher" resname="mailLog.column.finisher" approved="yes">
+        <source>Finisher</source>
+        <target state="final">Finisher</target>
+      </trans-unit>
+      <trans-unit id="mailLog.column.recipients" resname="mailLog.column.recipients" approved="yes">
+        <source>Recipients</source>
+        <target state="final">Empfänger</target>
+      </trans-unit>
+      <trans-unit id="mailLog.column.detail" resname="mailLog.column.detail" approved="yes">
+        <source>Detail</source>
+        <target state="final">Detail</target>
+      </trans-unit>
+      <trans-unit id="mailLog.recipients.withheld" resname="mailLog.recipients.withheld" approved="yes">
+        <source>Not stored — this form did not opt in to recording recipients.</source>
+        <target state="final">Nicht gespeichert — dieses Formular hat der Erfassung von Empfängern nicht zugestimmt.</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.from" resname="mailLog.filter.from" approved="yes">
+        <source>From</source>
+        <target state="final">Von</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.to" resname="mailLog.filter.to" approved="yes">
+        <source>To</source>
+        <target state="final">Bis</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.status" resname="mailLog.filter.status" approved="yes">
+        <source>Status</source>
+        <target state="final">Status</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.status.all" resname="mailLog.filter.status.all" approved="yes">
+        <source>All</source>
+        <target state="final">Alle</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.status.problems" resname="mailLog.filter.status.problems" approved="yes">
+        <source>Needs attention</source>
+        <target state="final">Auffällig</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.form" resname="mailLog.filter.form" approved="yes">
+        <source>Form</source>
+        <target state="final">Formular</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.form.all" resname="mailLog.filter.form.all" approved="yes">
+        <source>All forms</source>
+        <target state="final">Alle Formulare</target>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.apply" resname="mailLog.filter.apply" approved="yes">
+        <source>Filter</source>
+        <target state="final">Filtern</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.latency" resname="mailLog.detail.latency" approved="yes">
+        <source>Latency</source>
+        <target state="final">Dauer</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.mode" resname="mailLog.detail.mode" approved="yes">
+        <source>Recipient mode</source>
+        <target state="final">Empfänger-Modus</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.subject" resname="mailLog.detail.subject" approved="yes">
+        <source>Subject</source>
+        <target state="final">Betreff</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.sender" resname="mailLog.detail.sender" approved="yes">
+        <source>Sender</source>
+        <target state="final">Absender</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.replyTo" resname="mailLog.detail.replyTo" approved="yes">
+        <source>Reply-To</source>
+        <target state="final">Antwort an</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.transport" resname="mailLog.detail.transport" approved="yes">
+        <source>Transport</source>
+        <target state="final">Transport</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.transport.hint" resname="mailLog.detail.transport.hint" approved="yes">
+        <source>"Sent" means the transport accepted the mail, not that it was delivered. With a spool transport that means queued; with the null transport it means discarded.</source>
+        <target state="final">„Gesendet“ heißt, dass der Transport die Mail angenommen hat — nicht, dass sie zugestellt wurde. Bei einem Spool-Transport heißt es eingereiht, beim Null-Transport verworfen.</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.messageId" resname="mailLog.detail.messageId" approved="yes">
+        <source>Message ID</source>
+        <target state="final">Message-ID</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.attachments" resname="mailLog.detail.attachments" approved="yes">
+        <source>Attachments</source>
+        <target state="final">Anhänge</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.attachments.hint" resname="mailLog.detail.attachments.hint" approved="yes">
+        <source>count only; filenames are not stored</source>
+        <target state="final">nur die Anzahl; Dateinamen werden nicht gespeichert</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.error" resname="mailLog.detail.error" approved="yes">
+        <source>Error</source>
+        <target state="final">Fehler</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.error.withheld" resname="mailLog.detail.error.withheld" approved="yes">
+        <source>The text is withheld because a transport error can quote the recipient address, and this form did not opt in.</source>
+        <target state="final">Der Text wird zurückgehalten, weil ein Transportfehler die Empfängeradresse zitieren kann und dieses Formular kein Opt-in hat.</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.page" resname="mailLog.detail.page" approved="yes">
+        <source>Page</source>
+        <target state="final">Seite</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.siblings" resname="mailLog.detail.siblings" approved="yes">
+        <source>Other mails of this submission</source>
+        <target state="final">Weitere Mails dieser Übertragung</target>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.siblings.hint" resname="mailLog.detail.siblings.hint" approved="yes">
+        <source>A form can send several mails per submission — for instance a notification to the team and a confirmation to the visitor.</source>
+        <target state="final">Ein Formular kann pro Übertragung mehrere Mails senden — etwa eine Benachrichtigung ans Team und eine Bestätigung an den Besucher.</target>
+      </trans-unit>
+      <trans-unit id="scheduler.retentionDays.label" resname="scheduler.retentionDays.label" approved="yes">
+        <source>Retention window (days)</source>
+        <target state="final">Aufbewahrung (Tage)</target>
+      </trans-unit>
+      <trans-unit id="scheduler.retentionDays.description" resname="scheduler.retentionDays.description" approved="yes">
+        <source>Rows older than this number of days are deleted on each run. Recommended 7-365.</source>
+        <target state="final">Zeilen, die älter als diese Anzahl Tage sind, werden bei jedem Lauf gelöscht. Empfohlen 7–365.</target>
+      </trans-unit>
+      <trans-unit id="scheduler.cleanupMailLog.label" resname="scheduler.cleanupMailLog.label" approved="yes">
+        <source>Form: clean up mail log</source>
+        <target state="final">Formular: Mail-Protokoll aufräumen</target>
+      </trans-unit>
+      <trans-unit id="scheduler.cleanupMailLog.description" resname="scheduler.cleanupMailLog.description" approved="yes">
+        <source>Deletes rows from tx_form_mail_log older than the configured retention window. Run daily. Matters more than for the validation log, because a row here can hold a recipient address.</source>
+        <target state="final">Löscht Zeilen aus tx_form_mail_log, die älter als die eingestellte Aufbewahrung sind. Täglich laufen lassen. Wichtiger als beim Validierungs-Protokoll, weil eine Zeile hier eine Empfängeradresse enthalten kann.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
