@@ -79,56 +79,6 @@ prototypes:
                 40:
                   value: Challenge
                   label: formEditor.elements.Form.editor.validators.Challenge.label
-            # WapplerSystems fork: JavaScript challenge/response spam shield,
-            # modelled on EXT:form_crshield. A rendering option rather than only
-            # a validator, because that is what lets a site switch it on for
-            # *every* form at once by setting it on the prototype - a
-            # `validators` list on the form root cannot be defaulted that way.
-            # ValidateFormChallenge turns the switch into a run of
-            # ChallengeValidator; InjectFormChallenge emits the challenge and the
-            # frontend module.
-            #
-            # `maxAge` is deliberately NOT editor-facing: it interacts with the
-            # page cache (the challenge is issued when the cache entry is
-            # written, not when the visitor loads the page), so a value below the
-            # cache lifetime silently rejects legitimate submissions. It stays a
-            # YAML-only expert setting - see Validators/Challenge.yaml.
-            930:
-              identifier: challengeEnable
-              templateName: Inspector-CheckboxEditor
-              label: formEditor.elements.Form.editor.challenge.enable.label
-              propertyPath: renderingOptions.challenge.enable
-            940:
-              identifier: challengeDelay
-              templateName: Inspector-TextEditor
-              label: formEditor.elements.Form.editor.challenge.delay.label
-              description: formEditor.elements.Form.editor.challenge.delay.description
-              propertyPath: renderingOptions.challenge.delay
-              doNotSetIfPropertyValueIsEmpty: true
-              propertyValidators:
-                10: Integer
-            950:
-              identifier: challengeObfuscationMethod
-              templateName: Inspector-SingleSelectEditor
-              label: formEditor.elements.Form.editor.challenge.obfuscationMethod.label
-              description: formEditor.elements.Form.editor.challenge.obfuscationMethod.description
-              propertyPath: renderingOptions.challenge.obfuscationMethod
-              selectOptions:
-                10:
-                  value: rot13reverse
-                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13reverse
-                20:
-                  value: rot13
-                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13
-                30:
-                  value: reverse
-                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.reverse
-                40:
-                  value: base64
-                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.base64
-                50:
-                  value: none
-                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.none
             # WapplerSystems fork: horizontal label/input layout, form-wide. The
             # actual orientation switch is typically driven externally (e.g. a
             # site package copying a tt_content field into renderingOptions.layout.orientation
@@ -316,6 +266,37 @@ prototypes:
                     identifier: header
                     templateName: Inspector-CollectionElementHeaderEditor
                     label: formEditor.elements.Form.validators.Challenge.editor.header.label
+                  150:
+                    identifier: delay
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.editor.challenge.delay.label
+                    description: formEditor.elements.Form.editor.challenge.delay.description
+                    propertyPath: options.delay
+                    doNotSetIfPropertyValueIsEmpty: true
+                    propertyValidators:
+                      10: Integer
+                  160:
+                    identifier: obfuscationMethod
+                    templateName: Inspector-SingleSelectEditor
+                    label: formEditor.elements.Form.editor.challenge.obfuscationMethod.label
+                    description: formEditor.elements.Form.editor.challenge.obfuscationMethod.description
+                    propertyPath: options.obfuscationMethod
+                    selectOptions:
+                      10:
+                        value: rot13reverse
+                        label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13reverse
+                      20:
+                        value: rot13
+                        label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13
+                      30:
+                        value: reverse
+                        label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.reverse
+                      40:
+                        value: base64
+                        label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.base64
+                      50:
+                        value: none
+                        label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.none
                   200:
                     identifier: errorMessage
                     templateName: Inspector-TextEditor

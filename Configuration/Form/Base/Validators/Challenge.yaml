@@ -1,19 +1,24 @@
 # WapplerSystems fork: JavaScript challenge/response spam shield, modelled on
-# EXT:form_crshield. Normally switched on through
-# `renderingOptions.challenge.enable` on the form (or prototype-wide, to cover
-# every form of a site at once) — ValidateFormChallenge turns that switch into a
-# run of this validator. Listing it here as well makes it available as an
-# ordinary form-level validator, so it can be added per form via the form
-# editor's "Form-wide validators" inspector or a `validators:` list.
+# EXT:form_crshield.
 #
-# Rendering settings (`delay`, `obfuscationMethod`) are NOT validator options —
-# they belong to `renderingOptions.challenge`, see InjectFormChallenge.
+# Putting this validator on a form is the ONLY switch — there is no parallel
+# `renderingOptions.challenge` block. `delay` and `obfuscationMethod` shape the
+# markup and are read by InjectFormChallenge straight off this validator;
+# `maxAge` and `errorMessage` shape the verdict and are read by the validator
+# itself. One feature, one place.
 prototypes:
   standard:
     validatorsDefinition:
       Challenge:
         implementationClassName: TYPO3\CMS\Form\Validation\ChallengeValidator
         options:
+          # Seconds the browser waits before answering. A submission sent earlier
+          # is rejected, so keep this well below the time a visitor needs.
+          delay: 3
+          # rot13reverse | rot13 | reverse | base64 | none. All are reversed by
+          # the browser and the algorithm ships to every visitor either way, so
+          # the choice only varies what a bot has to implement.
+          obfuscationMethod: rot13reverse
           # 0 = no expiry check. A max age below the page cache lifetime would
           # reject legitimate submissions coming from a cached page, because the
           # challenge is issued when the cache entry is written, not when the
@@ -23,6 +28,12 @@ prototypes:
         formEditor:
           iconIdentifier: form-validator
           label: formEditor.elements.Form.editor.validators.Challenge.label
-          # Nothing to seed: `maxAge` is not editor-facing and an empty
-          # `errorMessage` would override the translated default with nothing.
-          predefinedDefaults: {  }
+          # Seeded so the editor shows the effective values instead of blanks.
+          # `maxAge` stays out of the inspector: it interacts with the page cache
+          # and a wrong value silently rejects legitimate submissions.
+          # `errorMessage` is not seeded either — an empty string here would
+          # override the translated default with nothing.
+          predefinedDefaults:
+            options:
+              delay: 3
+              obfuscationMethod: rot13reverse

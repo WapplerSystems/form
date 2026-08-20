@@ -1733,9 +1733,6 @@ If you need higher values contact your administrator for help.
       <trans-unit id="formEditor.elements.Form.editor.validators.Challenge.label">
         <source>JavaScript challenge</source>
       </trans-unit>
-      <trans-unit id="formEditor.elements.Form.editor.challenge.enable.label">
-        <source>Spam shield: require JavaScript challenge</source>
-      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.challenge.delay.label">
         <source>Challenge delay (seconds)</source>
       </trans-unit>

@@ -14,7 +14,6 @@ namespace TYPO3\CMS\Form\EventListener;
 
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Page\AssetCollector;
-use TYPO3\CMS\Form\Domain\Model\FormDefinition;
 use TYPO3\CMS\Form\Event\AfterFormRenderedEvent;
 use TYPO3\CMS\Form\Security\FormChallengeService;
 use TYPO3\CMS\Form\Validation\ChallengeValidator;
@@ -33,20 +32,15 @@ use TYPO3\CMS\Form\Validation\MinimumFillTimeValidator;
  * need the same thing (a small script running inside the form) and shipping two
  * scripts for it would double the request count for no gain:
  *
- *  1. Challenge/response — switched on either by `renderingOptions.challenge.enable`
- *     (per form, or prototype-wide for a site that wants every form covered) or
- *     by putting a `Challenge` validator on the form. Emits the obfuscated
- *     challenge plus the hidden response field; verified by ChallengeValidator,
- *     which ValidateFormChallenge runs for the rendering-option spelling.
+ *  1. Challenge/response — switched on by putting a `Challenge` validator on the
+ *     form. Emits the obfuscated challenge plus the hidden response field, and
+ *     reads `delay` and `obfuscationMethod` off that validator's own options, so
+ *     the whole feature is configured in one place. Verified by
+ *     ChallengeValidator itself, dispatched by RunFormLevelValidators.
  *
  *  2. Fill-time measurement — switched on by putting a `MinimumFillTime`
  *     validator on the form. Emits the hidden field the module writes the
  *     elapsed milliseconds into; verified by MinimumFillTimeValidator.
- *
- * `delay` and `obfuscationMethod` are read from `renderingOptions.challenge`
- * regardless of which switch turned the challenge on — they describe how the
- * markup is produced, which is this listener's business and not something a
- * validator has an opinion about.
  *
  * The island is `type="application/json"`, i.e. data and not an executable
  * inline script, so it needs no CSP nonce — same approach as
@@ -61,6 +55,12 @@ final class InjectFormChallenge
      */
     private const DEFAULT_DELAY = 3.0;
 
+    /**
+     * Key of the challenge validator in the prototype's validatorsDefinition,
+     * needed to resolve options for the legacy formLevelValidators spelling.
+     */
+    private const CHALLENGE_VALIDATOR_IDENTIFIER = 'Challenge';
+
     public function __construct(
         private readonly FormChallengeService $challengeService,
         private readonly AssetCollector $assetCollector,
@@ -69,18 +69,21 @@ final class InjectFormChallenge
     public function __invoke(AfterFormRenderedEvent $event): void
     {
         $formDefinition = $event->formRuntime->getFormDefinition();
-        $needsChallenge = $this->isChallengeEnabled($formDefinition);
+        $challengeOptions = FormLevelValidators::findOptions(
+            $formDefinition,
+            ChallengeValidator::class,
+            self::CHALLENGE_VALIDATOR_IDENTIFIER,
+        );
         $needsFillTime = FormLevelValidators::has($formDefinition, MinimumFillTimeValidator::class);
 
-        if (!$needsChallenge && !$needsFillTime) {
+        if ($challengeOptions === null && !$needsFillTime) {
             return;
         }
 
         $island = ['fields' => []];
         $hiddenFields = '';
 
-        if ($needsChallenge) {
-            $challengeOptions = $this->getChallengeRenderingOptions($formDefinition);
+        if ($challengeOptions !== null) {
             $method = $this->challengeService->normalizeMethod(
                 (string)($challengeOptions['obfuscationMethod'] ?? FormChallengeService::DEFAULT_OBFUSCATION_METHOD)
             );
@@ -115,23 +118,6 @@ final class InjectFormChallenge
             'wapplersystems-form-challenge',
             'EXT:form/Resources/Public/JavaScript/frontend/challenge.js'
         );
-    }
-
-    private function isChallengeEnabled(FormDefinition $formDefinition): bool
-    {
-        if (($this->getChallengeRenderingOptions($formDefinition)['enable'] ?? false) === true) {
-            return true;
-        }
-        return FormLevelValidators::has($formDefinition, ChallengeValidator::class);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getChallengeRenderingOptions(FormDefinition $formDefinition): array
-    {
-        $challenge = $formDefinition->getRenderingOptions()['challenge'] ?? null;
-        return is_array($challenge) ? $challenge : [];
     }
 
     /**

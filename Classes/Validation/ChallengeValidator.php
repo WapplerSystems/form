@@ -28,12 +28,22 @@ use TYPO3\CMS\Form\Security\FormChallengeService;
  * rejected; a client that copied the challenge string verbatim submits a value
  * whose signature does not verify, because the obfuscation mangled it.
  *
- * Normally switched on per form (or prototype-wide) through
- * `renderingOptions.challenge.enable`, which ValidateFormChallenge turns into a
- * run of this validator. It is also registered as the `Challenge` validator, so
- * it can be added to a form's form-level `validators` list explicitly — that
- * spelling renders the challenge too, and ValidateFormChallenge steps aside so
- * the check does not run twice.
+ * Everything the shield needs is configured here, on the validator, rather than
+ * split between a validator and a `renderingOptions.challenge` block: `delay`
+ * and `obfuscationMethod` shape the markup, `maxAge` and `errorMessage` shape the
+ * verdict, and having them in one place is what makes the feature
+ * comprehensible. InjectFormChallenge reads the rendering-side options straight
+ * off this validator when it finds it on the form.
+ *
+ * Putting the validator on the form is therefore the only switch:
+ *
+ *   type: Form
+ *   identifier: contact
+ *   validators:
+ *     - identifier: Challenge
+ *       options:
+ *         delay: 3
+ *         obfuscationMethod: rot13reverse
  *
  * The error is attached to the form root, not to a field: there is no field to
  * blame, and a spam shield reporting *which* mechanism caught a bot at the exact
@@ -48,6 +58,16 @@ final class ChallengeValidator extends AbstractFormAwareValidator
      * @var array<string, array{0: mixed, 1: string, 2?: string}>
      */
     protected $supportedOptions = [
+        'delay' => [
+            3,
+            'Seconds the browser waits before answering the challenge. A submission sent earlier is rejected, so keep it well below the time a visitor needs. Read by InjectFormChallenge, not by this validator.',
+            'integer',
+        ],
+        'obfuscationMethod' => [
+            FormChallengeService::DEFAULT_OBFUSCATION_METHOD,
+            'How the challenge is disguised in the markup: rot13reverse | rot13 | reverse | base64 | none. Any of them is reversed by the browser and the algorithm is public either way, so this only varies what a bot has to implement. Read by InjectFormChallenge, not by this validator.',
+            'string',
+        ],
         'maxAge' => [
             0,
             'Maximum age of the challenge in seconds; 0 disables the age check. Keep 0 unless the page holding the form is uncached — a max age below the page cache lifetime rejects legitimate submissions.',
