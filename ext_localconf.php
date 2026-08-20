@@ -54,3 +54,7 @@ $GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resourc
     = 'EXT:form/Resources/Private/Language/de.locallang_formManager_javascript.xlf';
 $GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang_formEditor_failSafeErrorHandling_javascript.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.locallang_formEditor_failSafeErrorHandling_javascript.xlf';
+// The v14 per-module label files had no override registered at all, so German
+// module titles could not be overridden even where a de.* file existed.
+$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/Modules/form_log.xlf'][]
+    = 'EXT:form/Resources/Private/Language/Modules/de.form_log.xlf';

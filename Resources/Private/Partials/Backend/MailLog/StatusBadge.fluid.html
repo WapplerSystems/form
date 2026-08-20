@@ -1,0 +1,39 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:comment>
+    The badge distinguishes four presentation states from three stored ones.
+
+    A row still in PENDING or PREPARED is either in flight right now or was
+    abandoned — a killed process leaves no event behind to close the row. Which
+    of the two it is depends only on age, so it is derived here rather than
+    written by a sweep task: a status that needs a second scheduler task to
+    become truthful would be a lie whenever that task is missing.
+</f:comment>
+<f:variable name="age">{f:format.date(date: 'now', format: 'U') - entry.crdate}</f:variable>
+<f:variable name="stuck">{f:if(condition: '{entry.status} < 2 && {age} > {stuckGraceMinutes} * 60', then: '1', else: '0')}</f:variable>
+
+<f:switch expression="{entry.status}">
+    <f:case value="2">
+        <span class="badge bg-success"><f:translate key="form.database:mailLog.status.sent" /></span>
+    </f:case>
+    <f:case value="3">
+        <span class="badge bg-danger"><f:translate key="form.database:mailLog.status.failed" /></span>
+    </f:case>
+    <f:defaultCase>
+        <f:if condition="{stuck}">
+            <f:then>
+                <span class="badge bg-warning" title="{f:translate(key: 'form.database:mailLog.status.aborted.description')}">
+                    <f:translate key="form.database:mailLog.status.aborted" />
+                </span>
+            </f:then>
+            <f:else>
+                <span class="badge bg-info">
+                    <f:translate key="form.database:mailLog.status.inflight" />
+                </span>
+            </f:else>
+        </f:if>
+    </f:defaultCase>
+</f:switch>
+</html>

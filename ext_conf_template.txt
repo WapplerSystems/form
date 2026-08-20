@@ -1,2 +1,8 @@
 # cat=Backend; type=boolean; label=Site sender feature: lets site administrators maintain email sender addresses in site configuration, and the form plugin's FlexForm provides a dropdown to pick one. When off the standard form-YAML senderAddress option is used.
 featureSiteEmail = 0
+
+# cat=Backend; type=boolean; label=Mail log: record one row per notification mail an Email finisher tries to send, so a failed or stuck send is visible instead of silent. Off keeps the extension byte-for-byte as before.
+featureMailLog = 0
+
+# cat=Backend; type=boolean; label=Mail log for every form: also record rows for forms that did not opt in. Those rows carry NO personal data (no recipient, subject or sender) - only form, finisher, status, error code and timestamps. Recommended on, because the form nobody watches is the form nobody opts in. Turn off for strict per-form opt-in.
+mailLogAllForms = 1

@@ -1,0 +1,149 @@
+<html
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <h1><f:translate key="form.database:mailLog.headline" /></h1>
+
+    <p class="text-body-secondary">
+        <f:translate key="form.database:mailLog.intro" />
+    </p>
+
+    <f:comment>
+        A plain GET form, not <f:form>: that one adds __referrer and
+        __trustedProperties hidden fields and routes through the backend shell,
+        which buries a four-field filter in a kilobyte of query string. Filters
+        are read-only and want a short, bookmarkable URL — "failures, last seven
+        days" is a link an operator keeps.
+
+        The `selected` attribute is rendered as two distinct <option> variants
+        rather than via f:if inside the attribute: an empty attribute value still
+        renders as selected="" and HTML treats that as selected, so every option
+        would be selected and the browser would show the last one.
+    </f:comment>
+    <form method="get" action="{f:uri.action(action: 'index')}" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-auto">
+                <label class="form-label" for="mailLogFrom"><f:translate key="form.database:mailLog.filter.from" /></label>
+                <input type="date" id="mailLogFrom" name="filter[from]" value="{filter.from}" class="form-control" />
+            </div>
+            <div class="col-auto">
+                <label class="form-label" for="mailLogTo"><f:translate key="form.database:mailLog.filter.to" /></label>
+                <input type="date" id="mailLogTo" name="filter[to]" value="{filter.to}" class="form-control" />
+            </div>
+            <div class="col-auto">
+                <label class="form-label" for="mailLogStatus"><f:translate key="form.database:mailLog.filter.status" /></label>
+                <select id="mailLogStatus" name="filter[status]" class="form-select">
+                    <f:for each="{statuses}" as="label" key="value">
+                        <f:if condition="{filter.status} == {value}">
+                            <f:then><option value="{value}" selected="selected">{label}</option></f:then>
+                            <f:else><option value="{value}">{label}</option></f:else>
+                        </f:if>
+                    </f:for>
+                </select>
+            </div>
+            <div class="col-auto">
+                <label class="form-label" for="mailLogForm"><f:translate key="form.database:mailLog.filter.form" /></label>
+                <select id="mailLogForm" name="filter[formIdentifier]" class="form-select">
+                    <f:for each="{formOptions}" as="label" key="value">
+                        <f:if condition="{filter.formIdentifier} == {value}">
+                            <f:then><option value="{value}" selected="selected">{label}</option></f:then>
+                            <f:else><option value="{value}">{label}</option></f:else>
+                        </f:if>
+                    </f:for>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-default">
+                    <core:icon identifier="actions-filter" size="small" />
+                    <f:translate key="form.database:mailLog.filter.apply" />
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <f:comment>
+        Summary for the active filter. "Unknown" merges PENDING and PREPARED —
+        the distinction matters when diagnosing one row, not when counting how
+        many need a look.
+    </f:comment>
+    <div class="mb-3 d-flex gap-2 flex-wrap">
+        <span class="badge bg-success"><f:translate key="form.database:mailLog.status.sent" />: {counts.sent}</span>
+        <span class="badge bg-danger"><f:translate key="form.database:mailLog.status.failed" />: {counts.failed}</span>
+        <span class="badge bg-warning"><f:translate key="form.database:mailLog.count.open" />: {counts.open}</span>
+        <span class="badge bg-secondary"><f:translate key="form.database:mailLog.count.total" />: {counts.total}</span>
+    </div>
+
+    <f:if condition="{paginator.paginatedItems -> f:count()} > 0">
+        <f:then>
+            <div class="table-fit">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th><f:translate key="form.database:mailLog.column.time" /></th>
+                            <th><f:translate key="form.database:mailLog.column.status" /></th>
+                            <th><f:translate key="form.database:mailLog.column.form" /></th>
+                            <th><f:translate key="form.database:mailLog.column.finisher" /></th>
+                            <th><f:translate key="form.database:mailLog.column.recipients" /></th>
+                            <th><f:translate key="form.database:mailLog.column.detail" /></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{paginator.paginatedItems}" as="entry">
+                            <tr>
+                                <td class="text-nowrap">
+                                    <f:format.date format="d.m.Y H:i:s">@{entry.crdate}</f:format.date>
+                                </td>
+                                <td>
+                                    <f:render partial="Backend/MailLog/StatusBadge" arguments="{entry: entry, stuckGraceMinutes: stuckGraceMinutes}" />
+                                </td>
+                                <td><code>{entry.form_identifier}</code></td>
+                                <td>{entry.finisher_identifier}</td>
+                                <td>
+                                    <f:if condition="{entry.recipients}">
+                                        <f:then>{entry.recipients}</f:then>
+                                        <f:else>
+                                            <span class="text-body-secondary" title="{f:translate(key: 'form.database:mailLog.recipients.withheld')}">
+                                                {entry.recipient_count} ×
+                                            </span>
+                                        </f:else>
+                                    </f:if>
+                                </td>
+                                <td>
+                                    <f:if condition="{entry.error_message}">
+                                        <f:then><span class="text-danger">{entry.error_message}</span></f:then>
+                                        <f:else>
+                                            <f:if condition="{entry.error_code}">
+                                                <code class="text-danger">#{entry.error_code}</code>
+                                            </f:if>
+                                        </f:else>
+                                    </f:if>
+                                </td>
+                                <td class="text-end">
+                                    <f:link.action action="show" arguments="{uid: entry.uid}" class="btn btn-default btn-sm" title="{f:translate(key: 'form.database:mailLog.column.detail')}">
+                                        <core:icon identifier="actions-eye" size="small" />
+                                    </f:link.action>
+                                </td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+            </div>
+
+            <f:render partial="Backend/MailLog/Pagination" arguments="{_all}" />
+        </f:then>
+        <f:else>
+            <div class="callout callout-info">
+                <div class="callout-body">
+                    <p><f:translate key="form.database:mailLog.empty" /></p>
+                    <p class="mb-0"><f:translate key="form.database:mailLog.empty.hint" /></p>
+                </div>
+            </div>
+        </f:else>
+    </f:if>
+</f:section>
+</html>

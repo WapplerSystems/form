@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:form/Resources/Private/Language/Modules/form_log.xlf" product-name="form" target-language="de">
+    <header/>
+    <body>
+      <trans-unit id="title" resname="title" approved="yes">
+        <source>Mail log</source>
+        <target state="final">Mail-Protokoll</target>
+      </trans-unit>
+      <trans-unit id="short_description" resname="short_description" approved="yes">
+        <source>Did the notification mails go out?</source>
+        <target state="final">Sind die Benachrichtigungen rausgegangen?</target>
+      </trans-unit>
+      <trans-unit id="description" resname="description" approved="yes">
+        <source>One row per notification mail a form tried to send, with its outcome. Shows failed and abandoned sends that would otherwise only appear in the system log.</source>
+        <target state="final">Eine Zeile pro Benachrichtigungs-Mail, die ein Formular zu senden versucht hat, mit ihrem Ergebnis. Zeigt fehlgeschlagene und abgebrochene Versände, die sonst nur im System-Log auftauchen.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

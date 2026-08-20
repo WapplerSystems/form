@@ -2,6 +2,7 @@
 
 use TYPO3\CMS\Form\Controller\FormEditorController;
 use TYPO3\CMS\Form\Controller\FormManagerController;
+use TYPO3\CMS\Form\Controller\MailLogController;
 
 /**
  * Definitions for modules provided by EXT:form
@@ -26,6 +27,26 @@ return [
         'controllerActions' => [
             FormManagerController::class => [
                 'index', 'show', 'create', 'duplicate', 'references', 'delete',
+            ],
+        ],
+    ],
+    // WapplerSystems fork: outgoing-mail log. A deliberately separate icon —
+    // form_manager and form_editor both use `module-form`, and a third identical
+    // entry in the module menu would be unusable.
+    //
+    // The controller carries a doc-header view switch so the planned
+    // validation-statistics view becomes one more entry in `controllerActions`
+    // rather than a second module.
+    'form_log' => [
+        'parent' => 'web_FormFormbuilder',
+        'access' => 'user',
+        'path' => '/module/form/log',
+        'iconIdentifier' => 'actions-envelope',
+        'labels' => 'form.modules.form_log',
+        'extensionName' => 'Form',
+        'controllerActions' => [
+            MailLogController::class => [
+                'index', 'show',
             ],
         ],
     ],

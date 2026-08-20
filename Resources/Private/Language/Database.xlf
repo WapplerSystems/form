@@ -1808,6 +1808,156 @@ If you need higher values contact your administrator for help.
       <trans-unit id="formEditor.elements.Form.validators.Challenge.editor.header.label">
         <source>JavaScript challenge</source>
       </trans-unit>
+      <trans-unit id="mailLog.headline">
+        <source>Mail log</source>
+      </trans-unit>
+      <trans-unit id="mailLog.intro">
+        <source>One row per notification mail a form tried to send. Rows for forms that did not opt in carry no recipient, subject or sender — only whether the send worked.</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.headline">
+        <source>Mail log entry</source>
+      </trans-unit>
+      <trans-unit id="mailLog.reload">
+        <source>Reload</source>
+      </trans-unit>
+      <trans-unit id="mailLog.back">
+        <source>Back to the list</source>
+      </trans-unit>
+      <trans-unit id="mailLog.empty">
+        <source>No mails recorded for this filter.</source>
+      </trans-unit>
+      <trans-unit id="mailLog.empty.hint">
+        <source>The log is off by default. Switch it on in the extension configuration (Mail log) — and note that the backend's "send test email" does not go through a form finisher, so it never appears here.</source>
+      </trans-unit>
+      <trans-unit id="mailLog.status.pending">
+        <source>Pending</source>
+      </trans-unit>
+      <trans-unit id="mailLog.status.prepared">
+        <source>Prepared</source>
+      </trans-unit>
+      <trans-unit id="mailLog.status.sent">
+        <source>Sent</source>
+      </trans-unit>
+      <trans-unit id="mailLog.status.failed">
+        <source>Failed</source>
+      </trans-unit>
+      <trans-unit id="mailLog.status.inflight">
+        <source>In flight</source>
+      </trans-unit>
+      <trans-unit id="mailLog.status.aborted">
+        <source>Aborted</source>
+      </trans-unit>
+      <trans-unit id="mailLog.status.aborted.description">
+        <source>The send was started but never reported an outcome. The process was most likely killed — a timeout, or memory exhausted while reading upload attachments. Whether the mail went out is genuinely unknown.</source>
+      </trans-unit>
+      <trans-unit id="mailLog.count.open">
+        <source>Unknown</source>
+      </trans-unit>
+      <trans-unit id="mailLog.count.total">
+        <source>Total</source>
+      </trans-unit>
+      <trans-unit id="mailLog.column.time">
+        <source>Time</source>
+      </trans-unit>
+      <trans-unit id="mailLog.column.status">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="mailLog.column.form">
+        <source>Form</source>
+      </trans-unit>
+      <trans-unit id="mailLog.column.finisher">
+        <source>Finisher</source>
+      </trans-unit>
+      <trans-unit id="mailLog.column.recipients">
+        <source>Recipients</source>
+      </trans-unit>
+      <trans-unit id="mailLog.column.detail">
+        <source>Detail</source>
+      </trans-unit>
+      <trans-unit id="mailLog.recipients.withheld">
+        <source>Not stored — this form did not opt in to recording recipients.</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.from">
+        <source>From</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.to">
+        <source>To</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.status">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.status.all">
+        <source>All</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.status.problems">
+        <source>Needs attention</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.form">
+        <source>Form</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.form.all">
+        <source>All forms</source>
+      </trans-unit>
+      <trans-unit id="mailLog.filter.apply">
+        <source>Filter</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.latency">
+        <source>Latency</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.mode">
+        <source>Recipient mode</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.subject">
+        <source>Subject</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.sender">
+        <source>Sender</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.replyTo">
+        <source>Reply-To</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.transport">
+        <source>Transport</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.transport.hint">
+        <source>"Sent" means the transport accepted the mail, not that it was delivered. With a spool transport that means queued; with the null transport it means discarded.</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.messageId">
+        <source>Message ID</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.attachments">
+        <source>Attachments</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.attachments.hint">
+        <source>count only; filenames are not stored</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.error">
+        <source>Error</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.error.withheld">
+        <source>The text is withheld because a transport error can quote the recipient address, and this form did not opt in.</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.page">
+        <source>Page</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.siblings">
+        <source>Other mails of this submission</source>
+      </trans-unit>
+      <trans-unit id="mailLog.detail.siblings.hint">
+        <source>A form can send several mails per submission — for instance a notification to the team and a confirmation to the visitor.</source>
+      </trans-unit>
+      <trans-unit id="scheduler.retentionDays.label">
+        <source>Retention window (days)</source>
+      </trans-unit>
+      <trans-unit id="scheduler.retentionDays.description">
+        <source>Rows older than this number of days are deleted on each run. Recommended 7-365.</source>
+      </trans-unit>
+      <trans-unit id="scheduler.cleanupMailLog.label">
+        <source>Form: clean up mail log</source>
+      </trans-unit>
+      <trans-unit id="scheduler.cleanupMailLog.description">
+        <source>Deletes rows from tx_form_mail_log older than the configured retention window. Run daily. Matters more than for the validation log, because a row here can hold a recipient address.</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>
