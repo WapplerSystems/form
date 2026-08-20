@@ -25,6 +25,11 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  */
 final class MailLogRepositoryTest extends FunctionalTestCase
 {
+    // EXT:form must be loaded explicitly: without it the test container knows no
+    // form services at all, and tx_form_mail_log is never created because the
+    // extension's ext_tables.sql is not part of the test instance.
+    protected array $coreExtensionsToLoad = ['form'];
+
     private const NOW = 1787000000;
 
     private MailLogRepository $subject;
