@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
 use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Form\Domain\Finishers\EmailFinisher;
 use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
@@ -200,6 +201,11 @@ final class EmailFinisherMailLogTest extends FunctionalTestCase
         // failure branch dies on $this->logger->error() before it can dispatch.
         $finisher->injectEventDispatcher($this->get(EventDispatcher::class));
         $finisher->setLogger(new NullLogger());
+        // The failure branch renders an error view after dispatching
+        // FinisherFailedEvent, so the factory is needed even though these tests
+        // only care about the log row. (That the row is already written when the
+        // view blows up is exactly why the dispatch sits before it.)
+        $finisher->injectViewFactory($this->get(ViewFactoryInterface::class));
         $finisher->setFinisherIdentifier('EmailToReceiver');
 
         return $finisher;
