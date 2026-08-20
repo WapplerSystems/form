@@ -1,0 +1,97 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the WapplerSystems/form fork of typo3/cms-form.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ */
+
+namespace TYPO3\CMS\Form\Validation;
+
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Form\Security\FormChallengeService;
+
+/**
+ * Rejects submissions that did not solve the JavaScript challenge.
+ *
+ * The counterpart of InjectFormChallenge (rendering) and challenge.js (client).
+ * All this validator does is take the token the client wrote into the hidden
+ * response field and hand it to FormChallengeService for signature, form-binding
+ * and age verification — see that class for why the scheme is stateless and what
+ * it does and does not prove.
+ *
+ * A client that never ran the JavaScript submits an empty response and is
+ * rejected; a client that copied the challenge string verbatim submits a value
+ * whose signature does not verify, because the obfuscation mangled it.
+ *
+ * Normally switched on per form (or prototype-wide) through
+ * `renderingOptions.challenge.enable`, which ValidateFormChallenge turns into a
+ * run of this validator. It is also registered as the `Challenge` validator, so
+ * it can be added to a form's form-level `validators` list explicitly — that
+ * spelling renders the challenge too, and ValidateFormChallenge steps aside so
+ * the check does not run twice.
+ *
+ * The error is attached to the form root, not to a field: there is no field to
+ * blame, and a spam shield reporting *which* mechanism caught a bot at the exact
+ * field level would only help whoever is tuning their bot against it. The fork's
+ * Form.fluid.html renders form-root errors as a summary above the form, so a
+ * human who hits this (JavaScript disabled) still sees the message; templates
+ * without such a summary reject silently, which for a shield is acceptable.
+ */
+final class ChallengeValidator extends AbstractFormAwareValidator
+{
+    /**
+     * @var array<string, array{0: mixed, 1: string, 2?: string}>
+     */
+    protected $supportedOptions = [
+        'maxAge' => [
+            0,
+            'Maximum age of the challenge in seconds; 0 disables the age check. Keep 0 unless the page holding the form is uncached — a max age below the page cache lifetime rejects legitimate submissions.',
+            'integer',
+        ],
+        'errorMessage' => [
+            'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.Challenge.errorMessage',
+            'Error message shown when the challenge was not solved. Accepts an LLL: reference.',
+            'string',
+        ],
+    ];
+
+    /**
+     * @param mixed $value The submitted form values; unused — the challenge
+     *                     response is not a form element and therefore not part
+     *                     of the mapped values, it is read from the request.
+     */
+    protected function isValid(mixed $value): void
+    {
+        $challengeService = GeneralUtility::makeInstance(FormChallengeService::class);
+
+        $parsedBody = $this->formRuntime->getRequest()->getParsedBody();
+        $response = is_array($parsedBody) ? ($parsedBody[FormChallengeService::RESPONSE_FIELD] ?? null) : null;
+
+        if (!is_string($response) || $response === '') {
+            $this->reject();
+            return;
+        }
+
+        $issuedAt = $challengeService->verifyToken(
+            $response,
+            $this->formRuntime->getFormDefinition()->getIdentifier(),
+            (int)$this->options['maxAge']
+        );
+        if ($issuedAt === null) {
+            $this->reject();
+        }
+    }
+
+    private function reject(): void
+    {
+        $this->addError(
+            $this->resolveErrorMessage(),
+            1755648001
+        );
+    }
+}

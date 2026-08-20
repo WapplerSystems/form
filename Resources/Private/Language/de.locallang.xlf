@@ -170,6 +170,14 @@
         <source>Refresh</source>
         <target state="final">Aktualisieren</target>
       </trans-unit>
+      <trans-unit id="formLevelValidators.Challenge.errorMessage" resname="formLevelValidators.Challenge.errorMessage" approved="yes">
+        <source>Your submission could not be verified. Please make sure JavaScript is enabled and try again.</source>
+        <target state="final">Ihre Eingabe konnte nicht überprüft werden. Bitte stellen Sie sicher, dass JavaScript aktiviert ist, und versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="formLevelValidators.MinimumFillTime.errorMessage" resname="formLevelValidators.MinimumFillTime.errorMessage" approved="yes">
+        <source>The form was submitted too quickly. Please take a moment and try again.</source>
+        <target state="final">Das Formular wurde zu schnell abgeschickt. Bitte nehmen Sie sich einen Moment und versuchen Sie es erneut.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

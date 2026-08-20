@@ -2307,6 +2307,126 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Close</source>
         <target>Schließen</target>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.label" resname="formEditor.elements.Form.editor.validators.label" approved="yes">
+        <source>Form-wide validators</source>
+        <target state="final">Formularweite Validatoren</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.EmptyValue.label" resname="formEditor.elements.Form.editor.validators.EmptyValue.label" approved="yes">
+        <source>Add validator</source>
+        <target state="final">Validator hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.MinimumFillTime.label" resname="formEditor.elements.Form.editor.validators.MinimumFillTime.label" approved="yes">
+        <source>Minimum fill-in time</source>
+        <target state="final">Minimale Ausfüllzeit</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.EntropySpam.label" resname="formEditor.elements.Form.editor.validators.EntropySpam.label" approved="yes">
+        <source>Spam filter (text entropy)</source>
+        <target state="final">Spam-Filter (Text-Entropie)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.Challenge.label" resname="formEditor.elements.Form.editor.validators.Challenge.label" approved="yes">
+        <source>JavaScript challenge</source>
+        <target state="final">JavaScript-Challenge</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.enable.label" resname="formEditor.elements.Form.editor.challenge.enable.label" approved="yes">
+        <source>Spam shield: require JavaScript challenge</source>
+        <target state="final">Spam-Schutz: JavaScript-Challenge verlangen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.delay.label" resname="formEditor.elements.Form.editor.challenge.delay.label" approved="yes">
+        <source>Challenge delay (seconds)</source>
+        <target state="final">Verzögerung der Challenge (Sekunden)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.delay.description" resname="formEditor.elements.Form.editor.challenge.delay.description" approved="yes">
+        <source>The browser solves the challenge only after this many seconds. A submission sent earlier is rejected, so keep this clearly below the time a visitor needs for the form. Empty uses the default of 3 seconds.</source>
+        <target state="final">Der Browser löst die Challenge erst nach dieser Anzahl von Sekunden. Eine früher abgeschickte Übertragung wird abgelehnt – der Wert sollte daher deutlich unter der Zeit liegen, die Besucher für das Formular brauchen. Leer bedeutet den Standardwert von 3 Sekunden.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.label" resname="formEditor.elements.Form.editor.challenge.obfuscationMethod.label" approved="yes">
+        <source>Challenge obfuscation</source>
+        <target state="final">Verschleierung der Challenge</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.description" resname="formEditor.elements.Form.editor.challenge.obfuscationMethod.description" approved="yes">
+        <source>How the challenge is disguised in the markup. Any of these is reversed by the browser; the algorithm is public either way, so the choice only varies what a bot has to implement. Leave at the default unless you have a reason.</source>
+        <target state="final">Wie die Challenge im Quellcode verschleiert wird. Alle Varianten werden vom Browser zurückgerechnet; der Algorithmus ist ohnehin öffentlich, die Wahl verändert nur, was ein Bot nachbauen muss. Ohne besonderen Grund beim Standard bleiben.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13reverse" resname="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13reverse" approved="yes">
+        <source>ROT13 + reversed (default)</source>
+        <target state="final">ROT13 + umgekehrt (Standard)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13" resname="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13" approved="yes">
+        <source>ROT13</source>
+        <target state="final">ROT13</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.reverse" resname="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.reverse" approved="yes">
+        <source>Reversed</source>
+        <target state="final">Umgekehrt</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.base64" resname="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.base64" approved="yes">
+        <source>Base64</source>
+        <target state="final">Base64</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.none" resname="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.none" approved="yes">
+        <source>None (plain)</source>
+        <target state="final">Keine (Klartext)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.errorMessage.label" resname="formEditor.elements.Form.validators.errorMessage.label" approved="yes">
+        <source>Error message</source>
+        <target state="final">Fehlermeldung</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.errorMessage.description" resname="formEditor.elements.Form.validators.errorMessage.description" approved="yes">
+        <source>Shown when the validator rejects the submission. Empty uses the built-in, translated message. An LLL: reference is resolved against the current site language.</source>
+        <target state="final">Wird angezeigt, wenn der Validator die Übertragung ablehnt. Leer bedeutet die eingebaute, übersetzte Meldung. Eine LLL:-Referenz wird in der Sprache der aktuellen Site aufgelöst.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.header.label" resname="formEditor.elements.Form.validators.MinimumFillTime.editor.header.label" approved="yes">
+        <source>Minimum fill-in time</source>
+        <target state="final">Minimale Ausfüllzeit</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.label" resname="formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.label" approved="yes">
+        <source>Minimum seconds</source>
+        <target state="final">Minimum in Sekunden</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.description" resname="formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.description" approved="yes">
+        <source>Submissions that arrive sooner are rejected. The time is measured in the browser and restarts on every step of a multi-step form, so size the value for a single step.</source>
+        <target state="final">Früher eintreffende Übertragungen werden abgelehnt. Die Zeit wird im Browser gemessen und beginnt bei jedem Schritt eines mehrseitigen Formulars neu – der Wert sollte daher für einen einzelnen Schritt passen.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.label" resname="formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.label" approved="yes">
+        <source>Accept submissions without a measurement (JavaScript disabled)</source>
+        <target state="final">Übertragungen ohne Messwert annehmen (JavaScript deaktiviert)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.description" resname="formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.description" approved="yes">
+        <source>Off — the safe default — rejects a submission that reports no time at all, which is what a bot looks like. Turn it on only for a form that must stay usable without JavaScript; the check then catches just the submissions that are demonstrably too fast.</source>
+        <target state="final">Aus – der sichere Standard – lehnt Übertragungen ab, die überhaupt keine Zeit melden; genau so verhält sich ein Bot. Nur einschalten, wenn das Formular ohne JavaScript nutzbar bleiben muss; die Prüfung greift dann nur noch bei nachweisbar zu schnellen Übertragungen.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.header.label" resname="formEditor.elements.Form.validators.EntropySpam.editor.header.label" approved="yes">
+        <source>Spam filter (text entropy)</source>
+        <target state="final">Spam-Filter (Text-Entropie)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.label" resname="formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.label" approved="yes">
+        <source>Minimum entropy (bits per character)</source>
+        <target state="final">Minimale Entropie (Bit pro Zeichen)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.description" resname="formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.description" approved="yes">
+        <source>Rejects repetitive text such as "aaaaaaaa". Empty uses the default of 1.8.</source>
+        <target state="final">Lehnt sich wiederholenden Text wie „aaaaaaaa“ ab. Leer bedeutet den Standardwert 1.8.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.label" resname="formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.label" approved="yes">
+        <source>Maximum entropy (bits per character)</source>
+        <target state="final">Maximale Entropie (Bit pro Zeichen)</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.description" resname="formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.description" approved="yes">
+        <source>Safety net against long random blobs. Empty uses the default of 5.8.</source>
+        <target state="final">Sicherheitsnetz gegen lange Zufallsketten. Leer bedeutet den Standardwert 5.8.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.label" resname="formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.label" approved="yes">
+        <source>Minimum text length</source>
+        <target state="final">Minimale Textlänge</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.description" resname="formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.description" approved="yes">
+        <source>Shorter submissions skip the entropy check, because the estimate is unreliable for them. Empty uses the default of 20 characters.</source>
+        <target state="final">Kürzere Übertragungen überspringen die Entropie-Prüfung, weil die Schätzung dort unzuverlässig ist. Leer bedeutet den Standardwert von 20 Zeichen.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.Challenge.editor.header.label" resname="formEditor.elements.Form.validators.Challenge.editor.header.label" approved="yes">
+        <source>JavaScript challenge</source>
+        <target state="final">JavaScript-Challenge</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

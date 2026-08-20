@@ -12,9 +12,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Validation;
 
-use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Extbase\Error\Error;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Rejects form submissions whose human-entered free text looks machine-generated.
@@ -173,29 +171,6 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
             return;
         }
         $this->addError($message, 1717686001);
-    }
-
-    /**
-     * Resolves the configured message, allowing an `LLL:` reference so the
-     * rejection text can be translated. Form-level validator options are not
-     * covered by the form XLF chain (that applies to element validators via
-     * properties.validationErrorMessages), so without this a multi-language site
-     * could only ever show one hardcoded language. Resolved against the active
-     * site language, falling back to the raw string.
-     */
-    private function resolveErrorMessage(): string
-    {
-        $message = (string)($this->options['errorMessage'] ?? '');
-        if (!str_starts_with($message, 'LLL:')) {
-            return $message;
-        }
-
-        $siteLanguage = $this->formRuntime->getCurrentSiteLanguage();
-        $languageService = $siteLanguage !== null
-            ? GeneralUtility::makeInstance(LanguageServiceFactory::class)->createFromSiteLanguage($siteLanguage)
-            : GeneralUtility::makeInstance(LanguageServiceFactory::class)->create('default');
-
-        return $languageService->sL($message) ?: $message;
     }
 
     /**

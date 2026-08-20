@@ -159,6 +159,12 @@
       <trans-unit id="pagination.refresh">
         <source>Refresh</source>
       </trans-unit>
+      <trans-unit id="formLevelValidators.Challenge.errorMessage">
+        <source>Your submission could not be verified. Please make sure JavaScript is enabled and try again.</source>
+      </trans-unit>
+      <trans-unit id="formLevelValidators.MinimumFillTime.errorMessage">
+        <source>The form was submitted too quickly. Please take a moment and try again.</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

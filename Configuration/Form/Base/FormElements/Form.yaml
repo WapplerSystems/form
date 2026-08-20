@@ -55,6 +55,80 @@ prototypes:
                 60:
                   value: Confirmation
                   label: formEditor.elements.Form.editor.finishers.Confirmation.label
+            # WapplerSystems fork: form-wide (cross-field) validators. The form
+            # root accepts a `validators` list exactly like any element does and
+            # RunFormLevelValidators evaluates it after per-element validation -
+            # this editor is what makes that reachable without hand-editing YAML.
+            # The three entries below are the fork's own form-level validators;
+            # a site package adds its own by extending selectOptions and
+            # propertyCollections.validators here, same as for finishers.
+            920:
+              identifier: formValidators
+              templateName: Inspector-ValidatorsEditor
+              label: formEditor.elements.Form.editor.validators.label
+              selectOptions:
+                10:
+                  value: ''
+                  label: formEditor.elements.Form.editor.validators.EmptyValue.label
+                20:
+                  value: MinimumFillTime
+                  label: formEditor.elements.Form.editor.validators.MinimumFillTime.label
+                30:
+                  value: EntropySpam
+                  label: formEditor.elements.Form.editor.validators.EntropySpam.label
+                40:
+                  value: Challenge
+                  label: formEditor.elements.Form.editor.validators.Challenge.label
+            # WapplerSystems fork: JavaScript challenge/response spam shield,
+            # modelled on EXT:form_crshield. A rendering option rather than only
+            # a validator, because that is what lets a site switch it on for
+            # *every* form at once by setting it on the prototype - a
+            # `validators` list on the form root cannot be defaulted that way.
+            # ValidateFormChallenge turns the switch into a run of
+            # ChallengeValidator; InjectFormChallenge emits the challenge and the
+            # frontend module.
+            #
+            # `maxAge` is deliberately NOT editor-facing: it interacts with the
+            # page cache (the challenge is issued when the cache entry is
+            # written, not when the visitor loads the page), so a value below the
+            # cache lifetime silently rejects legitimate submissions. It stays a
+            # YAML-only expert setting - see Validators/Challenge.yaml.
+            930:
+              identifier: challengeEnable
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.Form.editor.challenge.enable.label
+              propertyPath: renderingOptions.challenge.enable
+            940:
+              identifier: challengeDelay
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.editor.challenge.delay.label
+              description: formEditor.elements.Form.editor.challenge.delay.description
+              propertyPath: renderingOptions.challenge.delay
+              doNotSetIfPropertyValueIsEmpty: true
+              propertyValidators:
+                10: Integer
+            950:
+              identifier: challengeObfuscationMethod
+              templateName: Inspector-SingleSelectEditor
+              label: formEditor.elements.Form.editor.challenge.obfuscationMethod.label
+              description: formEditor.elements.Form.editor.challenge.obfuscationMethod.description
+              propertyPath: renderingOptions.challenge.obfuscationMethod
+              selectOptions:
+                10:
+                  value: rot13reverse
+                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13reverse
+                20:
+                  value: rot13
+                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13
+                30:
+                  value: reverse
+                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.reverse
+                40:
+                  value: base64
+                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.base64
+                50:
+                  value: none
+                  label: formEditor.elements.Form.editor.challenge.obfuscationMethod.option.none
             # WapplerSystems fork: horizontal label/input layout, form-wide. The
             # actual orientation switch is typically driven externally (e.g. a
             # site package copying a tt_content field into renderingOptions.layout.orientation
@@ -154,6 +228,104 @@ prototypes:
           paginationTitle: formEditor.pagination.title
           iconIdentifier: content-form
           propertyCollections:
+            # WapplerSystems fork: option editors for the form-wide validators
+            # offered by the `formValidators` editor above.
+            validators:
+              10:
+                identifier: MinimumFillTime
+                # Note: values a newly added validator starts out with are NOT
+                # configured here - FormEditor looks `predefinedDefaults` up in
+                # the prototype's validatorsDefinition entry, not in this
+                # collection (see FormEditorController::getFormEditorDefinitions()
+                # keying `validatorsDefinition` as `validators`). They live in
+                # Validators/MinimumFillTime.yaml.
+                editors:
+                  100:
+                    identifier: header
+                    templateName: Inspector-CollectionElementHeaderEditor
+                    label: formEditor.elements.Form.validators.MinimumFillTime.editor.header.label
+                  200:
+                    identifier: minimumSeconds
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.label
+                    description: formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.description
+                    propertyPath: options.minimumSeconds
+                    propertyValidators:
+                      10: NotEmpty
+                      20: Integer
+                  300:
+                    identifier: allowMissingTimingData
+                    templateName: Inspector-CheckboxEditor
+                    label: formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.label
+                    description: formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.description
+                    propertyPath: options.allowMissingTimingData
+                  400:
+                    identifier: errorMessage
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.validators.errorMessage.label
+                    description: formEditor.elements.Form.validators.errorMessage.description
+                    propertyPath: options.errorMessage
+                    doNotSetIfPropertyValueIsEmpty: true
+                  9999:
+                    identifier: removeButton
+                    templateName: Inspector-RemoveElementEditor
+              20:
+                identifier: EntropySpam
+                editors:
+                  100:
+                    identifier: header
+                    templateName: Inspector-CollectionElementHeaderEditor
+                    label: formEditor.elements.Form.validators.EntropySpam.editor.header.label
+                  200:
+                    identifier: minimumEntropy
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.label
+                    description: formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.description
+                    propertyPath: options.minimumEntropy
+                    doNotSetIfPropertyValueIsEmpty: true
+                  300:
+                    identifier: maximumEntropy
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.label
+                    description: formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.description
+                    propertyPath: options.maximumEntropy
+                    doNotSetIfPropertyValueIsEmpty: true
+                  400:
+                    identifier: minimumLength
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.label
+                    description: formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.description
+                    propertyPath: options.minimumLength
+                    doNotSetIfPropertyValueIsEmpty: true
+                    propertyValidators:
+                      10: Integer
+                  500:
+                    identifier: errorMessage
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.validators.errorMessage.label
+                    description: formEditor.elements.Form.validators.errorMessage.description
+                    propertyPath: options.errorMessage
+                    doNotSetIfPropertyValueIsEmpty: true
+                  9999:
+                    identifier: removeButton
+                    templateName: Inspector-RemoveElementEditor
+              30:
+                identifier: Challenge
+                editors:
+                  100:
+                    identifier: header
+                    templateName: Inspector-CollectionElementHeaderEditor
+                    label: formEditor.elements.Form.validators.Challenge.editor.header.label
+                  200:
+                    identifier: errorMessage
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.validators.errorMessage.label
+                    description: formEditor.elements.Form.validators.errorMessage.description
+                    propertyPath: options.errorMessage
+                    doNotSetIfPropertyValueIsEmpty: true
+                  9999:
+                    identifier: removeButton
+                    templateName: Inspector-RemoveElementEditor
             finishers:
               10:
                 editors:

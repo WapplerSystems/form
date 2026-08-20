@@ -17,6 +17,8 @@ imports:
 
   # WapplerSystems fork additions
   - { resource: 'EXT:form/Configuration/Form/Base/Validators/EntropySpam.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/Challenge.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Validators/MinimumFillTime.yaml' }
   - { resource: 'EXT:form/Configuration/Form/Base/FormElements/Time.yaml' }
   - { resource: 'EXT:form/Configuration/Form/Base/Finishers/RedirectToUri.yaml' }
   - { resource: 'EXT:form/Configuration/Form/Base/Finishers/FeUser.yaml' }
