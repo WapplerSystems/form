@@ -21,7 +21,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -515,20 +514,6 @@ class FormManagerController extends ActionController
             ->setShowLabelText(true)
             ->setIcon($this->iconFactory->getIcon('actions-plus', IconSize::SMALL));
         $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($addFormButton);
-        // WapplerSystems fork: the way into the log module.
-        //
-        // The container web_FormFormbuilder shows as a single entry in the module
-        // menu — its children are not listed there, they are reached from this
-        // landing page (which is how the form editor is opened too). Without this
-        // button the mail log and the validation statistics exist but cannot be
-        // navigated to, which for a monitoring feature is the same as not
-        // existing.
-        $logButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\LinkButton::class)
-            ->setHref((string)$this->coreUriBuilder->buildUriFromRoute('form_log'))
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.open_log'))
-            ->setShowLabelText(true)
-            ->setIcon($this->iconFactory->getIcon('actions-envelope', IconSize::SMALL));
-        $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($logButton, ButtonBar::BUTTON_POSITION_LEFT, 3);
         return $moduleTemplate;
     }
 
