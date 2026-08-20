@@ -50,8 +50,24 @@ class AddHmacDataConverter extends AbstractConverter
             $currentFormElement = $formDefinition;
         }
 
-        $propertyCollectionElements = $currentFormElement['finishers'] ?? $currentFormElement['validators'] ?? [];
-        $propertyCollectionName = $currentFormElement['type'] === 'Form' ? 'finishers' : 'validators';
+        // WapplerSystems fork: an element can carry BOTH property collections.
+        // Upstream assumed one per element and derived the collection name from
+        // the element type — `finishers` for the form root, `validators` for
+        // everything else — which stopped being true when the fork made
+        // form-wide validators editable on the form root (see
+        // Configuration/Form/Base/FormElements/Form.yaml). With the old code a
+        // form that has finishers silently skipped its validators, and one that
+        // has none had its validators processed under the name `finishers`.
+        // Keying by the actual array key is what makes both work; behaviour for
+        // elements with a single collection is unchanged.
+        // Kept in sync with the identical block in FormDefinitionValidationService::validateFormDefinitionProperties().
+        $propertyCollections = [];
+        foreach (['finishers', 'validators'] as $collectionName) {
+            $collectionElements = $currentFormElement[$collectionName] ?? null;
+            if (is_array($collectionElements) && $collectionElements !== []) {
+                $propertyCollections[$collectionName] = $collectionElements;
+            }
+        }
         unset($currentFormElement['renderables'], $currentFormElement['finishers'], $currentFormElement['validators']);
 
         $this->converterDto
@@ -71,24 +87,26 @@ class AddHmacDataConverter extends AbstractConverter
             )
         );
 
-        $this->converterDto->setPropertyCollectionName($propertyCollectionName);
-        foreach ($propertyCollectionElements as $propertyCollectionIndex => $propertyCollectionElement) {
-            $this->converterDto
-                ->setPropertyCollectionIndex((int)$propertyCollectionIndex)
-                ->setPropertyCollectionElementIdentifier($propertyCollectionElement['identifier']);
+        foreach ($propertyCollections as $propertyCollectionName => $propertyCollectionElements) {
+            $this->converterDto->setPropertyCollectionName($propertyCollectionName);
+            foreach ($propertyCollectionElements as $propertyCollectionIndex => $propertyCollectionElement) {
+                $this->converterDto
+                    ->setPropertyCollectionIndex((int)$propertyCollectionIndex)
+                    ->setPropertyCollectionElementIdentifier($propertyCollectionElement['identifier']);
 
-            GeneralUtility::makeInstance(ArrayProcessor::class, $propertyCollectionElement)->forEach(
-                GeneralUtility::makeInstance(
-                    ArrayProcessing::class,
-                    'addHmacData',
-                    '^(?!(.*\._label|.*\._value)$).*',
+                GeneralUtility::makeInstance(ArrayProcessor::class, $propertyCollectionElement)->forEach(
                     GeneralUtility::makeInstance(
-                        AddHmacDataToPropertyCollectionElementConverter::class,
-                        $this->converterDto,
-                        $this->sessionToken
+                        ArrayProcessing::class,
+                        'addHmacData',
+                        '^(?!(.*\._label|.*\._value)$).*',
+                        GeneralUtility::makeInstance(
+                            AddHmacDataToPropertyCollectionElementConverter::class,
+                            $this->converterDto,
+                            $this->sessionToken
+                        )
                     )
-                )
-            );
+                );
+            }
         }
     }
 }

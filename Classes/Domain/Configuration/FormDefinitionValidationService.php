@@ -149,30 +149,57 @@ readonly class FormDefinitionValidationService
         string $sessionToken
     ): void {
         $renderables = $currentFormElement['renderables'] ?? [];
-        $propertyCollectionElements = $currentFormElement['finishers'] ?? $currentFormElement['validators'] ?? [];
-        $propertyCollectionName = $currentFormElement['type'] === 'Form' ? 'finishers' : 'validators';
+        // WapplerSystems fork: an element can carry BOTH property collections.
+        // Upstream assumed one per element and derived the collection name from
+        // the element type — `finishers` for the form root, `validators` for
+        // everything else — which stopped being true when the fork made
+        // form-wide validators editable on the form root (see
+        // Configuration/Form/Base/FormElements/Form.yaml). With the old code a
+        // form that has finishers left its validators entirely unvalidated, and
+        // one that has none had its validators checked against the *finisher*
+        // definitions. Keying by the actual array key is what makes both work;
+        // behaviour for elements with a single collection is unchanged.
+        // Kept in sync with the identical block in AddHmacDataConverter.
+        $propertyCollections = [];
+        foreach (['finishers', 'validators'] as $collectionName) {
+            $collectionElements = $currentFormElement[$collectionName] ?? null;
+            if (is_array($collectionElements) && $collectionElements !== []) {
+                $propertyCollections[$collectionName] = $collectionElements;
+            }
+        }
         unset($currentFormElement['renderables'], $currentFormElement['finishers'], $currentFormElement['validators']);
 
-        $validationDto = GeneralUtility::makeInstance(
+        $formElementDto = GeneralUtility::makeInstance(
             ValidationDto::class,
             $prototypeName,
             $currentFormElement['type'],
             $currentFormElement['identifier'],
             null,
-            $propertyCollectionName
+            // Only relevant for the property-collection branches below, which
+            // override it per collection; the form-element branches ignore it.
+            array_key_first($propertyCollections) ?? 'finishers'
         );
+        $formElementIsCreatable = $this->configurationService->isFormElementTypeCreatableByFormEditor($formElementDto);
 
-        if ($this->configurationService->isFormElementTypeCreatableByFormEditor($validationDto)) {
+        if ($formElementIsCreatable) {
             $this->validateAllPropertyValuesFromCreatableFormElement(
                 $currentFormElement,
                 $sessionToken,
-                $validationDto
+                $formElementDto
             );
+        } else {
+            $this->validateAllFormElementPropertyValuesByHmac($currentFormElement, $sessionToken, $formElementDto);
+        }
+
+        foreach ($propertyCollections as $propertyCollectionName => $propertyCollectionElements) {
+            $validationDto = $formElementDto->withPropertyCollectionName($propertyCollectionName);
             foreach ($propertyCollectionElements as $propertyCollectionElement) {
                 $validationDto = $validationDto->withPropertyCollectionElementIdentifier(
                     $propertyCollectionElement['identifier']
                 );
-                if ($this->configurationService->isPropertyCollectionElementIdentifierCreatableByFormEditor($validationDto)) {
+                if ($formElementIsCreatable
+                    && $this->configurationService->isPropertyCollectionElementIdentifierCreatableByFormEditor($validationDto)
+                ) {
                     $this->validateAllPropertyValuesFromCreatablePropertyCollectionElement(
                         $propertyCollectionElement,
                         $sessionToken,
@@ -185,15 +212,6 @@ readonly class FormDefinitionValidationService
                         $validationDto
                     );
                 }
-            }
-        } else {
-            $this->validateAllFormElementPropertyValuesByHmac($currentFormElement, $sessionToken, $validationDto);
-            foreach ($propertyCollectionElements as $propertyCollectionElement) {
-                $this->validateAllPropertyCollectionElementValuesByHmac(
-                    $propertyCollectionElement,
-                    $sessionToken,
-                    $validationDto
-                );
             }
         }
 
