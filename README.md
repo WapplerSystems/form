@@ -36,6 +36,69 @@ benefit from more depth:
 
 ---
 
+## Spam protection without CAPTCHAs
+
+Four layers, each enforced on the server, none of which asks the visitor to prove
+anything. No third-party service, no image puzzles, no request leaving the site, nothing
+to accept in a cookie banner.
+
+| # | Layer | Catches | Visitor cost | Origin |
+| - | ----- | ------- | ------------ | ------ |
+| 1 | **Honeypot field** — hidden by CSS, with a per-session random name | Form fillers that populate every field they can parse | none | TYPO3 core |
+| 2 | **Entropy spam filter** — Shannon entropy band plus a per-token gibberish check across the free-text fields | Machine-generated text (`aaaaaaa`, `vOYhcWlrcTafTMSelBkM`) | none | fork |
+| 3 | **JavaScript challenge** — signed token, obfuscated in the markup, reversed by the browser | Clients without a JavaScript engine | requires JS | fork |
+| 4 | **Minimum fill-in time** — measured in the browser, corroborated against the render age | Submissions arriving faster than a human could type | none | fork |
+| + | **Validation logging** — every failure recorded, no submitted values | — | none | fork |
+
+Layers 2–4 combine freely and are configured per form, or prototype-wide to cover every
+form of a site at once. All four work on **fully cached pages**, which is where most
+home-grown attempts fall over.
+
+### Measured on a live site
+
+One production contact form, 27 days, with layers 1 and 2 active and logging on:
+
+| | |
+| --- | --- |
+| Logged validation failures | **15,332** |
+| Of those, bot signatures (entropy filter + honeypot) | **15,139 — 98.7 %** |
+| Sessions with a bot signature | **125** |
+| Sessions from genuine visitors | **10** |
+| Attempts per bot session | ~125, paced at **7.0 s**, in ~15-minute bursts |
+| Submitted values stored | **none** |
+
+The traffic was almost entirely automated — 125 attacking sessions against 10 real ones —
+and none of it reached the mailbox. What the logging then makes visible is the other
+1.3 %: of the ten genuine visitors who tripped a validator, nine had left the message
+empty and seven had submitted the form without filling in anything at all. That is a
+usability finding rather than a spam finding, and it is the kind of thing you can only act
+on if you measure it.
+
+### What it does not claim
+
+- **It is not a CAPTCHA replacement for high-value targets.** Layers 3 and 4 raise the
+  cost of an attack; they do not make it impossible. A determined attacker driving a real
+  browser defeats both.
+- **The obfuscation in layer 3 is not cryptography.** The reversing algorithm ships to
+  every visitor. Its job is that a bot copying values out of the markup submits something
+  whose signature does not verify.
+- **The fill-time measurement is client-asserted.** Under full page caching the server has
+  no per-visitor start time, so the browser measures it. A bot running JavaScript can
+  claim any duration — the server-side corroboration only ever proves a submission is
+  *too fast*, never that it is fast enough.
+- **Layers 3 and 4 have an accessibility cost.** Both reject clients that report nothing,
+  which includes visitors with JavaScript disabled. Layer 4 can be switched to accept
+  those (`allowMissingTimingData`); layer 3 cannot, by construction.
+
+Stating these plainly is the point: a spam defence whose limits you know beats one you
+merely believe in.
+
+Technical detail: [Cross-field validators](#cross-field-form-level-validators),
+[JavaScript spam shield](#javascript-spam-shield-challengeresponse--minimum-fill-time),
+[Validation-failure logging](#validation-failure-logging-opt-in-per-form).
+
+---
+
 ## New features
 
 ### Screenshots
@@ -104,12 +167,9 @@ for database-stored forms too.
   types, without a server round-trip. The server stays authoritative on submit.
 
 - **JavaScript spam shield** — A challenge/response check in the spirit of
-  `EXT:form_crshield`: the server puts an obfuscated, signed challenge into the form,
-  the browser reverses it into a hidden field, and the submission is rejected unless
-  the token verifies. Pairs with a **minimum fill-in time** validator that rejects
-  submissions arriving faster than a human could plausibly have typed them. Both are
-  switchable in the form editor and work on fully cached pages — see the reference
-  section below.
+  `EXT:form_crshield`, plus a **minimum fill-in time** validator. Both switchable in the
+  form editor, both working on fully cached pages — see
+  [Spam protection without CAPTCHAs](#spam-protection-without-captchas).
 
 ### Runtime
 
