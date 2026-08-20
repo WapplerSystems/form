@@ -103,6 +103,14 @@ for database-stored forms too.
   **same page** react live in the browser (show/hide, toggle *required*) while the user
   types, without a server round-trip. The server stays authoritative on submit.
 
+- **JavaScript spam shield** — A challenge/response check in the spirit of
+  `EXT:form_crshield`: the server puts an obfuscated, signed challenge into the form,
+  the browser reverses it into a hidden field, and the submission is rejected unless
+  the token verifies. Pairs with a **minimum fill-in time** validator that rejects
+  submissions arriving faster than a human could plausibly have typed them. Both are
+  switchable in the form editor and work on fully cached pages — see the reference
+  section below.
+
 ### Runtime
 
 - **Variant-capable finishers** — Any finisher can carry a `variants` list and be
@@ -115,7 +123,9 @@ for database-stored forms too.
 
 ### Other additions carried by the fork
 
-- Cross-field / form-level validators (e.g. an entropy-based spam filter).
+- Cross-field / form-level validators (entropy-based spam filter, JavaScript
+  challenge/response, minimum fill-in time), editable on the form root in the
+  form editor rather than YAML-only.
 - Extra form elements (`Time`) and finishers (`RedirectToUri`, `FeUser`,
   `AttachUploadsToObject`) and view helpers.
 - Opt-in site-sender feature and opt-in validation-failure logging.
@@ -280,33 +290,155 @@ serializes the rule tree to an ExpressionLanguage condition and parses existing 
 Validators that need access to more than a single field's value implement
 `TYPO3\CMS\Form\Validation\FormAwareValidatorInterface` (or extend
 `AbstractFormAwareValidator`). They are declared on the form root, not on an individual
-element:
+element — with a `validators:` list, exactly as on any other renderable:
+
+```yaml
+type: Form
+identifier: contact
+validators:
+  -
+    identifier: EntropySpam
+    options:
+      minimumEntropy: 2.0
+      maximumEntropy: 5.5
+      textFieldIdentifiers: ['message', 'subject']
+      minimumLength: 30
+  -
+    identifier: MinimumFillTime
+    options:
+      minimumSeconds: 5
+```
+
+The older spelling `renderingOptions.formLevelValidators` keeps working; entries from
+both sources run. In the form editor the same list is reachable on the form root as
+**Form-wide validators**, next to *Finishers*.
+
+> **Upstream files touched:** making the form root carry validators *and* finishers at the
+> same time required a fix in `AddHmacDataConverter` and
+> `FormDefinitionValidationService::validateFormDefinitionProperties()`. Both picked one
+> property collection per element and named it after the element type — `finishers` for the
+> form root, `validators` for everything else — an assumption that no longer holds. With the
+> old code a form that has finishers left its validators unvalidated on save, and a form
+> without finishers had its validator hashes written out under a `finishers` key, i.e. a
+> phantom finisher the editor would load and persist. Both now key by the actual array key;
+> behaviour for elements with a single collection is unchanged, and
+> `FormDefinitionConversionServiceTest` guards it.
+
+The validator identifier must be registered in the prototype's `validatorsDefinition`
+(the standard prototype registers `EntropySpam`, `MinimumFillTime` and `Challenge`). The
+internal listener `RunFormLevelValidators` consumes `AfterFormIsValidatedEvent` and
+invokes each declared validator after per-element validation has finished; errors merge
+into the form's aggregate `Result`. Because a form-root error only renders where the
+template has a summary block, `Frontend/Templates/Form.fluid.html` ships one.
+
+`errorMessage` accepts an `LLL:` reference, resolved against the active site language —
+form-level validator options are not covered by the form's XLF chain. An empty
+`errorMessage` falls back to the validator's own shipped (translated) default rather
+than rejecting silently.
+
+`EntropySpamValidator` uses a Shannon-entropy band to reject submissions that look either
+repetitive (`aaaaaaa`, `hahaha`) or uniform-random (bot brute-force). Human-written text in
+most languages falls between roughly 3.5 and 5.0 bits/character; the default band 1.8-5.8
+is intentionally wide to avoid false positives.
+
+### JavaScript spam shield (challenge/response + minimum fill time)
+
+Two independent mechanisms, modelled on `EXT:form_crshield`. They share one JSON island,
+one hidden-field pair and one 4 kB frontend module
+(`Resources/Public/JavaScript/frontend/challenge.js`), all emitted by
+`InjectFormChallenge` on `AfterFormRenderedEvent`. A form that uses neither is rendered
+byte-for-byte as before.
+
+#### Challenge/response
+
+`FormChallengeService` issues a **token** — `base64url(json{form, issuedAt, nonce})` plus
+an HMAC-SHA256 signature over it — and the markup carries an obfuscated form of it, the
+**challenge**. The frontend module reverses the obfuscation after a configurable delay
+and writes the token into a hidden field; `ChallengeValidator` verifies the signature,
+the form binding and (optionally) the age. A client that never ran JavaScript submits
+nothing usable, and one that copies the challenge back verbatim submits a string whose
+signature does not verify.
+
+Switched on per form, or prototype-wide to cover every form of a site at once:
 
 ```yaml
 type: Form
 identifier: contact
 renderingOptions:
-  formLevelValidators:
-    -
-      identifier: EntropySpam
-      options:
-        minimumEntropy: 2.0
-        maximumEntropy: 5.5
-        textFieldIdentifiers: ['message', 'subject']
-        minimumLength: 30
+  challenge:
+    enable: true
+    delay: 3                        # seconds the browser waits before answering
+    obfuscationMethod: rot13reverse # rot13reverse | rot13 | reverse | base64 | none
+    maxAge: 0                       # 0 = no expiry check (see below)
 ```
 
-The validator identifier must be registered in the prototype's `validatorsDefinition` (the
-standard prototype already registers `EntropySpam`). The internal listener
-`RunFormLevelValidators` consumes `AfterFormIsValidatedEvent` and invokes each declared
-validator after per-element validation has finished; errors merge into the form's aggregate
-`Result`.
+`enable`, `delay` and `obfuscationMethod` are editable in the form editor on the form
+root. `maxAge` is deliberately YAML-only, because it interacts with the page cache.
 
-`EntropySpamValidator` ships as the first concrete cross-field validator and uses a
-Shannon-entropy band to reject submissions that look either repetitive (`aaaaaaa`,
-`hahaha`) or uniform-random (bot brute-force). Human-written text in most languages falls
-between roughly 3.5 and 5.0 bits/character; the default band 1.8-5.8 is intentionally wide
-to avoid false positives.
+**The obfuscation is not cryptography** and is not meant to be — the reversing algorithm
+ships to every visitor. Its only job is that a bot copying values out of the markup into
+the form submits something that fails the signature check. The property the shield
+actually provides is "a JavaScript engine ran and transformed the challenge".
+
+**Why the scheme is stateless.** The initial render of a form goes through the *cacheable*
+`render` action (only `perform` is non-cacheable), so the challenge is written into the
+page cache and served to many visitors over the cache lifetime. Nothing may therefore
+live in the session, and `maxAge` defaults to `0`: a max age below the page cache
+lifetime would reject legitimate submissions from a cached page. Raise it only for a form
+on an uncached page. This is the same trade-off `form_crshield` manages with its
+`minimumPageExpirationTime`/`additionalPageExpirationTime` settings.
+
+#### Minimum fill-in time
+
+`MinimumFillTimeValidator` is an ordinary form-level validator — putting it on the form
+is also what makes the rendering side emit the measurement field, there is no second
+switch:
+
+```yaml
+validators:
+  -
+    identifier: MinimumFillTime
+    options:
+      minimumSeconds: 5
+      allowMissingTimingData: false   # default: reject clients that report nothing
+```
+
+It runs two checks:
+
+1. **The elapsed time the browser measured** (`performance.now()`, written into a hidden
+   field on interaction and on submit). Client-asserted — a bot that runs JavaScript can
+   claim any duration. It is meant to cost more than the average spam run will pay, and
+   under full page caching it is the only per-visitor measurement available at all.
+2. **The age of the challenge token**, when the challenge is enabled too. That timestamp
+   comes from the server, so it cannot be forged — but it says when the *markup* was
+   produced, which on a cached page is not when the visitor started typing. It can
+   therefore only ever prove a submission is *too fast*, never that it is fast enough.
+   It costs nothing, cannot false-positive (a form cannot have been on screen longer than
+   it has existed), and it catches a bot that fakes the elapsed time but submits
+   immediately.
+
+`allowMissingTimingData` is off by default, so a submission reporting no time at all —
+JavaScript disabled, or the field stripped — is rejected. Turn it on for a form that must
+stay usable without JavaScript; the check then only catches the demonstrably-too-fast
+submissions. The option is phrased as "allow" rather than "require" on purpose: its
+default is the *unchecked* state, so an empty checkbox in the form editor means the same
+thing as the option being absent.
+
+On a multi-step form the timer restarts with every step render and per-page validation
+runs on every step, so `minimumSeconds` applies **per displayed step** — size it for one
+step, not for the whole form. Backward navigation still runs validation but its result is
+discarded by `FormRuntime`, so a quick *Previous* click cannot trap the visitor.
+
+Both rejections are attached to the form root rather than to a field: there is no field
+to blame, and pointing a bot at the exact mechanism that caught it only helps whoever is
+tuning it.
+
+#### Keeping PHP and JavaScript in sync
+
+The five obfuscation transforms exist twice — in `FormChallengeService::obfuscate()` and
+in `challenge.js`. `FormChallengeServiceTest::obfuscationMatchesTheJavaScriptImplementation()`
+pins their exact output for a fixed input, so changing one side without the other fails a
+test instead of silently breaking every protected form.
 
 ### Password policy JSON endpoint
 

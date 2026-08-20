@@ -1718,6 +1718,96 @@ If you need higher values contact your administrator for help.
       <trans-unit id="formManager.storage.extension.description">
         <source>Store the form inside an extension. Such forms are then not meant for editing, but provided as-is.</source>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.label">
+        <source>Form-wide validators</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.EmptyValue.label">
+        <source>Add validator</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.MinimumFillTime.label">
+        <source>Minimum fill-in time</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.EntropySpam.label">
+        <source>Spam filter (text entropy)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.validators.Challenge.label">
+        <source>JavaScript challenge</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.enable.label">
+        <source>Spam shield: require JavaScript challenge</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.delay.label">
+        <source>Challenge delay (seconds)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.delay.description">
+        <source>The browser solves the challenge only after this many seconds. A submission sent earlier is rejected, so keep this clearly below the time a visitor needs for the form. Empty uses the default of 3 seconds.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.label">
+        <source>Challenge obfuscation</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.description">
+        <source>How the challenge is disguised in the markup. Any of these is reversed by the browser; the algorithm is public either way, so the choice only varies what a bot has to implement. Leave at the default unless you have a reason.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13reverse">
+        <source>ROT13 + reversed (default)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.rot13">
+        <source>ROT13</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.reverse">
+        <source>Reversed</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.base64">
+        <source>Base64</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.challenge.obfuscationMethod.option.none">
+        <source>None (plain)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.errorMessage.label">
+        <source>Error message</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.errorMessage.description">
+        <source>Shown when the validator rejects the submission. Empty uses the built-in, translated message. An LLL: reference is resolved against the current site language.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.header.label">
+        <source>Minimum fill-in time</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.label">
+        <source>Minimum seconds</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.minimumSeconds.description">
+        <source>Submissions that arrive sooner are rejected. The time is measured in the browser and restarts on every step of a multi-step form, so size the value for a single step.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.label">
+        <source>Accept submissions without a measurement (JavaScript disabled)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.MinimumFillTime.editor.allowMissingTimingData.description">
+        <source>Off — the safe default — rejects a submission that reports no time at all, which is what a bot looks like. Turn it on only for a form that must stay usable without JavaScript; the check then catches just the submissions that are demonstrably too fast.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.header.label">
+        <source>Spam filter (text entropy)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.label">
+        <source>Minimum entropy (bits per character)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumEntropy.description">
+        <source>Rejects repetitive text such as "aaaaaaaa". Empty uses the default of 1.8.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.label">
+        <source>Maximum entropy (bits per character)</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.maximumEntropy.description">
+        <source>Safety net against long random blobs. Empty uses the default of 5.8.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.label">
+        <source>Minimum text length</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.EntropySpam.editor.minimumLength.description">
+        <source>Shorter submissions skip the entropy check, because the estimate is unreliable for them. Empty uses the default of 20 characters.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.validators.Challenge.editor.header.label">
+        <source>JavaScript challenge</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

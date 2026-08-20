@@ -46,3 +46,10 @@ services:
     decorates: TYPO3\CMS\Backend\Form\FormDataProvider\SiteTcaInline
   TYPO3\CMS\Form\Form\FormDataProvider\SiteDatabaseEditRow:
     decorates: TYPO3\CMS\Backend\Form\FormDataProvider\SiteDatabaseEditRow
+
+  # WapplerSystems fork: challenge/response spam shield. Public because the
+  # validators reach for it through GeneralUtility::makeInstance() —
+  # Extbase's ValidatorResolver instantiates validators itself and does not
+  # autowire their constructors, so a private service would not be reachable.
+  TYPO3\CMS\Form\Security\FormChallengeService:
+    public: true

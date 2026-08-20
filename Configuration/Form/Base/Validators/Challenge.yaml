@@ -1,0 +1,28 @@
+# WapplerSystems fork: JavaScript challenge/response spam shield, modelled on
+# EXT:form_crshield. Normally switched on through
+# `renderingOptions.challenge.enable` on the form (or prototype-wide, to cover
+# every form of a site at once) — ValidateFormChallenge turns that switch into a
+# run of this validator. Listing it here as well makes it available as an
+# ordinary form-level validator, so it can be added per form via the form
+# editor's "Form-wide validators" inspector or a `validators:` list.
+#
+# Rendering settings (`delay`, `obfuscationMethod`) are NOT validator options —
+# they belong to `renderingOptions.challenge`, see InjectFormChallenge.
+prototypes:
+  standard:
+    validatorsDefinition:
+      Challenge:
+        implementationClassName: TYPO3\CMS\Form\Validation\ChallengeValidator
+        options:
+          # 0 = no expiry check. A max age below the page cache lifetime would
+          # reject legitimate submissions coming from a cached page, because the
+          # challenge is issued when the cache entry is written, not when the
+          # visitor loads the page. Raise this only for uncached forms.
+          maxAge: 0
+          errorMessage: 'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.Challenge.errorMessage'
+        formEditor:
+          iconIdentifier: form-validator
+          label: formEditor.elements.Form.editor.validators.Challenge.label
+          # Nothing to seed: `maxAge` is not editor-facing and an empty
+          # `errorMessage` would override the translated default with nothing.
+          predefinedDefaults: {  }

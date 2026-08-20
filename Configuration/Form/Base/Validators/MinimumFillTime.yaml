@@ -1,0 +1,36 @@
+# WapplerSystems fork: rejects submissions that arrive faster than a human could
+# plausibly have filled the form in. A form-level validator — put it on the form
+# root, which is also what makes InjectFormChallenge emit the hidden field and
+# the frontend module that measure the time.
+#
+# On multi-step forms the timer restarts per step, so the minimum applies per
+# displayed step. See Classes/Validation/MinimumFillTimeValidator.php.
+prototypes:
+  standard:
+    validatorsDefinition:
+      MinimumFillTime:
+        implementationClassName: TYPO3\CMS\Form\Validation\MinimumFillTimeValidator
+        options:
+          minimumSeconds: 5
+          # Off means: a submission carrying no measurement at all (JavaScript
+          # disabled or stripped) is rejected — that is what a bot looks like.
+          # Turn it on for a form that must stay usable without JavaScript; the
+          # check then only catches submissions that are demonstrably too fast.
+          #
+          # The default is the "off" value on purpose: an unchecked box in the
+          # form editor then means the same thing as the option being absent,
+          # so the inspector cannot show a state the form does not actually have.
+          allowMissingTimingData: false
+          errorMessage: 'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.MinimumFillTime.errorMessage'
+        formEditor:
+          iconIdentifier: form-validator
+          label: formEditor.elements.Form.editor.validators.MinimumFillTime.label
+          # What a newly added validator starts out with in the form editor.
+          # Only the minimum is seeded: an empty minimum means "check disabled"
+          # server-side, so a validator added and left alone would look
+          # configured while doing nothing. `errorMessage` is deliberately NOT
+          # seeded - an empty string here would be written into the form and
+          # would then override the translated default above with nothing.
+          predefinedDefaults:
+            options:
+              minimumSeconds: 5
