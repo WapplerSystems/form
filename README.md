@@ -925,27 +925,64 @@ retention is storage limitation under Art. 5(1)(e) GDPR, not housekeeping.
 ### Upstream sync workflow
 
 Upstream is registered as the `upstream` remote
-(`https://github.com/TYPO3-CMS/form.git`). The flow for picking up new upstream work is:
+(`https://github.com/TYPO3-CMS/form.git`). Picking up new upstream work is automated:
+`.github/workflows/upstream-sync.yml` (daily at 06:00 UTC, plus `workflow_dispatch`) runs
+`.github/scripts/upstream-sync.sh`, which **proposes each pending upstream commit as its
+own pull request** — never a branch merge.
+
+- **What counts as pending** — `git cherry` against `origin/release/v14`, so the match is
+  by *patch-id*: a commit already cherry-picked into the fork drops out automatically even
+  though its SHA differs.
+- **One PR per commit** — branch `upstream-sync/<short-sha>`, title `[upstream] <subject>`,
+  the upstream commit cherry-picked with `-x`. Labels: always `upstream-sync`, plus
+  `bugfix` / `security` / `breaking-change` derived from the subject tag.
+- **Conflicts are not dropped** — the conflicted state is committed as-is, the PR opens as
+  a **draft** labelled `needs-conflict-resolution`, to be resolved by hand.
+- **Never proposed twice** — the PR body carries a
+  `<!-- DO NOT EDIT — upstream-sha:<sha> -->` marker, and the script reads those markers
+  from all `upstream-sync`-labelled PRs in *any* state. Closing a PR unmerged is therefore
+  the way to reject a commit permanently.
+- **Permanent excludes** — subject-line EREs in `.github/upstream-sync-skip.txt` (release
+  tagging commits, TYPO3 version bumps) and SHAs in
+  `.github/upstream-sync-skip-shas.txt`.
+- `max_prs` (default 10) caps one run; `dry_run` lists what would be opened.
+
+Merging a reviewed PR is a plain `gh pr merge <n> --merge`. **Never merge `upstream/14.3`
+wholesale into `release/v14`** — the point of the per-commit PRs is that each merge commit
+carries exactly one upstream change, so the fork history stays grep-able and *our* changes
+stay visible without upstream noise mixed in.
+
+Two things worth checking before merging an `[upstream]` PR:
+
+- **Does the change reference a core API or CSS custom property the pinned core release
+  does not have yet?** Upstream commits land here per-branch, not per-release. A patch that
+  depends on a sibling core change (e.g. reading a new `--module-docheader-*` custom
+  property from `cms-backend`) breaks against the currently released 14.3.x until that
+  change ships too — grep `vendor/typo3/` for the symbol and hold the PR if it is absent.
+- **Has the fork already fixed the same thing independently?** Then the production hunk
+  merges as a no-op, but the PR still brings upstream's regression test, which is worth
+  taking.
+
+The mirror branches are still pushed by hand:
 
 ```bash
-# Update upstream branches
 git fetch upstream --prune --tags
-
-# Mirror upstream/14.3 onto our read-only mirror branch
 git push origin "refs/remotes/upstream/14.3:refs/heads/14.3" --force-with-lease
 git push origin "refs/remotes/upstream/main:refs/heads/main"   --force-with-lease
 git push origin --tags
-
-# Cherry-pick relevant commits onto release/v14
-git checkout release/v14
-git log --oneline release/v14..upstream/14.3      # what's new upstream
-git cherry-pick <sha>                              # pick what we want
 ```
 
-**Never merge `upstream/14.3` directly into `release/v14`.** Use cherry-pick so the fork
-history stays linear and grep-able; we want to see *our* changes without upstream noise
-mixed in. When a new TYPO3 minor (e.g. 14.4) lands upstream, cherry-pick the relevant
-commits up to that tag and adjust the `branch-alias` in `composer.json`.
+Cherry-picking manually stays the fallback when the bot is not involved:
+
+```bash
+git checkout release/v14
+git log --oneline release/v14..upstream/14.3      # what's new upstream
+git cherry-pick -x <sha>                           # pick what we want
+```
+
+When a new TYPO3 minor (e.g. 14.4) lands upstream, point the workflow's
+`upstream_branch` input at it, cherry-pick the relevant commits up to that tag and adjust
+the `branch-alias` in `composer.json`.
 
 ### Conventions for additions
 
