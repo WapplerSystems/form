@@ -148,6 +148,13 @@ export class SettingsStep {
         const templates = this.context.formManager.getTemplatesForPrototype(currentPrototype);
         let templatesFormGroup = nothing;
         if (templates.length > 0) {
+            // The client only picks a template where it offers the choice. Which
+            // template a *blank* form is built from is not something it can know —
+            // newFormTemplates marks none of its entries as the blank one — so that
+            // is resolved server-side in FormManagerController.
+            if (!this.data.template) {
+                this.setValue({ template: templates[0].value });
+            }
             templatesFormGroup = html `
         <div class="form-group">
           <label class="form-label" for="new-form-template">${formManagerLabels.get('formManager.form_template')}</label>
@@ -188,10 +195,9 @@ export class SettingsStep {
       ${templatesFormGroup}`;
     }
     setPrototype(currentPrototype) {
-        const currentTemplates = this.context.formManager.getTemplatesForPrototype(currentPrototype);
         this.setValue({
             prototype: currentPrototype,
-            template: (currentTemplates[0]?.value ?? '')
+            template: ''
         });
     }
     focusInput(selector) {
