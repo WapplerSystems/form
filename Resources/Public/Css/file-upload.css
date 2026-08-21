@@ -1,0 +1,78 @@
+/**
+ * Default styling for the file list of a multi-file upload field — both the
+ * server-rendered entries for already persisted files and the pending ones
+ * added by frontend/file-upload.js.
+ *
+ * Drop this file into your site's CSS pipeline or let the FileUpload partial
+ * include it. Everything is namespaced under `.form-element-fileupload-list`,
+ * so it does not collide with the surrounding form layout.
+ *
+ * Promoted from wapplersystems/form_extended into the fork.
+ */
+.form-element-fileupload-list {
+    list-style: none;
+    margin: 0.5rem 0 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.form-element-fileupload-list:empty {
+    display: none;
+}
+
+.form-element-fileupload-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid currentColor;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.form-element-fileupload-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Pending = picked in the browser, not yet uploaded. Dashed border marks the
+   difference from a file that already exists on the server. */
+.form-element-fileupload-item-pending {
+    border-style: dashed;
+}
+
+.form-element-fileupload-remove-pending {
+    /* Reset the button to a link-like control without depending on a framework. */
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.form-element-fileupload-remove-pending:hover,
+.form-element-fileupload-remove-pending:focus-visible {
+    text-decoration: none;
+}
+
+/* Screen-reader-only text. Defined here so the partial does not depend on a
+   `visually-hidden` class being present in the project's CSS. */
+.form-element-fileupload-list .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

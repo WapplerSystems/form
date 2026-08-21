@@ -19,6 +19,17 @@
             <f:variable name="aria" value="{invalid: 'true', describedby: '{describedBy}'}"/>
         </f:if>
 
+        <f:comment>
+            Markup contract for frontend/file-upload.js - only emitted for a
+            multi-file field, so a single upload keeps its plain markup.
+        </f:comment>
+        <f:variable name="multiUploadData" value="{}"/>
+        <f:variable name="uploadedFileList" value=""/>
+        <f:if condition="{element.properties.multiple}">
+            <f:variable name="uploadRemoveLabel"><f:translate key="upload.remove" domain="form" default="Remove"/></f:variable>
+            <f:variable name="multiUploadData" value="{form-multi-upload: '1', form-multi-upload-list: '{element.uniqueIdentifier}-preview', remove-label: '{uploadRemoveLabel}'}"/>
+        </f:if>
+
         <f:render partial="Field/Field" arguments="{element: element}" contentAs="elementContent">
             <formvh:form.uploadedResource
                 property="{element.identifier}"
@@ -30,7 +41,17 @@
                 accept="{element.properties.allowedMimeTypes}"
                 aria="{aria}"
                 multiple="{element.properties.multiple}"
+                data="{multiUploadData}"
             >
+                <f:comment>
+                    UploadedResourceViewHelper emits its children *before* the
+                    input tag, but the file list belongs directly after the input
+                    (that is also where frontend/file-upload.js appends the pending
+                    files). So the markup is captured into a variable here and
+                    printed below the ViewHelper instead of in place. Reordering
+                    inside the ViewHelper would move the ImageUpload previews too.
+                </f:comment>
+                <f:variable name="uploadedFileList">
                 <f:if condition="{resource}">
                     <f:if condition="{element.properties.multiple}">
                         <f:then>
@@ -71,7 +92,13 @@
                         </f:else>
                     </f:if>
                 </f:if>
+                </f:variable>
             </formvh:form.uploadedResource>
+            {uploadedFileList -> f:format.raw()}
+            <f:if condition="{element.properties.multiple}">
+                <f:asset.script identifier="form-file-upload" src="EXT:form/Resources/Public/JavaScript/frontend/file-upload.js" defer="defer" />
+                <f:asset.css identifier="form-file-upload" href="EXT:form/Resources/Public/Css/file-upload.css" />
+            </f:if>
             <f:render partial="Field/AllowedFileExtensions" arguments="{element: element, allowedFileExtensions: allowedFileExtensions}"/>
         </f:render>
     </f:form.validationResults>
