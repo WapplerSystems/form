@@ -1001,3 +1001,120 @@ the `branch-alias` in `composer.json`.
 - Commits that touch upstream files must explain *why* the upstream file needed to change —
   almost always preferable to add a hook/event upstream separately and contribute it back
   instead.
+
+- Anything a user or integrator would notice gets a line in the [Changelog](#changelog) —
+  see the note at the end of that section for the format.
+
+---
+
+## Changelog
+
+Fork-relevant changes only, newest first. The fork ships unversioned from `release/v14`
+(installed as `dev-release/v14 as 14.3`), so entries are grouped by month rather than by
+release tag. Everything before the fork point is TYPO3's own history — see the upstream
+changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
+`WapplerSystems/form`.
+
+### 2026-08
+
+**Added**
+
+- Outgoing-mail log: every finisher mail recorded with its delivery outcome, a backend
+  module to read it and a `form:maillog:check` CLI check for monitoring (`2e53e3ef`), moved
+  under *Administration* (`12632a4d`).
+- JavaScript spam shield — signed challenge token plus a minimum fill-in-time validator,
+  both working on fully cached pages (`0fd91518`); the challenge settings live on the
+  Challenge validator itself (`3e932783`).
+- Validation statistics view with a bot filter, so the validation log answers "what is
+  actually failing" rather than only "how much" (`69662cfb`).
+- `FinisherFailedEvent`, completing the finisher event pair with its third branch
+  (`067739dd`).
+- Form-wide validators can be declared as a top-level `validators` key (`8e5e74b6`).
+- Password-policy frontend absorbed from `form_extended`: live policy indicator, optional
+  reveal toggle, policy-compliant generator (`8efbe294`).
+- Multi-file upload that accumulates picked files instead of replacing the whole
+  `FileList`, with a *Remove* button per pending file (`4135e974`).
+- Optional display of the allowed file extensions on upload fields (`2ee0f110`); `webp`
+  accepted by `FileUpload` / `ImageUpload` (`51398a68`).
+- Horizontal layout: label/input column ratio editable in the form editor (`9773491c`,
+  `3b95dc8e`) and its breakpoints ("Stufen") fully YAML-defined (`a07b3fee`).
+- Translation overlay covers every scalar property (`16954997`); the translations and
+  variants editors are declared statically per element (`6f259827`).
+
+**Changed**
+
+- `wapplersystems/form_extended` is now `replace`d outright — the absorption is complete
+  and a parallel install is impossible (`bbee0fd2`); `typo3/cms-form` likewise
+  (`de501f43`).
+- `StaticText` renders its header as `<p class="form-label">` instead of `<h2>`, so a form
+  stops competing with the page's own heading outline (`c64dccf2`).
+- The default e-mail template list is declared in YAML, so an extension shipping its own
+  templates *adds* to the dropdown instead of replacing it (`afbed92d`).
+
+**Fixed**
+
+- Translated values are sanitized against the RTE preset of the property they translate, so
+  a label allowed to carry a link keeps it in every language (`13fc73a0`).
+- The form log module is reachable from the form manager (`d36aacbc`) and no longer
+  displaces the form list (`dd7dce5c`).
+- Both property collections on the same renderable are handled (`17d59552`).
+- The password-policy endpoint runs before `base-redirect-resolver` (`7574c0bd`).
+- `RadioButton` shows its group label again, and `MultiCheckbox` loses the two properties
+  it had inherited verbatim from the radio template (`5f99b500`).
+- Per-option translation overrides apply to `RadioButton` / `MultiCheckbox` (`2f1ec349`);
+  the German editor labels are complete (`54860a97`).
+- The form editor no longer crashes on the Form root with "Cannot read properties of null"
+  (`8d127681`).
+
+**Upstream**
+
+- #20 — file dump tokens are created with SHA3-256, so downloading an uploaded file from a
+  non-public storage stops returning 403 (`7ff0e4c1`).
+- #21 — `getAccessibleMock()` removed from the test suite (`262de4e8`).
+- #22 — `role="group"` on multi-checkbox groups (`47682e17`); the production change was
+  already made independently in `5f99b500`, the merge adds upstream's regression test.
+- Held back: #19 (sticky docheader) reads `--module-docheader-sticky-height`, which
+  `typo3/cms-backend` 14.3.4 does not define yet.
+
+### 2026-07
+
+- `form:powermail:migrate` — migration command from Powermail to EXT:form (`33eddd0d`).
+- Form-level validator errors are logged and rendered in the frontend (`9f7fe083`).
+- The frontend data attribute is `data-form-element` (was `data-wsform-element`)
+  (`3c10d01e`).
+- Upstream: `MimeTypeValidator` registered for file uploads at runtime — CVE-2026-15305
+  (`c598de06`); option order of DB-stored forms preserved on MySQL (`4ee91765`).
+
+### 2026-06
+
+- Fork created (`de7df0b9`); the `WapplerSystems` sub-namespace flattened into the standard
+  `TYPO3\CMS\Form` layout (`d765c8b4`); `FORK.md` merged into this README (`ee5089e2`).
+- Backend editor UX, in-editor localization and live conditions — the core of the fork
+  (`622645eb`), with German editor labels and screenshots (`36d41e72`, `db31da97`,
+  `2c59a061`).
+- Six PSR-14 events for runtime hotspots (`6a26fcda`), two more promoted from
+  `form_extended` (`08d25259`).
+- Cross-field validators with `EntropySpamValidator` (`5e7d68de`), refined to ignore
+  fixed-choice fields and catch short gibberish (`7ab3a7e8`).
+- Validation-failure logging for drop-off analytics (`b2489faa`) plus a scheduler task to
+  prune the log (`cdd122b4`); site-sender feature (`bb5cc4ec`).
+- `form_extended` ports: `Time` element and `RemoteAddress` view helper (`beedaff8`), three
+  finishers (`cb9688cf`), the form-aware `TranslateViewHelper` (`a0d96866`), the
+  password-policy endpoint (`907ecc0a`), and `AttachUploadsToObject` rebuilt on the proper
+  FAL API (`92e26286`).
+- Automated upstream sync: one PR per pending upstream commit (`dff47a90` and follow-ups).
+- CI: unit tests against the latest TYPO3 14.3.x, EXT:form-dependent unit tests migrated to
+  functional (`04b56951`, `cda396d9`).
+- Upstream: four `[SECURITY]` commits — deserialization flaws, `.form.yaml` suffix
+  detection, `form_definition` DataHandler access (`4b6c9bfa`, `57c1dccd`, `be399f25`,
+  `fbf3b41a`) — and a PHPStan rule hardening `unserialize` (`da0ebeb6`).
+
+---
+
+**Adding an entry.** One bullet per change a user or integrator would notice, in the
+current month's block, with the short SHA in backticks at the end. Group fork work under
+**Added** / **Changed** / **Fixed** once a month has more than a handful of entries, and
+keep merged `[upstream]` PRs in their own **Upstream** block, referenced by PR number — a
+reader wants to tell fork decisions from upstream ones at a glance. Pure test, CI and
+documentation commits are not listed unless they change how the extension is used; note
+held-back upstream PRs and why, so the reason survives longer than the pull-request thread.
