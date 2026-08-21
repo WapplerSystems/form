@@ -244,8 +244,16 @@ interface WsVariantRule {
     apply();
   }
 
-  function init(): void {
-    document.querySelectorAll<HTMLScriptElement>('script[type="application/json"][data-form-conditions]').forEach((island) => {
+  const ISLAND_SELECTOR = 'script[type="application/json"][data-form-conditions]:not([data-form-conditions-bound])';
+
+  /**
+   * Binds every island that is not bound yet. Islands are stamped so a re-scan
+   * (see observe()) never attaches a second pair of change/input listeners to
+   * the same form.
+   */
+  function scan(root: ParentNode = document): void {
+    root.querySelectorAll<HTMLScriptElement>(ISLAND_SELECTOR).forEach((island) => {
+      island.setAttribute('data-form-conditions-bound', '1');
       const form = island.closest('form');
       if (!(form instanceof HTMLFormElement)) { return; }
       let data: { elements?: Record<string, WsVariantRule[]> };
@@ -258,6 +266,34 @@ interface WsVariantRule {
         setupForm(form, data.elements);
       }
     });
+  }
+
+  /**
+   * A form may reach the DOM long after DOMContentLoaded - loaded over XHR,
+   * or re-rendered in place after an AJAX submit. Without this the conditions
+   * of such a form would never be applied and every consumer would have to
+   * re-trigger us by hand. MutationObserver callbacks run before the next
+   * paint, so an injected form is already in its correct state when it is
+   * first shown - no flash of the fields that a condition hides.
+   */
+  function observe(): void {
+    if (typeof MutationObserver === 'undefined') { return; }
+    new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of Array.from(mutation.addedNodes)) {
+          if (!(node instanceof Element)) { continue; }
+          if (node.matches(ISLAND_SELECTOR) || node.querySelector(ISLAND_SELECTOR) !== null) {
+            scan();
+            return;
+          }
+        }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  function init(): void {
+    scan();
+    observe();
   }
 
   if (document.readyState === 'loading') {
