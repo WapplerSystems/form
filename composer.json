@@ -42,7 +42,8 @@
         "typo3/testing-framework": "^9.5.0"
     },
     "replace": {
-        "typo3/cms-form": "self.version"
+        "typo3/cms-form": "self.version",
+        "wapplersystems/form_extended": "self.version"
     },
     "suggest": {
         "typo3/cms-filelist": "Listing of files in the directory",
