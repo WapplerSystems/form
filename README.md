@@ -29,10 +29,14 @@ benefit from more depth:
    numeric fields, etc.).
 4. **Visual variants/conditions editor** — so integrators express conditional behavior
    without writing YAML.
-5. **Consolidate `wapplersystems/form_extended`** — the patches and additions that live
+5. **Consolidate `wapplersystems/form_extended`** — the patches and additions that lived
    in `form_extended` (multi-upload, sender-address config in site settings,
-   country/date/time fields, custom finishers) migrate into this fork step by step;
-   `form_extended` is then deprecated.
+   country/date/time fields, custom finishers) have been absorbed into this fork. The
+   migration is complete: `composer.json` now declares
+   `"wapplersystems/form_extended": "self.version"` in its `replace` block, so packages
+   still requiring `form_extended` stay satisfied and a **parallel installation is
+   impossible** — `form_extended`'s `FormEditorController` XCLASS would otherwise displace
+   the fork's own and regress the RTE and e-mail content editors.
 
 ---
 
@@ -138,7 +142,11 @@ are shipped in `Resources/Private/Language/de.Database.xlf`):
   content* button opening a large modal with: a **template chooser**, a **rich-text HTML
   body** and a **separate plain-text body**, a **server-rendered preview** (the real
   Fluid e-mail layout, filled with type-appropriate sample values), and a **“Send test
-  email”** action. HTML and plain text are now independent finisher options.
+  email”** action. HTML and plain text are now independent finisher options. The template
+  chooser reads its options from `availableTemplates` on editor 250 of the e-mail
+  finishers, which is declared in `Configuration/Form/Base/FormElements/Form.yaml` — an
+  extension shipping its own e-mail templates *adds* to that map instead of replacing it
+  (see [E-mail templates](#e-mail-templates)).
 
 - **Field-marker inserter** — In the e-mail content editor (HTML and plain panes), an
   *Insert field marker…* dropdown drops `{fieldIdentifier}` / `{formValues}` placeholders
@@ -165,6 +173,13 @@ for database-stored forms too.
   (`subject`, `message`, `plainMessage`) are translatable per language, both from a
   per-finisher *Translate…* button and from the form-wide overview.
 
+- **Translations keep the markup the original may carry** — Overlay values are sanitized
+  against the *same* RTE preset as the property they translate. A label that is allowed to
+  contain a link in the default language keeps it in every translation, instead of being
+  run through `strip_tags()` because the overlay path
+  (`renderingOptions.translation.overrides.<lang>.<property>`) is spelled differently from
+  the plain property path.
+
 ### Frontend
 
 - **Live conditions (same page)** — Variants/conditions that reference fields on the
@@ -175,6 +190,17 @@ for database-stored forms too.
   `EXT:form_crshield`, plus a **minimum fill-in time** validator. Both switchable in the
   form editor, both working on fully cached pages — see
   [Spam protection without CAPTCHAs](#spam-protection-without-captchas).
+
+- **Collecting multi-file upload** — A file upload with `properties.multiple` accumulates
+  picked files instead of letting the browser replace the whole `FileList` on every pick,
+  and lists each pending file with a *Remove* button — see
+  [Multi-file upload](#multi-file-upload-frontend).
+
+- **`StaticText` renders a paragraph, not an `h2`** — the header of a `StaticText` element
+  is a `<p class="form-label">`. A form does not know the document outline of the page it
+  is placed on, so a hard-coded `h2` competes with the page's own heading structure and
+  inherits whatever the site styles `h2` with. This is a deliberate divergence from
+  `typo3/cms-form`, which hard-codes `h2` in `StaticText.fluid.html` and `Page.fluid.html`.
 
 ### Runtime
 
@@ -196,6 +222,8 @@ for database-stored forms too.
   `var/log` that nobody reads.
 - Extra form elements (`Time`) and finishers (`RedirectToUri`, `FeUser`,
   `AttachUploadsToObject`) and view helpers.
+- A multi-file upload that collects picked files instead of discarding the previous
+  selection, and lets a single pending file be dropped again before submitting.
 - Opt-in site-sender feature and opt-in validation-failure logging.
 - Live password-policy indicator on `Password` / `AdvancedPassword`, plus an
   optional reveal toggle and a policy-compliant password generator, backed by a
@@ -208,7 +236,9 @@ for database-stored forms too.
 
 Replaces `typo3/cms-form`; install via Composer. The `replace` clause in this package's
 `composer.json` makes Composer treat `typo3/cms-form` as already satisfied, so no second
-copy is downloaded.
+copy is downloaded. The same clause covers `wapplersystems/form_extended`: a project that
+still requires it resolves without changes, and it can no longer be installed alongside
+the fork — remove the requirement at your next opportunity.
 
 ### Local development inside the dev14 monorepo
 
@@ -324,6 +354,61 @@ The variants editor's condition field has a **“Build…”** button
 to click together rules (field / operator / value) with AND/OR groups and nesting. It
 serializes the rule tree to an ExpressionLanguage condition and parses existing ones back
 (raw-textarea fallback when unparseable). Pure editor JS.
+
+### Multi-file upload (frontend)
+
+A native `<input type="file" multiple>` replaces its whole `FileList` on every pick and
+offers no way to drop a single file again: choosing files twice silently loses the first
+selection, and a mis-picked file can only be corrected by re-picking everything.
+
+For a file upload with `properties.multiple`, `FileUpload.fluid.html` therefore emits a
+markup contract for `Resources/Public/JavaScript/frontend/file-upload.js`:
+
+```html
+<input type="file" multiple id="…" data-form-multi-upload data-remove-label="Remove"
+       data-form-multi-upload-list="…-preview">
+<ul class="form-element-fileupload-list" data-form-multi-upload-list="…-preview">…</ul>
+```
+
+The script keeps a `DataTransfer` as the source of truth, **appends** newly picked files
+to it, and renders one removable `<li data-form-multi-upload-pending>` per pending file
+into that list — reusing the server-rendered list of already persisted files when one is
+present, creating it directly after the input otherwise. Files are identified by name,
+size *and* `lastModified`, so two picked files sharing a name remove independently and
+re-picking an identical file does not add a duplicate.
+
+Script and `Resources/Public/Css/file-upload.css` are registered via `f:asset.*` and only
+for a multi-file field — a single upload keeps its plain markup and loads neither.
+
+Promoted from `wapplersystems/form_extended`, with three defects fixed there: it matched
+every `input[multiple]` on the page (including selects), addressed its container by
+walking `nextElementSibling`, and removed `DataTransfer` entries by file name alone.
+
+The server-side removal of *persisted* files (`properties.allowRemoval` →
+`UploadDeleteCheckboxViewHelper` → `__deleteFile`) is untouched and remains the mechanism
+for anything already written to FAL.
+
+### E-mail templates
+
+The template chooser of the e-mail content modal reads
+`renderEmailContentEditor → availableTemplates` — a `templateName => label` map on
+editor 250 of `EmailToReceiver` / `EmailToSender` in
+`Configuration/Form/Base/FormElements/Form.yaml`:
+
+```yaml
+availableTemplates:
+  Default: 'Default'
+```
+
+Declaring the default in YAML (rather than falling back to `{Default: 'Default'}` inside
+the JavaScript) means an extension shipping its own e-mail templates merges *additively*
+and `Default` stays in the dropdown.
+
+> Extensions that still target the standalone **“Template” dropdown at editor index
+> 1800**, which `form_extended` used to inject, must be adjusted: that editor no longer
+> exists, and an override targeting 1800 creates an editor node without a `propertyPath`,
+> on which `SelectOptionsExtractor` throws (`#1329289436`) and takes down saving in the
+> form editor entirely.
 
 ### Form elements added on top of upstream
 
@@ -870,8 +955,9 @@ commits up to that tag and adjust the `branch-alias` in `composer.json`.
   and an eventual switch to an official package stays painless. The trade-off vs. a separate
   subnamespace: upstream cherry-picks can land in the same directories, so watch for conflicts
   when syncing.
-- Every public API surface we add gets a PSR-14 event so downstream extensions (including
-  `wapplersystems/form_extended` during the migration period) can consume it.
+- Every public API surface we add gets a PSR-14 event so downstream extensions can consume
+  it. This was the migration path for `wapplersystems/form_extended`, which the fork now
+  `replace`s outright.
 - New editor UI is implemented through the form editor's existing extension points
   (TypeScript under `Build/Sources/TypeScript/form/`, partials registered via
   `formEditorPartials`) rather than by patching upstream templates.
