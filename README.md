@@ -1070,9 +1070,16 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   stops competing with the page's own heading outline (`c64dccf2`).
 - The default e-mail template list is declared in YAML, so an extension shipping its own
   templates *adds* to the dropdown instead of replacing it (`afbed92d`).
+- Release tags are uniformly `v`-prefixed and the `v14.3.x` namespace belongs to fork
+  releases — core tags are no longer mirrored to `origin`. Every published version keeps
+  its commit, only the spelling changed (`d0d29e85`).
 
 **Fixed**
 
+- Live conditions now bind forms that reach the DOM after `DOMContentLoaded` — loaded over
+  XHR, or re-rendered in place after an AJAX submit — via a `MutationObserver`, and
+  `StaticText` carries `data-form-element` so a condition can find its container at all
+  (`0b89a928`).
 - Translated values are sanitized against the RTE preset of the property they translate, so
   a label allowed to carry a link keeps it in every language (`13fc73a0`).
 - The form log module is reachable from the form manager (`d36aacbc`) and no longer
