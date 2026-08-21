@@ -969,8 +969,15 @@ The mirror branches are still pushed by hand:
 git fetch upstream --prune --tags
 git push origin "refs/remotes/upstream/14.3:refs/heads/14.3" --force-with-lease
 git push origin "refs/remotes/upstream/main:refs/heads/main"   --force-with-lease
-git push origin --tags
 ```
+
+**Upstream tags are deliberately not pushed to `origin`.** The fork numbers its own
+releases in the same `v14.3.x` space, so a mirrored core tag and a fork release would
+claim the same name while pointing at entirely different commits — and Packagist, which
+normalises `14.3.7` and `v14.3.7` to the same version, would resolve one of them
+arbitrarily. In this repository `v14.3.x` therefore always means *a fork release*; the
+core's own tags stay one `git fetch upstream --tags` away on the `upstream` remote. Do not
+re-add `git push origin --tags` here.
 
 Cherry-picking manually stays the fallback when the bot is not involved:
 
@@ -983,6 +990,19 @@ git cherry-pick -x <sha>                           # pick what we want
 When a new TYPO3 minor (e.g. 14.4) lands upstream, point the workflow's
 `upstream_branch` input at it, cherry-pick the relevant commits up to that tag and adjust
 the `branch-alias` in `composer.json`.
+
+### Releasing
+
+Tags are annotated and always carry the `v` prefix (`v14.3.9`, not `14.3.9`) — the mixed
+spelling that existed until 2026-08-21 has been normalised, so every published version
+keeps its commit but is now spelled `v…`. The tag message summarises what changed since the
+previous release and, where it applies, which upstream PRs were deliberately *not* merged
+and why.
+
+```bash
+git tag -a v14.3.10 -m "…"      # on release/v14
+git push origin v14.3.10        # Packagist picks it up from the push
+```
 
 ### Conventions for additions
 
