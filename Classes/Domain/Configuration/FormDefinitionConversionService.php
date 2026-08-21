@@ -413,10 +413,11 @@ readonly class FormDefinitionConversionService
                 $stringValue = (string)$value;
 
                 // Check if this property path is an RTE field for the current element type
-                if (isset($elementRtePaths[$propertyPath])) {
+                $rtePath = $this->resolveRtePropertyPath($propertyPath, $elementRtePaths);
+                if ($rtePath !== null) {
                     // RTE field: use HtmlSanitizer with the configured preset
                     // This ensures sanitization even for form definitions from external sources
-                    $presetBuild = $this->resolveSanitizerBuildFromPreset($elementRtePaths[$propertyPath]);
+                    $presetBuild = $this->resolveSanitizerBuildFromPreset($elementRtePaths[$rtePath]);
                     $result[$key] = $this->sanitizeWithBuild($stringValue, $presetBuild ?? $defaultBuild);
                 } elseif ($key === 'condition') {
                     // WapplerSystems fork: variant "condition" values are TYPO3
@@ -469,6 +470,44 @@ readonly class FormDefinitionConversionService
         }
 
         return $finisher;
+    }
+
+    /**
+     * Returns the RTE property path $propertyPath is governed by, or null if it
+     * is not an RTE field.
+     *
+     * Usually that is $propertyPath itself. The exception is the fork's
+     * in-definition translation overlay (Feature 7): a translated value below
+     * renderingOptions.translation.overrides.<languageCode>.<property> is the
+     * very same property as its untranslated counterpart and must therefore be
+     * sanitized with the same RTE preset. Without this mapping the overlay value
+     * falls into the strip_tags() branch, so a label that is allowed to carry a
+     * link in the default language silently loses it in every translated one.
+     *
+     * <property> is spelled the way TranslationService::translateFormElementValue()
+     * looks it up in the overlay: relative to "properties" resp.
+     * "renderingOptions" for anything but "label", hence the prefixed candidates.
+     *
+     * @param array<string, string> $elementRtePaths RTE property path => preset name
+     */
+    protected function resolveRtePropertyPath(string $propertyPath, array $elementRtePaths): ?string
+    {
+        if (isset($elementRtePaths[$propertyPath])) {
+            return $propertyPath;
+        }
+
+        if (preg_match('#^renderingOptions\.translation\.overrides\.[^.]+\.(.+)$#', $propertyPath, $matches) !== 1) {
+            return null;
+        }
+
+        $translatedProperty = $matches[1];
+        foreach ([$translatedProperty, 'properties.' . $translatedProperty, 'renderingOptions.' . $translatedProperty] as $candidate) {
+            if (isset($elementRtePaths[$candidate])) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     /**
