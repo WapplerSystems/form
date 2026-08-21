@@ -348,6 +348,17 @@ prototypes:
                       propertyPath: options.plainMessage
                     templateNameConfig:
                       propertyPath: options.templateName
+                    # WapplerSystems fork: the template list of the e-mail content
+                    # modal (renderEmailContentEditor -> availableTemplates, map of
+                    # templateName => label). Declared here so extensions shipping
+                    # their own e-mail templates can *add* to it instead of
+                    # replacing the whole list. Replaces the standalone "Template"
+                    # dropdown that form_extended used to inject at editor index
+                    # 1800 - overrides still targeting 1800 create an editor node
+                    # without a propertyPath, which makes SelectOptionsExtractor
+                    # throw and takes down saving in the form editor entirely.
+                    availableTemplates:
+                      Default: 'Default'
                   350:
                     identifier: recipients
                     templateName: Inspector-PropertyGridEditor
@@ -537,6 +548,17 @@ prototypes:
                       propertyPath: options.plainMessage
                     templateNameConfig:
                       propertyPath: options.templateName
+                    # WapplerSystems fork: the template list of the e-mail content
+                    # modal (renderEmailContentEditor -> availableTemplates, map of
+                    # templateName => label). Declared here so extensions shipping
+                    # their own e-mail templates can *add* to it instead of
+                    # replacing the whole list. Replaces the standalone "Template"
+                    # dropdown that form_extended used to inject at editor index
+                    # 1800 - overrides still targeting 1800 create an editor node
+                    # without a propertyPath, which makes SelectOptionsExtractor
+                    # throw and takes down saving in the form editor entirely.
+                    availableTemplates:
+                      Default: 'Default'
                   350:
                     identifier: recipients
                     templateName: Inspector-PropertyGridEditor
