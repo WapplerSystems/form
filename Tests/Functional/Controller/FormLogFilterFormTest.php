@@ -18,7 +18,9 @@ use Symfony\Component\Routing\Route as SymfonyRoute;
 use TYPO3\CMS\Backend\Routing\Route as BackendRoute;
 use TYPO3\CMS\Backend\Routing\Router;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Extbase\Core\Bootstrap;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -81,14 +83,24 @@ final class FormLogFilterFormTest extends FunctionalTestCase
         $this->importCSVDataSet(__DIR__ . '/../Fixtures/be_users.csv');
         $this->setUpBackendUser(1);
 
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)
+            ->createFromUserPreferences($GLOBALS['BE_USER']);
+
         $route = $this->createBackendRoute(
             $this->get(Router::class)->getRoute($routeIdentifier),
             $routeIdentifier
         );
-        $serverRequest = (new ServerRequest())
+        $serverRequest = (new ServerRequest('https://example.com/typo3' . $route->getPath(), 'GET'))
             ->withAttribute('route', $route)
             ->withAttribute('module', $route->getOption('module'))
             ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
+        // Rendering the module publishes assets through core's system resource
+        // publisher, which reads "normalizedParams" off the request.
+        $serverRequest = $serverRequest->withAttribute(
+            'normalizedParams',
+            NormalizedParams::createFromRequest($serverRequest)
+        );
+        $GLOBALS['TYPO3_REQUEST'] = $serverRequest;
 
         return (string)$this->get(Bootstrap::class)->handleBackendRequest($serverRequest)->getBody();
     }
