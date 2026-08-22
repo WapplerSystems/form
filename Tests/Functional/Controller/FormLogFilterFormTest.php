@@ -58,24 +58,33 @@ final class FormLogFilterFormTest extends FunctionalTestCase
 
     #[DataProvider('formLogViewsDataProvider')]
     #[Test]
-    public function filterFormCarriesTheRequestTokenAsHiddenField(string $routeIdentifier, string $path): void
-    {
-        $body = $this->renderModule($routeIdentifier);
+    public function filterFormSubmitsToTheModulePathAndCarriesTheTokenAsHiddenField(
+        string $routeIdentifier,
+        string $path
+    ): void {
+        $form = $this->extractFilterForm($this->renderModule($routeIdentifier));
 
-        self::assertStringContainsString('<form method="get" action="' . $path . '"', $body);
-        self::assertStringContainsString('<input type="hidden" name="token"', $body);
+        // The path is matched without its prefix and the query string is
+        // forbidden by the character class rather than by a second assertion:
+        // a query string on the action is not merely redundant, the browser
+        // drops it, so anything only living there is lost on submit.
+        self::assertMatchesRegularExpression(
+            '#^<form method="get" action="[^"?]*' . preg_quote($path, '#') . '"#',
+            $form
+        );
+        self::assertStringContainsString('<input type="hidden" name="token"', $form);
     }
 
-    #[DataProvider('formLogViewsDataProvider')]
-    #[Test]
-    public function filterFormActionCarriesNoQueryString(string $routeIdentifier, string $path): void
+    /**
+     * The assertions run against the form element alone: asserting on the whole
+     * module response buries every failure message under a full backend
+     * document. An empty string means no GET form was rendered at all, which
+     * fails the assertions with a readable message.
+     */
+    private function extractFilterForm(string $body): string
     {
-        // A query string on the action is not merely redundant - the browser
-        // drops it, so anything only living there is lost on submit.
-        self::assertStringNotContainsString(
-            'action="' . $path . '?',
-            $this->renderModule($routeIdentifier)
-        );
+        preg_match('#<form method="get".*?</form>#s', $body, $matches);
+        return $matches[0] ?? '';
     }
 
     private function renderModule(string $routeIdentifier): string
