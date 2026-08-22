@@ -797,6 +797,39 @@ as abandoned is **derived** from its age at query time (15 min grace), never wri
 sweep task — a monitoring feature that only tells the truth once someone remembers to
 schedule a second task would lie until they did.
 
+#### How a row is written
+
+Four listeners in `TYPO3\CMS\Form\EventListener\RecordMailDeliveries`, all delegating to
+`TYPO3\CMS\Form\Service\MailLogRecorder`. Nothing is patched into `EmailFinisher` itself —
+the log is an observer, and switching it off leaves the send path untouched.
+
+| Event | Recorder | What enters the row |
+| --- | --- | --- |
+| `BeforeFinisherExecutedEvent` (filtered to `EmailFinisher`) | `open()` | Opens it: form and finisher identifier, finisher class, site, page, language, submission id, resolved `recipient_mode` → `PENDING` |
+| `MailBeforeSendingEvent` | `prepare()` | The mail object now exists: recipients and their count, transport name, attachment count, and — as far as the policy allows — subject, sender, reply-to → `PREPARED` |
+| `AfterMailSentEvent` | `sent()` | Closes it: `tstamp` and the transport's `message_id` → `SENT` |
+| `FinisherFailedEvent` | `failed()` | Closes it: `error_code`, `error_class`, and the message if the policy allows it for that code → `FAILED` |
+
+`FinisherFailedEvent` is itself an addition of this fork — the third branch of the finisher
+event pair, dispatched from `AbstractFinisher::execute()`'s catch block. Without it a
+failing finisher had no terminal event at all.
+
+The four events carry the finisher (or the mail), not a log id, so the row is tracked per
+`spl_object_id($finisher)` for the duration of the request. A form with several e-mail
+finishers therefore keeps its rows apart, and one `submission_id` — random per request —
+groups everything one submission sent.
+
+Two details that decide whether the log can be trusted:
+
+- **`failed()` writes a standalone row when none is open.** That is failure class 1: the
+  exception was thrown during option validation, before `open()` ever ran. A failure
+  without a record is precisely what this feature exists to prevent, so the row is created
+  after the fact rather than skipped.
+- **Every write goes through a guard.** A missing table — schema not applied yet after an
+  update — disables the recorder for the rest of the request; any other database error is
+  logged and swallowed. Losing a log row is always preferable to turning a visitor's
+  inquiry into a 500.
+
 #### Configuration
 
 Off by default. The master switch is the extension configuration:
