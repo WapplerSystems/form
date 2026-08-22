@@ -23,8 +23,18 @@
         rather than via f:if inside the attribute: an empty attribute value still
         renders as selected="" and HTML treats that as selected, so every option
         would be selected and the browser would show the last one.
+
+        The action is the bare module path and everything the action URI carried
+        in its query string comes back as hidden fields: a GET form replaces the
+        query string rather than adding to it, so the request token would be
+        dropped on submit and the backend would answer the tokenless request
+        with the login route - which, inside the module frame, renders the whole
+        backend a second time. See buildFilterFormTarget().
     </f:comment>
-    <form method="get" action="{f:uri.action(action: 'index')}" class="mb-3">
+    <form method="get" action="{filterForm.uri}" class="mb-3">
+        <f:for each="{filterForm.hiddenFields}" as="value" key="name">
+            <input type="hidden" name="{name}" value="{value}" />
+        </f:for>
         <div class="row g-2 align-items-end">
             <div class="col-auto">
                 <label class="form-label" for="mailLogFrom"><f:translate key="form.database:mailLog.filter.from" /></label>

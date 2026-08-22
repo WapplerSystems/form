@@ -61,6 +61,7 @@ class ValidationStatsController extends AbstractFormLogController
         );
 
         $moduleTemplate->assignMultiple([
+            'filterForm' => $this->buildFilterFormTarget(),
             'filter' => $demand->toArray(),
             'demand' => $demand,
             'sessions' => $this->validationLogRepository->countSessionsByAudience($demand),

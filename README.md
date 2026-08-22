@@ -1076,6 +1076,11 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Fixed**
 
+- The filter of the form-log views re-emits the request token as a hidden field.
+  A GET form replaces the query string of its action URI instead of adding to it, so
+  the token was dropped on submit and the backend answered the tokenless request with
+  the login route — which, inside the module frame, rendered the whole backend a second
+  time instead of the filtered list.
 - Live conditions now bind forms that reach the DOM after `DOMContentLoaded` — loaded over
   XHR, or re-rendered in place after an AJAX submit — via a `MutationObserver`, and
   `StaticText` carries `data-form-element` so a condition can find its container at all

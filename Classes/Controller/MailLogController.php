@@ -70,6 +70,7 @@ class MailLogController extends AbstractFormLogController
         $moduleTemplate->assignMultiple([
             'paginator' => $paginator,
             'pagination' => new SimplePagination($paginator),
+            'filterForm' => $this->buildFilterFormTarget(),
             'filter' => $demand->toArray(),
             'demand' => $demand,
             'counts' => $this->counts($demand),
