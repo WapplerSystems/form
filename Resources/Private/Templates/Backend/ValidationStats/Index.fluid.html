@@ -12,9 +12,13 @@
 
     <f:comment>
         Same plain GET form as the mail log view, for the same reason: a filter
-        selection is worth keeping as a link.
+        selection is worth keeping as a link. See there for why the action URI
+        is split into a path plus hidden fields.
     </f:comment>
-    <form method="get" action="{f:uri.action(action: 'index')}" class="mb-3">
+    <form method="get" action="{filterForm.uri}" class="mb-3">
+        <f:for each="{filterForm.hiddenFields}" as="value" key="name">
+            <input type="hidden" name="{name}" value="{value}" />
+        </f:for>
         <div class="row g-2 align-items-end">
             <div class="col-auto">
                 <label class="form-label" for="statsFrom"><f:translate key="form.database:mailLog.filter.from" /></label>

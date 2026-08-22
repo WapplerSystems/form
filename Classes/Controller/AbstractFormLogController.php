@@ -95,6 +95,44 @@ abstract class AbstractFormLogController extends ActionController
         return $moduleTemplate;
     }
 
+    /**
+     * Target of the filter forms: the action URI split into a plain path and
+     * the query parameters it carried.
+     *
+     * A GET form does not append to the query string of its action - it
+     * replaces it with its own fields. The request token that every backend
+     * route URI carries would therefore be gone on submit, and without it
+     * RouteDispatcher::assertRequestToken() throws MissingRequestTokenException,
+     * whereupon RequestHandler redirects to the login route. For a user who is
+     * still logged in that route answers with the backend shell, so the module
+     * frame renders the whole backend a second time instead of the filtered
+     * list.
+     *
+     * Splitting rather than naming the token explicitly keeps whatever else the
+     * URI builder decides to put in the query (`id`, and anything a future
+     * TYPO3 version adds) intact.
+     *
+     * @return array{uri: string, hiddenFields: array<string, string>}
+     */
+    protected function buildFilterFormTarget(string $action = 'index'): array
+    {
+        $uri = (string)$this->uriBuilder->reset()->uriFor($action);
+
+        $hiddenFields = [];
+        foreach (explode('&', (string)parse_url($uri, PHP_URL_QUERY)) as $pair) {
+            if ($pair === '') {
+                continue;
+            }
+            [$name, $value] = array_pad(explode('=', $pair, 2), 2, '');
+            $hiddenFields[urldecode($name)] = urldecode($value);
+        }
+
+        return [
+            'uri' => (string)parse_url($uri, PHP_URL_PATH),
+            'hiddenFields' => $hiddenFields,
+        ];
+    }
+
     private function addViewMenu(ModuleTemplate $moduleTemplate): void
     {
         $currentController = $this->request->getControllerName();

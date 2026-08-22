@@ -1,0 +1,106 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the WapplerSystems/form fork of typo3/cms-form.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ */
+
+namespace TYPO3\CMS\Form\Tests\Functional\Controller;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\Routing\Route as SymfonyRoute;
+use TYPO3\CMS\Backend\Routing\Route as BackendRoute;
+use TYPO3\CMS\Backend\Routing\Router;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Extbase\Core\Bootstrap;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
+
+/**
+ * The filter of both form-log views is a GET form, and a GET form replaces the
+ * query string of its action URI instead of adding to it. Everything the URI
+ * carried - the request token above all - therefore has to be re-emitted as a
+ * hidden field, or the submission reaches the module route without a token,
+ * RouteDispatcher throws MissingRequestTokenException and the RequestHandler
+ * answers with the login route: inside the module frame that renders the whole
+ * backend a second time instead of the filtered list.
+ */
+final class FormLogFilterFormTest extends FunctionalTestCase
+{
+    protected array $coreExtensionsToLoad = [
+        'form',
+    ];
+
+    /**
+     * @return array<string, array{routeIdentifier: string, path: string}>
+     */
+    public static function formLogViewsDataProvider(): array
+    {
+        return [
+            'mail log' => [
+                'routeIdentifier' => 'form_log.MailLog_index',
+                'path' => '/module/form/log/MailLog/index',
+            ],
+            'validation statistics' => [
+                'routeIdentifier' => 'form_log.ValidationStats_index',
+                'path' => '/module/form/log/ValidationStats/index',
+            ],
+        ];
+    }
+
+    #[DataProvider('formLogViewsDataProvider')]
+    #[Test]
+    public function filterFormCarriesTheRequestTokenAsHiddenField(string $routeIdentifier, string $path): void
+    {
+        $body = $this->renderModule($routeIdentifier);
+
+        self::assertStringContainsString('<form method="get" action="' . $path . '"', $body);
+        self::assertStringContainsString('<input type="hidden" name="token"', $body);
+    }
+
+    #[DataProvider('formLogViewsDataProvider')]
+    #[Test]
+    public function filterFormActionCarriesNoQueryString(string $routeIdentifier, string $path): void
+    {
+        // A query string on the action is not merely redundant - the browser
+        // drops it, so anything only living there is lost on submit.
+        self::assertStringNotContainsString(
+            'action="' . $path . '?',
+            $this->renderModule($routeIdentifier)
+        );
+    }
+
+    private function renderModule(string $routeIdentifier): string
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/be_users.csv');
+        $this->setUpBackendUser(1);
+
+        $route = $this->createBackendRoute(
+            $this->get(Router::class)->getRoute($routeIdentifier),
+            $routeIdentifier
+        );
+        $serverRequest = (new ServerRequest())
+            ->withAttribute('route', $route)
+            ->withAttribute('module', $route->getOption('module'))
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
+
+        return (string)$this->get(Bootstrap::class)->handleBackendRequest($serverRequest)->getBody();
+    }
+
+    /**
+     * @see FormManagerControllerTest::createBackendRouteFromSymfonyRoute()
+     */
+    private function createBackendRoute(SymfonyRoute $symfonyRoute, string $routeIdentifier): BackendRoute
+    {
+        $options = $symfonyRoute->getOptions();
+        $options['_identifier'] = $routeIdentifier;
+        unset($options['methods']);
+        return new BackendRoute($symfonyRoute->getPath(), $options);
+    }
+}
