@@ -153,13 +153,49 @@
         render();
     }
 
+    const SELECTOR = 'input[type="file"][data-form-multi-upload]:not([data-form-multi-upload-bound])';
+
     function initAll() {
-        document.querySelectorAll('input[type="file"][data-form-multi-upload]').forEach(init);
+        document.querySelectorAll(SELECTOR).forEach(function (input) {
+            input.setAttribute('data-form-multi-upload-bound', '1');
+            init(input);
+        });
+    }
+
+    // Ein Formular kann per XHR nachkommen - in ein Modal, einen Tab. Ohne das
+    // hier bliebe das Feld dort unbedient: die Mehrfachauswahl ueber mehrere
+    // Runden und das Entfernen einzelner Dateien fehlen, weil beides an diesem
+    // Skript haengt. Der Versand bricht dadurch nicht, das native Feld
+    // funktioniert weiter - es ist Komfort, der still verschwindet.
+    // Der Stempel verhindert, dass ein zweiter Durchlauf demselben Feld ein
+    // zweites DataTransfer und doppelte Listener verpasst.
+    function observe() {
+        if (typeof MutationObserver === 'undefined') {
+            return;
+        }
+        new MutationObserver(function (mutations) {
+            for (const mutation of mutations) {
+                for (const node of Array.prototype.slice.call(mutation.addedNodes)) {
+                    if (!(node instanceof Element)) {
+                        continue;
+                    }
+                    if (node.matches(SELECTOR) || node.querySelector(SELECTOR) !== null) {
+                        initAll();
+                        return;
+                    }
+                }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    }
+
+    function boot() {
+        initAll();
+        observe();
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAll);
+        document.addEventListener('DOMContentLoaded', boot);
     } else {
-        initAll();
+        boot();
     }
 })();
