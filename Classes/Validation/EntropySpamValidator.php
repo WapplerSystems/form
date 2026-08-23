@@ -76,6 +76,11 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
             'Reject a single free-text token whose normalized entropy (entropy / log2(length)) reaches this. Catches short random-looking gibberish that the absolute entropy band cannot.',
             'float',
         ],
+        'gibberishShare' => [
+            0.25,
+            'Reject only when this share of the submitted letters sits in gibberish-looking tokens. Keeps one odd word in a long text from rejecting a genuine message, while a short salad still scores near 1.0.',
+            'float',
+        ],
         'gibberishTokenLength' => [
             12,
             'Minimum length of a (letter-only) token before the gibberish ratio check is applied. Shorter tokens are too volatile to judge.',
@@ -116,13 +121,19 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
             return;
         }
 
-        // Check 2 (random gibberish) runs per field and is independent of the
-        // combined-length gate, so a single random field is caught on its own.
-        foreach ($fields as $fieldIdentifier => $fieldValue) {
-            if ($this->containsGibberishToken($fieldValue)) {
-                $this->reject((string)$fieldIdentifier);
-                return;
-            }
+        // Check 2 (random gibberish), weighted by how much of the submission it
+        // accounts for. Judging single tokens rejected the whole submission for
+        // one unlucky word: a German compound is consonant-heavy enough to look
+        // random, and "Testpostfach" in 380 characters of plain prose was enough
+        // to turn a genuine enquiry away. Real spam of this kind is short and
+        // almost entirely salad, so the share separates the two where a per-token
+        // verdict cannot. It is also independent of the combined-length gate
+        // below, so a submission that is nothing but one random field is still
+        // caught on its own — there the share is 1.0.
+        $anchor = null;
+        if ($this->gibberishShare($fields, $anchor) >= (float)$this->options['gibberishShare']) {
+            $this->reject($anchor);
+            return;
         }
 
         $combined = implode(' ', $fields);
@@ -223,28 +234,65 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
     }
 
     /**
-     * True when any whitespace/punctuation-delimited letter run looks like
-     * machine-generated gibberish.
+     * Share of the submitted letters that sit in tokens looking like
+     * machine-generated gibberish — 1.0 for a pure salad, near zero for one odd
+     * word in a long text.
+     *
+     * Measured across all analysed fields together rather than per field: the
+     * question is what the *submission* looks like, and a subject of two words
+     * would otherwise be judged on its own and reject far too eagerly.
+     *
+     * $anchor receives the field carrying the most suspicious letters, so the
+     * error can be attached where the offending text actually is. It stays null
+     * when nothing is suspicious.
+     *
+     * @param array<string, string> $fields
      */
-    private function containsGibberishToken(string $text): bool
+    private function gibberishShare(array $fields, ?string &$anchor): float
     {
-        $minLength = (int)$this->options['gibberishTokenLength'];
-        $maxRatio = (float)$this->options['maximumEntropyRatio'];
-        $minVowelRatio = (float)$this->options['minimumVowelRatio'];
+        $anchor = null;
+        $totalLetters = 0;
+        $suspiciousLetters = 0;
+        $anchorLetters = 0;
 
-        $tokens = preg_split('/[^\p{L}]+/u', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        foreach ($tokens as $token) {
-            if (mb_strlen($token) < $minLength) {
-                continue;
+        foreach ($fields as $fieldIdentifier => $fieldValue) {
+            $fieldSuspicious = 0;
+            foreach (preg_split('/[^\p{L}]+/u', (string)$fieldValue, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $token) {
+                $length = mb_strlen($token);
+                $totalLetters += $length;
+                if ($this->isGibberishToken($token)) {
+                    $suspiciousLetters += $length;
+                    $fieldSuspicious += $length;
+                }
             }
-            if ($this->normalizedEntropy($token) < $maxRatio) {
-                continue;
-            }
-            if ($this->hasMixedCaseFlip($token) || $this->vowelRatio($token) < $minVowelRatio) {
-                return true;
+            if ($fieldSuspicious > $anchorLetters) {
+                $anchorLetters = $fieldSuspicious;
+                $anchor = (string)$fieldIdentifier;
             }
         }
-        return false;
+
+        if ($totalLetters === 0) {
+            return 0.0;
+        }
+
+        return $suspiciousLetters / $totalLetters;
+    }
+
+    /**
+     * True when a single whitespace/punctuation-delimited letter run looks like
+     * machine-generated gibberish.
+     */
+    private function isGibberishToken(string $token): bool
+    {
+        if (mb_strlen($token) < (int)$this->options['gibberishTokenLength']) {
+            return false;
+        }
+        if ($this->normalizedEntropy($token) < (float)$this->options['maximumEntropyRatio']) {
+            return false;
+        }
+
+        return $this->hasMixedCaseFlip($token)
+            || $this->vowelRatio($token) < (float)$this->options['minimumVowelRatio'];
     }
 
     private function shannonEntropy(string $text): float

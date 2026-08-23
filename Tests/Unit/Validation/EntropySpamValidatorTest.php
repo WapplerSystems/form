@@ -185,6 +185,51 @@ final class EntropySpamValidatorTest extends UnitTestCase
         self::assertTrue($this->buildValidator([], $formRuntime)->validate($values)->hasErrors());
     }
 
+    /**
+     * The reported regression: a genuine German enquiry was turned away because
+     * one compound word looks random on its own. "Testpostfach" is twelve
+     * letters, has a normalized entropy of 0.907 and a vowel ratio of 0.25, so
+     * the per-token verdict flagged it — and with it the whole submission.
+     */
+    #[Test]
+    public function oneGibberishLookingWordInALongTextIsAccepted(): void
+    {
+        $values = [
+            'subject' => 'Frage zum Support-Formular',
+            'message' => 'Dies ist ein Test von uns. Bitte ignorieren und nicht bearbeiten. '
+                . 'Hintergrund: Das Support-Formular auf der Kontaktseite wird per JavaScript '
+                . 'nachgeladen. Dadurch war der Spam-Schutz zeitweise fehlerhaft und hat '
+                . 'Einsendungen abgewiesen. Die angegebene Versionsnummer ist ein Platzhalter, '
+                . 'die Absenderadresse ist ein Testpostfach. Eine Antwort ist nicht noetig.',
+        ];
+
+        self::assertFalse(
+            $this->buildValidator()->validate($values)->hasErrors(),
+            'A long, plainly human message was rejected over a single compound word.',
+        );
+    }
+
+    #[Test]
+    public function gibberishWrappedInAGreetingIsStillRejected(): void
+    {
+        // Short and almost entirely salad — the share stays high, so padding a
+        // random token with a couple of words does not buy a way past the check.
+        $values = ['message' => 'Hello vOYhcWlrcTafTMSelBkM best regards'];
+
+        self::assertTrue($this->buildValidator()->validate($values)->hasErrors());
+    }
+
+    #[Test]
+    public function shareThresholdIsConfigurable(): void
+    {
+        $values = ['message' => 'Hello vOYhcWlrcTafTMSelBkM best regards'];
+
+        self::assertFalse(
+            $this->buildValidator(['gibberishShare' => 0.9])->validate($values)->hasErrors(),
+            'A share above the measured 0.556 should let this submission through.',
+        );
+    }
+
     #[Test]
     public function whitelistRestrictsAnalysisToGivenIdentifiers(): void
     {
