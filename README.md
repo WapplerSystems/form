@@ -1109,6 +1109,22 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Fixed**
 
+- `EntropySpam` weighs its gibberish check against the length of the submission instead of
+  rejecting on the first suspicious token. One consonant-heavy German compound — measured
+  on `Testpostfach`: twelve letters, normalized entropy 0.907, vowel ratio 0.25 — was
+  enough to turn away a genuine enquiry of 380 characters. Spam of this kind is short and
+  almost entirely salad, so the new `gibberishShare` option (default 0.25, the share of
+  submitted letters sitting in suspicious tokens) separates the two where a per-token
+  verdict cannot: a lone random field still scores 1.0.
+- The challenge no longer refuses to answer when a form is submitted before its `delay`
+  has elapsed. The visitor got "make sure JavaScript is enabled" although JavaScript had
+  run and simply had not been asked yet — reliably so on a form loaded into a modal, where
+  the delay starts when the modal opens rather than during page load. The timing dimension
+  belongs to `MinimumFillTime`, which reports it accurately.
+- The spam challenge, the multi-file upload and the password-policy helpers now bind forms
+  that reach the DOM after `DOMContentLoaded`. For the challenge this was not cosmetic: an
+  unbound form submits an empty response field, so every submission from an XHR-loaded form
+  was rejected (`139e7e43`, `7fbb53b5`).
 - The filter of the form-log views re-emits the request token as a hidden field.
   A GET form replaces the query string of its action URI instead of adding to it, so
   the token was dropped on submit and the backend answered the tokenless request with
