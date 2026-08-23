@@ -249,15 +249,64 @@
         });
     }
 
+    // Attribut, Stempel und Initialisierer je Bestandteil - alle drei koennen
+    // unabhaengig voneinander im Markup stehen.
+    const PARTS = [
+        ['data-fe-password-policy', 'data-fe-password-policy-bound', init],
+        ['data-fe-password-toggle', 'data-fe-password-toggle-bound', initToggle],
+        ['data-fe-password-generate', 'data-fe-password-generate-bound', initGenerator],
+    ];
+
+    function selectorFor(part) {
+        return '[' + part[0] + ']:not([' + part[1] + '])';
+    }
+
     function start() {
-        document.querySelectorAll('[data-fe-password-policy]').forEach(init);
-        document.querySelectorAll('[data-fe-password-toggle]').forEach(initToggle);
-        document.querySelectorAll('[data-fe-password-generate]').forEach(initGenerator);
+        PARTS.forEach(function (part) {
+            document.querySelectorAll(selectorFor(part)).forEach(function (element) {
+                element.setAttribute(part[1], '1');
+                part[2](element);
+            });
+        });
+    }
+
+    // Ein Passwortfeld kann in einem nachgeladenen Formular stecken - etwa
+    // einer Registrierung im Modal. Ohne das hier fehlten dort die
+    // Live-Anzeige der Regeln, der Anzeigen-Umschalter und der Generator,
+    // waehrend das Feld selbst normal funktioniert und serverseitig weiter
+    // geprueft wird. Also kein kaputtes Formular, aber still fehlende Hilfe
+    // genau an der Stelle, an der sie am meisten bringt.
+    function observe() {
+        if (typeof MutationObserver === 'undefined') {
+            return;
+        }
+        new MutationObserver(function (mutations) {
+            for (const mutation of mutations) {
+                for (const node of Array.prototype.slice.call(mutation.addedNodes)) {
+                    if (!(node instanceof Element)) {
+                        continue;
+                    }
+                    const hit = PARTS.some(function (part) {
+                        const s = selectorFor(part);
+                        return node.matches(s) || node.querySelector(s) !== null;
+                    });
+                    if (hit) {
+                        start();
+                        return;
+                    }
+                }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    }
+
+    function boot() {
+        start();
+        observe();
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', start);
+        document.addEventListener('DOMContentLoaded', boot);
     } else {
-        start();
+        boot();
     }
 })();
