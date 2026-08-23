@@ -1118,14 +1118,14 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   new `maximumConsonantRun` option (default 5) cuts the false-positive rate to **0.21%**
   while still rejecting every known spam sample. `minimumVowelRatio` therefore stays at its
   original 0.3; sites that lowered it to work around the false positives can drop the
-  override.
+  override (`d872c056`).
 - `EntropySpam` weighs its gibberish check against the length of the submission instead of
   rejecting on the first suspicious token. One consonant-heavy German compound — measured
   on `Testpostfach`: twelve letters, normalized entropy 0.907, vowel ratio 0.25 — was
   enough to turn away a genuine enquiry of 380 characters. Spam of this kind is short and
   almost entirely salad, so the new `gibberishShare` option (default 0.25, the share of
   submitted letters sitting in suspicious tokens) separates the two where a per-token
-  verdict cannot: a lone random field still scores 1.0.
+  verdict cannot: a lone random field still scores 1.0 (`d6d69483`).
 - The challenge no longer refuses to answer when a form is submitted before its `delay`
   has elapsed. The visitor got "make sure JavaScript is enabled" although JavaScript had
   run and simply had not been asked yet — reliably so on a form loaded into a modal, where
