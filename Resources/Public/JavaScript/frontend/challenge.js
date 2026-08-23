@@ -131,8 +131,14 @@
         form.addEventListener('click', writeTime, { passive: true });
     }
 
-    function init() {
-        document.querySelectorAll('script[type="application/json"][data-form-challenge]').forEach(function (island) {
+    const ISLAND_SELECTOR = 'script[type="application/json"][data-form-challenge]:not([data-form-challenge-bound])';
+
+    // Bindet jedes noch ungebundene Island. Der Stempel verhindert, dass ein
+    // erneuter Durchlauf (siehe observe) demselben Formular ein zweites Mal
+    // Listener und einen zweiten solve()-Timer verpasst.
+    function scan() {
+        document.querySelectorAll(ISLAND_SELECTOR).forEach(function (island) {
+            island.setAttribute('data-form-challenge-bound', '1');
             const form = island.closest('form');
             if (!(form instanceof HTMLFormElement)) {
                 return;
@@ -147,6 +153,38 @@
                 setupForm(form, data);
             }
         });
+    }
+
+    // Ein Formular kann lange nach DOMContentLoaded in die Seite kommen - per
+    // XHR nachgeladen (etwa in ein Modal) oder nach einem AJAX-Submit neu
+    // gerendert. Ohne das hier bliebe sein Antwortfeld leer, der Validator
+    // wiese jede Einsendung ab, und das Formular waere fuer den Besucher
+    // unbenutzbar - ohne dass an ihm etwas sichtbar falsch ist.
+    //
+    // startedAt wird beim Binden gesetzt, die Fuellzeit misst also ab dem
+    // Einblenden und nicht ab dem Laden der Seite - genau richtig.
+    function observe() {
+        if (typeof MutationObserver === 'undefined') {
+            return;
+        }
+        new MutationObserver(function (mutations) {
+            for (const mutation of mutations) {
+                for (const node of Array.prototype.slice.call(mutation.addedNodes)) {
+                    if (!(node instanceof Element)) {
+                        continue;
+                    }
+                    if (node.matches(ISLAND_SELECTOR) || node.querySelector(ISLAND_SELECTOR) !== null) {
+                        scan();
+                        return;
+                    }
+                }
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    }
+
+    function init() {
+        scan();
+        observe();
     }
 
     if (document.readyState === 'loading') {
