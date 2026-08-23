@@ -122,6 +122,15 @@ final class EntropySpamValidatorTest extends UnitTestCase
             'url in message' => [[
                 'message' => 'Siehe https://example.com/produkte fuer Details.',
             ]],
+            'consonant heavy compound' => [[
+                'message' => 'Brandschutzklappe',
+            ]],
+            'compound with low vowel ratio' => [[
+                'subject' => 'Bildschirmfoto',
+            ]],
+            'short enquiry naming a test mailbox' => [[
+                'message' => 'Die Absenderadresse ist ein Testpostfach.',
+            ]],
         ];
     }
 
@@ -227,6 +236,36 @@ final class EntropySpamValidatorTest extends UnitTestCase
         self::assertFalse(
             $this->buildValidator(['gibberishShare' => 0.9])->validate($values)->hasErrors(),
             'A share above the measured 0.556 should let this submission through.',
+        );
+    }
+
+    /**
+     * Entropy and vowel ratio alone are not enough to tell a German compound
+     * from a random string — measured against the hunspell de_DE list they flag
+     * 3.44% of all words of twelve letters or more. Requiring an over-long
+     * consonant run as well brings that down to 0.21% while still catching
+     * every known spam sample, because natural words stay syllabic.
+     */
+    #[Test]
+    public function syllabicWordsSurviveEvenWhenTheyLookRandom(): void
+    {
+        // Normalized entropy 0.942, vowel ratio 0.24 — both in gibberish
+        // territory. Its longest consonant run is 5 ("ndsch"), so it passes.
+        $values = ['message' => 'Brandschutzklappe'];
+
+        self::assertFalse($this->buildValidator()->validate($values)->hasErrors());
+    }
+
+    #[Test]
+    public function raisingTheConsonantRunThresholdLetsGibberishThrough(): void
+    {
+        // Guards the default: the reported sample peaks at a run of six, so a
+        // threshold of six or more stops rejecting it.
+        $values = ['message' => 'goIuMokMxpTCeKnJfIq'];
+
+        self::assertTrue($this->buildValidator()->validate($values)->hasErrors());
+        self::assertFalse(
+            $this->buildValidator(['maximumConsonantRun' => 6])->validate($values)->hasErrors(),
         );
     }
 

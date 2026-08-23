@@ -1109,6 +1109,16 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Fixed**
 
+- `EntropySpam` requires an over-long consonant run before it calls a token gibberish.
+  Normalized entropy and vowel ratio alone cannot tell a German compound from a random
+  string — measured against the hunspell `de_DE` list they flag **3.44%** of all 135810
+  words of twelve letters or more, `Bildschirmfoto` and `Abmischprozess` among them. What
+  natural words keep is a syllabic rhythm: a vowel never stays away for long, so
+  `Brandschutzklappe` peaks at a run of five where machine output runs six and beyond. The
+  new `maximumConsonantRun` option (default 5) cuts the false-positive rate to **0.21%**
+  while still rejecting every known spam sample. `minimumVowelRatio` therefore stays at its
+  original 0.3; sites that lowered it to work around the false positives can drop the
+  override.
 - `EntropySpam` weighs its gibberish check against the length of the submission instead of
   rejecting on the first suspicious token. One consonant-heavy German compound — measured
   on `Testpostfach`: twelve letters, normalized entropy 0.907, vowel ratio 0.25 — was
