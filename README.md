@@ -211,7 +211,7 @@ not just on the server at page/step transitions. Pieces:
   authoritatively on submit; without JS the fields stay visible and validation still holds.
 - `frontend/form-conditions.js` evaluates a subset of the ExpressionLanguage
   (`traverse(formValues,"id")`, `== != < <= > >= in "not in" && || ()`) against the live
-  form values and toggles the field container (`[data-wsform-element]`), `disabled` (so
+  form values and toggles the field container (`[data-form-element]`), `disabled` (so
   hidden fields are not submitted) and `required`. Unparseable conditions are skipped.
 - `RenderableVariant::getCondition()` / `getOptions()` expose the raw condition + override
   options for this.

@@ -2,7 +2,7 @@
 <f:form.validationResults for="{element.rootForm.identifier}.{element.identifier}">
     <f:if condition="{renderFieldset} == 1">
         <f:then>
-            <fieldset data-wsform-element="{element.identifier}" class="{element.properties.fieldsetClassAttribute}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
+            <fieldset data-form-element="{element.identifier}" class="{element.properties.fieldsetClassAttribute}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
                 <legend class="{f:if(condition: '{doNotShowLabel} == 1', then: ' {element.rootForm.renderingOptions.fieldProperties.visuallyHiddenClassAttribute}')}">{formvh:translateElementProperty(element: element, property: 'label')}
                     <f:if condition="{element.required}">
                         <f:render partial="Field/Required" arguments="{element: element}"/>
@@ -12,7 +12,7 @@
             </fieldset>
         </f:then>
         <f:else>
-            <div data-wsform-element="{element.identifier}" class="{element.properties.containerClassAttribute}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
+            <div data-form-element="{element.identifier}" class="{element.properties.containerClassAttribute}{f:if(condition: '{validationResults.errors.0}', then: ' {element.rootForm.renderingOptions.fieldProperties.errorClassAttribute}')}">
                 <f:if condition="{doNotShowLabel} != 1">
                     <label class="{element.properties.labelClassAttribute}{f:if(condition: '{doNotShowLabel} == 1', then: ' {element.rootForm.renderingOptions.fieldProperties.visuallyHiddenClassAttribute}')}" for="{element.uniqueIdentifier}">{formvh:translateElementProperty(element: element, property: 'label')}
                         <f:if condition="{element.required}">
