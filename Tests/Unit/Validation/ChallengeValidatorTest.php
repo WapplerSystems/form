@@ -70,11 +70,14 @@ final class ChallengeValidatorTest extends UnitTestCase
         $formRuntime->method('getRequest')->willReturn($request);
         $formRuntime->method('getFormDefinition')->willReturn($formDefinition);
 
-        // A literal message keeps the LLL: resolution (and therefore
+        // Literal messages keep the LLL: resolution (and therefore
         // LanguageServiceFactory, which is not autowirable here) out of the
-        // way; the fallback to the shipped default has its own test.
+        // way; both fallbacks to the shipped defaults have their own test.
         $validator = new ChallengeValidator();
-        $validator->setOptions($options + ['errorMessage' => 'rejected']);
+        $validator->setOptions($options + [
+            'errorMessage' => 'rejected',
+            'errorMessageScriptMissing' => 'no script ran',
+        ]);
         $validator->setFormRuntime($formRuntime);
 
         return $validator;
@@ -98,6 +101,32 @@ final class ChallengeValidatorTest extends UnitTestCase
         self::assertTrue(
             $this->buildValidator([], [FormChallengeService::RESPONSE_FIELD => ''])->validate([])->hasErrors()
         );
+    }
+
+    #[Test]
+    public function anUntouchedSentinelIsReportedAsAMissingScript(): void
+    {
+        // The field is rendered holding the sentinel, so getting it back means
+        // no script ran - a different problem from a wrong answer, and the only
+        // one the visitor can do anything about.
+        foreach ([[], [FormChallengeService::RESPONSE_FIELD => ''], [FormChallengeService::RESPONSE_FIELD => FormChallengeService::SCRIPT_MISSING_SENTINEL]] as $parsedBody) {
+            $errors = $this->buildValidator([], $parsedBody)->validate([])->getErrors();
+
+            self::assertCount(1, $errors);
+            self::assertSame('no script ran', $errors[0]->getMessage());
+            self::assertSame(1755648003, $errors[0]->getCode());
+        }
+    }
+
+    #[Test]
+    public function anUnusableAnswerKeepsTheGenericRejection(): void
+    {
+        $errors = $this->buildValidator([], [FormChallengeService::RESPONSE_FIELD => 'not.a.token'])
+            ->validate([])->getErrors();
+
+        self::assertCount(1, $errors);
+        self::assertSame('rejected', $errors[0]->getMessage());
+        self::assertSame(1755648001, $errors[0]->getCode());
     }
 
     #[Test]
@@ -141,7 +170,10 @@ final class ChallengeValidatorTest extends UnitTestCase
     #[Test]
     public function errorMessageFromTheOptionsIsUsed(): void
     {
-        $validator = $this->buildValidator(['errorMessage' => 'Bitte JavaScript aktivieren.'], []);
+        $validator = $this->buildValidator(
+            ['errorMessage' => 'Bitte JavaScript aktivieren.'],
+            [FormChallengeService::RESPONSE_FIELD => 'not.a.token']
+        );
 
         $errors = $validator->validate([])->getErrors();
         self::assertCount(1, $errors);
@@ -154,12 +186,29 @@ final class ChallengeValidatorTest extends UnitTestCase
         // The form editor writes what is in the field, so an editor clearing the
         // message must not produce a rejection with no text at all.
         $this->stubLanguageServiceOnce();
-        $validator = $this->buildValidator(['errorMessage' => ''], []);
+        $validator = $this->buildValidator(
+            ['errorMessage' => ''],
+            [FormChallengeService::RESPONSE_FIELD => 'not.a.token']
+        );
 
         $errors = $validator->validate([])->getErrors();
         self::assertCount(1, $errors);
         self::assertSame(
             'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.Challenge.errorMessage',
+            $errors[0]->getMessage()
+        );
+    }
+
+    #[Test]
+    public function anEmptyScriptMissingMessageFallsBackToTheShippedDefault(): void
+    {
+        $this->stubLanguageServiceOnce();
+        $validator = $this->buildValidator(['errorMessageScriptMissing' => ''], []);
+
+        $errors = $validator->validate([])->getErrors();
+        self::assertCount(1, $errors);
+        self::assertSame(
+            'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.Challenge.errorMessageScriptMissing',
             $errors[0]->getMessage()
         );
     }
