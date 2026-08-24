@@ -23,7 +23,6 @@ use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Core\EventDispatcher\ListenerProvider;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
-use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Form\Domain\Finishers\EmailFinisher;
 use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
@@ -75,7 +74,6 @@ final class EmailFinisherTest extends FunctionalTestCase
 
         $subject = new EmailFinisher(
             $this->get(EventDispatcher::class),
-            $this->get(TemplatedEmailFactory::class),
             $this->get(MailerInterface::class),
         );
         $subject->injectTranslationService($translationServiceMock);

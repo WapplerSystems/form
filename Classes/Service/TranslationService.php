@@ -27,7 +27,6 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\Renderable\RootRenderableInterface;
@@ -86,21 +85,89 @@ class TranslationService implements SingletonInterface
         $request = $this->getRequest();
         $languageService = $this->createLanguageService($locale, $request);
 
-        if (!empty($locallangPathAndFilename) && $request) {
-            $typoScript = $request->getAttribute('frontend.typoscript');
-            if ($typoScript instanceof FrontendTypoScript && $typoScript->hasSetup()) {
-                $overrideLabels = $languageService->loadTypoScriptLabelsFromExtension('form', $typoScript);
-                if ($overrideLabels !== []) {
-                    $languageService->overrideLabels($locallangPathAndFilename, $overrideLabels);
-                }
+        if (!empty($locallangPathAndFilename)) {
+            $overrideLabels = $this->loadTypoScriptLabels($request);
+            if ($overrideLabels !== []) {
+                $languageService->overrideLabels($locallangPathAndFilename, $overrideLabels);
             }
         }
 
-        $value = $languageService->translate($key, $locallangPathAndFilename, $arguments ?? []);
-        if ($value === null) {
+        // v13's LanguageService has no translate(); sL() with the assembled
+        // LLL: reference is the equivalent, and it returns '' rather than null
+        // when nothing resolves.
+        $resolvedLabel = empty($locallangPathAndFilename)
+            ? $languageService->sL($key)
+            : $languageService->sL('LLL:' . $locallangPathAndFilename . ':' . $key);
+        $value = $resolvedLabel !== '' ? $resolvedLabel : null;
+
+        if (is_array($arguments) && $arguments !== [] && $value !== null) {
+            $value = vsprintf($value, $arguments);
+        } elseif ($value === null) {
             $value = $defaultValue;
         }
+
         return $value;
+    }
+
+    /**
+     * Labels overridden via TypoScript:
+     *
+     *     plugin.tx_form._LOCAL_LANG.<languageKey>.<labelKey> = value
+     *
+     * v14 reads these through LanguageService::loadTypoScriptLabelsFromExtension();
+     * on v13 they are picked out of the frontend TypoScript setup here. Reading the
+     * request attribute rather than the Extbase ConfigurationManager keeps this
+     * usable outside an Extbase request, which is where the form runtime renders.
+     *
+     * @return array<string, array<string, string>>
+     */
+    protected function loadTypoScriptLabels(?ServerRequestInterface $request): array
+    {
+        $typoScript = $request?->getAttribute('frontend.typoscript');
+        if (!$typoScript instanceof FrontendTypoScript || !$typoScript->hasSetup()) {
+            return [];
+        }
+
+        $localLang = $typoScript->getSetupArray()['plugin.']['tx_form.']['_LOCAL_LANG.'] ?? null;
+        if (!is_array($localLang)) {
+            return [];
+        }
+
+        $finalLabels = [];
+        foreach ($localLang as $languageKey => $labels) {
+            if (!is_array($labels)) {
+                continue;
+            }
+            $languageKey = rtrim((string)$languageKey, '.');
+            foreach ($this->flattenTypoScriptLabelArray($labels) as $labelKey => $labelValue) {
+                $finalLabels[$languageKey][$labelKey] = $labelValue;
+            }
+        }
+
+        return $finalLabels;
+    }
+
+    /**
+     * Turns a TypoScript sub-array into flat `a.b.c => value` pairs, dropping the
+     * trailing dots TypoScript uses to mark a nesting level.
+     *
+     * @return array<string, string>
+     */
+    protected function flattenTypoScriptLabelArray(array $labelValues, string $parentKey = ''): array
+    {
+        $result = [];
+        foreach ($labelValues as $key => $labelValue) {
+            $key = rtrim((string)$key, '.');
+            if ($parentKey !== '') {
+                $key = $parentKey . '.' . $key;
+            }
+            if (is_array($labelValue)) {
+                $result = array_merge($result, $this->flattenTypoScriptLabelArray($labelValue, $key));
+            } else {
+                $result[$key] = (string)$labelValue;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -585,7 +652,7 @@ class TranslationService implements SingletonInterface
         if ($locale) {
             return $this->languageServiceFactory->create($locale);
         }
-        return $this->languageServiceFactory->create(GeneralUtility::makeInstance(Locales::class)->createLocaleFromRequest($request));
+        return $this->languageServiceFactory->create($this->locales->createLocaleFromRequest($request));
     }
 
     private function getRequest(): ?ServerRequestInterface

@@ -22,7 +22,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
-use TYPO3\CMS\Core\Mail\TemplatedEmailFactory;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Form\Domain\Finishers\EmailFinisher;
@@ -183,9 +182,10 @@ final class EmailFinisherMailLogTest extends FunctionalTestCase
 
     private function finisher(): EmailFinisher
     {
+        // v13's EmailFinisher builds the FluidEmail itself - there is no
+        // TemplatedEmailFactory to inject (that is a v14 core class).
         $finisher = new EmailFinisher(
             $this->get(EventDispatcher::class),
-            $this->get(TemplatedEmailFactory::class),
             $this->get(MailerInterface::class),
         );
 

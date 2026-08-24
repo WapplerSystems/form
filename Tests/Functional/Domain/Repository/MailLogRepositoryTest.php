@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Tests\Functional\Domain\Repository;
 
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\Pagination\QueryBuilderPaginator;
+use TYPO3\CMS\Form\Pagination\QueryBuilderPaginator;
 use TYPO3\CMS\Form\Domain\DTO\MailLogDemand;
 use TYPO3\CMS\Form\Domain\Repository\MailLogRepository;
 use TYPO3\CMS\Form\Enum\MailLogStatus;

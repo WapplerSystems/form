@@ -23,8 +23,6 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface;
-use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
 use TYPO3\CMS\Form\Service\RichTextConfigurationService;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -53,8 +51,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $richtextMock->method('getConfiguration')->willReturn($testConfiguration);
 
         $rteHtmlParserMock = $this->createMock(RteHtmlParser::class);
-        $publisherMock = $this->createMock(SystemResourcePublisherInterface::class);
-        $factoryMock = $this->createMock(SystemResourceFactory::class);
         $uriBuilderMock = $this->createMock(UriBuilder::class);
 
         $backendUser = $this->createMock(BackendUserAuthentication::class);
@@ -66,8 +62,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $subject = new RichTextConfigurationService(
             $richtextMock,
             $rteHtmlParserMock,
-            $publisherMock,
-            $factoryMock,
             $uriBuilderMock
         );
 
@@ -92,8 +86,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $richtextMock->method('getConfiguration')->willReturn($testConfiguration);
 
         $rteHtmlParserMock = $this->createMock(RteHtmlParser::class);
-        $publisherMock = $this->createMock(SystemResourcePublisherInterface::class);
-        $factoryMock = $this->createMock(SystemResourceFactory::class);
         $uriBuilderMock = $this->createMock(UriBuilder::class);
 
         $backendUser = $this->createMock(BackendUserAuthentication::class);
@@ -105,8 +97,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $subject = new RichTextConfigurationService(
             $richtextMock,
             $rteHtmlParserMock,
-            $publisherMock,
-            $factoryMock,
             $uriBuilderMock
         );
 
@@ -134,8 +124,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $richtextMock->method('getConfiguration')->willReturn($testConfiguration);
 
         $rteHtmlParserMock = $this->createMock(RteHtmlParser::class);
-        $publisherMock = $this->createMock(SystemResourcePublisherInterface::class);
-        $factoryMock = $this->createMock(SystemResourceFactory::class);
         $uriBuilderMock = $this->createMock(UriBuilder::class);
 
         $languageService = $this->createMock(LanguageService::class);
@@ -155,8 +143,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $subject = new RichTextConfigurationService(
             $richtextMock,
             $rteHtmlParserMock,
-            $publisherMock,
-            $factoryMock,
             $uriBuilderMock
         );
 
@@ -187,8 +173,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $richtextMock->method('getConfiguration')->willReturn($testConfiguration);
 
         $rteHtmlParserMock = $this->createMock(RteHtmlParser::class);
-        $publisherMock = $this->createMock(SystemResourcePublisherInterface::class);
-        $factoryMock = $this->createMock(SystemResourceFactory::class);
 
         $uriBuilderMock = $this->createMock(UriBuilder::class);
         $uriBuilderMock->method('buildUriFromRoute')->willReturn('https://example.com/wizard');
@@ -202,8 +186,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $subject = new RichTextConfigurationService(
             $richtextMock,
             $rteHtmlParserMock,
-            $publisherMock,
-            $factoryMock,
             $uriBuilderMock
         );
 
@@ -230,8 +212,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $richtextMock->method('getConfiguration')->willReturn($testConfiguration);
 
         $rteHtmlParserMock = $this->createMock(RteHtmlParser::class);
-        $publisherMock = $this->createMock(SystemResourcePublisherInterface::class);
-        $factoryMock = $this->createMock(SystemResourceFactory::class);
         $uriBuilderMock = $this->createMock(UriBuilder::class);
 
         $backendUser = $this->createMock(BackendUserAuthentication::class);
@@ -243,8 +223,6 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
         $subject = new RichTextConfigurationService(
             $richtextMock,
             $rteHtmlParserMock,
-            $publisherMock,
-            $factoryMock,
             $uriBuilderMock
         );
 
@@ -272,15 +250,11 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
             ->with('<p>Test content</p>', ['overruleMode' => 'default'])
             ->willReturn('<p>Transformed content</p>');
 
-        $publisherMock = $this->createMock(SystemResourcePublisherInterface::class);
-        $factoryMock = $this->createMock(SystemResourceFactory::class);
         $uriBuilderMock = $this->createMock(UriBuilder::class);
 
         $subject = new RichTextConfigurationService(
             $richtextMock,
             $rteHtmlParserMock,
-            $publisherMock,
-            $factoryMock,
             $uriBuilderMock
         );
 
@@ -307,15 +281,11 @@ final class RichTextConfigurationServiceTest extends FunctionalTestCase
             ->with('<p>DB content</p>', ['overruleMode' => 'default'])
             ->willReturn('<p>RTE content</p>');
 
-        $publisherMock = $this->createMock(SystemResourcePublisherInterface::class);
-        $factoryMock = $this->createMock(SystemResourceFactory::class);
         $uriBuilderMock = $this->createMock(UriBuilder::class);
 
         $subject = new RichTextConfigurationService(
             $richtextMock,
             $rteHtmlParserMock,
-            $publisherMock,
-            $factoryMock,
             $uriBuilderMock
         );
 

@@ -11,7 +11,9 @@ use TYPO3\CMS\Form\Controller\ValidationStatsController;
  */
 return [
     'web_FormFormbuilder' => [
-        'parent' => 'content',
+        // v13 has no 'content' main module (that is v14's reorganised tree);
+        // the form builder lives under 'web' here.
+        'parent' => 'web',
         'position' => ['after' => 'workspaces_admin'],
         'access' => 'user',
         'path' => '/module/form',
@@ -55,7 +57,9 @@ return [
     // The path stays below /module/form so existing links and bookmarks keep
     // working; backend routes are flat and do not have to mirror the hierarchy.
     'form_log' => [
-        'parent' => 'admin',
+        // v13's equivalent of v14's 'admin' section is 'system', which is where
+        // the core log module (system_log) sits.
+        'parent' => 'system',
         'position' => ['after' => 'system_log'],
         'access' => 'user',
         'path' => '/module/form/log',

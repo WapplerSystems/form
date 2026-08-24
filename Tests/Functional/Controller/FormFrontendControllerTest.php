@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Form\Tests\Functional\Controller;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
+use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
@@ -47,6 +48,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
                 $configurationServiceMock,
                 $this->createMock(FormPersistenceManagerInterface::class),
                 $this->get(FlexFormTools::class),
+                $this->get(FlexFormService::class),
             ],
         );
         $sheetIdentifier = md5(
@@ -168,6 +170,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
                 $configurationServiceMock,
                 $this->createMock(FormPersistenceManagerInterface::class),
                 $this->get(FlexFormTools::class),
+                $this->get(FlexFormService::class),
             ],
         );
         $sheetIdentifier = md5(
@@ -312,6 +315,7 @@ final class FormFrontendControllerTest extends FunctionalTestCase
                 $configurationServiceMock,
                 $this->createMock(FormPersistenceManagerInterface::class),
                 $this->get(FlexFormTools::class),
+                $this->get(FlexFormService::class),
             ],
         );
 
