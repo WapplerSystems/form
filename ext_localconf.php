@@ -42,7 +42,17 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['formvh'][] = 'TYPO3\\
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tce']['formevals'][EmailOrFormElementIdentifier::class] = '';
 
 // Register FE plugin
-ExtensionUtility::configurePlugin('Form', 'Formframework', [FormFrontendController::class => ['render', 'perform']], [FormFrontendController::class => ['perform']]);
+// v14 registers a CType by default; on v13 the default is still the deprecated
+// list_type, and without PLUGIN_TYPE_CONTENT_ELEMENT no
+// tt_content.form_formframework rendering definition is generated at all - the
+// frontend then prints "has no rendering definition" where the form should be.
+ExtensionUtility::configurePlugin(
+    'Form',
+    'Formframework',
+    [FormFrontendController::class => ['render', 'perform']],
+    [FormFrontendController::class => ['perform']],
+    ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
+);
 
 // WapplerSystems fork: ship the fork's own German labels as an override so they
 // win even when a downloaded "form" language pack (var/labels/de/form/...) is
