@@ -1222,26 +1222,26 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 - `showFormLanguage` on both e-mail finishers: a row naming the site language the visitor
   filled the form in. `translation.language` pins the mail to the language the service desk
   reads, which until now hid the fact that the enquiry came in through the English or Dutch
-  version of the site.
+  version of the site (`f5059120`).
 - `properties.isConsentField`, a **Consent field (data protection)** checkbox in the form
   editor, is the single way a checkbox is recognised as a consent. An identifier heuristic
   was tried first and dropped: it could not see a consent the editor generated as
   `checkbox-3`, and on the site this was built for it missed three of thirteen — among them
   a transfer-to-third-parties consent, the one that most clearly needs Art. 7(1) evidence.
   Existing definitions are stamped by a one-shot upgrade wizard instead, which is auditable
-  and reports what it did. Setting the property to `false` opts a field out.
+  and reports what it did. Setting the property to `false` opts a field out (`f5059120`).
 - `ConsentElementResolver`, the single answer to "is this element a consent checkbox?",
-  shared by the e-mail summary and the consent log so the two cannot drift apart.
+  shared by the e-mail summary and the consent log so the two cannot drift apart (`f5059120`).
 - Consent log (`featureConsentLog`, off by default): one row per consent checkbox per
   submission, with the SHA-256 of the wording actually shown, a third view in the form log
   module to read it by person, and `CleanupConsentLogTask` for the retention window. Built
   because collapsing the consent boilerplate out of the notification mail exposed that the
   mail had been the only trace of the consent — and a poor one, since it could not say
-  which version of the text the visitor agreed to.
+  which version of the text the visitor agreed to (`55b79cf3`).
 - `SubmissionIdProvider`, shared by the mail and consent logs so their rows join on
-  `submission_id` (extracted from `MailLogRecorder`, no behaviour change).
+  `submission_id`; extracted from `MailLogRecorder`, no behaviour change (`55b79cf3`).
 - `RenderAllFormValues` takes an `exclude` list of element identifiers, so a mail template
-  can drop single fields without reimplementing the iteration.
+  can drop single fields without reimplementing the iteration (`f5059120`).
 
 **Changed**
 
@@ -1254,13 +1254,13 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   templates *adds* to the dropdown instead of replacing it (`afbed92d`).
 - The default e-mail template renders the submitted values as a readable two-column table
   — muted labels, emphasised values, a rule between rows — instead of an unstyled `<table>`
-  of nested tables.
+  of nested tables (`f5059120`).
 - Consent checkboxes are collapsed into a single **Consent** row naming each consent and
   whether it was given, instead of printing a paragraph of legal text per checkbox. The
   record stays in the mail — for a form whose only finisher is an e-mail one, that mail is
   the sole trace of the submission, so silently dropping the row would drop the evidence
   with it. Elements that cannot carry a value at all (`StaticText`, `ContentElement`,
-  `Honeypot`) are omitted outright.
+  `Honeypot`) are omitted outright (`f5059120`).
 - Release tags are uniformly `v`-prefixed and the `v14.3.x` namespace belongs to fork
   releases — core tags are no longer mirrored to `origin`. Every published version keeps
   its commit, only the spelling changed (`d0d29e85`).
