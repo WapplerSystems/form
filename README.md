@@ -1291,11 +1291,11 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   restarted its stopwatch, so correcting a typo quickly was itself rejected as "too fast" —
   ten separate visitors on one live form. The token now keeps its original issue time and
   the measured milliseconds are handed back to the client, capped at the token's real age
-  so nothing can be inflated.
+  so nothing can be inflated (`847d1850`).
 - The challenge tells a blocked script apart from a wrong answer. The response field is
   rendered with a sentinel the client overwrites; getting it back unchanged now yields its
   own message and error code instead of the generic "could not be verified", which sent
-  visitors off to check a JavaScript setting that was never the problem.
+  visitors off to check a JavaScript setting that was never the problem (`847d1850`).
 - `EntropySpam` requires an over-long consonant run before it calls a token gibberish.
   Normalized entropy and vowel ratio alone cannot tell a German compound from a random
   string — measured against the hunspell `de_DE` list they flag **3.44%** of all 135810
