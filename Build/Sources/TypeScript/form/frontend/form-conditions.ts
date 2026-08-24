@@ -245,7 +245,7 @@ interface WsVariantRule {
   }
 
   function init(): void {
-    document.querySelectorAll<HTMLScriptElement>('script[type="application/json"][data-wsform-conditions]').forEach((island) => {
+    document.querySelectorAll<HTMLScriptElement>('script[type="application/json"][data-form-conditions]').forEach((island) => {
       const form = island.closest('form');
       if (!(form instanceof HTMLFormElement)) { return; }
       let data: { elements?: Record<string, WsVariantRule[]> };

@@ -80,7 +80,7 @@ final class InjectFrontendConditions
             ['elements' => $elements],
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
         );
-        $island = '<script type="application/json" data-wsform-conditions="1">' . $json . '</script>';
+        $island = '<script type="application/json" data-form-conditions="1">' . $json . '</script>';
 
         $event->renderedContent = $this->insertIntoForm($event->renderedContent, $island);
 

@@ -311,7 +311,7 @@ browser (show/hide via `renderingOptions.enabled`, required via a `NotEmpty` val
 not just on the server at page/step transitions. Pieces:
 
 - `InjectFrontendConditions` (listener on `AfterFormRenderedEvent`) emits a JSON island
-  `<script type="application/json" data-wsform-conditions>` inside the `<form>` carrying
+  `<script type="application/json" data-form-conditions>` inside the `<form>` carrying
   each element's `{condition, enabled?, required?}` rules, and loads
   `Resources/Public/JavaScript/frontend/form-conditions.js` via `AssetCollector`. Forms
   without such variants get neither.
