@@ -991,6 +991,85 @@ retention is storage limitation under Art. 5(1)(e) GDPR, not housekeeping.
 
 ---
 
+### Consent log (opt-in, `featureConsentLog`)
+
+One row per consent checkbox per submission: which consent, whether it was given, when, on
+which form and language — and the SHA-256 of the **exact wording the visitor was shown**.
+
+**Why it exists.** Art. 7(1) GDPR asks the controller to be able to demonstrate that the
+data subject consented. On a typical contact or trial-request form the only finisher is an
+e-mail one, which makes the notification mail the sole trace of the submission — and a
+mailbox is mutable, prunable, and silent about which version of the consent text was on
+screen. Printing `dsgvocheckbox-1: 1` into that mail was never evidence; it only looked
+like it.
+
+**What is recorded.** `tx_form_consent_log` holds the facts, `tx_form_consent_text` the
+wordings, addressed by hash and written once per distinct text. Normalised because the
+same paragraph repeats on every submission, and because "which versions have we ever
+shown" then costs one query. Editing a consent text mints a new hash and leaves every
+earlier record pointing at what was actually displayed.
+
+The wording is resolved through `TranslationService::translateFormElementValue()`, not
+`$element->getLabel()`. The latter returns the default-language text, which would put a
+German visitor on record as having agreed to the English paragraph — a consent record
+showing the wrong wording is worse than none, because it reads as authoritative.
+
+**The one personal datum** is `subject`: an identifying value from the submission, so a
+record can be produced for a named person. A form names its field through
+`renderingOptions.consentLog.subjectField` (identifier, or a comma-separated list tried in
+order); otherwise the usual e-mail identifiers are guessed. If none matches, the consent is
+still recorded — anonymously, which beats guessing a random text field into an evidence
+column. `renderingOptions.consentLog.enabled: false` opts a form out entirely.
+
+**Not part of EmailFinisher**, deliberately: consent belongs to the submission. A form that
+only writes to the database owes the same demonstration, and a form with two e-mail
+finishers must not record the consent twice. The listener sits on
+`BeforeFinisherExecutedEvent` — the earliest point that means "this submission passed
+validation and is being processed" — and deduplicates on the submission id.
+
+**Correlating with the mail log.** Both logs take their `submission_id` from the shared
+`SubmissionIdProvider`, so "consent given" and "notification sent" join on one column:
+
+```sql
+SELECT c.subject, c.given, m.status
+FROM tx_form_consent_log c
+LEFT JOIN tx_form_mail_log m ON m.submission_id = c.submission_id;
+```
+
+**Reading it.** Third view of the form log module (*Administration → Form log*), with a
+search by person: type an address, get every consent that person gave and the wording they
+saw. A log only a DBA can read does not satisfy "shall be able to demonstrate" in any
+practical sense — the person answering a subject access request is a DPO, not someone with
+SQL on production.
+
+**Limits, in the same spirit as the mail log's:**
+
+- **Off by default.** A table holding e-mail addresses is a processing decision, and it
+  needs a retention window before it is switched on.
+- **A rejected submission leaves no row.** Finishers run after validation, which is the
+  point: an abandoned form is not a consent.
+- **An unmarked consent is invisible.** Recognition is `properties.isConsentField` and
+  nothing else, so a checkbox nobody marked is not in the log — see the migration note in
+  the mail section.
+- **The label is not the policy.** What is recorded is the sentence next to the checkbox,
+  not the content of the privacy policy it links to at that moment.
+- **Not a consent-management platform.** It records that a consent was given; it does not
+  manage withdrawal, and a withdrawal recorded elsewhere is not reflected here.
+- **No TCA, by design**, like the two sibling logs — with the same flip side: an erasure
+  request needs the cleanup task or a manual query.
+
+**Periodic cleanup.** `TYPO3\CMS\Form\Task\CleanupConsentLogTask`, registered as **Form:
+clean up consent log**, reusing `tx_form_retention_days`, and dropping wordings nothing
+refers to any more after each run. Its default is **1095 days**, not the 90 of its
+siblings, and the difference is the whole point: pruning evidence on a monitoring-log
+schedule destroys exactly the record the log exists to keep. Three years is the German
+regelmäßige Verjährungsfrist (§ 195 BGB) used as a starting point, not advice — the right
+window follows from the purpose the consent was given for. "Keep forever" is not the safe
+option it looks like either, because `subject` is personal data and Art. 5(1)(e) still
+applies.
+
+---
+
 ## Fork maintenance
 
 ### Branch layout
@@ -1153,6 +1232,14 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   and reports what it did. Setting the property to `false` opts a field out.
 - `ConsentElementResolver`, the single answer to "is this element a consent checkbox?",
   shared by the e-mail summary and the consent log so the two cannot drift apart.
+- Consent log (`featureConsentLog`, off by default): one row per consent checkbox per
+  submission, with the SHA-256 of the wording actually shown, a third view in the form log
+  module to read it by person, and `CleanupConsentLogTask` for the retention window. Built
+  because collapsing the consent boilerplate out of the notification mail exposed that the
+  mail had been the only trace of the consent — and a poor one, since it could not say
+  which version of the text the visitor agreed to.
+- `SubmissionIdProvider`, shared by the mail and consent logs so their rows join on
+  `submission_id` (extracted from `MailLogRecorder`, no behaviour change).
 - `RenderAllFormValues` takes an `exclude` list of element identifiers, so a mail template
   can drop single fields without reimplementing the iteration.
 

@@ -2775,6 +2775,162 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Adds a row naming the site language the form was filled in with.</source>
         <target state="final">Ergänzt eine Zeile mit der Sprachversion, in der das Formular ausgefüllt wurde.</target>
       </trans-unit>
+      <trans-unit id="consentLog.headline" resname="consentLog.headline" approved="yes">
+        <source>Consent log</source>
+        <target state="final">Einwilligungs-Protokoll</target>
+      </trans-unit>
+      <trans-unit id="consentLog.detail.headline" resname="consentLog.detail.headline" approved="yes">
+        <source>Consent record</source>
+        <target state="final">Einwilligungs-Nachweis</target>
+      </trans-unit>
+      <trans-unit id="consentLog.intro" resname="consentLog.intro" approved="yes">
+        <source>One row per consent checkbox per submission: which consent, whether it was given, and the exact wording the visitor was shown. Art. 7(1) GDPR asks the controller to be able to demonstrate a consent — a notification mail cannot do that, because a mailbox is mutable and does not record which version of the text was displayed.</source>
+        <target state="final">Eine Zeile je Einwilligungs-Checkbox und Absendung: welche Einwilligung, ob sie erteilt wurde, und der genaue Text, der dem Besucher angezeigt wurde. Art. 7 Abs. 1 DSGVO verlangt, dass die Einwilligung nachgewiesen werden kann — eine Benachrichtigungsmail leistet das nicht, weil ein Postfach veränderlich ist und nicht festhält, welche Textfassung angezeigt wurde.</target>
+      </trans-unit>
+      <trans-unit id="consentLog.disabled" resname="consentLog.disabled" approved="yes">
+        <source>The consent log is switched off. Turn on "featureConsentLog" in the extension configuration of EXT:form, and set up the "Form: clean up consent log" scheduler task with a retention window that fits the purpose the consent was given for.</source>
+        <target state="final">Das Einwilligungs-Protokoll ist ausgeschaltet. „featureConsentLog" in der Extension-Konfiguration von EXT:form aktivieren und die Scheduler-Aufgabe „Form: clean up consent log" mit einer Aufbewahrungsfrist einrichten, die zum Zweck der Einwilligung passt.</target>
+      </trans-unit>
+      <trans-unit id="consentLog.empty" resname="consentLog.empty" approved="yes">
+        <source>No consent recorded in this period.</source>
+        <target state="final">In diesem Zeitraum wurde keine Einwilligung protokolliert.</target>
+      </trans-unit>
+      <trans-unit id="consentLog.given" resname="consentLog.given" approved="yes">
+        <source>Given</source>
+        <target state="final">Erteilt</target>
+      </trans-unit>
+      <trans-unit id="consentLog.withheld" resname="consentLog.withheld" approved="yes">
+        <source>Not given</source>
+        <target state="final">Nicht erteilt</target>
+      </trans-unit>
+      <trans-unit id="consentLog.back" resname="consentLog.back" approved="yes">
+        <source>Back to the list</source>
+        <target state="final">Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="consentLog.count.total" resname="consentLog.count.total" approved="yes">
+        <source>Records</source>
+        <target state="final">Nachweise</target>
+      </trans-unit>
+      <trans-unit id="consentLog.count.texts" resname="consentLog.count.texts" approved="yes">
+        <source>Wordings on file</source>
+        <target state="final">Hinterlegte Textfassungen</target>
+      </trans-unit>
+      <trans-unit id="consentLog.subject.none" resname="consentLog.subject.none" approved="yes">
+        <source>not recorded</source>
+        <target state="final">nicht erfasst</target>
+      </trans-unit>
+      <trans-unit id="consentLog.subject.none.hint" resname="consentLog.subject.none.hint" approved="yes">
+        <source>The form does not name a field identifying the person. Set renderingOptions.consentLog.subjectField to record one.</source>
+        <target state="final">Das Formular benennt kein Feld, das die Person identifiziert. Über renderingOptions.consentLog.subjectField festlegen.</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.from" resname="consentLog.filter.from" approved="yes">
+        <source>From</source>
+        <target state="final">Von</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.to" resname="consentLog.filter.to" approved="yes">
+        <source>To</source>
+        <target state="final">Bis</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.form" resname="consentLog.filter.form" approved="yes">
+        <source>Form</source>
+        <target state="final">Formular</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.form.all" resname="consentLog.filter.form.all" approved="yes">
+        <source>All forms</source>
+        <target state="final">Alle Formulare</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.subject" resname="consentLog.filter.subject" approved="yes">
+        <source>Person</source>
+        <target state="final">Person</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.subject.placeholder" resname="consentLog.filter.subject.placeholder" approved="yes">
+        <source>e-mail address</source>
+        <target state="final">E-Mail-Adresse</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.given" resname="consentLog.filter.given" approved="yes">
+        <source>Consent</source>
+        <target state="final">Einwilligung</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.given.all" resname="consentLog.filter.given.all" approved="yes">
+        <source>Any</source>
+        <target state="final">Beliebig</target>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.apply" resname="consentLog.filter.apply" approved="yes">
+        <source>Filter</source>
+        <target state="final">Filtern</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.time" resname="consentLog.column.time" approved="yes">
+        <source>Time</source>
+        <target state="final">Zeitpunkt</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.given" resname="consentLog.column.given" approved="yes">
+        <source>Consent</source>
+        <target state="final">Einwilligung</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.subject" resname="consentLog.column.subject" approved="yes">
+        <source>Person</source>
+        <target state="final">Person</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.consent" resname="consentLog.column.consent" approved="yes">
+        <source>Checkbox</source>
+        <target state="final">Checkbox</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.form" resname="consentLog.column.form" approved="yes">
+        <source>Form</source>
+        <target state="final">Formular</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.textVersion" resname="consentLog.column.textVersion" approved="yes">
+        <source>Wording</source>
+        <target state="final">Textfassung</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.detail" resname="consentLog.column.detail" approved="yes">
+        <source>Show record</source>
+        <target state="final">Nachweis anzeigen</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.context" resname="consentLog.column.context" approved="yes">
+        <source>Context</source>
+        <target state="final">Kontext</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.site" resname="consentLog.column.site" approved="yes">
+        <source>Site</source>
+        <target state="final">Site</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.page" resname="consentLog.column.page" approved="yes">
+        <source>Page</source>
+        <target state="final">Seite</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.language" resname="consentLog.column.language" approved="yes">
+        <source>Language</source>
+        <target state="final">Sprache</target>
+      </trans-unit>
+      <trans-unit id="consentLog.column.submission" resname="consentLog.column.submission" approved="yes">
+        <source>Submission id</source>
+        <target state="final">Absende-ID</target>
+      </trans-unit>
+      <trans-unit id="consentLog.text.headline" resname="consentLog.text.headline" approved="yes">
+        <source>Wording shown</source>
+        <target state="final">Angezeigter Text</target>
+      </trans-unit>
+      <trans-unit id="consentLog.text.hash" resname="consentLog.text.hash" approved="yes">
+        <source>Hash</source>
+        <target state="final">Hash</target>
+      </trans-unit>
+      <trans-unit id="consentLog.text.firstSeen" resname="consentLog.text.firstSeen" approved="yes">
+        <source>First used</source>
+        <target state="final">Erstmals verwendet</target>
+      </trans-unit>
+      <trans-unit id="consentLog.text.lastSeen" resname="consentLog.text.lastSeen" approved="yes">
+        <source>Last used</source>
+        <target state="final">Zuletzt verwendet</target>
+      </trans-unit>
+      <trans-unit id="consentLog.text.missing" resname="consentLog.text.missing" approved="yes">
+        <source>The wording behind this hash is no longer on file. The cleanup task removes a wording once the last record referring to it has been pruned.</source>
+        <target state="final">Der Text zu diesem Hash ist nicht mehr hinterlegt. Die Aufräum-Aufgabe entfernt eine Textfassung, sobald der letzte Nachweis dazu gelöscht wurde.</target>
+      </trans-unit>
+      <trans-unit id="consentLog.siblings.headline" resname="consentLog.siblings.headline" approved="yes">
+        <source>Other consents in the same submission</source>
+        <target state="final">Weitere Einwilligungen derselben Absendung</target>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Checkbox.editor.isConsentField.label" resname="formEditor.elements.Checkbox.editor.isConsentField.label" approved="yes">
         <source>Consent field (data protection)</source>
         <target state="final">Einwilligungsfeld (Datenschutz)</target>
