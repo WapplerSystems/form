@@ -28,6 +28,7 @@ use TYPO3\CMS\Form\Domain\Runtime\FormRuntime\FormSession;
 use TYPO3\CMS\Form\Mvc\Property\PropertyMappingConfiguration;
 use TYPO3\CMS\Form\Mvc\Validation\MimeTypeValidator;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
+use TYPO3\CMS\Form\Tests\Functional\SetsUpAdminBackendUserTrait;
 
 /**
  * Regression test for the file upload MIME type validation.
@@ -40,6 +41,8 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  */
 final class FileUploadMimeTypeValidatorRegistrationTest extends FunctionalTestCase
 {
+    use SetsUpAdminBackendUserTrait;
+
     protected array $coreExtensionsToLoad = ['form'];
 
     protected function setUp(): void
@@ -50,6 +53,11 @@ final class FileUploadMimeTypeValidatorRegistrationTest extends FunctionalTestCa
         // ConfigurationManager, which requires a request to be set.
         $request = (new ServerRequest())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
         $this->get(ExtbaseConfigurationManagerInterface::class)->setRequest($request);
+
+        // Resolving the upload folder initialises a ResourceStorage, and on 13.4
+        // StoragePermissionsAspect then dereferences $GLOBALS['BE_USER'] for a
+        // backend-typed request.
+        $this->setUpAdminBackendUser();
     }
 
     private function buildFormDefinition(array $fileUploadProperties): FormDefinition
