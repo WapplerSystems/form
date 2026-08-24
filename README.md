@@ -644,9 +644,28 @@ runs on every step, so `minimumSeconds` applies **per displayed step** — size 
 step, not for the whole form. Backward navigation still runs validation but its result is
 discarded by `FormRuntime`, so a quick *Previous* click cannot trap the visitor.
 
+A **rejected** submission does not restart it, though. Both halves of the measurement —
+the client's stopwatch and the age of the challenge token — used to reset on the re-render
+that follows a validation error, so a visitor who had spent a minute on the form and then
+fixed a typo in three seconds was told they were too fast. On the site this was built for
+that hit ten separate people on one form. `InjectFormChallenge` now reissues the token with
+the *original* issue time and hands the already measured milliseconds back to the client,
+which adds its own on top. Nothing is softened by this: the carried value is capped at how
+long the token has actually existed, so a client cannot inflate it, and a bot submitting
+twice in a row still shows a token age near zero.
+
 Both rejections are attached to the form root rather than to a field: there is no field
 to blame, and pointing a bot at the exact mechanism that caught it only helps whoever is
 tuning it.
+
+The challenge rejects with **two distinct messages and error codes**, because the two
+causes need different things from the reader. The response field is rendered holding a
+sentinel (`no-javascript`) that the client overwrites with its answer; getting the sentinel
+back means no script ran, which is reported as `errorMessageScriptMissing` (code
+`1755648003`) and says so — reload, allow scripts, try again. Any other unusable answer is
+a wrong one and keeps `errorMessage` (code `1755648001`). The split also separates the two
+in the validation log, where "a real visitor has a blocker" and "a bot is knocking" were
+previously the same row.
 
 #### Keeping PHP and JavaScript in sync
 
@@ -1267,6 +1286,16 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Fixed**
 
+- A rejected submission no longer restarts the fill-time clock. The re-render after a
+  validation error reissued the challenge token with a fresh timestamp and the client
+  restarted its stopwatch, so correcting a typo quickly was itself rejected as "too fast" —
+  ten separate visitors on one live form. The token now keeps its original issue time and
+  the measured milliseconds are handed back to the client, capped at the token's real age
+  so nothing can be inflated.
+- The challenge tells a blocked script apart from a wrong answer. The response field is
+  rendered with a sentinel the client overwrites; getting it back unchanged now yields its
+  own message and error code instead of the generic "could not be verified", which sent
+  visitors off to check a JavaScript setting that was never the problem.
 - `EntropySpam` requires an over-long consonant run before it calls a token gibberish.
   Normalized entropy and vowel ratio alone cannot tell a German compound from a random
   string — measured against the hunspell `de_DE` list they flag **3.44%** of all 135810

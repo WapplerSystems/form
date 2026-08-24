@@ -78,6 +78,20 @@ class FormChallengeService implements SingletonInterface
     public const RESPONSE_FIELD = 'tx_form_challenge_response';
 
     /**
+     * Rendered as the response field's initial value, overwritten by the client
+     * as soon as it has solved the challenge.
+     *
+     * Exists so a rejection can name its cause. An empty field means "no
+     * JavaScript ran" and a wrong token means "the answer was wrong", but with
+     * the field starting out empty the two collapse into one another and the
+     * visitor gets the same shrug either way. A client that never executed the
+     * script submits this value back verbatim, which is a fact worth telling
+     * them about: "your browser did not run our script" is actionable, "could
+     * not be verified" is not.
+     */
+    public const SCRIPT_MISSING_SENTINEL = 'no-javascript';
+
+    /**
      * Name of the hidden field carrying the milliseconds the visitor spent on
      * the currently displayed step, as measured by the frontend module.
      * Consumed by MinimumFillTimeValidator.
@@ -111,6 +125,18 @@ class FormChallengeService implements SingletonInterface
         $encodedPayload = $this->base64UrlEncode($payload);
 
         return $encodedPayload . '.' . $this->sign($encodedPayload);
+    }
+
+    /**
+     * Issue time of a token that verifies for this form, or NULL.
+     *
+     * Same check as verifyToken() without the age limit: the caller wants to
+     * know when the visitor first saw the form, not whether that was recently
+     * enough.
+     */
+    public function readIssuedAt(string $token, string $formIdentifier): ?int
+    {
+        return $this->verifyToken($token, $formIdentifier, 0);
     }
 
     /**

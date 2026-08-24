@@ -5,10 +5,10 @@
  * the <form> so several forms on one page stay independent):
  *
  *   <script type="application/json" data-form-challenge="1">
- *     {"challenge":"…","method":"rot13reverse","delay":3000,
+ *     {"challenge":"…","method":"rot13reverse","delay":3000,"elapsed":0,
  *      "fields":{"response":"tx_form_challenge_response","time":"tx_form_fill_time"}}
  *   </script>
- *   <input type="hidden" name="tx_form_challenge_response" value="" autocomplete="off" />
+ *   <input type="hidden" name="tx_form_challenge_response" value="no-javascript" autocomplete="off" />
  *   <input type="hidden" name="tx_form_fill_time" value="" autocomplete="off" />
  *
  * Two jobs, either of which may be absent depending on what the form switched on:
@@ -89,9 +89,23 @@
             return;
         }
 
+        // Milliseconds the visitor already spent on this form before a rejected
+        // submission, handed over by the server. Without it the clock restarts
+        // on every re-render and someone who fixes a typo in three seconds is
+        // told they were too fast, however long they worked on the form before.
+        const carried = typeof data.elapsed === 'number' && data.elapsed > 0
+            ? Math.round(data.elapsed)
+            : 0;
+
         const startedAt = now();
-        const elapsed = function () {
+        // Kept apart on purpose: the delay is about this render ("has the
+        // browser waited before answering"), the fill time is about the visitor
+        // ("how long have they been at this form in total").
+        const sinceRender = function () {
             return Math.max(0, Math.round(now() - startedAt));
+        };
+        const elapsed = function () {
+            return carried + sinceRender();
         };
 
         const writeTime = function () {
@@ -102,8 +116,16 @@
 
         const delay = typeof data.delay === 'number' && data.delay >= 0 ? data.delay : 0;
         const solve = function () {
-            if (responseField !== null && responseField.value === '' && typeof data.challenge === 'string') {
-                responseField.value = deobfuscate(data.challenge, data.method);
+            if (responseField === null || typeof data.challenge !== 'string') {
+                return;
+            }
+            // Compared against the answer rather than against "empty": the
+            // field is rendered holding a sentinel now, so that the server can
+            // tell "no script ran" from "wrong answer" when it comes back
+            // untouched.
+            const answer = deobfuscate(data.challenge, data.method);
+            if (responseField.value !== answer) {
+                responseField.value = answer;
             }
         };
 
@@ -116,7 +138,7 @@
             // still be pending on a form the visitor left open and came back to.
             // Filling in late is fine as long as the delay itself has really
             // passed — that is the property the server relies on, not the timer.
-            if (elapsed() >= delay) {
+            if (sinceRender() >= delay) {
                 solve();
             }
             writeTime();

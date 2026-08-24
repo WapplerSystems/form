@@ -75,7 +75,12 @@ final class ChallengeValidator extends AbstractFormAwareValidator
         ],
         'errorMessage' => [
             'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.Challenge.errorMessage',
-            'Error message shown when the challenge was not solved. Accepts an LLL: reference.',
+            'Error message shown when a challenge answer was submitted but does not verify. Accepts an LLL: reference.',
+            'string',
+        ],
+        'errorMessageScriptMissing' => [
+            'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.Challenge.errorMessageScriptMissing',
+            'Error message shown when the browser never answered at all - the response field came back holding the sentinel it was rendered with, or empty. Separated from "errorMessage" because this case has something the visitor can act on: a blocked or failed script, rather than a wrong answer. Accepts an LLL: reference.',
             'string',
         ],
     ];
@@ -92,8 +97,12 @@ final class ChallengeValidator extends AbstractFormAwareValidator
         $parsedBody = $this->formRuntime->getRequest()->getParsedBody();
         $response = is_array($parsedBody) ? ($parsedBody[FormChallengeService::RESPONSE_FIELD] ?? null) : null;
 
-        if (!is_string($response) || $response === '') {
-            $this->reject();
+        // The sentinel is what the field is rendered with, so getting it back
+        // means the script never ran. Telling the visitor that, instead of the
+        // generic "could not be verified", is the difference between a message
+        // they can act on and one they cannot.
+        if (!is_string($response) || $response === '' || $response === FormChallengeService::SCRIPT_MISSING_SENTINEL) {
+            $this->rejectScriptMissing();
             return;
         }
 
@@ -112,6 +121,20 @@ final class ChallengeValidator extends AbstractFormAwareValidator
         $this->addError(
             $this->resolveErrorMessage(),
             1755648001
+        );
+    }
+
+    /**
+     * Distinct error code on purpose: the validation log then separates "no
+     * script ran" from "wrong answer", which are different problems with
+     * different fixes - the first is usually a blocker on a real visitor, the
+     * second is usually a bot.
+     */
+    private function rejectScriptMissing(): void
+    {
+        $this->addError(
+            $this->resolveErrorMessage('errorMessageScriptMissing'),
+            1755648003
         );
     }
 }

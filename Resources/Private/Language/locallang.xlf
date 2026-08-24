@@ -195,6 +195,9 @@
       <trans-unit id="finisher.email.consent.acceptprivacypolicy">
         <source>Privacy policy</source>
       </trans-unit>
+      <trans-unit id="formLevelValidators.Challenge.errorMessageScriptMissing">
+        <source>Your browser did not run the script that verifies this form. This is usually a script or ad blocker, or a privacy extension. Please reload the page, allow scripts for this site and send the form again.</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>
