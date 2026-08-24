@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
+use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -70,7 +70,6 @@ abstract class AbstractFormLogController extends ActionController
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
-        protected readonly ComponentFactory $componentFactory,
         protected readonly IconFactory $iconFactory,
     ) {}
 
@@ -85,13 +84,17 @@ abstract class AbstractFormLogController extends ActionController
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         $this->addViewMenu($moduleTemplate);
 
-        $moduleTemplate->getDocHeaderComponent()->setShortcutContext(
-            'form_log',
-            $this->translate($titleKey),
-            // Extbase derives the plugin namespace from the module identifier, so
-            // it is tx_form_form_log — not the container's identifier, which is
-            // what FormManagerController gets wrong.
-            ['tx_form_form_log' => $shortcutArguments]
+        // v13 has no DocHeaderComponent::setShortcutContext(); the shortcut is a
+        // button on the bar here. Extbase derives the plugin namespace from the
+        // module identifier, so it is tx_form_form_log — not the container's
+        // identifier, which is what FormManagerController gets wrong.
+        $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
+        $buttonBar->addButton(
+            $buttonBar->makeShortcutButton()
+                ->setRouteIdentifier('form_log')
+                ->setDisplayName($this->translate($titleKey))
+                ->setArguments(['tx_form_form_log' => $shortcutArguments]),
+            ButtonBar::BUTTON_POSITION_RIGHT
         );
 
         $moduleTemplate->setModuleClass($this->request->getPluginName() . '_' . $this->request->getControllerName());
@@ -143,20 +146,21 @@ abstract class AbstractFormLogController extends ActionController
     {
         $currentController = $this->request->getControllerName();
 
-        $menu = $this->componentFactory->createMenu()
+        $menuRegistry = $moduleTemplate->getDocHeaderComponent()->getMenuRegistry();
+        $menu = $menuRegistry->makeMenu()
             ->setIdentifier('formLogViews')
             ->setLabel($this->translate('formLog.views'));
 
         foreach (static::VIEWS as $view) {
             $menu->addMenuItem(
-                $this->componentFactory->createMenuItem()
+                $menu->makeMenuItem()
                     ->setTitle($this->translate($view['label']))
                     ->setHref((string)$this->uriBuilder->uriFor($view['action'], [], $view['controller']))
                     ->setActive($currentController === $view['controller'])
             );
         }
 
-        $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
+        $menuRegistry->addMenu($menu);
     }
 
     protected function translate(string $key): string

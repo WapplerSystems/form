@@ -13,11 +13,10 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Controller;
 
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
-use TYPO3\CMS\Core\Pagination\QueryBuilderPaginator;
+use TYPO3\CMS\Form\Pagination\QueryBuilderPaginator;
 use TYPO3\CMS\Core\Pagination\SimplePagination;
 use TYPO3\CMS\Form\Domain\DTO\MailLogDemand;
 use TYPO3\CMS\Form\Domain\Repository\MailLogRepository;
@@ -42,11 +41,10 @@ class MailLogController extends AbstractFormLogController
 {
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
-        ComponentFactory $componentFactory,
         IconFactory $iconFactory,
         protected readonly MailLogRepository $mailLogRepository,
     ) {
-        parent::__construct($moduleTemplateFactory, $componentFactory, $iconFactory);
+        parent::__construct($moduleTemplateFactory, $iconFactory);
     }
 
     /**
@@ -90,8 +88,9 @@ class MailLogController extends AbstractFormLogController
         }
 
         $moduleTemplate = $this->createModuleTemplate($this->request, 'mailLog.headline');
-        $moduleTemplate->addButtonToButtonBar(
-            $this->componentFactory->createLinkButton()
+        $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
+        $buttonBar->addButton(
+            $buttonBar->makeLinkButton()
                 ->setHref($this->uriBuilder->uriFor('index'))
                 ->setTitle($this->translate('mailLog.back'))
                 ->setShowLabelText(true)

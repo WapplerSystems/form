@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Controller;
 
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Form\Domain\DTO\ValidationStatsDemand;
@@ -36,11 +35,10 @@ class ValidationStatsController extends AbstractFormLogController
 {
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
-        ComponentFactory $componentFactory,
         IconFactory $iconFactory,
         protected readonly ValidationLogRepository $validationLogRepository,
     ) {
-        parent::__construct($moduleTemplateFactory, $componentFactory, $iconFactory);
+        parent::__construct($moduleTemplateFactory, $iconFactory);
     }
 
     /**

@@ -18,16 +18,13 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Hooks;
 
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
-use TYPO3\CMS\Backend\Domain\Repository\Localization\LocalizationRepository;
 use TYPO3\CMS\Backend\Preview\PreviewRendererInterface;
-use TYPO3\CMS\Backend\Preview\RecordFieldPreviewProcessor;
 use TYPO3\CMS\Backend\Preview\StandardContentPreviewRenderer;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
-use TYPO3\CMS\Core\Domain\FlexFormFieldValues;
 use TYPO3\CMS\Core\Error\Exception;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
-use TYPO3\CMS\Core\Schema\TcaSchemaFactory;
+use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Form\Mvc\Configuration\Exception\NoSuchFileException;
 use TYPO3\CMS\Form\Mvc\Configuration\Exception\ParseErrorException;
@@ -46,34 +43,27 @@ class FormPagePreviewRenderer extends StandardContentPreviewRenderer implements 
     public function __construct(
         protected readonly FormPersistenceManagerInterface $formPersistenceManager,
         protected readonly FlashMessageService $flashMessageService,
-        protected ?RecordFieldPreviewProcessor $fieldProcessor,
-        protected ?TcaSchemaFactory $tcaSchemaFactory,
-        protected ?LocalizationRepository $localizationRepository,
+        protected readonly FlexFormService $flexFormService,
     ) {}
 
     public function renderPageModulePreviewContent(GridColumnItem $item): string
     {
-        $record = $item->getRecord();
-        $request = $item->getContext()->getCurrentRequest();
-        $persistenceIdentifier = null;
-        if ($record->has('pi_flexform')) {
-            $flexFormData = $record->get('pi_flexform');
-            if ($flexFormData instanceof FlexFormFieldValues) {
-                if ($flexFormData->has('sDEF/settings.persistenceIdentifier')) {
-                    $persistenceIdentifier = $flexFormData->get('sDEF/settings.persistenceIdentifier');
-                } else {
-                    $this->logger?->warning(
-                        'Field "pi_flexform" for record-uid "{uid}" does not contain a persistence identifier.',
-                        ['uid' => $record->getUid()]
-                    );
-                }
-            } else {
-                $this->logger?->warning(
-                    'Type "{type}" of field "pi_flexform" for record-uid "{uid}" is not valid.',
-                    ['type' => get_debug_type($flexFormData), 'uid' => $record->getUid()]
-                );
-            }
+        // TYPO3 v13 hands the raw record array here (v14's Record object with
+        // has()/get() and FlexFormFieldValues does not exist yet), so pi_flexform
+        // arrives as the serialized flexform string and has to be converted.
+        $row = $item->getRecord();
+        $flexFormData = $row['pi_flexform'] ?? [];
+        if (is_string($flexFormData)) {
+            $flexFormData = $this->flexFormService->convertFlexFormContentToArray($flexFormData);
         }
+        if (!is_array($flexFormData)) {
+            $this->logger?->warning(
+                'Type "{type}" of field "pi_flexform" for record-uid "{uid}" is not valid. Must be either empty or set to one of: "string", "array".',
+                ['type' => get_debug_type($flexFormData), 'uid' => $row['uid'] ?? 'UNKNOWN']
+            );
+            $flexFormData = [];
+        }
+        $persistenceIdentifier = $flexFormData['settings']['persistenceIdentifier'] ?? '';
         $languageService = $this->getLanguageService();
         if (!empty($persistenceIdentifier)) {
             try {
@@ -120,8 +110,10 @@ class FormPagePreviewRenderer extends StandardContentPreviewRenderer implements 
         } else {
             $formLabel = $languageService->sL(self::L10N_PREFIX . 'tt_content.preview.noPersistenceIdentifier');
         }
-        $itemContent = '<strong>' . htmlspecialchars($item->getContext()->getContentTypeLabels()['form_formframework']) . '</strong><br />';
-        return $this->fieldProcessor->linkToEditForm($itemContent . htmlspecialchars($formLabel), $record, $request);
+        // v13 has no RecordFieldPreviewProcessor; StandardContentPreviewRenderer
+        // still provides linkEditContent() for the same purpose.
+        $itemContent = $this->linkEditContent('<strong>' . htmlspecialchars($item->getContext()->getContentTypeLabels()['form_formframework']) . '</strong>', $row) . '<br />';
+        return $itemContent . $this->linkEditContent(htmlspecialchars($formLabel), $row) . '<br />';
     }
 
     protected function addInvalidFrameworkConfigurationFlashMessage(string $persistenceIdentifier, \Exception $e): void

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Security;
 
-use TYPO3\CMS\Core\Crypto\HashAlgo;
 use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\SingletonInterface;
 
@@ -232,7 +231,7 @@ class FormChallengeService implements SingletonInterface
 
     private function sign(string $encodedPayload): string
     {
-        return $this->hashService->hmac($encodedPayload, self::HMAC_SECRET, HashAlgo::SHA256);
+        return $this->hashService->hmac($encodedPayload, self::HMAC_SECRET);
     }
 
     /**

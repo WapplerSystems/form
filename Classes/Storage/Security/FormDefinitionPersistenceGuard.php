@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Storage\Security;
 
-use TYPO3\CMS\Core\Crypto\HashAlgo;
 use TYPO3\CMS\Core\Crypto\HashService;
 
 /**
@@ -138,8 +137,7 @@ final class FormDefinitionPersistenceGuard
             'names' => array_keys($fields),
             'hmac' => $this->hashService->hmac(
                 json_encode($fields, JSON_THROW_ON_ERROR),
-                FormDefinitionPersistenceGuard::class,
-                HashAlgo::SHA3_384
+                FormDefinitionPersistenceGuard::class
             ),
         ];
     }

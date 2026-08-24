@@ -18,14 +18,14 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Upgrades;
 
 use Psr\Log\LoggerInterface;
-use TYPO3\CMS\Core\Attribute\UpgradeWizard;
-use TYPO3\CMS\Core\Upgrades\ConfirmableInterface;
-use TYPO3\CMS\Core\Upgrades\Confirmation;
-use TYPO3\CMS\Core\Upgrades\DatabaseUpdatedPrerequisite;
-use TYPO3\CMS\Core\Upgrades\UpgradeWizardInterface;
 use TYPO3\CMS\Form\Domain\DTO\FormMetadata;
 use TYPO3\CMS\Form\Domain\Repository\FormDefinitionRepository;
 use TYPO3\CMS\Form\Service\FormTransferService;
+use TYPO3\CMS\Install\Attribute\UpgradeWizard;
+use TYPO3\CMS\Install\Updates\ConfirmableInterface;
+use TYPO3\CMS\Install\Updates\Confirmation;
+use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
+use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 
 /**
  * Migrate file-based form definitions (YAML) to database storage.

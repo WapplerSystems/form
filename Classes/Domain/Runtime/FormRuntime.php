@@ -26,7 +26,6 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Crypto\HashAlgo;
 use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Error\Http\BadRequestException;
 use TYPO3\CMS\Core\Exception\Crypto\InvalidHashStringException;
@@ -253,7 +252,7 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
             $this->formState = GeneralUtility::makeInstance(FormState::class);
         } else {
             try {
-                $serializedFormState = $this->hashService->validateAndStripHmac($serializedFormStateWithHmac, HashScope::FormState->prefix(), HashAlgo::SHA3_256);
+                $serializedFormState = $this->hashService->validateAndStripHmac($serializedFormStateWithHmac, HashScope::FormState->prefix());
             } catch (InvalidHashStringException $e) {
                 throw new BadRequestException('The HMAC of the form state could not be validated.', 1581862823);
             }

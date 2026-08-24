@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\ViewHelpers;
 
-use TYPO3\CMS\Core\Crypto\HashAlgo;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper as FluidFormViewHelper;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
@@ -52,8 +51,7 @@ final class FormViewHelper extends FluidFormViewHelper
             $prefix . '[__state]',
             $this->hashService->appendHmac(
                 base64_encode(serialize($formRuntime->getFormState())),
-                HashScope::FormState->prefix(),
-                HashAlgo::SHA3_256
+                HashScope::FormState->prefix()
             )
         );
 

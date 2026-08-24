@@ -507,7 +507,7 @@ class FormManagerController extends ActionController
     protected function initializeModuleTemplate(ServerRequestInterface $request, int $page, string $searchTerm): ModuleTemplate
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $addFormButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\LinkButton::class)
+        $addFormButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton::class)
             ->setDataAttributes(['identifier' => 'newForm'])
             ->setHref('#')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.create_new_form'))

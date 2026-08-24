@@ -13,14 +13,13 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Controller;
 
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
-use TYPO3\CMS\Core\Pagination\QueryBuilderPaginator;
+use TYPO3\CMS\Form\Pagination\QueryBuilderPaginator;
 use TYPO3\CMS\Core\Pagination\SimplePagination;
 use TYPO3\CMS\Form\Domain\DTO\ConsentLogDemand;
 use TYPO3\CMS\Form\Domain\Repository\ConsentLogRepository;
@@ -40,12 +39,11 @@ class ConsentLogController extends AbstractFormLogController
 {
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
-        ComponentFactory $componentFactory,
         IconFactory $iconFactory,
         protected readonly ConsentLogRepository $consentLogRepository,
         protected readonly ExtensionConfiguration $extensionConfiguration,
     ) {
-        parent::__construct($moduleTemplateFactory, $componentFactory, $iconFactory);
+        parent::__construct($moduleTemplateFactory, $iconFactory);
     }
 
     /**
@@ -92,8 +90,9 @@ class ConsentLogController extends AbstractFormLogController
         }
 
         $moduleTemplate = $this->createModuleTemplate($this->request, 'consentLog.headline');
-        $moduleTemplate->addButtonToButtonBar(
-            $this->componentFactory->createLinkButton()
+        $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
+        $buttonBar->addButton(
+            $buttonBar->makeLinkButton()
                 ->setHref($this->uriBuilder->uriFor('index'))
                 ->setTitle($this->translate('consentLog.back'))
                 ->setShowLabelText(true)

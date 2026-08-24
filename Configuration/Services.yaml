@@ -9,6 +9,11 @@ services:
     exclude:
       - '../Classes/{Domain/Model}'
       - '../Classes/Mvc/Configuration/FormYamlConfiguration.php'
+      # Registered from Services.php, and only when EXT:install is installed -
+      # on v13 the upgrade wizard interfaces live in EXT:install, which is not a
+      # dependency of this extension. (On v14 they are in Core and this exclude
+      # is unnecessary.)
+      - '../Classes/Upgrades'
 
   # Explicitly declared public so that ConfigurationManager can receive it via
   # DI autowiring. Populated at container build time via FormYamlCollectorConfigurator.

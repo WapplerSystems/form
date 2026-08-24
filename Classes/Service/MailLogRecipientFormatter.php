@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Service;
 
 use Symfony\Component\Mime\Address;
-use TYPO3\CMS\Core\Crypto\HashAlgo;
 use TYPO3\CMS\Core\Crypto\HashService;
 
 /**
@@ -98,7 +97,7 @@ readonly class MailLogRecipientFormatter
      */
     private function hash(string $address): string
     {
-        $hash = $this->hashService->hmac(strtolower($address), self::HMAC_SECRET, HashAlgo::SHA256);
+        $hash = $this->hashService->hmac(strtolower($address), self::HMAC_SECRET);
 
         return substr($hash, 0, self::HASH_LENGTH);
     }

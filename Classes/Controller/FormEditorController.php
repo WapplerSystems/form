@@ -706,13 +706,13 @@ class FormEditorController extends ActionController
         $getVars = $request->getArguments();
         if (isset($getVars['action']) && $getVars['action'] === 'index') {
             $closeUrl = $returnUrl !== '' ? $returnUrl : (string)$this->coreUriBuilder->buildUriFromRoute('web_FormFormbuilder');
-            $closeButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\LinkButton::class)
+            $closeButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton::class)
                 ->setHref($closeUrl)
                 ->setDataAttributes(['identifier' => 'closeButton'])
                 ->setClasses('formeditor-element-close-form-button hidden btn btn-sm btn-default close')
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.close'));
             $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
-            $saveButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\InputButton::class)
+            $saveButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\Buttons\InputButton::class)
                 ->setDataAttributes(['identifier' => 'saveButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.save_button'))
                 ->setName('formeditor-save-form')
@@ -721,7 +721,7 @@ class FormEditorController extends ActionController
                 ->setIcon($this->iconFactory->getIcon('actions-document-save', IconSize::SMALL))
                 ->setShowLabelText(true);
             $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($saveButton, ButtonBar::BUTTON_POSITION_LEFT, 3);
-            $undoButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\InputButton::class)
+            $undoButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\Buttons\InputButton::class)
                 ->setDataAttributes(['identifier' => 'undoButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.undo_button'))
                 ->setName('formeditor-undo-form')
@@ -729,7 +729,7 @@ class FormEditorController extends ActionController
                 ->setClasses('formeditor-element-undo-form-button hidden disabled')
                 ->setIcon($this->iconFactory->getIcon('actions-edit-undo', IconSize::SMALL));
             $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($undoButton, ButtonBar::BUTTON_POSITION_LEFT, 5);
-            $redoButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\InputButton::class)
+            $redoButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\Buttons\InputButton::class)
                 ->setDataAttributes(['identifier' => 'redoButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.redo_button'))
                 ->setName('formeditor-redo-form')
