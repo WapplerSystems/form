@@ -29,6 +29,7 @@ use TYPO3\CMS\Form\Domain\Repository\MailLogRepository;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Enum\MailLogStatus;
 use TYPO3\CMS\Form\Service\MailLogRecipientFormatter;
+use TYPO3\CMS\Form\Service\SubmissionIdProvider;
 use TYPO3\CMS\Form\Service\MailLogRecorder;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
@@ -84,6 +85,7 @@ final class MailLogRecorderTest extends UnitTestCase
             new MailLogRecipientFormatter(new HashService()),
             $extensionConfiguration,
             $mailer,
+            new SubmissionIdProvider(),
         );
     }
 
