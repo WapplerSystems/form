@@ -60,3 +60,8 @@ services:
   # a private service's constructor.
   TYPO3\CMS\Form\Domain\Repository\MailLogRepository:
     public: true
+
+  # WapplerSystems fork: consent log. Public for the same reason —
+  # CleanupConsentLogTask is built by the scheduler, not by the container.
+  TYPO3\CMS\Form\Domain\Repository\ConsentLogRepository:
+    public: true

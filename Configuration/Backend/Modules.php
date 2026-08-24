@@ -2,6 +2,7 @@
 
 use TYPO3\CMS\Form\Controller\FormEditorController;
 use TYPO3\CMS\Form\Controller\FormManagerController;
+use TYPO3\CMS\Form\Controller\ConsentLogController;
 use TYPO3\CMS\Form\Controller\MailLogController;
 use TYPO3\CMS\Form\Controller\ValidationStatsController;
 
@@ -67,6 +68,9 @@ return [
             ],
             ValidationStatsController::class => [
                 'index',
+            ],
+            ConsentLogController::class => [
+                'index', 'show',
             ],
         ],
     ],

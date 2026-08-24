@@ -2069,6 +2069,123 @@ If you need higher values contact your administrator for help.
       <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.showFormLanguage.description">
         <source>Adds a row naming the site language the form was filled in with.</source>
       </trans-unit>
+      <trans-unit id="consentLog.headline">
+        <source>Consent log</source>
+      </trans-unit>
+      <trans-unit id="consentLog.detail.headline">
+        <source>Consent record</source>
+      </trans-unit>
+      <trans-unit id="consentLog.intro">
+        <source>One row per consent checkbox per submission: which consent, whether it was given, and the exact wording the visitor was shown. Art. 7(1) GDPR asks the controller to be able to demonstrate a consent — a notification mail cannot do that, because a mailbox is mutable and does not record which version of the text was displayed.</source>
+      </trans-unit>
+      <trans-unit id="consentLog.disabled">
+        <source>The consent log is switched off. Turn on "featureConsentLog" in the extension configuration of EXT:form, and set up the "Form: clean up consent log" scheduler task with a retention window that fits the purpose the consent was given for.</source>
+      </trans-unit>
+      <trans-unit id="consentLog.empty">
+        <source>No consent recorded in this period.</source>
+      </trans-unit>
+      <trans-unit id="consentLog.given">
+        <source>Given</source>
+      </trans-unit>
+      <trans-unit id="consentLog.withheld">
+        <source>Not given</source>
+      </trans-unit>
+      <trans-unit id="consentLog.back">
+        <source>Back to the list</source>
+      </trans-unit>
+      <trans-unit id="consentLog.count.total">
+        <source>Records</source>
+      </trans-unit>
+      <trans-unit id="consentLog.count.texts">
+        <source>Wordings on file</source>
+      </trans-unit>
+      <trans-unit id="consentLog.subject.none">
+        <source>not recorded</source>
+      </trans-unit>
+      <trans-unit id="consentLog.subject.none.hint">
+        <source>The form does not name a field identifying the person. Set renderingOptions.consentLog.subjectField to record one.</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.from">
+        <source>From</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.to">
+        <source>To</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.form">
+        <source>Form</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.form.all">
+        <source>All forms</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.subject">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.subject.placeholder">
+        <source>e-mail address</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.given">
+        <source>Consent</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.given.all">
+        <source>Any</source>
+      </trans-unit>
+      <trans-unit id="consentLog.filter.apply">
+        <source>Filter</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.time">
+        <source>Time</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.given">
+        <source>Consent</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.subject">
+        <source>Person</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.consent">
+        <source>Checkbox</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.form">
+        <source>Form</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.textVersion">
+        <source>Wording</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.detail">
+        <source>Show record</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.context">
+        <source>Context</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.site">
+        <source>Site</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.page">
+        <source>Page</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.language">
+        <source>Language</source>
+      </trans-unit>
+      <trans-unit id="consentLog.column.submission">
+        <source>Submission id</source>
+      </trans-unit>
+      <trans-unit id="consentLog.text.headline">
+        <source>Wording shown</source>
+      </trans-unit>
+      <trans-unit id="consentLog.text.hash">
+        <source>Hash</source>
+      </trans-unit>
+      <trans-unit id="consentLog.text.firstSeen">
+        <source>First used</source>
+      </trans-unit>
+      <trans-unit id="consentLog.text.lastSeen">
+        <source>Last used</source>
+      </trans-unit>
+      <trans-unit id="consentLog.text.missing">
+        <source>The wording behind this hash is no longer on file. The cleanup task removes a wording once the last record referring to it has been pruned.</source>
+      </trans-unit>
+      <trans-unit id="consentLog.siblings.headline">
+        <source>Other consents in the same submission</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Checkbox.editor.isConsentField.label">
         <source>Consent field (data protection)</source>
       </trans-unit>

@@ -21,13 +21,13 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /**
- * Shared scaffolding for the two views of the form log module.
+ * Shared scaffolding for the views of the form log module.
  *
- * Both views answer questions about the same submissions from opposite ends —
- * "did the mail go out?" and "what did people get wrong on the way?" — so they
- * belong in one module with a switch rather than in two menu entries. Everything
- * that makes them feel like one module lives here: the view menu, the shortcut
- * context and the title.
+ * They all answer questions about the same submissions from different ends —
+ * "did the mail go out?", "what did people get wrong on the way?", "did this
+ * person consent, and to what?" — so they belong in one module with a switch
+ * rather than in separate menu entries. Everything that makes them feel like
+ * one module lives here: the view menu, the shortcut context and the title.
  *
  * @internal not part of public TYPO3 Core API
  */
@@ -59,6 +59,12 @@ abstract class AbstractFormLogController extends ActionController
             'action' => 'index',
             'label' => 'validationStats.headline',
             'icon' => 'content-widget-chart-bar',
+        ],
+        [
+            'controller' => 'ConsentLog',
+            'action' => 'index',
+            'label' => 'consentLog.headline',
+            'icon' => 'actions-check',
         ],
     ];
 

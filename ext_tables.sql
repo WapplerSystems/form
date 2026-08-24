@@ -108,3 +108,61 @@ CREATE TABLE tx_form_mail_log (
 	KEY idx_status (status,crdate),
 	KEY idx_submission (submission_id)
 );
+
+#
+# WapplerSystems fork: consent log (see Classes/EventListener/RecordConsents.php).
+# One row per consent checkbox per submission.
+#
+# Art. 7(1) GDPR asks the controller to be able to demonstrate that the data
+# subject consented. For a form whose only finisher is an Email one, the
+# notification mail is the sole trace of a submission — a mailbox is not an
+# evidence store, and it cannot say WHICH wording was shown. This table can:
+# `text_hash` points at tx_form_consent_text, so a later edit of the consent
+# text does not rewrite what past visitors agreed to.
+#
+# `subject` holds one identifying value from the submission (usually the e-mail
+# address) so a record can be produced for a named person. It is the only
+# personal datum here, it is only filled when the form names a subject field,
+# and CleanupConsentLogTask prunes it — see the task for why its default
+# retention is years rather than the 90 days of the mail log.
+#
+CREATE TABLE tx_form_consent_log (
+	uid                INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+	crdate             INT(11) UNSIGNED    DEFAULT 0 NOT NULL,
+	submission_id      VARCHAR(32)         DEFAULT '' NOT NULL,
+	form_identifier    VARCHAR(100)        DEFAULT '' NOT NULL,
+	element_identifier VARCHAR(100)        DEFAULT '' NOT NULL,
+	consent_key        VARCHAR(100)        DEFAULT '' NOT NULL,
+	given              TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+	text_hash          VARCHAR(64)         DEFAULT '' NOT NULL,
+	subject            VARCHAR(255)        DEFAULT '' NOT NULL,
+	subject_field      VARCHAR(100)        DEFAULT '' NOT NULL,
+	site_identifier    VARCHAR(100)        DEFAULT '' NOT NULL,
+	page_uid           INT(11) UNSIGNED    DEFAULT 0 NOT NULL,
+	language_uid       INT(11)             DEFAULT 0 NOT NULL,
+	PRIMARY KEY (uid),
+	KEY idx_form (form_identifier,crdate),
+	KEY idx_submission (submission_id),
+	KEY idx_subject (subject(100)),
+	KEY idx_crdate (crdate)
+);
+
+#
+# WapplerSystems fork: the distinct consent wordings ever shown, addressed by
+# the SHA-256 of the text. Normalised out of tx_form_consent_log because the
+# same paragraph repeats on every single submission, and because "which
+# versions have we ever used" then becomes one query instead of a GROUP BY over
+# the whole log.
+#
+# Rows are written once and never updated; `last_seen` only moves forward.
+#
+CREATE TABLE tx_form_consent_text (
+	uid          INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	crdate       INT(11) UNSIGNED DEFAULT 0 NOT NULL,
+	last_seen    INT(11) UNSIGNED DEFAULT 0 NOT NULL,
+	text_hash    VARCHAR(64)      DEFAULT '' NOT NULL,
+	language_uid INT(11)          DEFAULT 0 NOT NULL,
+	consent_text TEXT,
+	PRIMARY KEY (uid),
+	UNIQUE KEY uniq_hash (text_hash)
+);

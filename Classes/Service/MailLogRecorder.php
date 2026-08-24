@@ -67,7 +67,6 @@ class MailLogRecorder implements LoggerAwareInterface
      */
     private array $policies = [];
 
-    private ?string $submissionId = null;
 
     /**
      * Set once a write failed in a way that will keep failing.
@@ -79,6 +78,9 @@ class MailLogRecorder implements LoggerAwareInterface
         private readonly MailLogRecipientFormatter $recipientFormatter,
         private readonly ExtensionConfiguration $extensionConfiguration,
         private readonly MailerInterface $mailer,
+        // Shared with the consent log so a consent row and the mail it
+        // triggered carry the same submission_id.
+        private readonly SubmissionIdProvider $submissionIdProvider,
     ) {}
 
     /**
@@ -277,7 +279,7 @@ class MailLogRecorder implements LoggerAwareInterface
      */
     private function submissionId(): string
     {
-        return $this->submissionId ??= bin2hex(random_bytes(16));
+        return $this->submissionIdProvider->get();
     }
 
     /**

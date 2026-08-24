@@ -6,3 +6,6 @@ featureMailLog = 0
 
 # cat=Backend; type=boolean; label=Mail log for every form: also record rows for forms that did not opt in. Those rows carry NO personal data (no recipient, subject or sender) - only form, finisher, status, error code and timestamps. Recommended on, because the form nobody watches is the form nobody opts in. Turn off for strict per-form opt-in.
 mailLogAllForms = 1
+
+# cat=Backend; type=boolean; label=Consent log: record one row per consent checkbox per submission (which consent, given or not, and a hash of the exact wording shown) so the consent can be demonstrated under Art. 7(1) GDPR independently of the notification mail. Needs a retention decision - see CleanupConsentLogTask.
+featureConsentLog = 0
