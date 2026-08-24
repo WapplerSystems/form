@@ -7,7 +7,7 @@
  * only be corrected by re-picking everything. Both are what the field promises
  * when it says "you may upload individual documents".
  *
- * Markup contract (emitted by FileUpload.fluid.html when properties.multiple is
+ * Markup contract (emitted by FileUpload.html when properties.multiple is
  * on; several upload fields per page stay independent):
  *
  *   <input type="file" multiple id="…" data-form-multi-upload
@@ -46,7 +46,7 @@
 
     /**
      * The list belongs directly after the input. The server renders it there
-     * (FileUpload.fluid.html captures it and prints it below the ViewHelper) but
+     * (FileUpload.html captures it and prints it below the ViewHelper) but
      * only when files are already persisted - so reuse it when present, otherwise
      * create it in the same position, so pending and persisted files always
      * appear in one place.

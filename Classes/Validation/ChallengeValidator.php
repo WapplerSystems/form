@@ -48,7 +48,7 @@ use TYPO3\CMS\Form\Security\FormChallengeService;
  * The error is attached to the form root, not to a field: there is no field to
  * blame, and a spam shield reporting *which* mechanism caught a bot at the exact
  * field level would only help whoever is tuning their bot against it. The fork's
- * Form.fluid.html renders form-root errors as a summary above the form, so a
+ * Form.html renders form-root errors as a summary above the form, so a
  * human who hits this (JavaScript disabled) still sees the message; templates
  * without such a summary reject silently, which for a shield is acceptable.
  */

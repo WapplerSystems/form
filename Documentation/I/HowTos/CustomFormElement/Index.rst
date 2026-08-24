@@ -138,11 +138,11 @@ Create custom template
 
 Create your own Fluid template:
 
-:file:`EXT:my_extension/Resources/Private/Partials/Form/GenderSelect.fluid.html`
+:file:`EXT:my_extension/Resources/Private/Partials/Form/GenderSelect.html`
 
-.. literalinclude:: _GenderSelect.fluid.html
+.. literalinclude:: _GenderSelect.html
    :language: html
-   :caption: EXT:my_extension/Resources/Private/Partials/Form/GenderSelect.fluid.html
+   :caption: EXT:my_extension/Resources/Private/Partials/Form/GenderSelect.html
 
 
 Update configuration

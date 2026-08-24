@@ -990,7 +990,7 @@ export function renderGridColumnViewPortConfigurationEditor(editorConfiguration,
 /**
  * WapplerSystems fork: same viewport-button + number-input UI as
  * renderGridColumnViewPortConfigurationEditor() above (identical markup,
- * Inspector/GridColumnViewPortConfigurationEditor.fluid.html is reused for
+ * Inspector/GridColumnViewPortConfigurationEditor.html is reused for
  * both templateNames), but without that function's "only show inside a
  * GridRow" guard - which crashes with "Cannot read properties of null
  * (reading 'get')" for any element without a parent (e.g. the Form root),

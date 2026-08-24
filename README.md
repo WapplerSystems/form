@@ -247,7 +247,7 @@ for database-stored forms too.
   is a `<p class="form-label">`. A form does not know the document outline of the page it
   is placed on, so a hard-coded `h2` competes with the page's own heading structure and
   inherits whatever the site styles `h2` with. This is a deliberate divergence from
-  `typo3/cms-form`, which hard-codes `h2` in `StaticText.fluid.html` and `Page.fluid.html`.
+  `typo3/cms-form`, which hard-codes `h2` in `StaticText.html` and `Page.html`.
 
 ### Runtime
 
@@ -408,7 +408,7 @@ A native `<input type="file" multiple>` replaces its whole `FileList` on every p
 offers no way to drop a single file again: choosing files twice silently loses the first
 selection, and a mis-picked file can only be corrected by re-picking everything.
 
-For a file upload with `properties.multiple`, `FileUpload.fluid.html` therefore emits a
+For a file upload with `properties.multiple`, `FileUpload.html` therefore emits a
 markup contract for `Resources/Public/JavaScript/frontend/file-upload.js`:
 
 ```html
@@ -530,7 +530,7 @@ The validator identifier must be registered in the prototype's `validatorsDefini
 internal listener `RunFormLevelValidators` consumes `AfterFormIsValidatedEvent` and
 invokes each declared validator after per-element validation has finished; errors merge
 into the form's aggregate `Result`. Because a form-root error only renders where the
-template has a summary block, `Frontend/Templates/Form.fluid.html` ships one.
+template has a summary block, `Frontend/Templates/Form.html` ships one.
 
 `errorMessage` accepts an `LLL:` reference, resolved against the active site language —
 form-level validator options are not covered by the form's XLF chain. An empty

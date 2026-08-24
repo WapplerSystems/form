@@ -21,7 +21,7 @@ use TYPO3\CMS\Form\Event\AfterYamlConfigurationLoadedEvent;
  * list of available Fluid email templates so the editor can offer a template chooser.
  *
  * The list is derived dynamically by scanning the finisher's configured
- * `options.templateRootPaths` for `*.fluid.html` files — so templates added by
+ * `options.templateRootPaths` for `*.html` files — so templates added by
  * integrators via templateRootPaths automatically appear in the chooser without any
  * code change. Injected centrally via AfterYamlConfigurationLoadedEvent (same channel
  * as the variants editor) so it also feeds the form-editor setup delivered to the JS.
@@ -73,9 +73,9 @@ final class InjectEmailTemplatesIntoFinisherEditors
     }
 
     /**
-     * Scan the given template root paths for Fluid email templates (*.fluid.html)
+     * Scan the given template root paths for Fluid email templates (*.html)
      * and return a map of {templateName => label}. The template name is the file
-     * name without the ".fluid.html" suffix (e.g. "Default"); later root paths
+     * name without the ".html" suffix (e.g. "Default"); later root paths
      * override earlier ones (highest array key wins), mirroring TYPO3 root-path
      * fallback semantics.
      *
@@ -97,10 +97,10 @@ final class InjectEmailTemplatesIntoFinisherEditors
             }
             $files = GeneralUtility::getFilesInDir($absolutePath, 'html');
             foreach ($files as $file) {
-                if (!str_ends_with($file, '.fluid.html')) {
+                if (!str_ends_with($file, '.html')) {
                     continue;
                 }
-                $templateName = substr($file, 0, -strlen('.fluid.html'));
+                $templateName = substr($file, 0, -strlen('.html'));
                 if ($templateName !== '') {
                     $templates[$templateName] = $templateName;
                 }
