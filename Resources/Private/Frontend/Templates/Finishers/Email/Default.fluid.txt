@@ -3,7 +3,7 @@
 <f:section name="Main">
 <f:variable name="plainBefore">{f:if(condition: plainMessageProvided, then: '{plainMessageBefore -> f:format.raw()}', else: '{messageBefore -> f:format.stripTags()}')}</f:variable><f:variable name="plainAfter">{f:if(condition: plainMessageProvided, then: '{plainMessageAfter -> f:format.raw()}', else: '{messageAfter -> f:format.stripTags()}')}</f:variable><f:variable name="hideValues" value="{f:if(condition: plainMessageProvided, then: hidePlainFormValues, else: hideFormValues)}"/><f:if condition="{plainBefore}">{plainBefore -> f:format.raw()}
 
-</f:if><f:if condition="!{hideValues}"><formvh:renderAllFormValues renderable="{form.formDefinition}" as="formValue"><f:spaceless>
+</f:if><f:if condition="!{hideValues}"><formvh:renderAllFormValues renderable="{form.formDefinition}" as="formValue" exclude="{excludedElementIdentifiers}"><f:spaceless>
     <f:if condition="{formValue.isMultiValue}">
         <f:then>
             <f:if condition="{formValue.isSection}"><f:then>*** {formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey)} ***</f:then><f:else>{formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey) -> f:format.stripTags()}: <f:for each="{formValue.processedValue}" as="singleValue">- {singleValue}
@@ -14,6 +14,8 @@
         </f:else>
     </f:if>
 </f:spaceless>
-</formvh:renderAllFormValues></f:if><f:if condition="{plainAfter}">
+</formvh:renderAllFormValues><f:if condition="{consentSummary}">
+{consentSummaryLabel}: <f:for each="{consentSummary}" as="consent" iteration="consentIteration"><f:if condition="!{consentIteration.isFirst}">, </f:if><f:if condition="{consent.given}"><f:then>✓</f:then><f:else>✗</f:else></f:if> {consent.name}</f:for></f:if><f:if condition="{formLanguage}">
+{formLanguageLabel}: {formLanguage}<f:if condition="{formLanguageCode}"> ({formLanguageCode})</f:if></f:if></f:if><f:if condition="{plainAfter}">
 {plainAfter -> f:format.raw()}</f:if>
 </f:section>

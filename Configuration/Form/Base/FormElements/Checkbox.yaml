@@ -24,6 +24,16 @@ prototypes:
               templateName: Inspector-CheckboxEditor
               label: formEditor.elements.FormElement.editor.enabled.label
               propertyPath: renderingOptions.enabled
+            # WapplerSystems fork: marks this checkbox as a consent, which takes
+            # its legal paragraph out of the notification mail (one summary row
+            # instead) and records it in the consent log. Explicit because the
+            # identifier heuristic cannot see a consent the editor generated as
+            # "checkbox-3" - see ConsentElementResolver.
+            250:
+              identifier: isConsentField
+              templateName: Inspector-CheckboxEditor
+              label: formEditor.elements.Checkbox.editor.isConsentField.label
+              propertyPath: properties.isConsentField
             600:
               identifier: autocomplete
               templateName: Inspector-SingleSelectEditor

@@ -2743,6 +2743,42 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Validation logging is opt-in per form via renderingOptions.recordValidationFailures. With the filter set to real visitors, an empty result is good news.</source>
         <target state="final">Das Validierungs-Protokoll wird pro Formular über renderingOptions.recordValidationFailures aktiviert. Steht der Filter auf echte Besucher, ist ein leeres Ergebnis eine gute Nachricht.</target>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.showFormLanguage.label" approved="yes">
+        <source>Show form language</source>
+        <target state="final">Formularsprache anzeigen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.showFormLanguage.description" approved="yes">
+        <source>Adds a row naming the site language the form was filled in with. Useful when "Translation language" pins the mail to one language.</source>
+        <target state="final">Ergänzt eine Zeile mit der Sprachversion, in der das Formular ausgefüllt wurde. Sinnvoll, wenn „Übersetzungssprache“ die Mail auf eine feste Sprache festlegt.</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.showFormLanguage.label" approved="yes">
+        <source>Show form language</source>
+        <target state="final">Formularsprache anzeigen</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.showFormLanguage.description" approved="yes">
+        <source>Adds a row naming the site language the form was filled in with.</source>
+        <target state="final">Ergänzt eine Zeile mit der Sprachversion, in der das Formular ausgefüllt wurde.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.showFormLanguage.label" approved="yes">
+        <source>Show form language</source>
+        <target state="final">Formularsprache anzeigen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.showFormLanguage.description" approved="yes">
+        <source>Adds a row naming the site language the form was filled in with. Useful when "Translation language" pins the mail to one language.</source>
+        <target state="final">Ergänzt eine Zeile mit der Sprachversion, in der das Formular ausgefüllt wurde. Sinnvoll, wenn „Übersetzungssprache“ die Mail auf eine feste Sprache festlegt.</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.showFormLanguage.label" approved="yes">
+        <source>Show form language</source>
+        <target state="final">Formularsprache anzeigen</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.showFormLanguage.description" approved="yes">
+        <source>Adds a row naming the site language the form was filled in with.</source>
+        <target state="final">Ergänzt eine Zeile mit der Sprachversion, in der das Formular ausgefüllt wurde.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Checkbox.editor.isConsentField.label" resname="formEditor.elements.Checkbox.editor.isConsentField.label" approved="yes">
+        <source>Consent field (data protection)</source>
+        <target state="final">Einwilligungsfeld (Datenschutz)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

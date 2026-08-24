@@ -165,6 +165,36 @@
       <trans-unit id="formLevelValidators.MinimumFillTime.errorMessage">
         <source>The form was submitted too quickly. Please take a moment and try again.</source>
       </trans-unit>
+      <trans-unit id="finisher.email.formLanguage">
+        <source>Language of the submission</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent">
+        <source>Consent</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.dsgvocheckbox">
+        <source>Data processing</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.gdprcheckbox">
+        <source>Data processing</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.datenschutzcheckbox">
+        <source>Data processing</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.privacycheckbox">
+        <source>Privacy policy</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.privacypolicycheckbox">
+        <source>Privacy policy</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.privacystatementcheckbox">
+        <source>Privacy policy</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.dsgvo">
+        <source>Data processing</source>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.acceptprivacypolicy">
+        <source>Privacy policy</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

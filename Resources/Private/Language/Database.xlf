@@ -2045,6 +2045,33 @@ If you need higher values contact your administrator for help.
       <trans-unit id="validationStats.empty.hint">
         <source>Validation logging is opt-in per form via renderingOptions.recordValidationFailures. With the filter set to real visitors, an empty result is good news.</source>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.showFormLanguage.label">
+        <source>Show form language</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToSender.editor.showFormLanguage.description">
+        <source>Adds a row naming the site language the form was filled in with. Useful when "Translation language" pins the mail to one language.</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.showFormLanguage.label">
+        <source>Show form language</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToSender.showFormLanguage.description">
+        <source>Adds a row naming the site language the form was filled in with.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.showFormLanguage.label">
+        <source>Show form language</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.EmailToReceiver.editor.showFormLanguage.description">
+        <source>Adds a row naming the site language the form was filled in with. Useful when "Translation language" pins the mail to one language.</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.showFormLanguage.label">
+        <source>Show form language</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.EmailToReceiver.showFormLanguage.description">
+        <source>Adds a row naming the site language the form was filled in with.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Checkbox.editor.isConsentField.label">
+        <source>Consent field (data protection)</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>
