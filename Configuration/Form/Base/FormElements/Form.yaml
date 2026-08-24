@@ -477,6 +477,15 @@ prototypes:
                       10:
                         value: default
                         label: formEditor.elements.Form.finisher.EmailToSender.editor.language.1
+                  # WapplerSystems fork: "language" above pins the mail to one language
+                  # for the recipient. This keeps the language the visitor actually
+                  # used visible as a row of its own.
+                  1300:
+                    identifier: showFormLanguage
+                    templateName: Inspector-CheckboxEditor
+                    label: formEditor.elements.Form.finisher.EmailToSender.editor.showFormLanguage.label
+                    propertyPath: options.showFormLanguage
+                    description: formEditor.elements.Form.finisher.EmailToSender.editor.showFormLanguage.description
                   1400:
                     identifier: title
                     templateName: Inspector-TextEditor
@@ -677,6 +686,15 @@ prototypes:
                       10:
                         value: default
                         label: formEditor.elements.Form.finisher.EmailToReceiver.editor.language.1
+                  # WapplerSystems fork: "language" above pins the mail to one language
+                  # for the recipient. This keeps the language the visitor actually
+                  # used visible as a row of its own.
+                  1300:
+                    identifier: showFormLanguage
+                    templateName: Inspector-CheckboxEditor
+                    label: formEditor.elements.Form.finisher.EmailToReceiver.editor.showFormLanguage.label
+                    propertyPath: options.showFormLanguage
+                    description: formEditor.elements.Form.finisher.EmailToReceiver.editor.showFormLanguage.description
                   1400:
                     identifier: title
                     templateName: Inspector-TextEditor

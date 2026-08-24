@@ -178,6 +178,46 @@
         <source>The form was submitted too quickly. Please take a moment and try again.</source>
         <target state="final">Das Formular wurde zu schnell abgeschickt. Bitte nehmen Sie sich einen Moment und versuchen Sie es erneut.</target>
       </trans-unit>
+      <trans-unit id="finisher.email.formLanguage" resname="finisher.email.formLanguage" approved="yes">
+        <source>Language of the submission</source>
+        <target state="final">Sprache der Anfrage</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent" resname="finisher.email.consent" approved="yes">
+        <source>Consent</source>
+        <target state="final">Einwilligungen</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.dsgvocheckbox" resname="finisher.email.consent.dsgvocheckbox" approved="yes">
+        <source>Data processing</source>
+        <target state="final">Datenverarbeitung</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.gdprcheckbox" resname="finisher.email.consent.gdprcheckbox" approved="yes">
+        <source>Data processing</source>
+        <target state="final">Datenverarbeitung</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.datenschutzcheckbox" resname="finisher.email.consent.datenschutzcheckbox" approved="yes">
+        <source>Data processing</source>
+        <target state="final">Datenverarbeitung</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.privacycheckbox" resname="finisher.email.consent.privacycheckbox" approved="yes">
+        <source>Privacy policy</source>
+        <target state="final">Datenschutzerklärung</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.privacypolicycheckbox" resname="finisher.email.consent.privacypolicycheckbox" approved="yes">
+        <source>Privacy policy</source>
+        <target state="final">Datenschutzerklärung</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.privacystatementcheckbox" resname="finisher.email.consent.privacystatementcheckbox" approved="yes">
+        <source>Privacy policy</source>
+        <target state="final">Datenschutzerklärung</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.dsgvo" resname="finisher.email.consent.dsgvo" approved="yes">
+        <source>Data processing</source>
+        <target state="final">Datenverarbeitung</target>
+      </trans-unit>
+      <trans-unit id="finisher.email.consent.acceptprivacypolicy" resname="finisher.email.consent.acceptprivacypolicy" approved="yes">
+        <source>Privacy policy</source>
+        <target state="final">Datenschutzerklärung</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

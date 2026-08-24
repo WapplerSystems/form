@@ -43,6 +43,10 @@ final class RenderAllFormValuesViewHelper extends AbstractViewHelper
     {
         $this->registerArgument('renderable', RootRenderableInterface::class, 'A RootRenderableInterface instance', true);
         $this->registerArgument('as', 'string', 'The name within the template', false, 'formValue');
+        // WapplerSystems fork: lets a template drop single elements from the
+        // output (consent checkboxes in an e-mail, for example) without having
+        // to reimplement the iteration.
+        $this->registerArgument('exclude', 'array', 'Identifiers of elements that are skipped', false, []);
     }
 
     /**
@@ -57,8 +61,12 @@ final class RenderAllFormValuesViewHelper extends AbstractViewHelper
             $elements = [$renderable];
         }
         $as = $this->arguments['as'];
+        $exclude = (array)($this->arguments['exclude'] ?? []);
         $output = '';
         foreach ($elements as $element) {
+            if ($exclude !== [] && in_array($element->getIdentifier(), $exclude, true)) {
+                continue;
+            }
             $output .= $this->renderingContext->getViewHelperInvoker()->invoke(
                 RenderFormValueViewHelper::class,
                 [

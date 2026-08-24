@@ -4,48 +4,81 @@
 <f:layout name="SystemEmail" />
 <f:section name="Title">{title}</f:section>
 <f:section name="Main">
+    <f:comment>
+        Inline styles only - every mail client that matters drops a <style>
+        block, and the surrounding SystemEmail layout is shared with other
+        senders, so this section may not rely on its classes.
+    </f:comment>
+    <f:variable name="fontStack">'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif</f:variable>
+    <f:variable name="ruleStyle">border-bottom:1px solid #e6e6e6;</f:variable>
+    <f:variable name="labelStyle">width:38%;padding:9px 16px 9px 0;{ruleStyle}color:#6b6b6b;font-family:{fontStack};font-size:14px;line-height:150%;font-weight:normal;text-align:left;vertical-align:top;</f:variable>
+    <f:variable name="valueStyle">padding:9px 0;{ruleStyle}color:#222222;font-family:{fontStack};font-size:14px;line-height:150%;font-weight:bold;text-align:left;vertical-align:top;</f:variable>
+    <f:variable name="sectionStyle">padding:22px 0 6px;border-bottom:2px solid #d4d4d4;color:#999999;font-family:{fontStack};font-size:12px;line-height:150%;font-weight:bold;letter-spacing:0.08em;text-transform:uppercase;text-align:left;vertical-align:bottom;</f:variable>
+    <f:variable name="consentValueStyle">padding:9px 0;{ruleStyle}color:#222222;font-family:{fontStack};font-size:14px;line-height:150%;font-weight:normal;text-align:left;vertical-align:top;</f:variable>
+    <f:variable name="metaLabelStyle">width:38%;padding:16px 16px 0 0;color:#999999;font-family:{fontStack};font-size:12px;line-height:150%;font-weight:normal;text-align:left;vertical-align:top;</f:variable>
+    <f:variable name="metaValueStyle">padding:16px 0 0;color:#999999;font-family:{fontStack};font-size:12px;line-height:150%;font-weight:normal;text-align:left;vertical-align:top;</f:variable>
+    <f:variable name="emptyStyle">color:#b0b0b0;font-weight:normal;</f:variable>
+
     <f:if condition="{messageBefore}">{messageBefore -> f:sanitize.html() -> f:transform.html()}</f:if>
     <f:if condition="!{hideFormValues}">
-    <table>
-        <formvh:renderAllFormValues renderable="{form.formDefinition}" as="formValue">
-            <tr>
-                <f:if condition="{formValue.isSection}">
-                    <f:then>
-                        <td colspan="2"><b>{formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey)}</b></td>
-                    </f:then>
-                    <f:else>
-                        <td valign="top" align="left">{formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey) -> f:sanitize.html() -> f:transform.html()}</td>
-                        <td valign="top" align="left">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;">
+        <f:comment>
+            "exclude" drops consent checkboxes and valueless display elements;
+            the EmailFinisher decides what ends up in that list.
+        </f:comment>
+        <formvh:renderAllFormValues renderable="{form.formDefinition}" as="formValue" exclude="{excludedElementIdentifiers}">
+            <f:if condition="{formValue.isSection}">
+                <f:then>
+                    <tr>
+                        <td colspan="2" style="{sectionStyle}">{formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey) -> f:sanitize.html() -> f:transform.html()}</td>
+                    </tr>
+                </f:then>
+                <f:else>
+                    <tr>
+                        <td style="{labelStyle}">{formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey) -> f:sanitize.html() -> f:transform.html()}</td>
+                        <td style="{valueStyle}">
                             <f:if condition="{formValue.value}">
                                 <f:then>
                                     <f:if condition="{formValue.isMultiValue}">
                                         <f:then>
-                                            <table cellspacing="0" border="0">
-                                                <f:for each="{formValue.processedValue}" as="value">
-                                                    <tr>
-                                                        <td>{value}</td>
-                                                    </tr>
-                                                </f:for>
-                                            </table>
+                                            <f:for each="{formValue.processedValue}" as="value" iteration="valueIteration"><f:if condition="!{valueIteration.isFirst}"><br /></f:if>{value}</f:for>
                                         </f:then>
                                         <f:else>
-                                            <table cellspacing="0" border="0">
-                                                <tr>
-                                                    <td><f:format.nl2br>{formValue.processedValue}</f:format.nl2br></td>
-                                                </tr>
-                                            </table>
+                                            <f:format.nl2br>{formValue.processedValue}</f:format.nl2br>
                                         </f:else>
                                     </f:if>
                                 </f:then>
                                 <f:else>
-                                    -
+                                    <span style="{emptyStyle}">&#8211;</span>
                                 </f:else>
                             </f:if>
                         </td>
-                    </f:else>
-                </f:if>
-            </tr>
+                    </tr>
+                </f:else>
+            </f:if>
         </formvh:renderAllFormValues>
+        <f:comment>
+            Assigned whenever consent checkboxes were taken out of the table
+            above. Dropping the paragraph of legal text must not drop the
+            record that the consent was given.
+        </f:comment>
+        <f:if condition="{consentSummary}">
+            <tr>
+                <td style="{labelStyle}">{consentSummaryLabel}</td>
+                <td style="{consentValueStyle}"><f:for each="{consentSummary}" as="consent" iteration="consentIteration"><f:if condition="!{consentIteration.isFirst}"><br /></f:if><f:if condition="{consent.given}"><f:then>&#10003;</f:then><f:else>&#10007;</f:else></f:if>&#160;{consent.name}</f:for></td>
+            </tr>
+        </f:if>
+        <f:comment>
+            Only assigned when the finisher option "showFormLanguage" is on -
+            the label follows the mail language, the value names the site
+            language the visitor filled the form in.
+        </f:comment>
+        <f:if condition="{formLanguage}">
+            <tr>
+                <td style="{metaLabelStyle}">{formLanguageLabel}</td>
+                <td style="{metaValueStyle}">{formLanguage}<f:if condition="{formLanguageCode}"> ({formLanguageCode})</f:if></td>
+            </tr>
+        </f:if>
     </table>
     </f:if>
     <f:if condition="{messageAfter}">{messageAfter -> f:sanitize.html() -> f:transform.html()}</f:if>

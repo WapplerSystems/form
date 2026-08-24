@@ -152,6 +152,53 @@ are shipped in `Resources/Private/Language/de.Database.xlf`):
   *Insert field marker…* dropdown drops `{fieldIdentifier}` / `{formValues}` placeholders
   at the cursor, so editors don't type the placeholder syntax by hand.
 
+- **Readable field table, and the consent as one line instead of a paragraph** — The
+  default e-mail template renders the submitted values as a two-column table (muted labels,
+  emphasised values, a rule between rows). Consent checkboxes no longer take a whole
+  paragraph of legal text each: they are folded into a single **Consent** row —
+  `✓ Data processing · ✓ Privacy policy`. The mail therefore still documents *that* the
+  consent was given, which Art. 7(1) GDPR asks the controller to be able to demonstrate,
+  without the boilerplate that pushed the actual enquiry out of sight. Elements that hold
+  no value at all (`StaticText`, `ContentElement`, `Honeypot`) are dropped entirely.
+  `consentSummary: false` drops the consent row too, `hideConsentFields: false` restores the
+  full rows, `excludeElements` (array or comma-separated identifiers) removes further
+  fields, and the `exclude` argument of `RenderAllFormValues` does the same from a custom
+  template.
+
+- **Which checkbox counts as a consent** is decided by one rule and one only:
+  `properties.isConsentField`, the **Consent field (data protection)** checkbox on the
+  element in the form editor. No name matching, no type sniffing.
+  `properties.consentKind` optionally selects the caption
+  (`finisher.email.consent.<kind>` in locallang.xlf); without it the field is captioned by
+  its own label, truncated.
+
+  An earlier draft guessed from the identifier, on the theory that the migration away from
+  `DSGVOCheckbox` / `PrivacyPolicyCheckbox` had left recognisable prefixes behind. Measured
+  against the thirteen consent checkboxes of the site this was built for, that guess missed
+  three — one prefix nobody had thought of, one spelled differently, and a consent to pass
+  personal data to partner companies named plainly `checkbox-1`. The last is both the one no
+  name rule can ever reach and the one whose Art. 7(1) evidence is least optional. For a
+  legal record that is the worst failure mode available: it covers most cases silently and
+  says nothing about the rest.
+
+  **Migrating existing forms.** Removing the guess means every consent already in a form
+  definition has to be stamped, or it stops being recognised — and an unmarked consent does
+  not just vanish from the log, its full legal paragraph comes back into every notification
+  mail. Definitions inside extensions are marked in their repositories. For definitions in
+  fileadmin or the database, write a one-shot upgrade wizard: parse each definition, set
+  `isConsentField` / `consentKind` on the elements the old naming identifies, skip anything
+  that already carries the property, and log every decision. Note that rewriting a
+  definition re-dumps its YAML and therefore drops comments — the form editor does the same
+  on every save, so they were never durable, but it is visible in a diff.
+
+- **The language the visitor used** — `translation.language` pins a finisher mail to one
+  language so the service desk always reads the same one, which also hides which language
+  version of the site the enquiry came from. The `showFormLanguage` option (a checkbox in
+  the form editor, off by default) adds a row for it: the label follows the mail language,
+  the value names the site language the form was filled in with. Submitted option values
+  keep the visitor's language either way, so the recipient sees the wording the visitor
+  actually chose.
+
 ### Localization (in-editor, per site language)
 
 No XLF authoring required — translations are stored inside the form definition and work
@@ -1093,6 +1140,21 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   `3b95dc8e`) and its breakpoints ("Stufen") fully YAML-defined (`a07b3fee`).
 - Translation overlay covers every scalar property (`16954997`); the translations and
   variants editors are declared statically per element (`6f259827`).
+- `showFormLanguage` on both e-mail finishers: a row naming the site language the visitor
+  filled the form in. `translation.language` pins the mail to the language the service desk
+  reads, which until now hid the fact that the enquiry came in through the English or Dutch
+  version of the site.
+- `properties.isConsentField`, a **Consent field (data protection)** checkbox in the form
+  editor, is the single way a checkbox is recognised as a consent. An identifier heuristic
+  was tried first and dropped: it could not see a consent the editor generated as
+  `checkbox-3`, and on the site this was built for it missed three of thirteen — among them
+  a transfer-to-third-parties consent, the one that most clearly needs Art. 7(1) evidence.
+  Existing definitions are stamped by a one-shot upgrade wizard instead, which is auditable
+  and reports what it did. Setting the property to `false` opts a field out.
+- `ConsentElementResolver`, the single answer to "is this element a consent checkbox?",
+  shared by the e-mail summary and the consent log so the two cannot drift apart.
+- `RenderAllFormValues` takes an `exclude` list of element identifiers, so a mail template
+  can drop single fields without reimplementing the iteration.
 
 **Changed**
 
@@ -1103,6 +1165,15 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   stops competing with the page's own heading outline (`c64dccf2`).
 - The default e-mail template list is declared in YAML, so an extension shipping its own
   templates *adds* to the dropdown instead of replacing it (`afbed92d`).
+- The default e-mail template renders the submitted values as a readable two-column table
+  — muted labels, emphasised values, a rule between rows — instead of an unstyled `<table>`
+  of nested tables.
+- Consent checkboxes are collapsed into a single **Consent** row naming each consent and
+  whether it was given, instead of printing a paragraph of legal text per checkbox. The
+  record stays in the mail — for a form whose only finisher is an e-mail one, that mail is
+  the sole trace of the submission, so silently dropping the row would drop the evidence
+  with it. Elements that cannot carry a value at all (`StaticText`, `ContentElement`,
+  `Honeypot`) are omitted outright.
 - Release tags are uniformly `v`-prefixed and the `v14.3.x` namespace belongs to fork
   releases — core tags are no longer mirrored to `origin`. Every published version keeps
   its commit, only the spelling changed (`d0d29e85`).
