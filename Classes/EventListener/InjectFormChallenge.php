@@ -14,6 +14,7 @@ namespace TYPO3\CMS\Form\EventListener;
 
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Page\AssetCollector;
+use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Event\AfterFormRenderedEvent;
 use TYPO3\CMS\Form\Security\FormChallengeService;
 use TYPO3\CMS\Form\Validation\ChallengeValidator;
@@ -83,11 +84,24 @@ final class InjectFormChallenge
         $island = ['fields' => []];
         $hiddenFields = '';
 
+        // A re-render after a rejected submission must not restart the clock.
+        // Both halves of the fill-time measurement otherwise reset to zero, and
+        // a visitor who spent a minute on the form and then fixes a typo in
+        // three seconds is told they were too fast - measured on the live site
+        // this hit ten separate people on one form. Carrying the original
+        // render time and the already measured milliseconds forward keeps the
+        // total honest without softening the check: a bot that submits twice in
+        // a row still shows a token age near zero.
+        $previous = $this->readPreviousMeasurement($event->formRuntime, $formDefinition->getIdentifier());
+
         if ($challengeOptions !== null) {
             $method = $this->challengeService->normalizeMethod(
                 (string)($challengeOptions['obfuscationMethod'] ?? FormChallengeService::DEFAULT_OBFUSCATION_METHOD)
             );
-            $token = $this->challengeService->createToken($formDefinition->getIdentifier());
+            $token = $this->challengeService->createToken(
+                $formDefinition->getIdentifier(),
+                $previous['issuedAt']
+            );
 
             $island['challenge'] = $this->challengeService->obfuscate($token, $method);
             $island['method'] = $method;
@@ -96,11 +110,17 @@ final class InjectFormChallenge
             $island['delay'] = (int)round(max(0.0, (float)($challengeOptions['delay'] ?? self::DEFAULT_DELAY)) * 1000);
             $island['fields']['response'] = FormChallengeService::RESPONSE_FIELD;
 
-            $hiddenFields .= $this->hiddenField(FormChallengeService::RESPONSE_FIELD);
+            $hiddenFields .= $this->hiddenField(
+                FormChallengeService::RESPONSE_FIELD,
+                FormChallengeService::SCRIPT_MISSING_SENTINEL
+            );
         }
 
         if ($needsFillTime) {
             $island['fields']['time'] = FormChallengeService::FILL_TIME_FIELD;
+            // Milliseconds the visitor already spent on this form before the
+            // rejected submission; the client adds its own measurement on top.
+            $island['elapsed'] = $previous['elapsedMilliseconds'];
             $hiddenFields .= $this->hiddenField(FormChallengeService::FILL_TIME_FIELD);
         }
 
@@ -121,14 +141,62 @@ final class InjectFormChallenge
     }
 
     /**
+     * What the visitor already invested before a rejected submission: the issue
+     * time of the token they sent back, and the milliseconds their browser had
+     * measured.
+     *
+     * Both are taken only from a token whose signature verifies for this very
+     * form, so neither can be inflated by a client: the issue time is the
+     * server's own, and the reported milliseconds are capped by how long that
+     * token has actually existed.
+     *
+     * @return array{issuedAt: int|null, elapsedMilliseconds: int}
+     */
+    private function readPreviousMeasurement(FormRuntime $formRuntime, string $formIdentifier): array
+    {
+        $none = ['issuedAt' => null, 'elapsedMilliseconds' => 0];
+
+        $parsedBody = $formRuntime->getRequest()->getParsedBody();
+        if (!is_array($parsedBody)) {
+            return $none;
+        }
+
+        $response = $parsedBody[FormChallengeService::RESPONSE_FIELD] ?? null;
+        if (!is_string($response) || $response === '') {
+            return $none;
+        }
+
+        $issuedAt = $this->challengeService->readIssuedAt($response, $formIdentifier);
+        if ($issuedAt === null) {
+            return $none;
+        }
+
+        $reported = $parsedBody[FormChallengeService::FILL_TIME_FIELD] ?? null;
+        $reported = (is_string($reported) || is_int($reported)) && ctype_digit((string)$reported)
+            ? (int)$reported
+            : 0;
+
+        // The form cannot have been on screen longer than its token has
+        // existed, so that is the ceiling - a client reporting more is either
+        // broken or trying it on.
+        $ceiling = max(0, time() - $issuedAt) * 1000;
+
+        return [
+            'issuedAt' => $issuedAt,
+            'elapsedMilliseconds' => max(0, min($reported, $ceiling)),
+        ];
+    }
+
+    /**
      * `autocomplete="off"` matters here: browsers otherwise restore the previous
      * value of a same-named hidden field on a back-navigation, which would hand
      * a stale (possibly expired) token or a stale elapsed time to the next
      * submission instead of the freshly issued one.
      */
-    private function hiddenField(string $name): string
+    private function hiddenField(string $name, string $value = ''): string
     {
-        return '<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES) . '" value="" autocomplete="off" />';
+        return '<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES)
+            . '" value="' . htmlspecialchars($value, ENT_QUOTES) . '" autocomplete="off" />';
     }
 
     /**

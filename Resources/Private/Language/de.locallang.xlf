@@ -218,6 +218,10 @@
         <source>Privacy policy</source>
         <target state="final">Datenschutzerklärung</target>
       </trans-unit>
+      <trans-unit id="formLevelValidators.Challenge.errorMessageScriptMissing" resname="formLevelValidators.Challenge.errorMessageScriptMissing" approved="yes">
+        <source>Your browser did not run the script that verifies this form. This is usually a script or ad blocker, or a privacy extension. Please reload the page, allow scripts for this site and send the form again.</source>
+        <target state="final">Ihr Browser hat das Skript, das dieses Formular überprüft, nicht ausgeführt. Meist liegt das an einem Skript- oder Werbeblocker oder einer Datenschutz-Erweiterung. Bitte laden Sie die Seite neu, lassen Sie Skripte für diese Seite zu und senden Sie das Formular erneut.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
