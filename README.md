@@ -1213,6 +1213,30 @@ release tag. Everything before the fork point is TYPO3's own history — see the
 changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
 `WapplerSystems/form`.
 
+### release/v13 (this branch)
+
+`release/v13` carries the same fork features on a TYPO3 13.4 base. It is kept in sync by
+cherry-picking from `release/v14`, so the entries below apply here too — the SHAs are the
+`release/v14` ones. Where 13.4 has no equivalent of a v14 core API, the branch deviates:
+
+- Fluid templates are named `*.html`, not `*.fluid.html`: Fluid 4.6 resolves a template by
+  controller/action/format and the format is plain `html`.
+- `TranslationService` resolves labels through `LanguageService::sL()` and reads the
+  `plugin.tx_form._LOCAL_LANG` overrides off the frontend TypoScript setup;
+  `LanguageService::translate()` and `loadTypoScriptLabelsFromExtension()` are v14-only.
+- HMACs are SHA-1 throughout — 13.4's `HashService` takes no algorithm argument.
+- The form builder sits under *Web*, the form log under *System*: 13.4 has neither the
+  `content` nor the `admin` main module.
+- `QueryBuilderPaginator` is shipped as `TYPO3\CMS\Form\Pagination\QueryBuilderPaginator`
+  (same constructor as v14's core class).
+- The upgrade wizard implements `TYPO3\CMS\Install\Updates\*` and is registered from
+  `Configuration/Services.php` only when EXT:install is present.
+- No record-list row listener: 13.4 has no `AfterRecordListRowPreparedEvent`, so the record
+  title in the list opens the standard edit form. The record *actions* still open the form
+  editor.
+- FAL uploads cannot be exercised by functional tests here — 13.4's `ResourceStorage`
+  requires `is_uploaded_file()` — so those cases are skipped, not failing.
+
 ### 2026-08
 
 **Added**
