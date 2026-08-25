@@ -816,6 +816,16 @@ class FormEditorController extends ActionController
         $formDefinition = $this->filterEmptyArrays($formDefinition);
         $formDefinition = $this->migrateEmailFinisherRecipients($formDefinition);
 
+        // Before anything else looks at the definition: a validator stored
+        // without one of its options would reach the inspector as a blank field,
+        // and a blank field with an Integer property validator blocks saving the
+        // whole form. Runs early so the seeded values take part in every
+        // transformation below, including addHmacData().
+        $formDefinition = $this->formDefinitionConversionService->seedValidatorOptionDefaults(
+            $formDefinition,
+            $prototypeConfiguration
+        );
+
         $formDefinition = $this->transformMultiValuePropertiesForFormEditor(
             $formDefinition,
             'type',

@@ -1,3 +1,6 @@
+# WapplerSystems fork: rejects submissions whose free text looks
+# machine-generated. A form-level validator - put it on the form root.
+# See Classes/Validation/EntropySpamValidator.php for what the numbers mean.
 prototypes:
   standard:
     validatorsDefinition:
@@ -8,4 +11,26 @@ prototypes:
           maximumEntropy: 5.8
           textFieldIdentifiers: []
           minimumLength: 20
-          errorMessage: 'Your submission could not be accepted. Please rephrase and try again.'
+          errorMessage: 'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.EntropySpam.errorMessage'
+        formEditor:
+          iconIdentifier: form-validator
+          label: formEditor.elements.Form.editor.validators.EntropySpam.label
+          # What a newly added validator starts out with in the form editor.
+          # Seeded so the inspector shows the effective values instead of blanks:
+          # these are entropy thresholds, not something an editor can derive from
+          # an empty field.
+          #
+          # `minimumLength` is not merely cosmetic. Its editor carries an Integer
+          # property validator, and that one rejects an empty value (see
+          # view-model.js, addPropertyValidators). Without a seed the validator
+          # could be added but the form could never be saved again.
+          #
+          # `errorMessage` stays out for the same reason as with the sibling
+          # validators - an empty string written here would override the
+          # translated default with nothing. `textFieldIdentifiers` has no
+          # inspector editor at all.
+          predefinedDefaults:
+            options:
+              minimumEntropy: 1.8
+              maximumEntropy: 5.8
+              minimumLength: 20

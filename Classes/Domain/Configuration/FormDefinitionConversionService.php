@@ -105,6 +105,88 @@ readonly class FormDefinitionConversionService
     }
 
     /**
+     * Fills in validator options that a stored form definition does not carry.
+     *
+     * `predefinedDefaults` are applied by the form editor only at the moment a
+     * validator is newly added. A form saved before an option existed - or
+     * written by hand in an extension's Forms/ directory - reaches the inspector
+     * without it, and the field shows up blank.
+     *
+     * For an option whose editor declares an `Integer` property validator that
+     * is not merely untidy: the Integer check rejects an empty value (see
+     * addPropertyValidators() in view-model.js), so the whole form refuses to
+     * save until someone types a number into a field they have no way of
+     * judging. EntropySpam's `minimumLength` is exactly that case.
+     *
+     * Two deliberate limits:
+     *
+     *  - Only keys that are ABSENT are filled. A key that is present but empty
+     *    is left alone: for some validators an empty value is a deliberate
+     *    "switch this check off", and overwriting it would silently change what
+     *    the form does.
+     *  - Only non-empty defaults are used as a seed. Writing an empty default
+     *    into a definition adds a key without adding information, and it would
+     *    turn "option absent, validator falls back to its PHP default" into
+     *    "option present and empty", which is not always the same thing.
+     */
+    public function seedValidatorOptionDefaults(array $formDefinition, array $prototypeConfiguration): array
+    {
+        $defaults = [];
+        foreach ($prototypeConfiguration['validatorsDefinition'] ?? [] as $identifier => $configuration) {
+            $seed = $configuration['formEditor']['predefinedDefaults']['options'] ?? null;
+            if (!is_array($seed)) {
+                continue;
+            }
+            $usable = array_filter($seed, static fn($value) => $value !== '' && $value !== null && $value !== []);
+            if ($usable !== []) {
+                $defaults[(string)$identifier] = $usable;
+            }
+        }
+        if ($defaults === []) {
+            return $formDefinition;
+        }
+
+        return $this->seedValidatorOptionDefaultsRecursive($formDefinition, $defaults);
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $defaults keyed by validator identifier
+     */
+    protected function seedValidatorOptionDefaultsRecursive(array $node, array $defaults): array
+    {
+        foreach ($node as $key => $value) {
+            if (!is_array($value)) {
+                continue;
+            }
+            if ($key !== 'validators') {
+                $node[$key] = $this->seedValidatorOptionDefaultsRecursive($value, $defaults);
+                continue;
+            }
+            // Both the form root and every element carry their validators under
+            // the same key, so the recursion above reaches all of them.
+            foreach ($value as $index => $validator) {
+                if (!is_array($validator)) {
+                    continue;
+                }
+                $identifier = $validator['identifier'] ?? null;
+                if (!is_string($identifier) || !isset($defaults[$identifier])) {
+                    continue;
+                }
+                $options = is_array($validator['options'] ?? null) ? $validator['options'] : [];
+                foreach ($defaults[$identifier] as $option => $default) {
+                    if (!array_key_exists($option, $options)) {
+                        $options[$option] = $default;
+                    }
+                }
+                $value[$index]['options'] = $options;
+            }
+            $node[$key] = $value;
+        }
+
+        return $node;
+    }
+
+    /**
      * Migrate various finisher options
      */
     public function migrateFinisherConfiguration(array $formDefinition): array

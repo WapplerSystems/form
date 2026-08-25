@@ -178,6 +178,10 @@
         <source>The form was submitted too quickly. Please take a moment and try again.</source>
         <target state="final">Das Formular wurde zu schnell abgeschickt. Bitte nehmen Sie sich einen Moment und versuchen Sie es erneut.</target>
       </trans-unit>
+      <trans-unit id="formLevelValidators.EntropySpam.errorMessage" resname="formLevelValidators.EntropySpam.errorMessage" approved="yes">
+        <source>Your submission could not be accepted. Please rephrase and try again.</source>
+        <target state="final">Ihre Eingabe konnte nicht angenommen werden. Bitte formulieren Sie sie neu und versuchen Sie es erneut.</target>
+      </trans-unit>
       <trans-unit id="finisher.email.formLanguage" resname="finisher.email.formLanguage" approved="yes">
         <source>Language of the submission</source>
         <target state="final">Sprache der Anfrage</target>

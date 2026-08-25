@@ -107,8 +107,8 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
             'integer',
         ],
         'errorMessage' => [
-            'Your submission could not be accepted. Please rephrase and try again.',
-            'Error message shown when the submission is rejected.',
+            'LLL:EXT:form/Resources/Private/Language/locallang.xlf:formLevelValidators.EntropySpam.errorMessage',
+            'Error message shown when the submission is rejected. Accepts an LLL: reference.',
             'string',
         ],
     ];
