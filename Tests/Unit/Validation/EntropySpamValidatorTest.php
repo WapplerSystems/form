@@ -14,6 +14,9 @@ namespace TYPO3\CMS\Form\Tests\Unit\Validation;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
@@ -23,16 +26,36 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 final class EntropySpamValidatorTest extends UnitTestCase
 {
     /**
+     * A literal message keeps the `LLL:` resolution of the shipped default (and
+     * with it LanguageServiceFactory, which is not autowirable here) out of the
+     * way. Every rejecting test would otherwise need a stub; the default itself
+     * is covered by shippedDefaultMessageIsTranslated().
+     *
      * @param array<string, mixed> $options
      */
     private function buildValidator(array $options = [], ?FormRuntime $formRuntime = null): EntropySpamValidator
     {
         $validator = new EntropySpamValidator();
-        $validator->setOptions($options);
+        $validator->setOptions($options + ['errorMessage' => 'rejected']);
         if ($formRuntime !== null) {
             $validator->setFormRuntime($formRuntime);
         }
         return $validator;
+    }
+
+    /**
+     * Pushes exactly one LanguageServiceFactory stub, for the single test that
+     * lets the shipped `LLL:` default through: the testing framework fails a
+     * test that leaves an unconsumed instance behind.
+     */
+    private function stubLanguageServiceOnce(): void
+    {
+        $languageService = $this->createStub(LanguageService::class);
+        $languageService->method('sL')->willReturnArgument(0);
+        $factory = $this->createStub(LanguageServiceFactory::class);
+        $factory->method('create')->willReturn($languageService);
+        $factory->method('createFromSiteLanguage')->willReturn($languageService);
+        GeneralUtility::addInstance(LanguageServiceFactory::class, $factory);
     }
 
     /**
@@ -280,5 +303,27 @@ final class EntropySpamValidatorTest extends UnitTestCase
         ];
 
         self::assertFalse($validator->validate($values)->hasErrors());
+    }
+
+    /**
+     * With no errorMessage configured the validator falls back to the shipped
+     * default, which is an `LLL:` reference and has to be resolved rather than
+     * shown to the visitor verbatim.
+     */
+    #[Test]
+    public function shippedDefaultMessageIsTranslated(): void
+    {
+        $this->stubLanguageServiceOnce();
+
+        $validator = new EntropySpamValidator();
+        $validator->setOptions([]);
+
+        $result = $validator->validate(['message' => 'vOYhcWlrcTafTMSelBkM']);
+
+        self::assertTrue($result->hasErrors());
+        self::assertStringStartsWith(
+            'LLL:EXT:form/Resources/Private/Language/locallang.xlf:',
+            $result->forProperty('message')->getFirstError()->getMessage(),
+        );
     }
 }
