@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
+use TYPO3\CMS\Form\Tests\Fixtures\SpamCorpus;
 use TYPO3\CMS\Form\Validation\EntropySpamValidator;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -99,13 +100,7 @@ final class EntropySpamValidatorTest extends UnitTestCase
      */
     public static function gibberishTokenProvider(): array
     {
-        return [
-            'random mixed case' => ['vOYhcWlrcTafTMSelBkM'],
-            'random mixed case 2' => ['goIuMokMxpTCeKnJfIq'],
-            'all upper consonants' => ['XQVBLMPKWZRNTCYHF'],
-            'lowercase keyboard mash' => ['asdkjhqweuiozxcvbnm'],
-            'random camel case' => ['aSdKjHqWeUiOzXcVbN'],
-        ];
+        return SpamCorpus::botTokens();
     }
 
     #[Test]
@@ -123,38 +118,7 @@ final class EntropySpamValidatorTest extends UnitTestCase
      */
     public static function legitimateSubmissionProvider(): array
     {
-        return [
-            'normal contact' => [[
-                'name' => 'Maria Lindqvist',
-                'email' => 'maria@example.com',
-                'message' => 'Bitte rufen Sie mich am Montag zurueck, vielen Dank!',
-            ]],
-            'hyphenated name' => [[
-                'name' => 'Wolfgang Schmidt-Hubermann',
-                'message' => 'Ich interessiere mich fuer Ihr Angebot.',
-            ]],
-            'german compound word' => [[
-                'message' => 'Donaudampfschifffahrtsgesellschaft',
-            ]],
-            'lowercase long word' => [[
-                'message' => 'unternehmensberatung',
-            ]],
-            'all-caps words' => [[
-                'name' => 'WOLFGANG ABTEILUNGSLEITER',
-            ]],
-            'url in message' => [[
-                'message' => 'Siehe https://example.com/produkte fuer Details.',
-            ]],
-            'consonant heavy compound' => [[
-                'message' => 'Brandschutzklappe',
-            ]],
-            'compound with low vowel ratio' => [[
-                'subject' => 'Bildschirmfoto',
-            ]],
-            'short enquiry naming a test mailbox' => [[
-                'message' => 'Die Absenderadresse ist ein Testpostfach.',
-            ]],
-        ];
+        return SpamCorpus::humanSubmissions();
     }
 
     /**
