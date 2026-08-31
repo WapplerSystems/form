@@ -57,6 +57,16 @@ final class FormEditorControllerTest extends FunctionalTestCase
         'rte_ckeditor',
     ];
 
+    /**
+     * Only declares allowedExtensionPaths (and not allowSaveToExtensionPaths),
+     * which is exactly the read-only case saveFormActionRefusesAFormThatIsOnlyReadable
+     * needs: an identifier the persistence manager accepts for reading but not
+     * for writing.
+     */
+    protected array $testExtensionsToLoad = [
+        'typo3/sysext/form/Tests/Functional/Fixtures/Extensions/form_storage_tests',
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -518,8 +528,10 @@ final class FormEditorControllerTest extends FunctionalTestCase
         $this->importCSVDataSet(__DIR__ . '/../Fixtures/be_users.csv');
         $this->setUpBackendUser(1);
 
-        // An extension path, with allowSaveToExtensionPaths at its default (off).
-        $persistenceIdentifier = 'EXT:form/Resources/Private/Forms/does-not-matter.form.yaml';
+        // Inside form_storage_tests' allowedExtensionPaths, so the identifier
+        // passes isAllowedPersistenceIdentifier() and the read-only check is what
+        // actually answers — allowSaveToExtensionPaths is not set there.
+        $persistenceIdentifier = 'EXT:form_storage_tests/Resources/Private/Forms/ContactForm.form.yaml';
 
         $serverRequest = (new ServerRequest('https://example.com', 'POST'))
             ->withAttribute('extbase', new ExtbaseRequestParameters())
@@ -545,12 +557,12 @@ final class FormEditorControllerTest extends FunctionalTestCase
         $GLOBALS['TYPO3_REQUEST'] = $request;
 
         $response = $this->get(FormEditorController::class)->processRequest($request);
-        // saveFormAction renders through the extbase JsonView, which wraps the
-        // payload in the "response" variable it was told to render.
+        // The extbase JsonView renders the value itself when it was given a
+        // single variable to render, so the payload is not wrapped in "response".
         $body = json_decode((string)$response->getBody(), true);
 
-        self::assertSame('error', $body['response']['status'] ?? null);
-        self::assertSame(1756636800, $body['response']['code'] ?? null);
+        self::assertSame('error', $body['status'] ?? null);
+        self::assertSame(1756636800, $body['code'] ?? null, 'refused by the read-only check, not by isAllowedPersistenceIdentifier()');
     }
 
     #[Test]
