@@ -47,6 +47,11 @@ let FormElementStageItem = class FormElementStageItem extends LitElement {
         this.invalid = false;
         this.validators = [];
         this.options = [];
+        /**
+         * WapplerSystems fork: forwarded to the toolbar, which then offers no
+         * insert or remove. Set by renderFormElementStageItem().
+         */
+        this.readOnly = false;
     }
     createRenderRoot() {
         // Avoid Shadow DOM so global styles apply to the element contents
@@ -60,7 +65,8 @@ let FormElementStageItem = class FormElementStageItem extends LitElement {
         element-type="${this.elementType}"
         element-identifier="${this.elementIdentifier}"
         ?is-hidden="${this.isHidden}"
-        ?is-invalid="${this.invalid}">
+        ?is-invalid="${this.invalid}"
+        ?read-only="${this.readOnly}">
       </typo3-form-form-element-stage-item-toolbar>
       <div class="formeditor-element-body">
         <div class="formeditor-element-info">
@@ -188,6 +194,9 @@ __decorate([
 __decorate([
     property({ type: String })
 ], FormElementStageItem.prototype, "content", void 0);
+__decorate([
+    property({ type: Boolean, attribute: 'read-only' })
+], FormElementStageItem.prototype, "readOnly", void 0);
 FormElementStageItem = __decorate([
     customElement('typo3-form-form-element-stage-item')
 ], FormElementStageItem);

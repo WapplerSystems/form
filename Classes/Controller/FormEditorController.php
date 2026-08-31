@@ -38,7 +38,6 @@ use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\View\ViewFactoryData;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -107,15 +106,19 @@ class FormEditorController extends ActionController
         if ($formPersistenceIdentifier === '') {
             return new RedirectResponse((string)$this->coreUriBuilder->buildUriFromRoute('form_manager'));
         }
-        $formSettings = $this->getFormSettings();
         if (!$this->formPersistenceManager->isAllowedPersistenceIdentifier($formPersistenceIdentifier)) {
             throw new PersistenceManagerException(sprintf('Read "%s" is not allowed', $formPersistenceIdentifier), 1614500662);
         }
-        if (PathUtility::isExtensionPath($formPersistenceIdentifier)
-            && !($formSettings['persistenceManager']['allowSaveToExtensionPaths'] ?? false)
-        ) {
-            throw new PersistenceManagerException('Edit an extension formDefinition is not allowed.', 1478265661);
-        }
+        // WapplerSystems fork: a form that cannot be written is opened for viewing
+        // instead of being refused. Upstream threw here for extension paths, which
+        // left an editor with no way at all to look at a form shipped by an
+        // extension — or, in this fork's database storage, at one on a page they
+        // may read but not write. Every write path is guarded in the storage
+        // adapter itself (ExtensionStorageAdapter::write() on
+        // allowSaveToExtensionPaths, DatabaseStorageAdapter::write() via
+        // assertWriteAccessForRecord()), and saveFormAction() refuses the
+        // identifier below, so read-only here cannot become a write.
+        $readOnly = $this->formPersistenceManager->isReadOnly($formPersistenceIdentifier);
         $formDefinition = $this->formPersistenceManager->load($formPersistenceIdentifier);
         if ($prototypeName === null) {
             $prototypeName = $formDefinition['prototypeName'] ?? 'standard';
@@ -147,8 +150,11 @@ class FormEditorController extends ActionController
             ],
             'additionalViewModelModules' => $additionalViewModelJavaScriptModules,
             'maximumUndoSteps' => $prototypeConfiguration['formEditor']['maximumUndoSteps'],
+            // WapplerSystems fork: the editor app suppresses every mutation when set.
+            'readOnly' => $readOnly,
         ];
-        $moduleTemplate = $this->initializeModuleTemplate($this->request, $returnUrl);
+        $moduleTemplate = $this->initializeModuleTemplate($this->request, $returnUrl, $readOnly);
+        $moduleTemplate->assign('readOnly', $readOnly);
         $moduleTemplate->assign('formEditorTemplates', $this->renderFormEditorTemplates($prototypeConfiguration, $formEditorDefinitions));
         $moduleTemplate->getDocHeaderComponent()->addBreadcrumbSuffixNode(new BreadcrumbNode(
             identifier: $formPersistenceIdentifier,
@@ -267,6 +273,13 @@ class FormEditorController extends ActionController
         try {
             if (!$this->formPersistenceManager->isAllowedPersistenceIdentifier($formPersistenceIdentifier)) {
                 throw new PersistenceManagerException(sprintf('Save "%s" is not allowed', $formPersistenceIdentifier), 1614500663);
+            }
+            // WapplerSystems fork: the editor opens forms it cannot write in view
+            // mode, so a save request for one is a client that ignored that. The
+            // storage adapter would refuse it too; answering here keeps the error
+            // the editor shows specific instead of storage-dependent.
+            if ($this->formPersistenceManager->isReadOnly($formPersistenceIdentifier)) {
+                throw new PersistenceManagerException(sprintf('Save "%s" is not allowed, the form is read-only', $formPersistenceIdentifier), 1756636800);
             }
             $this->formPersistenceManager->save($formPersistenceIdentifier, $formDefinition, []);
             $this->flushPageCache($formPersistenceIdentifier);
@@ -711,7 +724,7 @@ class FormEditorController extends ActionController
     /**
      * Initialize ModuleTemplate and register docheader icons.
      */
-    protected function initializeModuleTemplate(RequestInterface $request, string $returnUrl = ''): ModuleTemplate
+    protected function initializeModuleTemplate(RequestInterface $request, string $returnUrl = '', bool $readOnly = false): ModuleTemplate
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         $getVars = $request->getArguments();
@@ -721,6 +734,12 @@ class FormEditorController extends ActionController
                 ->setDataAttributes(['identifier' => 'closeButton'])
                 ->setClasses('formeditor-element-close-form-button hidden');
             $moduleTemplate->addButtonToButtonBar($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
+            if ($readOnly) {
+                // WapplerSystems fork: nothing to save, undo or redo in view mode.
+                // The buttons are left out entirely rather than disabled — the
+                // editor JavaScript unhides them once it is running.
+                return $moduleTemplate;
+            }
             $saveButton = $this->componentFactory->createInputButton()
                 ->setDataAttributes(['identifier' => 'saveButton'])
                 ->setTitle($this->getLanguageService()->sL('LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.save_button'))

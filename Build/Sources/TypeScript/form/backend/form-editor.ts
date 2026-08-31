@@ -57,7 +57,14 @@ export type FormEditorConfiguration = {
   formDefinition: FormElementDefinition,
   formPersistenceIdentifier: string,
   additionalViewModelModules: AdditionalViewModelModules,
-  maximumUndoSteps: number
+  maximumUndoSteps: number,
+  /**
+   * WapplerSystems fork: the form is opened for viewing only, because the
+   * storage it lives in refuses writes for this user (an extension path without
+   * allowSaveToExtensionPaths, or a page the user may read but not write).
+   * Set by FormEditorController::indexAction().
+   */
+  readOnly?: boolean
 };
 
 export class FormEditor {
@@ -79,6 +86,16 @@ export class FormEditor {
 
   public getPublisherSubscriber(): PublisherSubscriber {
     return Core.getPublisherSubscriber();
+  }
+
+  /**
+   * WapplerSystems fork: whether this form may only be viewed. The mediator
+   * subscribes no mutating topic in that case and the view leaves out the
+   * affordances that would publish them, so nothing can change a form the
+   * server would refuse to save anyway.
+   */
+  public isReadOnly(): boolean {
+    return this.configuration.readOnly === true;
   }
 
   public undoApplicationState(): void {

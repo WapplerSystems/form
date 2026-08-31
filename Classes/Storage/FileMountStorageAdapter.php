@@ -263,6 +263,15 @@ class FileMountStorageAdapter extends AbstractFileStorageAdapter implements Stor
             && $this->isFileWithinAccessibleFormStorageFolders($persistenceIdentifier);
     }
 
+    public function isReadOnly(string $persistenceIdentifier): bool
+    {
+        // A form inside one of this user's accessible form storage folders is
+        // writable by definition of being there — findAll() marks none read-only
+        // either. Whether the identifier is accessible at all is a separate
+        // question, answered by isAllowedPersistenceIdentifier().
+        return false;
+    }
+
     /**
      * Retrieves yaml files from storage folders for further processing.
      * At this time it's not determined yet, whether these files contain form data.

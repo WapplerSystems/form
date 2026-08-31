@@ -39,6 +39,11 @@ let FormElementStageItemToolbar = class FormElementStageItemToolbar extends LitE
         this.elementIdentifier = '';
         this.isHidden = false;
         this.isInvalid = false;
+        /**
+         * WapplerSystems fork: the form is open for viewing only, so the toolbar
+         * shows what the element is but offers no insert or remove.
+         */
+        this.readOnly = false;
     }
     createRenderRoot() {
         return this;
@@ -60,6 +65,7 @@ let FormElementStageItemToolbar = class FormElementStageItemToolbar extends LitE
           ${this.elementType}
         </div>
         <div class="formeditor-element-toolbar-right">
+          ${this.readOnly ? nothing : html `
           <div class="btn-toolbar">
             <div class="btn-group btn-group-sm" role="group">
               <a
@@ -85,6 +91,7 @@ let FormElementStageItemToolbar = class FormElementStageItemToolbar extends LitE
               </a>
             </div>
           </div>
+          `}
         </div>
       </div>
     `;
@@ -120,6 +127,9 @@ __decorate([
 __decorate([
     property({ type: Boolean, attribute: 'is-invalid' })
 ], FormElementStageItemToolbar.prototype, "isInvalid", void 0);
+__decorate([
+    property({ type: Boolean, attribute: 'read-only' })
+], FormElementStageItemToolbar.prototype, "readOnly", void 0);
 FormElementStageItemToolbar = __decorate([
     customElement('typo3-form-form-element-stage-item-toolbar')
 ], FormElementStageItemToolbar);

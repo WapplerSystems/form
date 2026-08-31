@@ -8,7 +8,20 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <div class="formeditor">
+    <div class="formeditor{f:if(condition: readOnly, then: ' formeditor-readonly')}">
+        <f:if condition="{readOnly}">
+            <f:comment>
+                WapplerSystems fork: a form that cannot be written opens for viewing
+                rather than being refused, so say so once, prominently, instead of
+                letting an editor discover it when saving fails.
+            </f:comment>
+            <div class="callout callout-info" data-identifier="readOnlyNotice">
+                <div class="callout-content">
+                    <div class="callout-title"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.readOnly.title" /></div>
+                    <div class="callout-body"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.readOnly.message" /></div>
+                </div>
+            </div>
+        </f:if>
         <div class="formeditor-loader" data-identifier="moduleLoadingIndicator">
             <core:icon identifier="spinner-circle" size="medium" />
             <div><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.loading" /></div>
@@ -86,7 +99,7 @@
                         </div>
                         <button
                                 type="button"
-                                class="btn btn-sm btn-default"
+                                class="btn btn-sm btn-default{f:if(condition: readOnly, then: ' hidden')}"
                                 title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formEditor.new_page_button')}"
                                 data-identifier="newPage"
                         >

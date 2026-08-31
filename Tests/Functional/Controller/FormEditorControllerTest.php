@@ -506,6 +506,53 @@ final class FormEditorControllerTest extends FunctionalTestCase
         self::assertSame($expected, $mockController->_call('filterEmptyArrays', $input));
     }
 
+    /**
+     * WapplerSystems fork: the editor opens a form it cannot write in view mode,
+     * so a save arriving for one is a client that ignored that. The controller
+     * answers it itself instead of letting the storage adapter's own message
+     * decide what the editor shows.
+     */
+    #[Test]
+    public function saveFormActionRefusesAFormThatIsOnlyReadable(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/be_users.csv');
+        $this->setUpBackendUser(1);
+
+        // An extension path, with allowSaveToExtensionPaths at its default (off).
+        $persistenceIdentifier = 'EXT:form/Resources/Private/Forms/does-not-matter.form.yaml';
+
+        $serverRequest = (new ServerRequest('https://example.com', 'POST'))
+            ->withAttribute('extbase', new ExtbaseRequestParameters())
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
+
+        $formDefinition = $this->get(FormDefinitionConversionService::class)->addHmacData([
+            'type' => 'Form',
+            'identifier' => 'read-only-form',
+            'label' => 'Read only form',
+            'prototypeName' => 'standard',
+        ], $persistenceIdentifier);
+
+        $parsedBody = [
+            'formPersistenceIdentifier' => $persistenceIdentifier,
+            'formDefinition' => new FormDefinitionArray($formDefinition),
+        ];
+        $serverRequest = $serverRequest->withParsedBody($parsedBody);
+        $request = (new Request($serverRequest))
+            ->withControllerExtensionName(FormEditorController::class)
+            ->withControllerName('FormEditorController')
+            ->withArguments($parsedBody)
+            ->withControllerActionName('saveForm');
+        $GLOBALS['TYPO3_REQUEST'] = $request;
+
+        $response = $this->get(FormEditorController::class)->processRequest($request);
+        // saveFormAction renders through the extbase JsonView, which wraps the
+        // payload in the "response" variable it was told to render.
+        $body = json_decode((string)$response->getBody(), true);
+
+        self::assertSame('error', $body['response']['status'] ?? null);
+        self::assertSame(1756636800, $body['response']['code'] ?? null);
+    }
+
     #[Test]
     public function beforeFormIsSavedEventIsTriggered(): void
     {

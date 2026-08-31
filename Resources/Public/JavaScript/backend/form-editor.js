@@ -29,6 +29,15 @@ export class FormEditor {
     getPublisherSubscriber() {
         return Core.getPublisherSubscriber();
     }
+    /**
+     * WapplerSystems fork: whether this form may only be viewed. The mediator
+     * subscribes no mutating topic in that case and the view leaves out the
+     * affordances that would publish them, so nothing can change a form the
+     * server would refuse to save anyway.
+     */
+    isReadOnly() {
+        return this.configuration.readOnly === true;
+    }
     undoApplicationState() {
         this.getApplicationStateStack().incrementCurrentStackPointer();
     }

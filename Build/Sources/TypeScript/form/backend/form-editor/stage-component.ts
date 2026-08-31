@@ -755,6 +755,8 @@ export function renderFormElementStageItem(formElement: FormElement, template: H
   stageItem.elementLabel = formElement.get('label') || formElement.get('identifier');
   stageItem.elementIconIdentifier = getFormElementDefinition(formElement, 'iconIdentifier');
   stageItem.isHidden = formElement.get('renderingOptions.enabled') === false;
+  // WapplerSystems fork: no insert/remove toolbar on a form opened for viewing.
+  stageItem.readOnly = getFormEditorApp().isReadOnly();
 
   const validators = formElement.get('validators');
   const validatorList: Validator[] = [];

@@ -94,6 +94,11 @@ interface FormPersistenceManagerInterface
      */
     public function isAllowedPersistenceIdentifier(string $persistenceIdentifier): bool;
 
+    /**
+     * Whether the form behind this identifier may only be viewed, not saved.
+     */
+    public function isReadOnly(string $persistenceIdentifier): bool;
+
     public function hasValidFileExtension(string $fileName): bool;
 
     public function getAccessibleStorageAdapters(): array;

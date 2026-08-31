@@ -90,6 +90,11 @@
                                                         {form.name}
                                                     </a>
                                                 </f:then>
+                                                <f:else if="{form.viewUrl}">
+                                                    <a href="{form.viewUrl}" title="{f:translate(key: 'form.database:formManager.view_form')}">
+                                                        {form.name}
+                                                    </a>
+                                                </f:else>
                                                 <f:else>
                                                     {form.name}
                                                 </f:else>
@@ -128,7 +133,21 @@
                                     <div class="btn-group" role="group">
                                         <f:if condition="{form.invalid} || {form.readOnly}">
                                             <f:then>
-                                                <span class="btn btn-default disabled" aria-hidden="true"><core:icon identifier="empty-empty" /></span>
+                                                <f:comment>
+                                                    A form that cannot be written is still worth looking at, so view mode
+                                                    gets its own affordance here; only an invalid definition (which the
+                                                    editor cannot load at all) keeps the empty placeholder.
+                                                </f:comment>
+                                                <f:if condition="{form.viewUrl}">
+                                                    <f:then>
+                                                        <a href="{form.viewUrl}" class="btn btn-default" title="{f:translate(key: 'form.database:formManager.view_form')}">
+                                                            <core:icon identifier="actions-view" />
+                                                        </a>
+                                                    </f:then>
+                                                    <f:else>
+                                                        <span class="btn btn-default disabled" aria-hidden="true"><core:icon identifier="empty-empty" /></span>
+                                                    </f:else>
+                                                </f:if>
                                             </f:then>
                                             <f:else>
                                                 <f:if condition="{form.editUrl}">

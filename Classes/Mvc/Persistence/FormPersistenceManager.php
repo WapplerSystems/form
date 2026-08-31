@@ -281,6 +281,24 @@ readonly class FormPersistenceManager implements FormPersistenceManagerInterface
     }
 
     /**
+     * Whether the form behind this identifier may only be viewed.
+     *
+     * Delegates to the storage adapter, which is where the `readOnly` flag on
+     * the listed FormMetadata comes from as well. Storage that cannot be
+     * resolved counts as read-only: without an adapter nothing can be written
+     * anyway, and the editor should not offer a save button for it.
+     */
+    public function isReadOnly(string $persistenceIdentifier): bool
+    {
+        try {
+            $adapter = $this->storageAdapterFactory->getAdapterForIdentifier($persistenceIdentifier);
+            return $adapter->isReadOnly($persistenceIdentifier);
+        } catch (\Exception) {
+            return true;
+        }
+    }
+
+    /**
      * Check if file has valid extension
      */
     public function hasValidFileExtension(string $fileName): bool

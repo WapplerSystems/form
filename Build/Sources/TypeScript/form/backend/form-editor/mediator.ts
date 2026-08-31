@@ -76,6 +76,28 @@ function getRootFormElement(): FormElement {
   return getFormEditorApp().getRootFormElement();
 }
 
+/**
+ * WapplerSystems fork: subscribe unless the form is open for viewing only.
+ *
+ * Every topic that changes the form definition goes through this instead of
+ * subscribing directly, so read-only mode is enforced in one place rather than
+ * relying on the view to withhold each affordance. A click that slips past a
+ * hidden button, a drag the tree still bridges, or an additional view model
+ * module publishing on its own then finds no subscriber — and the definition
+ * stays as loaded. The server refuses such a save anyway
+ * (FormEditorController::saveFormAction()); this keeps the editor from showing
+ * the editor a change it is going to lose.
+ */
+function subscribeUnlessReadOnly<T extends keyof PublisherSubscriberTopicArgumentsMap>(
+  topic: T,
+  func: (topic: T, args: NoInfer<PublisherSubscriberTopicArgumentsMap[T]>) => void
+): void {
+  if (getFormEditorApp().isReadOnly()) {
+    return;
+  }
+  getPublisherSubscriber().subscribe(topic, func);
+}
+
 function subscribeEvents(): void {
 
   /* *********************************************************
@@ -190,7 +212,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/header/button/save/clicked
    */
-  getPublisherSubscriber().subscribe('view/header/button/save/clicked', (): void => {
+  subscribeUnlessReadOnly('view/header/button/save/clicked', (): void => {
     if (getFormEditorApp().validationResultsHasErrors(getFormEditorApp().validateFormElementRecursive(getRootFormElement(), true))) {
       getViewModel().showValidationErrorsModal();
     } else {
@@ -216,7 +238,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/header/button/newPage/clicked
    */
-  getPublisherSubscriber().subscribe('view/header/button/newPage/clicked', (
+  subscribeUnlessReadOnly('view/header/button/newPage/clicked', (
     topic: string,
     [targetEvent]: ['view/insertPages/perform']
   ): void => {
@@ -236,7 +258,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/undoButton/clicked
    */
-  getPublisherSubscriber().subscribe('view/undoButton/clicked', (): void => {
+  subscribeUnlessReadOnly('view/undoButton/clicked', (): void => {
     getViewModel().disableButton(document.querySelector<HTMLElement>(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
     getViewModel().disableButton(document.querySelector<HTMLElement>(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
     getFormEditorApp().undoApplicationState();
@@ -256,7 +278,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/redoButton/clicked
    */
-  getPublisherSubscriber().subscribe('view/redoButton/clicked', (): void => {
+  subscribeUnlessReadOnly('view/redoButton/clicked', (): void => {
     getViewModel().disableButton(document.querySelector<HTMLElement>(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
     getViewModel().disableButton(document.querySelector<HTMLElement>(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
     getFormEditorApp().redoApplicationState();
@@ -302,7 +324,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/stage/abstract/elementToolbar/button/newElement/clicked
    */
-  getPublisherSubscriber().subscribe('view/stage/abstract/elementToolbar/button/newElement/clicked', (
+  subscribeUnlessReadOnly('view/stage/abstract/elementToolbar/button/newElement/clicked', (
     topic: string,
     [
       targetEvent,
@@ -321,7 +343,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/newElementButton/clicked
    */
-  getPublisherSubscriber().subscribe('view/stage/abstract/button/newElement/clicked', (
+  subscribeUnlessReadOnly('view/stage/abstract/button/newElement/clicked', (
     topic: string,
     [
       targetEvent,
@@ -340,7 +362,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/stage/abstract/dnd/start
    */
-  getPublisherSubscriber().subscribe('view/stage/abstract/dnd/start', (
+  subscribeUnlessReadOnly('view/stage/abstract/dnd/start', (
     topic: string,
     [
       draggedFormElementDomElement,
@@ -359,7 +381,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/stage/abstract/dnd/stop
    */
-  getPublisherSubscriber().subscribe('view/stage/abstract/dnd/stop', (
+  subscribeUnlessReadOnly('view/stage/abstract/dnd/stop', (
     topic: string,
     [draggedFormElementIdentifierPath]: [string]
   ): void => {
@@ -375,7 +397,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/stage/abstract/dnd/change
    */
-  getPublisherSubscriber().subscribe('view/stage/abstract/dnd/change', (
+  subscribeUnlessReadOnly('view/stage/abstract/dnd/change', (
     topic: string,
     [
       placeholderDomElement,
@@ -397,7 +419,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/stage/abstract/dnd/update
    */
-  getPublisherSubscriber().subscribe('view/stage/abstract/dnd/update', (
+  subscribeUnlessReadOnly('view/stage/abstract/dnd/update', (
     topic: string,
     [
       movedDomElement,
@@ -504,7 +526,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/tree/node/clicked
    */
-  getPublisherSubscriber().subscribe('view/tree/node/changed', (
+  subscribeUnlessReadOnly('view/tree/node/changed', (
     topic: string,
     [formElementIdentifierPath, newLabel]: [string, string]
   ): void => {
@@ -534,7 +556,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/header/button/newPage/clicked
    */
-  getPublisherSubscriber().subscribe('view/structure/button/newPage/clicked', (
+  subscribeUnlessReadOnly('view/structure/button/newPage/clicked', (
     topic: string,
     [targetEvent]: ['view/insertPages/perform']
   ): void => {
@@ -547,7 +569,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/tree/dnd/stop
    */
-  getPublisherSubscriber().subscribe('view/tree/dnd/stop', (
+  subscribeUnlessReadOnly('view/tree/dnd/stop', (
     topic: string,
     [draggedFormElementIdentifierPath]: [string]
   ): void => {
@@ -563,7 +585,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/tree/dnd/change
    */
-  getPublisherSubscriber().subscribe('view/tree/dnd/change', (
+  subscribeUnlessReadOnly('view/tree/dnd/change', (
     topic: string,
     [
       placeholderDomElement,
@@ -585,7 +607,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/tree/dnd/update
    */
-  getPublisherSubscriber().subscribe('view/tree/dnd/update', (
+  subscribeUnlessReadOnly('view/tree/dnd/update', (
     topic: string,
     [
       movedDomElement,
@@ -621,7 +643,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/inspector/removeCollectionElement/perform
    */
-  getPublisherSubscriber().subscribe('view/inspector/removeCollectionElement/perform', (
+  subscribeUnlessReadOnly('view/inspector/removeCollectionElement/perform', (
     topic: string,
     [
       collectionElementIdentifier,
@@ -643,7 +665,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/inspector/collectionElement/selected
    */
-  getPublisherSubscriber().subscribe('view/inspector/collectionElement/new/selected', (
+  subscribeUnlessReadOnly('view/inspector/collectionElement/new/selected', (
     topic: string,
     [
       collectionElementIdentifier,
@@ -682,7 +704,7 @@ function subscribeEvents(): void {
    * @subscribe view/inspector/collectionElements/dnd/update
    * @throws 1477407673
    */
-  getPublisherSubscriber().subscribe('view/inspector/collectionElements/dnd/update', (
+  subscribeUnlessReadOnly('view/inspector/collectionElements/dnd/update', (
     topic: string,
     [
       movedCollectionElementIdentifier,
@@ -812,7 +834,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/insertElements/perform/bottom
    */
-  getPublisherSubscriber().subscribe('view/insertElements/perform/bottom', (
+  subscribeUnlessReadOnly('view/insertElements/perform/bottom', (
     topic: string,
     [formElementType]: [string]
   ): void => {
@@ -835,7 +857,7 @@ function subscribeEvents(): void {
    * @publish view/formElement/inserted
    * @subscribe view/insertElements/perform/before
    */
-  getPublisherSubscriber().subscribe('view/insertElements/perform/before', (
+  subscribeUnlessReadOnly('view/insertElements/perform/before', (
     topic: string,
     [formElementType]: [string]
   ): void => {
@@ -849,7 +871,7 @@ function subscribeEvents(): void {
    * @publish view/formElement/inserted
    * @subscribe view/insertElements/perform/after
    */
-  getPublisherSubscriber().subscribe('view/insertElements/perform/after', (
+  subscribeUnlessReadOnly('view/insertElements/perform/after', (
     topic: string,
     [formElementType]: [string]
   ): void => {
@@ -862,7 +884,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/insertElements/perform/inside
    */
-  getPublisherSubscriber().subscribe('view/insertElements/perform/inside', (
+  subscribeUnlessReadOnly('view/insertElements/perform/inside', (
     topic: string,
     [formElementType]: [string]
   ): void => {
@@ -872,7 +894,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/insertElements/perform/after
    */
-  getPublisherSubscriber().subscribe('view/insertPages/perform', (
+  subscribeUnlessReadOnly('view/insertPages/perform', (
     topic: string,
     [formElementType]: [string]
   ): void => {
@@ -894,7 +916,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/modal/removeFormElement/perform
    */
-  getPublisherSubscriber().subscribe('view/modal/removeFormElement/perform', (
+  subscribeUnlessReadOnly('view/modal/removeFormElement/perform', (
     topic: string,
     [formElement]: [FormElement]
   ): void => {
@@ -904,7 +926,7 @@ function subscribeEvents(): void {
   /**
    * @subscribe view/modal/removeCollectionElement/perform
    */
-  getPublisherSubscriber().subscribe('view/modal/removeCollectionElement/perform', (
+  subscribeUnlessReadOnly('view/modal/removeCollectionElement/perform', (
     topic: string,
     [
       collectionElementIdentifier,

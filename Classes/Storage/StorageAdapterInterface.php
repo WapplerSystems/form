@@ -183,4 +183,17 @@ interface StorageAdapterInterface
      * @return bool True if the persistence identifier is allowed
      */
     public function isAllowedPersistenceIdentifier(string $persistenceIdentifier): bool;
+
+    /**
+     * Whether the form behind the given identifier can be read but not written.
+     *
+     * Mirrors the `readOnly` flag this adapter sets on the FormMetadata it
+     * returns from findAll(), for the single-form case: the form editor has to
+     * decide whether to open a form for editing or for viewing before it lists
+     * anything. Storage that never withholds write access answers false.
+     *
+     * @param string $persistenceIdentifier The persistence identifier to check
+     * @return bool True if the form may only be viewed
+     */
+    public function isReadOnly(string $persistenceIdentifier): bool;
 }

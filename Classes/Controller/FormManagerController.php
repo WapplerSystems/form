@@ -388,15 +388,21 @@ class FormManagerController extends ActionController
 
         foreach ($this->formPersistenceManager->listForms($formSettings, $searchCriteria) as $formMetadata) {
 
-            if ($formMetadata->persistenceIdentifier && !$formMetadata->invalid && !$formMetadata->readOnly) {
-                $editUrl = (string)$this->coreUriBuilder->buildUriFromRoute(
+            if ($formMetadata->persistenceIdentifier && !$formMetadata->invalid) {
+                $formEditorUrl = (string)$this->coreUriBuilder->buildUriFromRoute(
                     'form_editor',
                     array_filter([
                         'formPersistenceIdentifier' => $formMetadata->persistenceIdentifier,
                         'returnUrl' => $returnUrl,
                     ])
                 );
-                $formMetadata = $formMetadata->withEditUrl($editUrl);
+                // WapplerSystems fork: a form that cannot be written still gets a
+                // way in — the same form editor route, which opens it in view mode.
+                // Kept as viewUrl rather than editUrl so the list can label it as
+                // viewing instead of promising an editor that then refuses to save.
+                $formMetadata = $formMetadata->readOnly
+                    ? $formMetadata->withViewUrl($formEditorUrl)
+                    : $formMetadata->withEditUrl($formEditorUrl);
             }
 
             $actions = $this->getRecordActions($formMetadata->persistenceIdentifier);

@@ -322,6 +322,13 @@ class ExtensionStorageAdapter extends AbstractFileStorageAdapter implements Stor
             && $this->isFileWithinAccessibleExtensionFolders($persistenceIdentifier);
     }
 
+    public function isReadOnly(string $persistenceIdentifier): bool
+    {
+        // Same condition findAll() puts on the metadata: forms shipped inside an
+        // extension are writable only where the integrator opted in.
+        return !$this->storageConfiguration->isAllowedToSaveToExtensionPaths();
+    }
+
     public function getFormManagerOptions(): array
     {
         $preparedAccessibleFormStorageFolders = [];

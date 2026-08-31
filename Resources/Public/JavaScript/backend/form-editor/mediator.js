@@ -43,6 +43,24 @@ function getPublisherSubscriber() {
 function getRootFormElement() {
     return getFormEditorApp().getRootFormElement();
 }
+/**
+ * WapplerSystems fork: subscribe unless the form is open for viewing only.
+ *
+ * Every topic that changes the form definition goes through this instead of
+ * subscribing directly, so read-only mode is enforced in one place rather than
+ * relying on the view to withhold each affordance. A click that slips past a
+ * hidden button, a drag the tree still bridges, or an additional view model
+ * module publishing on its own then finds no subscriber — and the definition
+ * stays as loaded. The server refuses such a save anyway
+ * (FormEditorController::saveFormAction()); this keeps the editor from showing
+ * the editor a change it is going to lose.
+ */
+function subscribeUnlessReadOnly(topic, func) {
+    if (getFormEditorApp().isReadOnly()) {
+        return;
+    }
+    getPublisherSubscriber().subscribe(topic, func);
+}
 function subscribeEvents() {
     /* *********************************************************
      * Misc
@@ -124,7 +142,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/header/button/save/clicked
      */
-    getPublisherSubscriber().subscribe('view/header/button/save/clicked', () => {
+    subscribeUnlessReadOnly('view/header/button/save/clicked', () => {
         if (getFormEditorApp().validationResultsHasErrors(getFormEditorApp().validateFormElementRecursive(getRootFormElement(), true))) {
             getViewModel().showValidationErrorsModal();
         }
@@ -149,7 +167,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/header/button/newPage/clicked
      */
-    getPublisherSubscriber().subscribe('view/header/button/newPage/clicked', (topic, [targetEvent]) => {
+    subscribeUnlessReadOnly('view/header/button/newPage/clicked', (topic, [targetEvent]) => {
         if (getFormEditorApp().isRootFormElementSelected()) {
             getViewModel().selectPageBatch(0);
         }
@@ -164,7 +182,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/undoButton/clicked
      */
-    getPublisherSubscriber().subscribe('view/undoButton/clicked', () => {
+    subscribeUnlessReadOnly('view/undoButton/clicked', () => {
         getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
         getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
         getFormEditorApp().undoApplicationState();
@@ -182,7 +200,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/redoButton/clicked
      */
-    getPublisherSubscriber().subscribe('view/redoButton/clicked', () => {
+    subscribeUnlessReadOnly('view/redoButton/clicked', () => {
         getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderUndo')));
         getViewModel().disableButton(document.querySelector(getHelper().getDomElementDataIdentifierSelector('buttonHeaderRedo')));
         getFormEditorApp().redoApplicationState();
@@ -221,7 +239,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/stage/abstract/elementToolbar/button/newElement/clicked
      */
-    getPublisherSubscriber().subscribe('view/stage/abstract/elementToolbar/button/newElement/clicked', (topic, [targetEvent, modalConfiguration]) => {
+    subscribeUnlessReadOnly('view/stage/abstract/elementToolbar/button/newElement/clicked', (topic, [targetEvent, modalConfiguration]) => {
         if (getFormEditorApp().isRootFormElementSelected()) {
             getViewModel().selectPageBatch(0);
         }
@@ -230,7 +248,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/newElementButton/clicked
      */
-    getPublisherSubscriber().subscribe('view/stage/abstract/button/newElement/clicked', (topic, [targetEvent, modalConfiguration]) => {
+    subscribeUnlessReadOnly('view/stage/abstract/button/newElement/clicked', (topic, [targetEvent, modalConfiguration]) => {
         if (getFormEditorApp().isRootFormElementSelected()) {
             getViewModel().selectPageBatch(0);
         }
@@ -239,13 +257,13 @@ function subscribeEvents() {
     /**
      * @subscribe view/stage/abstract/dnd/start
      */
-    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/start', (topic, [draggedFormElementDomElement, draggedFormPlaceholderDomElement]) => {
+    subscribeUnlessReadOnly('view/stage/abstract/dnd/start', (topic, [draggedFormElementDomElement, draggedFormPlaceholderDomElement]) => {
         getViewModel().onAbstractViewDndStartBatch(draggedFormElementDomElement, draggedFormPlaceholderDomElement);
     });
     /**
      * @subscribe view/stage/abstract/dnd/stop
      */
-    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/stop', (topic, [draggedFormElementIdentifierPath]) => {
+    subscribeUnlessReadOnly('view/stage/abstract/dnd/stop', (topic, [draggedFormElementIdentifierPath]) => {
         getFormEditorApp().setCurrentlySelectedFormElement(draggedFormElementIdentifierPath);
         getViewModel().renewStructure();
         getViewModel().setPreviewMode(false);
@@ -257,13 +275,13 @@ function subscribeEvents() {
     /**
      * @subscribe view/stage/abstract/dnd/change
      */
-    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/change', (topic, [placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement]) => {
+    subscribeUnlessReadOnly('view/stage/abstract/dnd/change', (topic, [placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement]) => {
         getViewModel().onAbstractViewDndChangeBatch(placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement);
     });
     /**
      * @subscribe view/stage/abstract/dnd/update
      */
-    getPublisherSubscriber().subscribe('view/stage/abstract/dnd/update', (topic, [movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath]) => {
+    subscribeUnlessReadOnly('view/stage/abstract/dnd/update', (topic, [movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath]) => {
         getViewModel().onAbstractViewDndUpdateBatch(movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath);
     });
     /**
@@ -342,7 +360,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/tree/node/clicked
      */
-    getPublisherSubscriber().subscribe('view/tree/node/changed', (topic, [formElementIdentifierPath, newLabel]) => {
+    subscribeUnlessReadOnly('view/tree/node/changed', (topic, [formElementIdentifierPath, newLabel]) => {
         const formElement = getFormEditorApp().getFormElementByIdentifierPath(formElementIdentifierPath);
         formElement.set('label', newLabel);
         getViewModel().getStructure().setTreeNodeTitle(null, formElement);
@@ -367,7 +385,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/header/button/newPage/clicked
      */
-    getPublisherSubscriber().subscribe('view/structure/button/newPage/clicked', (topic, [targetEvent]) => {
+    subscribeUnlessReadOnly('view/structure/button/newPage/clicked', (topic, [targetEvent]) => {
         if (getFormEditorApp().isRootFormElementSelected()) {
             getViewModel().selectPageBatch(0);
         }
@@ -376,7 +394,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/tree/dnd/stop
      */
-    getPublisherSubscriber().subscribe('view/tree/dnd/stop', (topic, [draggedFormElementIdentifierPath]) => {
+    subscribeUnlessReadOnly('view/tree/dnd/stop', (topic, [draggedFormElementIdentifierPath]) => {
         getFormEditorApp().setCurrentlySelectedFormElement(draggedFormElementIdentifierPath);
         getViewModel().renewStructure();
         getViewModel().renderPagination();
@@ -388,13 +406,13 @@ function subscribeEvents() {
     /**
      * @subscribe view/tree/dnd/change
      */
-    getPublisherSubscriber().subscribe('view/tree/dnd/change', (topic, [placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement]) => {
+    subscribeUnlessReadOnly('view/tree/dnd/change', (topic, [placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement]) => {
         getViewModel().onStructureDndChangeBatch(placeholderDomElement, parentFormElementIdentifierPath, enclosingCompositeFormElement);
     });
     /**
      * @subscribe view/tree/dnd/update
      */
-    getPublisherSubscriber().subscribe('view/tree/dnd/update', (topic, [movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath]) => {
+    subscribeUnlessReadOnly('view/tree/dnd/update', (topic, [movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath]) => {
         getViewModel().onStructureDndUpdateBatch(movedDomElement, movedFormElementIdentifierPath, previousFormElementIdentifierPath, nextFormElementIdentifierPath);
     });
     /**
@@ -409,13 +427,13 @@ function subscribeEvents() {
     /**
      * @subscribe view/inspector/removeCollectionElement/perform
      */
-    getPublisherSubscriber().subscribe('view/inspector/removeCollectionElement/perform', (topic, [collectionElementIdentifier, collectionName, formElement]) => {
+    subscribeUnlessReadOnly('view/inspector/removeCollectionElement/perform', (topic, [collectionElementIdentifier, collectionName, formElement]) => {
         getViewModel().removePropertyCollectionElement(collectionElementIdentifier, collectionName, formElement || undefined);
     });
     /**
      * @subscribe view/inspector/collectionElement/selected
      */
-    getPublisherSubscriber().subscribe('view/inspector/collectionElement/new/selected', (topic, [collectionElementIdentifier, collectionName,]) => {
+    subscribeUnlessReadOnly('view/inspector/collectionElement/new/selected', (topic, [collectionElementIdentifier, collectionName,]) => {
         getViewModel().createAndAddPropertyCollectionElement(collectionElementIdentifier, collectionName);
     });
     /**
@@ -428,7 +446,7 @@ function subscribeEvents() {
      * @subscribe view/inspector/collectionElements/dnd/update
      * @throws 1477407673
      */
-    getPublisherSubscriber().subscribe('view/inspector/collectionElements/dnd/update', (topic, [movedCollectionElementIdentifier, previousCollectionElementIdentifier, nextCollectionElementIdentifier, collectionName]) => {
+    subscribeUnlessReadOnly('view/inspector/collectionElements/dnd/update', (topic, [movedCollectionElementIdentifier, previousCollectionElementIdentifier, nextCollectionElementIdentifier, collectionName]) => {
         if (nextCollectionElementIdentifier) {
             getViewModel().movePropertyCollectionElement(movedCollectionElementIdentifier, 'before', nextCollectionElementIdentifier, collectionName);
         }
@@ -512,7 +530,7 @@ function subscribeEvents() {
     /**
      * @subscribe view/insertElements/perform/bottom
      */
-    getPublisherSubscriber().subscribe('view/insertElements/perform/bottom', (topic, [formElementType]) => {
+    subscribeUnlessReadOnly('view/insertElements/perform/bottom', (topic, [formElementType]) => {
         const lastRenderable = getFormEditorApp().getLastTopLevelElementOnCurrentPage();
         if (!lastRenderable) {
             getViewModel().createAndAddFormElement(formElementType, getFormEditorApp().getCurrentlySelectedPage());
@@ -531,7 +549,7 @@ function subscribeEvents() {
      * @publish view/formElement/inserted
      * @subscribe view/insertElements/perform/before
      */
-    getPublisherSubscriber().subscribe('view/insertElements/perform/before', (topic, [formElementType]) => {
+    subscribeUnlessReadOnly('view/insertElements/perform/before', (topic, [formElementType]) => {
         let newFormElement;
         newFormElement = getViewModel().createAndAddFormElement(formElementType, undefined, true);
         newFormElement = getViewModel().moveFormElement(newFormElement, 'before', getFormEditorApp().getCurrentlySelectedFormElement());
@@ -541,7 +559,7 @@ function subscribeEvents() {
      * @publish view/formElement/inserted
      * @subscribe view/insertElements/perform/after
      */
-    getPublisherSubscriber().subscribe('view/insertElements/perform/after', (topic, [formElementType]) => {
+    subscribeUnlessReadOnly('view/insertElements/perform/after', (topic, [formElementType]) => {
         let newFormElement;
         newFormElement = getViewModel().createAndAddFormElement(formElementType, undefined, true);
         newFormElement = getViewModel().moveFormElement(newFormElement, 'after', getFormEditorApp().getCurrentlySelectedFormElement());
@@ -550,13 +568,13 @@ function subscribeEvents() {
     /**
      * @subscribe view/insertElements/perform/inside
      */
-    getPublisherSubscriber().subscribe('view/insertElements/perform/inside', (topic, [formElementType]) => {
+    subscribeUnlessReadOnly('view/insertElements/perform/inside', (topic, [formElementType]) => {
         getViewModel().createAndAddFormElement(formElementType);
     });
     /**
      * @subscribe view/insertElements/perform/after
      */
-    getPublisherSubscriber().subscribe('view/insertPages/perform', (topic, [formElementType]) => {
+    subscribeUnlessReadOnly('view/insertPages/perform', (topic, [formElementType]) => {
         getViewModel().createAndAddFormElement(formElementType);
     });
     /* *********************************************************
@@ -572,13 +590,13 @@ function subscribeEvents() {
     /**
      * @subscribe view/modal/removeFormElement/perform
      */
-    getPublisherSubscriber().subscribe('view/modal/removeFormElement/perform', (topic, [formElement]) => {
+    subscribeUnlessReadOnly('view/modal/removeFormElement/perform', (topic, [formElement]) => {
         getViewModel().removeFormElement(formElement);
     });
     /**
      * @subscribe view/modal/removeCollectionElement/perform
      */
-    getPublisherSubscriber().subscribe('view/modal/removeCollectionElement/perform', (topic, [collectionElementIdentifier, collectionName, formElement,]) => {
+    subscribeUnlessReadOnly('view/modal/removeCollectionElement/perform', (topic, [collectionElementIdentifier, collectionName, formElement,]) => {
         getViewModel().removePropertyCollectionElement(collectionElementIdentifier, collectionName, formElement);
     });
     /**

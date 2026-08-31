@@ -664,8 +664,58 @@ export function getInspector(): typeof InspectorComponent {
   return inspectorsComponent;
 }
 
+/**
+ * WapplerSystems fork: the editors the inspector just rendered, made
+ * non-editable for a form that is open for viewing only.
+ *
+ * Disabling the form controls covers more than it looks like: the inspector
+ * adds and removes validators and finishers through a `<select>` and a
+ * checkbox, not through buttons, so a disabled control blocks those too. What
+ * is left are the buttons that open an editing modal of their own — variants,
+ * translations, email content — whose fields live outside this section and
+ * would not be caught here. Their read-only summaries stay visible.
+ *
+ * Runs again on the next frame because the Lit-based editors (property grid,
+ * date editor) render their internals asynchronously and are not in the DOM
+ * yet when this returns.
+ */
+function applyReadOnlyToInspector(): void {
+  if (!getFormEditorApp().isReadOnly()) {
+    return;
+  }
+  const inspectorSection = document.querySelector<HTMLElement>(
+    getHelper().getDomElementDataIdentifierSelector('inspectorSection')
+  );
+  if (!inspectorSection) {
+    return;
+  }
+  const mutatingButtonIdentifiers = [
+    'variantsAddButton',
+    'translationEditButton',
+    'translationOverviewButton',
+    'emailContentEditButton',
+  ];
+  const disable = (): void => {
+    inspectorSection
+      .querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea')
+      .forEach((field): void => {
+        field.disabled = true;
+      });
+    for (const identifier of mutatingButtonIdentifiers) {
+      inspectorSection
+        .querySelectorAll<HTMLElement>(getHelper().getDomElementDataIdentifierSelector(identifier))
+        .forEach((button): void => {
+          button.classList.add('hidden');
+        });
+    }
+  };
+  disable();
+  requestAnimationFrame(disable);
+}
+
 export function renderInspectorEditors(formElement?: FormElement | string): void {
   getInspector().renderEditors(formElement);
+  applyReadOnlyToInspector();
 }
 
 export function focusFirstInspectorInput(): void {
@@ -685,6 +735,7 @@ export function renderInspectorCollectionElementEditors(
   collectionElementIdentifier: string
 ): void {
   getInspector().renderCollectionElementEditors(collectionName, collectionElementIdentifier);
+  applyReadOnlyToInspector();
 }
 
 /* *************************************************************

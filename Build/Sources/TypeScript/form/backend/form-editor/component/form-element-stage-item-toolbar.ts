@@ -37,6 +37,11 @@ export class FormElementStageItemToolbar extends LitElement {
   @property({ type: String, attribute: 'element-identifier' }) elementIdentifier: string = '';
   @property({ type: Boolean, attribute: 'is-hidden' }) isHidden: boolean = false;
   @property({ type: Boolean, attribute: 'is-invalid' }) isInvalid: boolean = false;
+  /**
+   * WapplerSystems fork: the form is open for viewing only, so the toolbar
+   * shows what the element is but offers no insert or remove.
+   */
+  @property({ type: Boolean, attribute: 'read-only' }) readOnly: boolean = false;
 
   protected override createRenderRoot(): HTMLElement | ShadowRoot {
     return this;
@@ -59,6 +64,7 @@ export class FormElementStageItemToolbar extends LitElement {
           ${this.elementType}
         </div>
         <div class="formeditor-element-toolbar-right">
+          ${this.readOnly ? nothing : html`
           <div class="btn-toolbar">
             <div class="btn-group btn-group-sm" role="group">
               <a
@@ -84,6 +90,7 @@ export class FormElementStageItemToolbar extends LitElement {
               </a>
             </div>
           </div>
+          `}
         </div>
       </div>
     `;

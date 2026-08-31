@@ -201,6 +201,9 @@
       <trans-unit id="formManager.edit_form">
         <source>Edit this form</source>
       </trans-unit>
+      <trans-unit id="formManager.view_form">
+        <source>View this form</source>
+      </trans-unit>
       <trans-unit id="formManager.duplicate_this_form">
         <source>Duplicate this form</source>
       </trans-unit>
@@ -251,6 +254,12 @@
       </trans-unit>
       <trans-unit id="formEditor.loading">
         <source>Loading...</source>
+      </trans-unit>
+      <trans-unit id="formEditor.readOnly.title">
+        <source>View only</source>
+      </trans-unit>
+      <trans-unit id="formEditor.readOnly.message">
+        <source>This form cannot be changed here. It is either shipped by an extension or stored where you do not have write access, so the editor shows it without editing.</source>
       </trans-unit>
       <trans-unit id="formEditor.spinner">
         <source>Loading...</source>

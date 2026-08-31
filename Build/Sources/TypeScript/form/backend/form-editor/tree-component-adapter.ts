@@ -524,6 +524,14 @@ function setupEventListeners(): void {
     getPublisherSubscriber().publish('view/tree/node/clicked', [identifierPath]);
   });
 
+  if (getFormEditorApp().isReadOnly()) {
+    // WapplerSystems fork: a form opened for viewing gets no drag & drop bridge.
+    // The mediator would drop the topics anyway, but the tree moves its node
+    // optimistically — without this the structure would show a move that the
+    // next renew() silently takes back.
+    return;
+  }
+
   // DND UPDATE - Reordering within same parent (sibling reorder)
   treeContainer.addEventListener(FORM_EDITOR_TREE_EVENTS.DND_UPDATE, (event: Event) => {
     const customEvent = event as DndUpdateEvent;

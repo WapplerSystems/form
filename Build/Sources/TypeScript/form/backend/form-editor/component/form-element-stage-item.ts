@@ -60,6 +60,11 @@ export class FormElementStageItem extends LitElement {
   @property({ type: Array }) options: SelectOption[] = [];
   @property({ type: Array }) allowedMimeTypes?: string[];
   @property({ type: String }) content?: string;
+  /**
+   * WapplerSystems fork: forwarded to the toolbar, which then offers no
+   * insert or remove. Set by renderFormElementStageItem().
+   */
+  @property({ type: Boolean, attribute: 'read-only' }) readOnly: boolean = false;
 
   protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // Avoid Shadow DOM so global styles apply to the element contents
@@ -74,7 +79,8 @@ export class FormElementStageItem extends LitElement {
         element-type="${this.elementType}"
         element-identifier="${this.elementIdentifier}"
         ?is-hidden="${this.isHidden}"
-        ?is-invalid="${this.invalid}">
+        ?is-invalid="${this.invalid}"
+        ?read-only="${this.readOnly}">
       </typo3-form-form-element-stage-item-toolbar>
       <div class="formeditor-element-body">
         <div class="formeditor-element-info">

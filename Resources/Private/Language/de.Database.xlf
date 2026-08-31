@@ -259,6 +259,10 @@
         <source>Edit this form</source>
         <target state="final">Dieses Formular bearbeiten</target>
       </trans-unit>
+      <trans-unit id="formManager.view_form" approved="yes">
+        <source>View this form</source>
+        <target state="final">Dieses Formular ansehen</target>
+      </trans-unit>
       <trans-unit id="formManager.duplicate_this_form" approved="yes">
         <source>Duplicate this form</source>
         <target state="final">Dieses Formular duplizieren</target>
@@ -326,6 +330,14 @@
       <trans-unit id="formEditor.loading" approved="yes">
         <source>Loading...</source>
         <target state="final">Lädt...</target>
+      </trans-unit>
+      <trans-unit id="formEditor.readOnly.title" approved="yes">
+        <source>View only</source>
+        <target state="final">Nur ansehen</target>
+      </trans-unit>
+      <trans-unit id="formEditor.readOnly.message" approved="yes">
+        <source>This form cannot be changed here. It is either shipped by an extension or stored where you do not have write access, so the editor shows it without editing.</source>
+        <target state="final">Dieses Formular kann hier nicht geändert werden. Es wird entweder von einer Extension ausgeliefert oder liegt an einem Ort, für den Sie kein Schreibrecht haben — der Editor zeigt es deshalb ohne Bearbeitung.</target>
       </trans-unit>
       <trans-unit id="formEditor.spinner" approved="yes">
         <source>Loading...</source>

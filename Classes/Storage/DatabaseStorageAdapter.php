@@ -324,6 +324,30 @@ final readonly class DatabaseStorageAdapter implements StorageAdapterInterface
         return $record !== null;
     }
 
+    public function isReadOnly(string $persistenceIdentifier): bool
+    {
+        // A form that is about to be created belongs to the storage's own page,
+        // so the permission that decides is the one write() checks there.
+        if (str_starts_with($persistenceIdentifier, 'NEW')) {
+            return !$this->permissionChecker->hasWritePermission(0);
+        }
+
+        if (!MathUtility::canBeInterpretedAsInteger($persistenceIdentifier)) {
+            return true;
+        }
+
+        $record = $this->repository->findByUid((int)$persistenceIdentifier);
+        if ($record === null) {
+            // Nothing to write to. Saying "read-only" rather than "writable"
+            // keeps a missing record from being reported as an editing right;
+            // that it does not exist surfaces on load().
+            return true;
+        }
+
+        // Same condition findAll() puts on the metadata.
+        return !$this->permissionChecker->hasWritePermission((int)($record['pid'] ?? 0));
+    }
+
     /**
      * @throws PersistenceManagerException
      */

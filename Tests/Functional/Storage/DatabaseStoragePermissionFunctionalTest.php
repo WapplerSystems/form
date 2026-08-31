@@ -210,6 +210,46 @@ final class DatabaseStoragePermissionFunctionalTest extends FunctionalTestCase
         }
     }
 
+    /**
+     * isReadOnly() answers for a single identifier what findAll() marks on the
+     * whole list. The form editor has to ask before it lists anything, so the
+     * two must not drift apart.
+     */
+    #[Test]
+    public function isReadOnlyMatchesTheFindAllMetadataForAReadOnlyUser(): void
+    {
+        $this->switchToBackendUser(3);
+        $subject = $this->getSubject();
+
+        self::assertTrue($subject->isReadOnly('1'));
+    }
+
+    #[Test]
+    public function isReadOnlyIsFalseForAUserWhoMayWrite(): void
+    {
+        $subject = $this->getSubject();
+
+        self::assertFalse($subject->isReadOnly('1'), 'the admin set up in setUp() may write');
+    }
+
+    #[Test]
+    public function isReadOnlyIsTrueForAFormThatDoesNotExist(): void
+    {
+        $subject = $this->getSubject();
+
+        // Nothing to write to, and reporting it as writable would hand the editor
+        // a save button for a form that cannot be loaded in the first place.
+        self::assertTrue($subject->isReadOnly('4711'));
+    }
+
+    #[Test]
+    public function isReadOnlyIsTrueForANonNumericIdentifier(): void
+    {
+        $subject = $this->getSubject();
+
+        self::assertTrue($subject->isReadOnly('not-a-uid'));
+    }
+
     #[Test]
     public function frontendContextAlwaysAllowsReadEvenWithoutBackendUser(): void
     {

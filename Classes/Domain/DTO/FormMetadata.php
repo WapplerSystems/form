@@ -39,6 +39,7 @@ final readonly class FormMetadata
         public ?int $fileUid = null,
         public int $referenceCount = 0,
         public ?string $editUrl = null,
+        public ?string $viewUrl = null,
         public ?string $storageLocation = null,
         public array $actions = [],
     ) {}
@@ -59,6 +60,7 @@ final readonly class FormMetadata
             fileUid: $data['fileUid'] ?? null,
             referenceCount: $data['referenceCount'] ?? 0,
             editUrl: $data['editUrl'] ?? null,
+            viewUrl: $data['viewUrl'] ?? null,
             storageLocation: $data['storageLocation'] ?? null,
             actions: $data['actions'] ?? [],
         );
@@ -106,6 +108,7 @@ final readonly class FormMetadata
             'fileUid' => $this->fileUid,
             'referenceCount' => $this->referenceCount,
             'editUrl' => $this->editUrl,
+            'viewUrl' => $this->viewUrl,
             'actions' => $this->actions,
         ];
     }
@@ -126,6 +129,7 @@ final readonly class FormMetadata
             fileUid: $changes['fileUid'] ?? $this->fileUid,
             referenceCount: $changes['referenceCount'] ?? $this->referenceCount,
             editUrl: $changes['editUrl'] ?? $this->editUrl,
+            viewUrl: $changes['viewUrl'] ?? $this->viewUrl,
             storageLocation: $changes['storageLocation'] ?? $this->storageLocation,
             actions: $changes['actions'] ?? $this->actions,
         );
@@ -174,6 +178,16 @@ final readonly class FormMetadata
     public function withEditUrl(string $editUrl): self
     {
         return $this->with(['editUrl' => $editUrl]);
+    }
+
+    /**
+     * The form editor URL for a form that may only be viewed. Distinct from
+     * editUrl so the list can offer the right affordance instead of a link that
+     * promises editing.
+     */
+    public function withViewUrl(string $viewUrl): self
+    {
+        return $this->with(['viewUrl' => $viewUrl]);
     }
 
     public function withStorageLocation(?string $storageLocation): self
