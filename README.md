@@ -1217,6 +1217,15 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Added**
 
+- Forms that cannot be edited can now be viewed. A form shipped by an extension, or one on
+  a page the user may read but not write, opens in the form editor in view mode instead of
+  being refused with "Edit an extension formDefinition is not allowed": no save, undo, redo
+  or new-page button, no insert/remove on the stage, no drag & drop, disabled inspector
+  controls — and the mediator subscribes none of the 25 topics that change a definition, so
+  the enforcement does not depend on the view withholding an affordance. The form manager
+  links such forms through `FormMetadata::viewUrl` with an eye icon. `isReadOnly()` on
+  `StorageAdapterInterface` (new method — downstream adapters must add it) answers per
+  identifier what `findAll()` marks on the list (`339c6f82`).
 - Outgoing-mail log: every finisher mail recorded with its delivery outcome, a backend
   module to read it and a `form:maillog:check` CLI check for monitoring (`2e53e3ef`), moved
   under *Administration* (`12632a4d`).
