@@ -32,7 +32,12 @@
                 <section class="formeditor-stage-container" data-identifier="stageContainer">
                     <div class="formeditor-stage-container-inner" data-identifier="stageContainerInner">
                             <f:render section="Header" />
-                            <f:render section="Stage" />
+                            <f:comment>
+                                readOnly is passed explicitly: a section does not see the
+                                template's own variables reliably, and the new-page button
+                                below silently stayed visible without this.
+                            </f:comment>
+                            <f:render section="Stage" arguments="{readOnly: readOnly}" />
                     </div>
                 </section>
             </div>

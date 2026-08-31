@@ -665,6 +665,13 @@ export function getInspector(): typeof InspectorComponent {
 }
 
 /**
+ * WapplerSystems fork: watches the inspector for editors that render after
+ * applyReadOnlyToInspector() has run. Installed once, never torn down: the
+ * inspector section lives as long as the module does.
+ */
+let readOnlyInspectorObserver: MutationObserver | null = null;
+
+/**
  * WapplerSystems fork: the editors the inspector just rendered, made
  * non-editable for a form that is open for viewing only.
  *
@@ -702,15 +709,34 @@ function applyReadOnlyToInspector(): void {
         field.disabled = true;
       });
     for (const identifier of mutatingButtonIdentifiers) {
+      // A literal attribute selector on purpose: these identifiers are written
+      // straight into the markup by the fork's own editors and are not part of
+      // the domElementDataAttributeValues map, so the helper would assert
+      // (1478806884) — which aborted this whole pass before it hid anything.
       inspectorSection
-        .querySelectorAll<HTMLElement>(getHelper().getDomElementDataIdentifierSelector(identifier))
+        .querySelectorAll<HTMLElement>('[data-identifier="' + identifier + '"]')
         .forEach((button): void => {
           button.classList.add('hidden');
         });
     }
   };
   disable();
-  requestAnimationFrame(disable);
+
+  // Several editors are not in the DOM when this returns: the Lit-based ones
+  // render their internals asynchronously, and the fork's own editors (email
+  // content, translations, variants) build their controls after their data
+  // arrives. A single pass therefore missed four of fifteen fields and all
+  // three modal buttons in the contact-form example, so the pass repeats for
+  // whatever appears later. Only childList is observed — setting `disabled` or
+  // adding a class is an attribute change, so the observer cannot retrigger
+  // itself.
+  if (readOnlyInspectorObserver !== null) {
+    return;
+  }
+  readOnlyInspectorObserver = new MutationObserver((): void => {
+    disable();
+  });
+  readOnlyInspectorObserver.observe(inspectorSection, { childList: true, subtree: true });
 }
 
 export function renderInspectorEditors(formElement?: FormElement | string): void {
