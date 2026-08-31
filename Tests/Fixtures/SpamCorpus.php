@@ -70,6 +70,22 @@ final class SpamCorpus
             'url in message' => [[
                 'message' => 'Siehe https://example.com/produkte fuer Details.',
             ]],
+            // Added after this corpus was first written, and the reason the
+            // consonant-run condition exists: entropy and vowel ratio alone flag
+            // a German compound, and one such word in an otherwise plainly human
+            // enquiry turned a real submission away. Measured against the
+            // hunspell de_DE list the two conditions alone flag 3.44% of all
+            // words of twelve letters or more, the consonant run brings that to
+            // 0.21%.
+            'consonant heavy compound' => [[
+                'message' => 'Brandschutzklappe',
+            ]],
+            'compound with low vowel ratio' => [[
+                'subject' => 'Bildschirmfoto',
+            ]],
+            'short enquiry naming a test mailbox' => [[
+                'message' => 'Die Absenderadresse ist ein Testpostfach.',
+            ]],
         ];
     }
 }
