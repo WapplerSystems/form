@@ -34,6 +34,19 @@ function lll(key, fallback) {
     const value = labels && labels[key];
     return typeof value === 'string' && value.length > 0 ? value : fallback;
 }
+/**
+ * WapplerSystems fork: the non-default site languages, delivered once per page
+ * load via TYPO3.settings.FormEditor.availableLanguages (FormEditorController::
+ * collectNonDefaultSiteLanguages()) instead of per-editor through the YAML/PHP
+ * editor configuration - this is what lets "translations" be declared as a
+ * plain, static (and therefore YAML-overridable) editor entry like any other,
+ * with the one genuinely dynamic piece (which languages exist) resolved here
+ * in JS instead of baked into the config.
+ */
+function getAvailableLanguages() {
+    const languages = TYPO3?.settings?.FormEditor?.availableLanguages;
+    return Array.isArray(languages) ? languages : [];
+}
 const defaultConfiguration = {
     domElementClassNames: {
         buttonFormElementRemove: 'formeditor-inspector-element-remove-button',
@@ -1000,7 +1013,7 @@ export function renderGridColumnViewPortConfigurationEditor(editorConfiguration,
  *
  * Use this (Inspector-ViewPortColumnEditor) for any per-breakpoint numeric
  * setting that is NOT about GridRow sibling column auto-division - e.g. the
- * Form root's layoutLabelColumns editor.
+ * Form root's "layoutLabelColumns" editor.
  */
 export function renderViewPortColumnEditor(editorConfiguration, editorHtml) {
     assert(typeof editorConfiguration === 'object' && editorConfiguration !== null && !Array.isArray(editorConfiguration), 'Invalid parameter "editorConfiguration"', 1755400001);
@@ -1073,7 +1086,6 @@ export function renderViewPortColumnEditor(editorConfiguration, editorHtml) {
         });
     });
 }
-
 export function renderPropertyGridEditor(editorConfiguration, editorHtml, collectionElementIdentifier, collectionName) {
     assert(typeof editorConfiguration === 'object' && editorConfiguration !== null && !Array.isArray(editorConfiguration), 'Invalid parameter "editorConfiguration"', 1475419226);
     assert(typeof editorHtml === 'object' && editorHtml !== null && !Array.isArray(editorHtml), 'Invalid parameter "editorHtml"', 1475419227);
@@ -2353,12 +2365,18 @@ function readOverrideValue(languageOverride, item) {
     return typeof current === 'string' ? current : '';
 }
 export function renderTranslationEditor(editorConfiguration, editorHtml, collectionElementIdentifier, collectionName) {
+    const languages = editorConfiguration.availableLanguages ?? getAvailableLanguages();
+    if (languages.length === 0) {
+        // No additional site languages configured - keep the sidebar uncluttered,
+        // same as when this editor previously wasn't injected at all in that case.
+        editorHtml.style.display = 'none';
+        return;
+    }
     getHelper().getTemplatePropertyElement('label', editorHtml)
         ?.append(document.createTextNode(editorConfiguration.label ?? 'Translations'));
     renderDescription(editorConfiguration, editorHtml);
     editorHtml.querySelector('[data-template-property="editButtonLabel"]')
         ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? lll('translation.edit', 'Translate…')));
-    const languages = editorConfiguration.availableLanguages ?? [];
     const formElement = getCurrentlySelectedFormElement();
     // For finishers (collection editors) the property path is resolved against the
     // collection, e.g. finishers.<idx>.options.translation.overrides, and the translatable
@@ -2569,12 +2587,16 @@ function collectTranslatableElements() {
     return entries;
 }
 export function renderTranslationOverviewEditor(editorConfiguration, editorHtml) {
+    const languages = editorConfiguration.availableLanguages ?? getAvailableLanguages();
+    if (languages.length === 0) {
+        editorHtml.style.display = 'none';
+        return;
+    }
     getHelper().getTemplatePropertyElement('label', editorHtml)
         ?.append(document.createTextNode(editorConfiguration.label ?? 'Form translations'));
     renderDescription(editorConfiguration, editorHtml);
     editorHtml.querySelector('[data-template-property="editButtonLabel"]')
         ?.append(document.createTextNode(editorConfiguration.editButtonLabel ?? lll('translation.editWholeForm', 'Translate whole form…')));
-    const languages = editorConfiguration.availableLanguages ?? [];
     const summaryEl = editorHtml.querySelector('[data-identifier="translationOverviewSummary"]');
     const button = editorHtml.querySelector('[data-identifier="translationOverviewButton"]');
     const updateSummary = () => {
