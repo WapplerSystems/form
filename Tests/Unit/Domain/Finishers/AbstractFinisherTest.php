@@ -22,8 +22,12 @@ use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
 use TYPO3\CMS\Form\Domain\Finishers\FinisherVariableProvider;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
+use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
+use TYPO3\CMS\Form\Domain\Model\FormElements\ProcessableValueFormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\FormElements\StringableFormElementInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
+use TYPO3\CMS\Form\Service\FormValueResolver;
+use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Form\Tests\Unit\Domain\Finishers\Fixtures\AbstractFinisherFixture;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -206,6 +210,22 @@ final class AbstractFinisherTest extends UnitTestCase
     }
 
     #[Test]
+    public function substituteRuntimeReferencesKeepsPlaceholderWhenNothingResolvesIt(): void
+    {
+        $elementIdentifier = 'element-identifier-1';
+        $input = 'BEFORE {' . $elementIdentifier . '} AFTER';
+        $formRuntimeMock = $this->createMock(FormRuntime::class);
+        $formRuntimeMock->expects($this->atMost(PHP_INT_MAX))->method('offsetExists')->with($elementIdentifier)->willReturn(true);
+        $formRuntimeMock->expects($this->atMost(PHP_INT_MAX))->method('offsetGet')->with($elementIdentifier)->willReturn(null);
+        $formRuntimeMock->method('getFormDefinition')->willReturn(self::createStub(FormDefinition::class));
+        $finisherContextStub = self::createStub(FinisherContext::class);
+        $finisherContextStub->method('getFinisherVariableProvider')->willReturn(new FinisherVariableProvider());
+        $subject = new AbstractFinisherFixture();
+        $subject->finisherContext = $finisherContextStub;
+        self::assertSame($input, $subject->substituteRuntimeReferences($input, $formRuntimeMock));
+    }
+
+    #[Test]
     public function substituteRuntimeReferencesReturnsTimestampIfInputIsATimestampRequestTrigger(): void
     {
         $input = '{__currentTimestamp}';
@@ -285,16 +305,98 @@ final class AbstractFinisherTest extends UnitTestCase
     }
 
     #[Test]
-    public function substituteRuntimeReferencesThrowsExceptionOnMultipleVariablesResolvedAsArray(): void
+    public function substituteRuntimeReferencesThrowsExceptionOnArrayWithNonStringableObject(): void
     {
         $elementIdentifier = 'element-identifier-1';
         $input = 'BEFORE {' . $elementIdentifier . '} AFTER';
         $formRuntimeMock = $this->createMock(FormRuntime::class);
-        $formRuntimeMock->method('offsetExists')->with($elementIdentifier)->willReturn(true);
-        $formRuntimeMock->method('offsetGet')->with($elementIdentifier)->willReturn(['value-1', 'value-2']);
+        $formRuntimeMock->expects($this->atMost(PHP_INT_MAX))->method('offsetExists')->with($elementIdentifier)->willReturn(true);
+        $formRuntimeMock->expects($this->atMost(PHP_INT_MAX))->method('offsetGet')->with($elementIdentifier)->willReturn([new \stdClass()]);
+        $formDefinitionStub = self::createStub(FormDefinition::class);
+        $formRuntimeMock->method('getFormDefinition')->willReturn($formDefinitionStub);
         $this->expectException(FinisherException::class);
-        $this->expectExceptionCode(1519239265);
+        $this->expectExceptionCode(1787754756);
         $subject = new AbstractFinisherFixture();
         $subject->substituteRuntimeReferences($input, $formRuntimeMock);
+    }
+
+    #[Test]
+    public function substituteRuntimeReferencesImplodesArrayWhenInterpolatedIntoString(): void
+    {
+        $elementIdentifier = 'element-identifier-1';
+        $input = 'BEFORE {' . $elementIdentifier . '} AFTER';
+        $formRuntimeMock = $this->createMock(FormRuntime::class);
+        $formRuntimeMock->expects($this->atMost(PHP_INT_MAX))->method('offsetExists')->with($elementIdentifier)->willReturn(true);
+        $formRuntimeMock->expects($this->atMost(PHP_INT_MAX))->method('offsetGet')->with($elementIdentifier)->willReturn(['value-1', 'value-2']);
+        $subject = new AbstractFinisherFixture();
+        self::assertSame('BEFORE value-1, value-2 AFTER', $subject->substituteRuntimeReferences($input, $formRuntimeMock));
+    }
+
+    #[Test]
+    public function parseOptionKeepsTheSubmittedValue(): void
+    {
+        $subject = $this->buildFinisherWithOptionableElement('salutation', 'mr', 'Mister');
+        self::assertSame('mr', $subject->parseOption('subject'));
+    }
+
+    #[Test]
+    public function parseOptionAsDisplayValueResolvesTheRepresentationOfTheElement(): void
+    {
+        $subject = $this->buildFinisherWithOptionableElement('salutation', 'mr', 'Mister');
+        self::assertSame('Mister', $subject->parseOptionAsDisplayValue('subject'));
+    }
+
+    #[Test]
+    public function parseOptionKeepsTheSubmittedValueAfterADisplayValueHasBeenParsed(): void
+    {
+        $subject = $this->buildFinisherWithOptionableElement('salutation', 'mr', 'Mister');
+        $subject->parseOptionAsDisplayValue('subject');
+        self::assertSame('mr', $subject->parseOption('subject'));
+    }
+
+    /**
+     * WapplerSystems fork: a finisher can be built outside the DI container, so
+     * the resolver may be missing. Upstream's non-nullable property made that a
+     * fatal on first access — here, where a swallowed error costs the mail.
+     */
+    #[Test]
+    public function parseOptionAsDisplayValueFallsBackToTheSubmittedValueWithoutAResolver(): void
+    {
+        $subject = $this->buildFinisherWithOptionableElement('salutation', 'mr', 'Mister', false);
+
+        self::assertSame('mr', $subject->parseOptionAsDisplayValue('subject'));
+    }
+
+    private function buildFinisherWithOptionableElement(
+        string $elementIdentifier,
+        string $submittedValue,
+        string $displayValue,
+        bool $withFormValueResolver = true
+    ): AbstractFinisherFixture {
+        $elementStub = self::createStubForIntersectionOfInterfaces([
+            FormElementInterface::class,
+            ProcessableValueFormElementInterface::class,
+        ]);
+        $elementStub->method('processElementValue')->willReturn($displayValue);
+
+        $formDefinitionStub = self::createStub(FormDefinition::class);
+        $formDefinitionStub->method('getElementByIdentifier')->willReturn($elementStub);
+
+        $formRuntimeStub = self::createStub(FormRuntime::class);
+        $formRuntimeStub->method('offsetExists')->willReturn(true);
+        $formRuntimeStub->method('offsetGet')->willReturn($submittedValue);
+        $formRuntimeStub->method('getFormDefinition')->willReturn($formDefinitionStub);
+
+        $finisherContextStub = self::createStub(FinisherContext::class);
+        $finisherContextStub->method('getFormRuntime')->willReturn($formRuntimeStub);
+        $finisherContextStub->method('getFinisherVariableProvider')->willReturn(new FinisherVariableProvider());
+
+        $subject = new AbstractFinisherFixture();
+        $subject->finisherContext = $finisherContextStub;
+        if ($withFormValueResolver) {
+            $subject->injectFormValueResolver(new FormValueResolver(self::createStub(TranslationService::class)));
+        }
+        $subject->options = ['subject' => '{' . $elementIdentifier . '}'];
+        return $subject;
     }
 }
