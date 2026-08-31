@@ -616,7 +616,7 @@ export function addAbstractViewValidationResults() {
             if (i > 0) {
                 const validationElement = getStage().getAbstractViewFormElementDomElement(validationResults[i].formElementIdentifierPath);
                 // Set invalid property on Lit web component (FormElementStageItem)
-                const stageItem = validationElement.querySelector('typo3-form-form-element-stage-item');
+                const stageItem = validationElement?.querySelector('typo3-form-form-element-stage-item');
                 if (stageItem && 'invalid' in stageItem) {
                     stageItem.invalid = true;
                 }
