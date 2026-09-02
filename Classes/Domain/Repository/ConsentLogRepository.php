@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Domain\Repository;
 
 use Doctrine\DBAL\ParameterType;
-use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Form\Domain\DTO\ConsentLogDemand;
@@ -185,12 +184,51 @@ class ConsentLogRepository
             ->fetchAllAssociative();
     }
 
+    /**
+     * Number of rows a deleteOlderThan() with the same cutoff would remove.
+     */
+    public function countOlderThan(int $cutoff): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+
+        return (int)$queryBuilder
+            ->count('uid')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->lt(
+                    'crdate',
+                    $queryBuilder->createNamedParameter($cutoff, ParameterType::INTEGER),
+                ),
+            )
+            ->executeQuery()
+            ->fetchOne();
+    }
+
+    /**
+     * Deletes rows older than the cutoff and returns how many went.
+     */
     public function deleteOlderThan(int $cutoff): int
     {
-        $connection = $this->connectionPool->getConnectionForTable(self::TABLE);
-        $deleted = $connection->delete(self::TABLE, ['crdate' => $cutoff], [Connection::PARAM_INT]);
+        // Must be a range comparison. This used to call
+        // Connection::delete(self::TABLE, ['crdate' => $cutoff]), whose second
+        // argument is an identifier map and therefore compiles to
+        // `WHERE crdate = :cutoff` - matching only rows written in the exact
+        // second of the cutoff, i.e. in practice nothing. The documented
+        // retention window silently never applied, and because
+        // deleteOrphanedTexts() only drops wordings no row refers to any more,
+        // the wordings stayed too. For a table whose `subject` column holds an
+        // e-mail address that turned "three years" into "forever".
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
-        return $deleted;
+        return (int)$queryBuilder
+            ->delete(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->lt(
+                    'crdate',
+                    $queryBuilder->createNamedParameter($cutoff, ParameterType::INTEGER),
+                ),
+            )
+            ->executeStatement();
     }
 
     /**

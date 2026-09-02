@@ -77,6 +77,26 @@ readonly class MailLogRepository
     /**
      * Deletes rows older than the cutoff and returns how many went.
      */
+    /**
+     * Number of rows a deleteOlderThan() with the same cutoff would remove.
+     */
+    public function countOlderThan(int $cutoff): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_NAME);
+
+        return (int)$queryBuilder
+            ->count('uid')
+            ->from(self::TABLE_NAME)
+            ->where(
+                $queryBuilder->expr()->lt(
+                    'crdate',
+                    $queryBuilder->createNamedParameter($cutoff, ParameterType::INTEGER),
+                ),
+            )
+            ->executeQuery()
+            ->fetchOne();
+    }
+
     public function deleteOlderThan(int $cutoff): int
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_NAME);
