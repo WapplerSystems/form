@@ -12,6 +12,25 @@
         additionalParams="{form.renderingOptions.additionalParams}"
         additionalAttributes="{formvh:translateElementProperty(element: form, property: 'fluidAdditionalAttributes')}"
     >
+        <f:comment>
+            Errors on the form-root property path - everything a form-level
+            validator reports through $this->addError() rather than
+            ->forProperty() (Challenge, MinimumFillTime, and EntropySpam's
+            fallback when it cannot attribute the text to one field). No field
+            partial renders these, so without this block such a submission is
+            rejected silently: the visitor gets the form back with no
+            explanation. Keep in sync with Templates/Form.fluid.html on
+            release/v14.
+        </f:comment>
+        <f:form.validationResults for="{form.identifier}">
+            <f:if condition="{validationResults.errors}">
+                <div class="form-error-summary alert alert-danger" role="alert">
+                    <f:for each="{validationResults.errors}" as="error">
+                        <p class="form-error-summary-item">{error -> f:format.htmlspecialchars()}</p>
+                    </f:for>
+                </div>
+            </f:if>
+        </f:form.validationResults>
         <f:render partial="{form.currentPage.templateName}" arguments="{page: form.currentPage}" />
         <div class="{form.renderingOptions.formNavigation.navigationWrapperClassAttribute}">
             <f:render partial="Form/Navigation" arguments="{form: form}" />
