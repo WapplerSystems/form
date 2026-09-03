@@ -269,6 +269,158 @@ final class EntropySpamValidatorTest extends UnitTestCase
         );
     }
 
+    /**
+     * The submission that got through on a live site and is the reason the
+     * alphanumeric token check exists. Every field is salad with a digit or two
+     * dropped in, which is exactly what defeated the letter-only tokenizer: it
+     * cut "ZYWVj7hyXv" into "ZYWVj" and "hyXv", both far too short to judge, so
+     * the gibberish share came out at 0.00 while the combined entropy — 5.07
+     * bits per character — sat comfortably inside the permitted 1.8 to 5.8 band.
+     */
+    #[Test]
+    public function digitSeededGibberishAcrossEveryFieldIsRejected(): void
+    {
+        $values = [
+            'text-1' => 'ZYWVj7hyXv',
+            'text-2' => 'AmJj19D9Y5',
+            'email-1' => 'qsdixon@yahoo.com',
+            'text-3' => '9KI0nB1YVM',
+            'text-4' => 'JuT8l9hsQJ',
+        ];
+
+        self::assertTrue($this->buildValidator()->validate($values)->hasErrors());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function mixedAlnumGibberishTokenProvider(): array
+    {
+        return [
+            'reported name' => ['ZYWVj7hyXv'],
+            'reported first name' => ['AmJj19D9Y5'],
+            'reported phone' => ['9KI0nB1YVM'],
+            'reported contract designation' => ['JuT8l9hsQJ'],
+            'digit in the middle of camel salad' => ['aBcDeFgHiJ7kLmNoPqRsT'],
+            'alternating without case flip' => ['q1w2e3r4t5'],
+            'short mixed salad' => ['xk3Mp9Qz'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('mixedAlnumGibberishTokenProvider')]
+    public function mixedAlphanumericGibberishIsRejected(string $token): void
+    {
+        self::assertTrue(
+            $this->buildValidator()->validate(['message' => $token])->hasErrors(),
+            sprintf('Expected "%s" to be rejected as machine-generated.', $token),
+        );
+    }
+
+    /**
+     * The expensive direction. A letters-and-digits token is normal in a
+     * contract designation, a customer number, an IBAN or a course name, and a
+     * cancellation form that turns those away costs the site owner a deadline,
+     * not a spam mail.
+     *
+     * @return array<string, array{array<string, string>}>
+     */
+    public static function legitimateAlnumSubmissionProvider(): array
+    {
+        return [
+            'contract number' => [['message' => 'Vertrag Nr. AS-2024-1234']],
+            'course with year' => [['message' => 'Examenskurs2026']],
+            'course with term' => [['message' => 'Assessorkurs 2026/1']],
+            'iban' => [['message' => 'DE89370400440532013000']],
+            'customer number' => [['message' => 'MITGLIEDSNR 4711']],
+            'abbreviation with digit' => [['message' => 'BGB-AT2']],
+            'product with digits' => [['message' => 'iPhone13']],
+            'years spanned' => [['message' => 'Vertrag2019bis2026']],
+            'inner capital and year' => [['message' => 'StudentIn2026']],
+            'phone number' => [['phone' => '0170 1234567']],
+            'phone number international' => [['phone' => '+49 (0)89 123456-78']],
+            'phone number bare' => [['phone' => '4194840183']],
+            'order number with suffix' => [['message' => 'Kurs-Nr 8823-A']],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $values
+     */
+    #[Test]
+    #[DataProvider('legitimateAlnumSubmissionProvider')]
+    public function legitimateAlphanumericValuesAreAccepted(array $values): void
+    {
+        self::assertFalse(
+            $this->buildValidator()->validate($values)->hasErrors(),
+            'Legitimate alphanumeric value was wrongly rejected: ' . json_encode($values),
+        );
+    }
+
+    /**
+     * Guards the reason digits-only tokens are excluded explicitly rather than
+     * falling through to the letter-only test: longestConsonantRun() counts
+     * every character that is not a vowel, so "4194840183" would score a run of
+     * its full length and a vowel ratio of zero — a rejected phone number. The
+     * old tokenizer only avoided this by discarding digits altogether.
+     */
+    #[Test]
+    public function aPhoneNumberOnItsOwnIsNotGibberish(): void
+    {
+        self::assertFalse(
+            $this->buildValidator()->validate(['phone' => '4194840183'])->hasErrors(),
+            'A bare phone number must not count as machine-generated.',
+        );
+    }
+
+    /**
+     * Why gibberishTokenLength dropped from twelve to eight: the obvious next
+     * move for a bot that has just lost the digits is a ten-letter random name,
+     * and at twelve that was not even looked at.
+     */
+    #[Test]
+    public function shortLetterOnlyRandomTokensAreRejected(): void
+    {
+        self::assertTrue(
+            $this->buildValidator()->validate(['name' => 'Xkfjqwlrbn'])->hasErrors(),
+            'A ten-letter random name must not pass just because it is short.',
+        );
+    }
+
+    /**
+     * The counterpart: eight letters is where real German surnames live, and the
+     * consonant-run condition — not the length — is what keeps them out of the
+     * verdict. "Schwerdt" has a normalized entropy of 1.0 and no repeated
+     * letter at all, so entropy alone would flag it; its longest consonant run
+     * is four.
+     */
+    #[Test]
+    public function shortConsonantHeavySurnamesSurviveTheLoweredThreshold(): void
+    {
+        foreach (['Schwerdt', 'Schlumpf', 'Schrumpft', 'Pfeiffer'] as $surname) {
+            self::assertFalse(
+                $this->buildValidator()->validate(['name' => $surname])->hasErrors(),
+                sprintf('Surname "%s" was wrongly rejected.', $surname),
+            );
+        }
+    }
+
+    #[Test]
+    public function mixedAlnumThresholdsAreConfigurable(): void
+    {
+        $values = ['message' => 'ZYWVj7hyXv'];
+
+        self::assertTrue($this->buildValidator()->validate($values)->hasErrors());
+        self::assertFalse(
+            $this->buildValidator(['mixedAlnumMinimumAlternations' => 3])->validate($values)->hasErrors(),
+            'The reported sample alternates twice; demanding three must let it through.',
+        );
+        self::assertFalse(
+            $this->buildValidator(['mixedAlnumTokenLength' => 11])->validate($values)->hasErrors(),
+            'The reported sample is ten characters; a threshold above it must let it through.',
+        );
+    }
+
     #[Test]
     public function whitelistRestrictsAnalysisToGivenIdentifiers(): void
     {

@@ -42,9 +42,20 @@ use TYPO3\CMS\Extbase\Error\Error;
  *     a machine-like shape: an over-long consonant run, together with random
  *     mid-token upper/lower-case flips or an unnaturally low vowel ratio.
  *
+ *  2b. Random gibberish with digits mixed in ("ZYWVj7hyXv", "9KI0nB1YVM") —
+ *     the same salad drawn from an alphabet that includes digits. It needs its
+ *     own test because the letter-only conditions above are meaningless once
+ *     digits are in the token: a consonant run counts every non-vowel, so a
+ *     phone number would score a maximal run and a vowel ratio of zero. What
+ *     separates generated salad from a legitimate identifier here is rhythm,
+ *     not entropy — a person writes letters and digits in blocks
+ *     ("Examenskurs2026", "AS-2024-1234", an IBAN) and keeps one case, a
+ *     generator alternates repeatedly and flips case mid-token. See
+ *     isMixedAlnumGibberish().
+ *
  * Submissions whose combined free text is shorter than `minimumLength` skip the
- * entropy band (too short for a meaningful estimate); the gibberish check still
- * runs per token.
+ * entropy band (too short for a meaningful estimate); the gibberish checks still
+ * run per token.
  */
 final class EntropySpamValidator extends AbstractFormAwareValidator
 {
@@ -82,8 +93,23 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
             'float',
         ],
         'gibberishTokenLength' => [
-            12,
-            'Minimum length of a (letter-only) token before the gibberish ratio check is applied. Shorter tokens are too volatile to judge.',
+            8,
+            'Minimum length of a letter-only token before the gibberish ratio check is applied. Shorter tokens are too volatile to judge. Eight rather than twelve because the consonant-run condition, not the length, carries the precision: measured against the hunspell de_DE list the share of flagged words is 0.20% at twelve and 0.15% at eight, while twelve let a ten-letter random name through untouched.',
+            'integer',
+        ],
+        'mixedAlnumTokenLength' => [
+            8,
+            'Minimum length of a token mixing letters and digits before it is judged. Below this an order number and a random string are indistinguishable.',
+            'integer',
+        ],
+        'mixedAlnumMinimumAlternations' => [
+            2,
+            'How often a mixed letters/digits token must switch between letters and digits to count as machine-generated, when it also shows a mid-token case flip. Two switches plus a flip is "ZYWVj7hyXv"; a contract number such as "AS-2024-1234" or "Examenskurs2026" stays below it.',
+            'integer',
+        ],
+        'mixedAlnumAlternationsWithoutCaseFlip' => [
+            4,
+            'How often a mixed letters/digits token must switch between letters and digits to count as machine-generated without any case flip — the all-lowercase or all-uppercase variant of the same salad ("q1w2e3r4t5").',
             'integer',
         ],
         'minimumVowelRatio' => [
@@ -93,7 +119,7 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
         ],
         'maximumConsonantRun' => [
             5,
-            'A high-entropy token is only treated as gibberish when its longest run of consecutive consonants exceeds this. German compounds are vowel-poor but stay syllabic ("Brandschutzklappe" peaks at 5), whereas machine output strings consonants together far longer. Measured against the hunspell de_DE list this single condition cuts false positives among 135810 long words from 3.44% to 0.21% without letting any known spam sample through.',
+            'A high-entropy token is only treated as gibberish when its longest run of consecutive consonants exceeds this. German compounds are vowel-poor but stay syllabic ("Brandschutzklappe" peaks at 5), whereas machine output strings consonants together far longer. Measured against the hunspell de_DE list this single condition cuts false positives among the 134095 words of twelve letters or more from 3.44% to 0.20% without letting any known spam sample through; reproduce with Build/Scripts/measure-entropy-spam-false-positives.php.',
             'integer',
         ],
         'textFieldIdentifiers' => [
@@ -239,15 +265,22 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
     }
 
     /**
-     * Share of the submitted letters that sit in tokens looking like
-     * machine-generated gibberish — 1.0 for a pure salad, near zero for one odd
-     * word in a long text.
+     * Share of the submitted alphanumeric characters that sit in tokens looking
+     * like machine-generated gibberish — 1.0 for a pure salad, near zero for one
+     * odd word in a long text.
      *
      * Measured across all analysed fields together rather than per field: the
      * question is what the *submission* looks like, and a subject of two words
      * would otherwise be judged on its own and reject far too eagerly.
      *
-     * $anchor receives the field carrying the most suspicious letters, so the
+     * Tokens are cut at non-alphanumeric characters, so a digit does not end a
+     * token. Splitting at every non-letter — which is what this did until a
+     * submission of "ZYWVj7hyXv", "AmJj19D9Y5", "9KI0nB1YVM" and "JuT8l9hsQJ"
+     * walked straight through it — turns each of those into two four- or
+     * five-character fragments, and no length threshold worth having can judge
+     * a fragment that short. The single digit in the middle was the whole trick.
+     *
+     * $anchor receives the field carrying the most suspicious characters, so the
      * error can be attached where the offending text actually is. It stays null
      * when nothing is suspicious.
      *
@@ -256,38 +289,113 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
     private function gibberishShare(array $fields, ?string &$anchor): float
     {
         $anchor = null;
-        $totalLetters = 0;
-        $suspiciousLetters = 0;
-        $anchorLetters = 0;
+        $totalCharacters = 0;
+        $suspiciousCharacters = 0;
+        $anchorCharacters = 0;
 
         foreach ($fields as $fieldIdentifier => $fieldValue) {
             $fieldSuspicious = 0;
-            foreach (preg_split('/[^\p{L}]+/u', (string)$fieldValue, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $token) {
+            foreach (preg_split('/[^\p{L}\p{N}]+/u', (string)$fieldValue, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $token) {
                 $length = mb_strlen($token);
-                $totalLetters += $length;
+                $totalCharacters += $length;
                 if ($this->isGibberishToken($token)) {
-                    $suspiciousLetters += $length;
+                    $suspiciousCharacters += $length;
                     $fieldSuspicious += $length;
                 }
             }
-            if ($fieldSuspicious > $anchorLetters) {
-                $anchorLetters = $fieldSuspicious;
+            if ($fieldSuspicious > $anchorCharacters) {
+                $anchorCharacters = $fieldSuspicious;
                 $anchor = (string)$fieldIdentifier;
             }
         }
 
-        if ($totalLetters === 0) {
+        if ($totalCharacters === 0) {
             return 0.0;
         }
 
-        return $suspiciousLetters / $totalLetters;
+        return $suspiciousCharacters / $totalCharacters;
+    }
+
+    /**
+     * True when a single token looks machine-generated.
+     *
+     * Which test applies depends on what the token is made of, because the
+     * letter-only conditions do not carry over: `longestConsonantRun()` counts
+     * every non-vowel, so a plain phone number would score a run of its full
+     * length and a vowel ratio of zero — a false positive the old tokenizer
+     * only avoided by throwing digits away. Hence three cases rather than one.
+     */
+    private function isGibberishToken(string $token): bool
+    {
+        if (!preg_match('/\p{L}/u', $token)) {
+            // Digits only: an order number, a phone number, a date. Nothing
+            // linguistic to judge, and never suspicious on its own.
+            return false;
+        }
+        if (preg_match('/\p{N}/u', $token)) {
+            return $this->isMixedAlnumGibberish($token);
+        }
+
+        return $this->isLetterOnlyGibberish($token);
+    }
+
+    /**
+     * True when a token mixing letters and digits shows the shape of machine
+     * output rather than of something a person types.
+     *
+     * Absolute or normalized entropy cannot separate the two here: "AS-2024-1234"
+     * and "ZYWVj7hyXv" are equally repetition-free. What differs is the *rhythm*.
+     * A human-authored identifier keeps letters and digits in blocks — a prefix
+     * and a number, "Examenskurs2026", "DE89370400440532013000" — and keeps one
+     * case throughout. Generated salad alternates between the two repeatedly,
+     * and, when it draws from mixed-case alphabets, flips case mid-token where no
+     * German word or product name ever does.
+     *
+     * So: enough alternations, plus either a case flip or so many alternations
+     * that the flip is not needed. Measured against a corpus of realistic
+     * contract designations, IBANs, phone numbers, course names and hyphenated
+     * surnames this rejects none of them and catches every field of the reported
+     * submission.
+     */
+    private function isMixedAlnumGibberish(string $token): bool
+    {
+        if (mb_strlen($token) < (int)$this->options['mixedAlnumTokenLength']) {
+            return false;
+        }
+
+        $alternations = $this->letterDigitAlternations($token);
+        if ($this->hasMixedCaseFlip($token)) {
+            return $alternations >= (int)$this->options['mixedAlnumMinimumAlternations'];
+        }
+
+        return $alternations >= (int)$this->options['mixedAlnumAlternationsWithoutCaseFlip'];
+    }
+
+    /**
+     * How often the token switches between a run of letters and a run of digits.
+     * "Examenskurs2026" switches once, "ZYWVj7hyXv" twice, "q1w2e3r4t5" nine
+     * times.
+     */
+    private function letterDigitAlternations(string $token): int
+    {
+        $alternations = 0;
+        $previous = null;
+        foreach (mb_str_split($token) as $character) {
+            $current = preg_match('/\p{N}/u', $character) ? 'digit' : 'letter';
+            if ($previous !== null && $current !== $previous) {
+                $alternations++;
+            }
+            $previous = $current;
+        }
+
+        return $alternations;
     }
 
     /**
      * True when a single whitespace/punctuation-delimited letter run looks like
      * machine-generated gibberish.
      */
-    private function isGibberishToken(string $token): bool
+    private function isLetterOnlyGibberish(string $token): bool
     {
         if (mb_strlen($token) < (int)$this->options['gibberishTokenLength']) {
             return false;
