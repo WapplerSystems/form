@@ -74,6 +74,51 @@ final class EntropySpamFormLevelValidatorTest extends EntropyFormTestCase
         );
     }
 
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function mixedAlnumBotTokenProvider(): array
+    {
+        return SpamCorpus::mixedAlnumBotTokens();
+    }
+
+    #[Test]
+    #[DataProvider('mixedAlnumBotTokenProvider')]
+    public function digitSeededGibberishInAFreeTextFieldIsRejected(string $token): void
+    {
+        $result = $this->validateSubmission(['message' => $token]);
+
+        self::assertTrue($result->hasErrors(), sprintf('Expected "%s" to be rejected.', $token));
+        self::assertContains(
+            self::ENTROPY_ERROR_CODE,
+            $this->errorCodes($result),
+            sprintf('Expected the EntropySpam error code for "%s".', $token),
+        );
+    }
+
+    /**
+     * @return array<string, array{array<string, string>}>
+     */
+    public static function legitimateAlnumSubmissionProvider(): array
+    {
+        return SpamCorpus::legitimateAlnumSubmissions();
+    }
+
+    /**
+     * @param array<string, string> $values
+     */
+    #[Test]
+    #[DataProvider('legitimateAlnumSubmissionProvider')]
+    public function legitimateAlphanumericSubmissionIsAccepted(array $values): void
+    {
+        $result = $this->validateSubmission($values);
+
+        self::assertFalse(
+            $result->hasErrors(),
+            'Legitimate alphanumeric submission was wrongly rejected: ' . json_encode($values),
+        );
+    }
+
     #[Test]
     public function gibberishInAFixedChoiceFieldIsNotAnalysed(): void
     {
