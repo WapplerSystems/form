@@ -22,38 +22,44 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * Prunes `tx_form_validation_log` by age.
+ * Prunes `tx_form_submission` and `tx_form_webhook_log` by age.
  *
- * Does the same thing as CleanupValidationLogTask, but as a console command,
- * because that task cannot be created on TYPO3 v13: it is registered solely
- * through ExtensionManagementUtility::addRecordType() on `tx_scheduler_task`
- * with `tasktype` in its showitem, which is the newer scheduler architecture.
- * On v13.4 that table has no TCA at all (see the comment in
- * cms-scheduler/ext_tables.sql) and no `tasktype` column, so the TCA override
- * returns early at its own guard and TaskService::getAvailableTaskTypes() -
- * which reads $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']
- * on v13 - never learns about the class. The task type is then absent from the
- * scheduler module, and SchedulerTaskRepository::getGroupedTasks() silently
- * drops rows of unknown type, so even a hand-written row is ignored.
+ * Does the same thing as CleanupSubmissionsTask, but as a console command,
+ * because that task cannot be created on TYPO3 v13 — the same registration
+ * problem the validation-log, mail-log and consent-log commands already work
+ * around: the task type is declared only through
+ * ExtensionManagementUtility::addRecordType() on `tx_scheduler_task`, and on
+ * v13.4 that table has no TCA, so the override returns at its own guard and
+ * TaskService::getAvailableTaskTypes() never learns the class.
  *
- * A console command sidesteps all of that and behaves identically on v13 and
- * v14, so it can be driven straight from cron:
+ * This table is the one where that gap hurts most. The other three logs hold no
+ * submitted values; `tx_form_submission` holds the submission itself —
+ * `content` is the JSON of every field the visitor filled in, plus the field
+ * labels and an HMAC of their IP. So on v13 the SaveSubmission finisher could
+ * be switched on, but the retention window it relies on could not be enforced
+ * by any means the extension shipped, which turns a documented "90 days" into
+ * "forever" — the Art. 5(1)(e) problem, and on a form that handles
+ * cancellations the stored data is a contractual declaration, not a note.
  *
- *   30 3 * * * /path/to/vendor/bin/typo3 form:cleanup:validationlog
+ *   30 3 * * * /path/to/vendor/bin/typo3 form:cleanup:submissions
  *
- * The log is opt-in per form (renderingOptions.recordValidationFailures), and
- * a form under active spam pressure produces roughly one row per validator per
- * submission, so an unpruned table grows fast.
- *
- * Note: tx_form_mail_log, tx_form_consent_log, tx_form_submission and
- * tx_form_webhook_log have cleanup tasks with the same registration problem.
- * Each has its own command now - form:cleanup:maillog, form:cleanup:consentlog
- * and form:cleanup:submissions (the last covers both remaining tables).
+ * Both tables are pruned in one pass and reported separately, mirroring the
+ * task, which treats them as one retention unit: a webhook row is the delivery
+ * record of a submission, so outliving it serves nothing.
  */
-#[AsCommand('form:cleanup:validationlog', 'Delete validation-log rows older than the retention period.')]
-class CleanupValidationLogCommand extends Command
+#[AsCommand('form:cleanup:submissions', 'Delete stored submissions and webhook-log rows older than the retention period.')]
+class CleanupSubmissionsCommand extends Command
 {
-    private const TABLE_NAME = 'tx_form_validation_log';
+    /**
+     * Same list, and same order, as CleanupSubmissionsTask::TABLES.
+     *
+     * @var list<string>
+     */
+    private const TABLES = [
+        'tx_form_submission',
+        'tx_form_webhook_log',
+    ];
+
     private const DEFAULT_RETENTION_DAYS = 90;
 
     public function __construct(
@@ -66,13 +72,16 @@ class CleanupValidationLogCommand extends Command
     {
         $this
             ->setHelp(
-                'Removes rows from ' . self::TABLE_NAME . ' whose crdate is older than the' . LF
-                . 'retention period. Rows hold no submitted values - only form and element' . LF
-                . 'identifiers, error codes, the already-translated message and an HMAC of the' . LF
-                . 'form session - so pruning only costs statistics, never content.' . LF . LF
-                . 'Equivalent to CleanupValidationLogTask, which cannot be registered on v13.' . LF . LF
+                'Removes rows from tx_form_submission and tx_form_webhook_log whose crdate is' . LF
+                . 'older than the retention period.' . LF . LF
+                . 'Unlike the other cleanup commands this one deletes CONTENT: a' . LF
+                . 'tx_form_submission row holds every value the visitor submitted. Pick the' . LF
+                . 'window from what the stored submissions are actually for - a few weeks is' . LF
+                . 'usually plenty to tune a spam filter against real traffic, and there is no' . LF
+                . 'reason to keep a copy of a declaration the recipient already has by mail.' . LF . LF
+                . 'Equivalent to CleanupSubmissionsTask, which cannot be registered on v13.' . LF . LF
                 . 'Use --dry-run to see how many rows would go, and --verbose for the age of' . LF
-                . 'the oldest and newest affected row.'
+                . 'the oldest and newest affected row per table.'
             )
             ->addOption(
                 'retention-period',
@@ -102,12 +111,39 @@ class CleanupValidationLogCommand extends Command
         $cutoff = time() - $retentionDays * 86400;
         $isDryRun = (bool)$input->getOption('dry-run');
 
-        $connection = $this->connectionPool->getConnectionForTable(self::TABLE_NAME);
+        $total = 0;
+        foreach (self::TABLES as $table) {
+            $total += $this->prune($io, $output, $table, $cutoff, $retentionDays, $isDryRun);
+        }
+
+        if ($total === 0) {
+            $io->success(sprintf(
+                'Nothing older than %d day(s) in %s.',
+                $retentionDays,
+                implode(' or ', self::TABLES),
+            ));
+        }
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Number of rows deleted (or, on a dry run, that would be deleted).
+     */
+    private function prune(
+        SymfonyStyle $io,
+        OutputInterface $output,
+        string $table,
+        int $cutoff,
+        int $retentionDays,
+        bool $isDryRun,
+    ): int {
+        $connection = $this->connectionPool->getConnectionForTable($table);
 
         $countQuery = $connection->createQueryBuilder();
         $affected = (int)$countQuery
             ->count('uid')
-            ->from(self::TABLE_NAME)
+            ->from($table)
             ->where(
                 $countQuery->expr()->lt(
                     'crdate',
@@ -118,12 +154,7 @@ class CleanupValidationLogCommand extends Command
             ->fetchOne();
 
         if ($affected === 0) {
-            $io->success(sprintf(
-                'No rows in %s are older than %d day(s). Nothing to do.',
-                self::TABLE_NAME,
-                $retentionDays,
-            ));
-            return Command::SUCCESS;
+            return 0;
         }
 
         if ($output->isVerbose()) {
@@ -133,7 +164,7 @@ class CleanupValidationLogCommand extends Command
                     'MIN(' . $rangeQuery->quoteIdentifier('crdate') . ') AS oldest',
                     'MAX(' . $rangeQuery->quoteIdentifier('crdate') . ') AS newest',
                 )
-                ->from(self::TABLE_NAME)
+                ->from($table)
                 ->where(
                     $rangeQuery->expr()->lt(
                         'crdate',
@@ -144,7 +175,8 @@ class CleanupValidationLogCommand extends Command
                 ->fetchAssociative() ?: [];
             if ($range !== []) {
                 $io->writeln(sprintf(
-                    '  affected range: %s .. %s',
+                    '  %s affected range: %s .. %s',
+                    $table,
                     date('Y-m-d H:i:s', (int)$range['oldest']),
                     date('Y-m-d H:i:s', (int)$range['newest']),
                 ));
@@ -156,14 +188,14 @@ class CleanupValidationLogCommand extends Command
                 'Dry-run: %d row(s) older than %d day(s) would be deleted from %s.',
                 $affected,
                 $retentionDays,
-                self::TABLE_NAME,
+                $table,
             ));
-            return Command::SUCCESS;
+            return $affected;
         }
 
         $deleteQuery = $connection->createQueryBuilder();
         $deleted = (int)$deleteQuery
-            ->delete(self::TABLE_NAME)
+            ->delete($table)
             ->where(
                 $deleteQuery->expr()->lt(
                     'crdate',
@@ -176,9 +208,9 @@ class CleanupValidationLogCommand extends Command
             'Deleted %d row(s) older than %d day(s) from %s.',
             $deleted,
             $retentionDays,
-            self::TABLE_NAME,
+            $table,
         ));
 
-        return Command::SUCCESS;
+        return $deleted;
     }
 }
