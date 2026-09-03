@@ -2,6 +2,7 @@
 
 use TYPO3\CMS\Form\Controller\FormEditorController;
 use TYPO3\CMS\Form\Controller\FormManagerController;
+use TYPO3\CMS\Form\Controller\FormSubmissionController;
 use TYPO3\CMS\Form\Controller\ConsentLogController;
 use TYPO3\CMS\Form\Controller\MailLogController;
 use TYPO3\CMS\Form\Controller\ValidationStatsController;
@@ -18,7 +19,15 @@ return [
         'access' => 'user',
         'path' => '/module/form',
         'iconIdentifier' => 'module-form',
-        'labels' => 'form.module',
+        'labels' => [
+            // v13's BaseModule accepts either an array of label references or an
+            // LLL: *file* whose keys are mlang_tabs_tab and friends. A bare label
+            // domain - v14's spelling, which this branch carried over - matches
+            // neither, so the module rendered with an empty title in the menu.
+            'title' => 'LLL:EXT:form/Resources/Private/Language/module.xlf:title',
+            'description' => 'LLL:EXT:form/Resources/Private/Language/module.xlf:description',
+            'shortDescription' => 'LLL:EXT:form/Resources/Private/Language/module.xlf:short_description',
+        ],
         'inheritNavigationComponentFromMainModule' => false,
     ],
     'form_manager' => [
@@ -26,7 +35,11 @@ return [
         'access' => 'user',
         'path' => '/module/form/overview',
         'iconIdentifier' => 'module-form',
-        'labels' => 'form.modules.form_manager',
+        'labels' => [
+            'title' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_manager.xlf:title',
+            'description' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_manager.xlf:description',
+            'shortDescription' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_manager.xlf:short_description',
+        ],
         'extensionName' => 'Form',
         'controllerActions' => [
             FormManagerController::class => [
@@ -64,7 +77,11 @@ return [
         'access' => 'user',
         'path' => '/module/form/log',
         'iconIdentifier' => 'actions-envelope',
-        'labels' => 'form.modules.form_log',
+        'labels' => [
+            'title' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_log.xlf:title',
+            'description' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_log.xlf:description',
+            'shortDescription' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_log.xlf:short_description',
+        ],
         'extensionName' => 'Form',
         'controllerActions' => [
             MailLogController::class => [
@@ -78,13 +95,43 @@ return [
             ],
         ],
     ],
+    // WapplerSystems fork, v13 only: the review UI for tx_form_submission.
+    // FormSubmissionController, its three templates, the TCA and the language
+    // file all shipped - only this entry was missing, so the SaveSubmission
+    // finisher could store submissions that nothing could then display.
+    //
+    // Next to form_log and for the same reason it is not a child of the form
+    // builder: see the note above about BackendModuleValidator turning a
+    // third-level module into its parent's landing page.
+    'form_submissions' => [
+        'parent' => 'system',
+        'position' => ['after' => 'form_log'],
+        'access' => 'user',
+        'path' => '/module/form/submissions',
+        'iconIdentifier' => 'content-form',
+        'labels' => [
+            'title' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_submissions.xlf:title',
+            'description' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_submissions.xlf:description',
+            'shortDescription' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_submissions.xlf:short_description',
+        ],
+        'extensionName' => 'Form',
+        'controllerActions' => [
+            FormSubmissionController::class => [
+                'index', 'show', 'delete', 'export',
+            ],
+        ],
+    ],
     'form_editor' => [
         'parent' => 'web_FormFormbuilder',
         'access' => 'user',
         'path' => '/module/form/editor',
         'iconIdentifier' => 'module-form',
         'navigationComponent' => '@typo3/form/backend/form-editor-tree-container',
-        'labels' => 'form.modules.form_editor',
+        'labels' => [
+            'title' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_editor.xlf:title',
+            'description' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_editor.xlf:description',
+            'shortDescription' => 'LLL:EXT:form/Resources/Private/Language/Modules/form_editor.xlf:short_description',
+        ],
         'extensionName' => 'Form',
         'controllerActions' => [
             FormEditorController::class => [

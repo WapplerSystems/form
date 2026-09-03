@@ -117,7 +117,12 @@ class FormManagerController extends ActionController
         $moduleTemplate->setModuleClass($this->request->getPluginName() . '_' . $this->request->getControllerName());
         $moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
         $moduleTemplate->setTitle(
-            $this->getLanguageService()->translate('title', 'form.module')
+            // sL(), not translate(): the latter is v14's label-domain API and does
+            // not exist on 13.4, where the call was a fatal Error - it took the
+            // whole module down at render time.
+            $this->getLanguageService()->sL(
+                'LLL:EXT:form/Resources/Private/Language/module.xlf:title'
+            )
         );
         return $moduleTemplate->renderResponse('Backend/FormManager/Index');
     }
