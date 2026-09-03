@@ -1213,6 +1213,26 @@ release tag. Everything before the fork point is TYPO3's own history — see the
 changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
 `WapplerSystems/form`.
 
+### 2026-09
+
+**Fixed**
+
+- Entropy spam filter: a submission whose every field was random salad with a digit or two
+  dropped in — `ZYWVj7hyXv`, `AmJj19D9Y5`, `9KI0nB1YVM`, `JuT8l9hsQJ` — passed the check
+  untouched on a live site. `gibberishShare()` cut its tokens at every non-letter, so each
+  field became two four- or five-character fragments, far below any usable length
+  threshold, and the share came out at 0.00 while the combined entropy of 5.07 bits per
+  character sat inside the permitted 1.8–5.8 band. The single digit in the middle was the
+  whole trick. Tokens are now cut at non-alphanumeric characters and judged by what they
+  are made of: letters only as before, letters plus digits by alternation rhythm and
+  mid-token case flips (`mixedAlnumTokenLength`, `mixedAlnumMinimumAlternations`,
+  `mixedAlnumAlternationsWithoutCaseFlip`), digits only never — a bare phone number would
+  otherwise score a maximal consonant run and a vowel ratio of zero. `gibberishTokenLength`
+  drops from 12 to 8 in the same move, because a ten-letter random name was not even looked
+  at: against the hunspell de_DE list the flag rate is 0.15% at eight versus 0.20% at
+  twelve, so the precision was never coming from the length. Reproduce with
+  `Build/Scripts/measure-entropy-spam-false-positives.php` (`ac350d3e`).
+
 ### 2026-08
 
 **Added**
