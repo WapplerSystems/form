@@ -63,6 +63,8 @@ imports:
   - { resource: 'EXT:form/Configuration/Form/Base/Finishers/FlashMessage.yaml' }
   - { resource: 'EXT:form/Configuration/Form/Base/Finishers/Redirect.yaml' }
   - { resource: 'EXT:form/Configuration/Form/Base/Finishers/SaveToDatabase.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/SaveSubmission.yaml' }
+  - { resource: 'EXT:form/Configuration/Form/Base/Finishers/Webhook.yaml' }
 
 name: typo3/form-base
 label: 'TYPO3 Form — Base Configuration'
