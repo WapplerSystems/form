@@ -1249,6 +1249,13 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
 
 **Fixed**
 
+- `ProcessFileListActionsEventListener` called `ProcessFileListActionsEvent::removeAction()`,
+  which 13.4's event does not have — the listener was carried over from `release/v14`
+  unchanged. Since it runs from `FileList::render()`, the fatal Error took the whole module
+  down: File > fileadmin > form_definitions served an exception page instead of the folder.
+  Now removes the actions by key through `getActionItems()`/`setActionItems()`, with a unit
+  test guarding the API boundary (`a84e5072`).
+
 - `SaveSubmission` and `Webhook` finisher presets were never imported in
   `Configuration/Form/Base/config.yaml`, so the prototype did not know them and using
   either threw `FinisherPresetNotFoundException` on *render* — the page, not just the
