@@ -98,7 +98,10 @@ fclose($handle);
 $words = array_keys($words);
 
 $validator = new TYPO3\CMS\Form\Validation\EntropySpamValidator();
-$validator->setOptions($validatorOptions);
+// A literal message, because the branch default is an LLL: reference and
+// resolving one needs a LanguageService, i.e. a booted TYPO3. Only the verdict
+// matters here, never the wording.
+$validator->setOptions($validatorOptions + ['errorMessage' => 'rejected']);
 
 $flagged = [];
 foreach ($words as $word) {
