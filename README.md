@@ -1239,6 +1239,14 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
 
 ### 2026-09
 
+**Added**
+
+- `form:cleanup:submissions` — retention for `tx_form_submission` and
+  `tx_form_webhook_log`, the last two tables whose cleanup task cannot be registered on
+  v13. Unlike its siblings this command deletes *content*: a submission row holds every
+  value the visitor filled in. Until now the SaveSubmission finisher could be switched on
+  there while its documented retention window had no way to be enforced (`c6b4373d`).
+
 **Fixed**
 
 - Entropy spam filter: a submission whose every field was random salad with a digit or two
