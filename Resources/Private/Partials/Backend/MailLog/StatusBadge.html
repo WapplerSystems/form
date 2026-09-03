@@ -16,21 +16,21 @@
 
 <f:switch expression="{entry.status}">
     <f:case value="2">
-        <span class="badge bg-success"><f:translate key="form.database:mailLog.status.sent" /></span>
+        <span class="badge bg-success"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.status.sent" /></span>
     </f:case>
     <f:case value="3">
-        <span class="badge bg-danger"><f:translate key="form.database:mailLog.status.failed" /></span>
+        <span class="badge bg-danger"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.status.failed" /></span>
     </f:case>
     <f:defaultCase>
         <f:if condition="{stuck}">
             <f:then>
-                <span class="badge bg-warning" title="{f:translate(key: 'form.database:mailLog.status.aborted.description')}">
-                    <f:translate key="form.database:mailLog.status.aborted" />
+                <span class="badge bg-warning" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.status.aborted.description')}">
+                    <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.status.aborted" />
                 </span>
             </f:then>
             <f:else>
                 <span class="badge bg-info">
-                    <f:translate key="form.database:mailLog.status.inflight" />
+                    <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.status.inflight" />
                 </span>
             </f:else>
         </f:if>

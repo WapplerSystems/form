@@ -13,7 +13,7 @@
 </f:section>
 
 <f:section name="Content">
-    <h1><f:translate key="form.database:formManager.headline" /></h1>
+    <h1><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.headline" /></h1>
     <f:if condition="{hasForms}">
         <form
             class="form-inline"
@@ -79,14 +79,14 @@
                                             {form.name}
                                             <f:if condition="{form.invalid}">
                                                 <span class="badge badge-danger">
-                                                    <f:translate key="form.database:formManager.invalid" />
+                                                    <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.invalid" />
                                                 </span>
                                             </f:if>
                                         </f:then>
                                         <f:else>
                                             <f:if condition="{form.editUrl}">
                                                 <f:then>
-                                                    <a href="{form.editUrl}" title="{f:translate(key: 'form.database:formManager.edit_form')}">
+                                                    <a href="{form.editUrl}" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.edit_form')}">
                                                         {form.name}
                                                     </a>
                                                 </f:then>
@@ -103,12 +103,12 @@
                                 <td class="col-state">
                                     <f:if condition="{form.invalid}">
                                         <f:then>
-                                            <span title="{f:translate(key: 'form.database:formManager.invalid')}">
+                                            <span title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.invalid')}">
                                                 <core:icon identifier="status-dialog-error" />
                                             </span>
                                         </f:then>
                                         <f:else if="{form.duplicateIdentifier}">
-                                            <span title="{f:translate(key: 'form.database:formManager.duplicate_identifier')}">
+                                            <span title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.duplicate_identifier')}">
                                                 <core:icon identifier="status-dialog-error" />
                                             </span>
                                         </f:else>
@@ -133,7 +133,7 @@
                                             <f:else>
                                                 <f:if condition="{form.editUrl}">
                                                     <f:then>
-                                                        <a href="{form.editUrl}" class="btn btn-default" title="{f:translate(key: 'form.database:formManager.edit_form')}">
+                                                        <a href="{form.editUrl}" class="btn btn-default" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.edit_form')}">
                                                             <core:icon identifier="actions-open" />
                                                         </a>
                                                     </f:then>
@@ -148,11 +148,11 @@
                                                 <a
                                                     href="#"
                                                     class="btn btn-default"
-                                                    data-bs-original-title="{f:translate(key: 'form.database:formManager.delete_form')}"
+                                                    data-bs-original-title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.delete_form')}"
                                                     data-identifier="removeForm"
                                                     data-form-persistence-identifier="{form.persistenceIdentifier}"
                                                     data-form-name="{form.name}"
-                                                    title="{f:translate(key: 'form.database:formManager.delete_form')}"
+                                                    title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.delete_form')}"
                                                 >
                                                     <core:icon identifier="actions-edit-delete" />
                                                 </a>
@@ -182,7 +182,7 @@
                                                         <a
                                                             href="#"
                                                             class="dropdown-item dropdown-item-spaced"
-                                                            data-bs-original-title="{f:translate(id: 'form.database:formManager.duplicate_this_form')}"
+                                                            data-bs-original-title="{f:translate(id: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.duplicate_this_form')}"
                                                             data-identifier="duplicateForm"
                                                             data-form-persistence-identifier="{form.persistenceIdentifier}"
                                                             data-form-name="{form.name}"
@@ -192,7 +192,7 @@
                                                                     <core:icon identifier="actions-duplicate" />
                                                                 </span>
                                                                 <span class="dropdown-item-column dropdown-item-column-text">
-                                                                    <f:translate id="form.database:formManager.duplicate_this_form" />
+                                                                    <f:translate id="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.duplicate_this_form" />
                                                                 </span>
                                                             </span>
                                                         </a>
@@ -201,13 +201,13 @@
                                                         <li>
                                                             <a class="dropdown-item dropdown-item-spaced"
                                                                 href="{form.actions.recordHistoryUrl}"
-                                                                title="{f:translate(id: 'form.database:formManager.showHistory')}">
+                                                                title="{f:translate(id: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.showHistory')}">
                                                             <span class="dropdown-item-columns">
                                                                 <span class="dropdown-item-column dropdown-item-column-icon">
                                                                     <core:icon identifier="actions-document-history-open" />
                                                                 </span>
                                                                 <span class="dropdown-item-column dropdown-item-column-text">
-                                                                    <f:translate id="form.database:formManager.showHistory" />
+                                                                    <f:translate id="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.showHistory" />
                                                                 </span>
                                                             </span>
                                                             </a>
@@ -226,8 +226,8 @@
                             <td colspan="6">
                                 <f:variable name="totalAmountOfPaginatedItems" value="{paginator.paginatedItems -> f:count()}" />
                                 <f:if condition="{paginator.paginatedItems -> f:count()} > 1">
-                                    <f:then>{totalAmountOfPaginatedItems} <f:translate key="form.database:formManager.table.amount.forms" /></f:then>
-                                    <f:else>{totalAmountOfPaginatedItems} <f:translate key="form.database:formManager.table.amount.form" /></f:else>
+                                    <f:then>{totalAmountOfPaginatedItems} <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.table.amount.forms" /></f:then>
+                                    <f:else>{totalAmountOfPaginatedItems} <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.table.amount.form" /></f:else>
                                 </f:if>
                             </td>
                         </tr>
@@ -239,21 +239,21 @@
         <f:else if="{hasForms}">
             <f:be.infobox
                 state="{f:constant(name: 'TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::INFO')}"
-                title="{f:translate(key: 'form.database:formManager.forms_not_found.title')}"
+                title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.forms_not_found.title')}"
             >
-                <p><f:translate key="form.database:formManager.forms_not_found_by_search_term.message" arguments="{0: searchTerm}" /></p>
+                <p><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.forms_not_found_by_search_term.message" arguments="{0: searchTerm}" /></p>
                 <a class="btn btn-primary" href="{f:be.uri(route:'web_FormFormbuilder')}">
-                    <f:translate key="form.database:formManager.remove_search_term"/>
+                    <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.remove_search_term"/>
                 </a>
             </f:be.infobox>
         </f:else>
         <f:else>
             <f:be.infobox
                 state="{f:constant(name: 'TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::INFO')}"
-                title="{f:translate(key: 'form.database:formManager.forms_not_found.title')}"
+                title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.forms_not_found.title')}"
             >
-                <p><f:translate key="form.database:formManager.forms_not_found.message" /></p>
-                <a class="btn btn-primary" href="#" data-identifier="newForm"><f:translate key="form.database:formManager.create_new_form" /></a>
+                <p><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.forms_not_found.message" /></p>
+                <a class="btn btn-primary" href="#" data-identifier="newForm"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:formManager.create_new_form" /></a>
             </f:be.infobox>
         </f:else>
     </f:if>
@@ -262,7 +262,7 @@
 <f:section name="listHeaderSorting">
     <div class="dropdown dropdown-static">
         <button class="dropdown-toggle dropdown-toggle-link" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <f:translate key="form.database:{label}"/>
+            <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:{label}"/>
             <f:if condition="{orderField} === {field}">
                 <f:then>
                     <div class="text-primary">

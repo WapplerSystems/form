@@ -6,105 +6,105 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <h1><f:translate key="form.database:mailLog.detail.headline" /></h1>
+    <h1><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.headline" /></h1>
 
     <div class="table-fit">
         <table class="table table-striped">
             <tbody>
                 <tr>
-                    <th style="width: 30%"><f:translate key="form.database:mailLog.column.status" /></th>
+                    <th style="width: 30%"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.status" /></th>
                     <td><f:render partial="Backend/MailLog/StatusBadge" arguments="{entry: entry, stuckGraceMinutes: stuckGraceMinutes}" /></td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:mailLog.column.time" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.time" /></th>
                     <td>
                         <f:format.date format="d.m.Y H:i:s">@{entry.crdate}</f:format.date>
                         <f:if condition="{entry.tstamp} > 0">
                             <span class="text-body-secondary">
-                                — <f:translate key="form.database:mailLog.detail.latency" />: {entry.tstamp - entry.crdate} s
+                                — <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.latency" />: {entry.tstamp - entry.crdate} s
                             </span>
                         </f:if>
                     </td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:mailLog.column.form" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.form" /></th>
                     <td><code>{entry.form_identifier}</code></td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:mailLog.column.finisher" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.finisher" /></th>
                     <td>{entry.finisher_identifier} <span class="text-body-secondary">({entry.finisher_class})</span></td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:mailLog.column.recipients" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.recipients" /></th>
                     <td>
                         <f:if condition="{entry.recipients}">
                             <f:then>{entry.recipients}</f:then>
-                            <f:else><span class="text-body-secondary"><f:translate key="form.database:mailLog.recipients.withheld" /></span></f:else>
+                            <f:else><span class="text-body-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.recipients.withheld" /></span></f:else>
                         </f:if>
                         <span class="badge bg-secondary">{entry.recipient_count}</span>
                         <span class="text-body-secondary">
-                            — <f:translate key="form.database:mailLog.detail.mode" />: <code>{entry.recipient_mode}</code>
+                            — <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.mode" />: <code>{entry.recipient_mode}</code>
                         </span>
                     </td>
                 </tr>
                 <f:if condition="{entry.subject}">
                     <tr>
-                        <th><f:translate key="form.database:mailLog.detail.subject" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.subject" /></th>
                         <td>{entry.subject}</td>
                     </tr>
                 </f:if>
                 <f:if condition="{entry.sender}">
                     <tr>
-                        <th><f:translate key="form.database:mailLog.detail.sender" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.sender" /></th>
                         <td>{entry.sender}</td>
                     </tr>
                 </f:if>
                 <f:if condition="{entry.reply_to}">
                     <tr>
-                        <th><f:translate key="form.database:mailLog.detail.replyTo" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.replyTo" /></th>
                         <td>{entry.reply_to}</td>
                     </tr>
                 </f:if>
                 <tr>
-                    <th><f:translate key="form.database:mailLog.detail.transport" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.transport" /></th>
                     <td>
                         <f:if condition="{entry.transport}">
                             <f:then><code>{entry.transport}</code></f:then>
                             <f:else><span class="text-body-secondary">—</span></f:else>
                         </f:if>
-                        <p class="text-body-secondary mb-0"><small><f:translate key="form.database:mailLog.detail.transport.hint" /></small></p>
+                        <p class="text-body-secondary mb-0"><small><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.transport.hint" /></small></p>
                     </td>
                 </tr>
                 <f:if condition="{entry.message_id}">
                     <tr>
-                        <th><f:translate key="form.database:mailLog.detail.messageId" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.messageId" /></th>
                         <td><code>{entry.message_id}</code></td>
                     </tr>
                 </f:if>
                 <f:if condition="{entry.attachment_count} > 0">
                     <tr>
-                        <th><f:translate key="form.database:mailLog.detail.attachments" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.attachments" /></th>
                         <td>
                             {entry.attachment_count}
-                            <span class="text-body-secondary">— <f:translate key="form.database:mailLog.detail.attachments.hint" /></span>
+                            <span class="text-body-secondary">— <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.attachments.hint" /></span>
                         </td>
                     </tr>
                 </f:if>
                 <f:if condition="{entry.error_code} > 0">
                     <tr>
-                        <th><f:translate key="form.database:mailLog.detail.error" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.error" /></th>
                         <td>
                             <code class="text-danger">#{entry.error_code}</code>
                             <f:if condition="{entry.error_message}">
                                 <f:then><p class="text-danger mb-0">{entry.error_message}</p></f:then>
-                                <f:else><p class="text-body-secondary mb-0"><f:translate key="form.database:mailLog.detail.error.withheld" /></p></f:else>
+                                <f:else><p class="text-body-secondary mb-0"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.error.withheld" /></p></f:else>
                             </f:if>
                             <p class="text-body-secondary mb-0"><small>{entry.error_class}</small></p>
                         </td>
                     </tr>
                 </f:if>
                 <tr>
-                    <th><f:translate key="form.database:mailLog.detail.page" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.page" /></th>
                     <td>
                         {entry.page_uid}
                         <f:if condition="{entry.site_identifier}"> — <code>{entry.site_identifier}</code></f:if>
@@ -116,8 +116,8 @@
     </div>
 
     <f:if condition="{siblings -> f:count()} > 0">
-        <h2><f:translate key="form.database:mailLog.detail.siblings" /></h2>
-        <p class="text-body-secondary"><f:translate key="form.database:mailLog.detail.siblings.hint" /></p>
+        <h2><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.siblings" /></h2>
+        <p class="text-body-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.detail.siblings.hint" /></p>
         <div class="table-fit">
             <table class="table table-striped">
                 <tbody>

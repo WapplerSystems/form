@@ -6,10 +6,10 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <h1><f:translate key="form.database:consentLog.headline" /></h1>
+    <h1><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.headline" /></h1>
 
     <p class="text-body-secondary">
-        <f:translate key="form.database:consentLog.intro" />
+        <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.intro" />
     </p>
 
     <f:comment>
@@ -20,7 +20,7 @@
     <f:if condition="!{featureEnabled}">
         <div class="callout callout-warning">
             <div class="callout-body">
-                <p class="mb-0"><f:translate key="form.database:consentLog.disabled" /></p>
+                <p class="mb-0"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.disabled" /></p>
             </div>
         </div>
     </f:if>
@@ -36,20 +36,20 @@
         </f:for>
         <div class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label" for="consentLogFrom"><f:translate key="form.database:consentLog.filter.from" /></label>
+                <label class="form-label" for="consentLogFrom"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.filter.from" /></label>
                 <input type="date" id="consentLogFrom" name="filter[from]" value="{filter.from}" class="form-control" />
             </div>
             <div class="col-auto">
-                <label class="form-label" for="consentLogTo"><f:translate key="form.database:consentLog.filter.to" /></label>
+                <label class="form-label" for="consentLogTo"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.filter.to" /></label>
                 <input type="date" id="consentLogTo" name="filter[to]" value="{filter.to}" class="form-control" />
             </div>
             <div class="col-auto">
-                <label class="form-label" for="consentLogSubject"><f:translate key="form.database:consentLog.filter.subject" /></label>
+                <label class="form-label" for="consentLogSubject"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.filter.subject" /></label>
                 <input type="search" id="consentLogSubject" name="filter[subject]" value="{filter.subject}" class="form-control"
-                       placeholder="{f:translate(key: 'form.database:consentLog.filter.subject.placeholder')}" />
+                       placeholder="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.filter.subject.placeholder')}" />
             </div>
             <div class="col-auto">
-                <label class="form-label" for="consentLogForm"><f:translate key="form.database:consentLog.filter.form" /></label>
+                <label class="form-label" for="consentLogForm"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.filter.form" /></label>
                 <select id="consentLogForm" name="filter[form]" class="form-select">
                     <f:comment>
                         Two distinct <option> variants rather than f:if inside
@@ -64,7 +64,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label" for="consentLogGiven"><f:translate key="form.database:consentLog.filter.given" /></label>
+                <label class="form-label" for="consentLogGiven"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.filter.given" /></label>
                 <select id="consentLogGiven" name="filter[given]" class="form-select">
                     <f:for each="{givenOptions}" as="label" key="value">
                         <f:if condition="{filter.given} == {value}">
@@ -77,15 +77,15 @@
             <div class="col-auto">
                 <button type="submit" class="btn btn-default">
                     <core:icon identifier="actions-filter" size="small" />
-                    <f:translate key="form.database:consentLog.filter.apply" />
+                    <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.filter.apply" />
                 </button>
             </div>
         </div>
     </form>
 
     <div class="mb-3 d-flex gap-2 flex-wrap">
-        <span class="badge bg-secondary"><f:translate key="form.database:consentLog.count.total" />: {total}</span>
-        <span class="badge bg-secondary"><f:translate key="form.database:consentLog.count.texts" />: {texts -> f:count()}</span>
+        <span class="badge bg-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.count.total" />: {total}</span>
+        <span class="badge bg-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.count.texts" />: {texts -> f:count()}</span>
     </div>
 
     <f:if condition="{paginator.paginatedItems -> f:count()} > 0">
@@ -94,12 +94,12 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th><f:translate key="form.database:consentLog.column.time" /></th>
-                            <th><f:translate key="form.database:consentLog.column.given" /></th>
-                            <th><f:translate key="form.database:consentLog.column.subject" /></th>
-                            <th><f:translate key="form.database:consentLog.column.consent" /></th>
-                            <th><f:translate key="form.database:consentLog.column.form" /></th>
-                            <th><f:translate key="form.database:consentLog.column.textVersion" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.time" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.given" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.subject" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.consent" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.form" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.textVersion" /></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -111,16 +111,16 @@
                                 </td>
                                 <td>
                                     <f:if condition="{entry.given}">
-                                        <f:then><span class="badge bg-success"><f:translate key="form.database:consentLog.given" /></span></f:then>
-                                        <f:else><span class="badge bg-warning"><f:translate key="form.database:consentLog.withheld" /></span></f:else>
+                                        <f:then><span class="badge bg-success"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.given" /></span></f:then>
+                                        <f:else><span class="badge bg-warning"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.withheld" /></span></f:else>
                                     </f:if>
                                 </td>
                                 <td>
                                     <f:if condition="{entry.subject}">
                                         <f:then>{entry.subject}</f:then>
                                         <f:else>
-                                            <span class="text-body-secondary" title="{f:translate(key: 'form.database:consentLog.subject.none.hint')}">
-                                                <f:translate key="form.database:consentLog.subject.none" />
+                                            <span class="text-body-secondary" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.subject.none.hint')}">
+                                                <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.subject.none" />
                                             </span>
                                         </f:else>
                                     </f:if>
@@ -137,7 +137,7 @@
                                     <code title="{entry.text_hash}">{entry.text_hash -> f:format.crop(maxCharacters: 8, append: '')}</code>
                                 </td>
                                 <td class="text-end">
-                                    <f:link.action action="show" arguments="{uid: entry.uid}" class="btn btn-default btn-sm" title="{f:translate(key: 'form.database:consentLog.column.detail')}">
+                                    <f:link.action action="show" arguments="{uid: entry.uid}" class="btn btn-default btn-sm" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.detail')}">
                                         <core:icon identifier="actions-eye" size="small" />
                                     </f:link.action>
                                 </td>
@@ -152,7 +152,7 @@
         <f:else>
             <div class="callout callout-info">
                 <div class="callout-body">
-                    <p class="mb-0"><f:translate key="form.database:consentLog.empty" /></p>
+                    <p class="mb-0"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.empty" /></p>
                 </div>
             </div>
         </f:else>

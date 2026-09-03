@@ -6,9 +6,9 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <h1><f:translate key="form.database:validationStats.headline" /></h1>
+    <h1><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.headline" /></h1>
 
-    <p class="text-body-secondary"><f:translate key="form.database:validationStats.intro" /></p>
+    <p class="text-body-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.intro" /></p>
 
     <f:comment>
         Same plain GET form as the mail log view, for the same reason: a filter
@@ -21,15 +21,15 @@
         </f:for>
         <div class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label" for="statsFrom"><f:translate key="form.database:mailLog.filter.from" /></label>
+                <label class="form-label" for="statsFrom"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.from" /></label>
                 <input type="date" id="statsFrom" name="filter[from]" value="{filter.from}" class="form-control" />
             </div>
             <div class="col-auto">
-                <label class="form-label" for="statsTo"><f:translate key="form.database:mailLog.filter.to" /></label>
+                <label class="form-label" for="statsTo"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.to" /></label>
                 <input type="date" id="statsTo" name="filter[to]" value="{filter.to}" class="form-control" />
             </div>
             <div class="col-auto">
-                <label class="form-label" for="statsAudience"><f:translate key="form.database:validationStats.filter.audience" /></label>
+                <label class="form-label" for="statsAudience"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.filter.audience" /></label>
                 <select id="statsAudience" name="filter[audience]" class="form-select">
                     <f:for each="{audiences}" as="label" key="value">
                         <f:if condition="{filter.audience} == {value}">
@@ -40,7 +40,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label" for="statsForm"><f:translate key="form.database:mailLog.filter.form" /></label>
+                <label class="form-label" for="statsForm"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.form" /></label>
                 <select id="statsForm" name="filter[formIdentifier]" class="form-select">
                     <f:for each="{formOptions}" as="label" key="value">
                         <f:if condition="{filter.formIdentifier} == {value}">
@@ -53,7 +53,7 @@
             <div class="col-auto">
                 <button type="submit" class="btn btn-default">
                     <core:icon identifier="actions-filter" size="small" />
-                    <f:translate key="form.database:mailLog.filter.apply" />
+                    <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.apply" />
                 </button>
             </div>
         </div>
@@ -66,41 +66,41 @@
         attack or a usability problem?".
     </f:comment>
     <div class="mb-2 d-flex gap-2 flex-wrap align-items-center">
-        <span class="badge bg-danger" title="{f:translate(key: 'form.database:validationStats.audience.bots.description')}">
-            <f:translate key="form.database:validationStats.audience.bots" />: {sessions.bots}
+        <span class="badge bg-danger" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.audience.bots.description')}">
+            <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.audience.bots" />: {sessions.bots}
         </span>
-        <span class="badge bg-warning" title="{f:translate(key: 'form.database:validationStats.audience.suspected.description')}">
-            <f:translate key="form.database:validationStats.audience.suspected" />: {sessions.suspected}
+        <span class="badge bg-warning" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.audience.suspected.description')}">
+            <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.audience.suspected" />: {sessions.suspected}
         </span>
-        <span class="badge bg-success" title="{f:translate(key: 'form.database:validationStats.audience.humans.description')}">
-            <f:translate key="form.database:validationStats.audience.humans" />: {sessions.humans}
+        <span class="badge bg-success" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.audience.humans.description')}">
+            <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.audience.humans" />: {sessions.humans}
         </span>
         <span class="badge bg-secondary">
-            <f:translate key="form.database:validationStats.sessions.total" />: {sessions.total}
+            <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.sessions.total" />: {sessions.total}
         </span>
         <span class="text-body-secondary">
-            — <f:translate key="form.database:validationStats.rows.inSelection" arguments="{0: rows}" />
+            — <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.rows.inSelection" arguments="{0: rows}" />
         </span>
     </div>
 
     <p class="text-body-secondary">
         <small>
-            <f:translate key="form.database:validationStats.classification" arguments="{0: botCodes, 1: suspectedCodes}" />
+            <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.classification" arguments="{0: botCodes, 1: suspectedCodes}" />
         </small>
     </p>
 
     <f:if condition="{rows} > 0">
         <f:then>
-            <h2><f:translate key="form.database:validationStats.breakdown" /></h2>
+            <h2><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.breakdown" /></h2>
             <div class="table-fit">
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th><f:translate key="form.database:validationStats.column.element" /></th>
-                            <th><f:translate key="form.database:validationStats.column.message" /></th>
-                            <th class="text-end"><f:translate key="form.database:validationStats.column.hits" /></th>
-                            <th class="text-end"><f:translate key="form.database:validationStats.column.sessions" /></th>
-                            <th class="text-end"><f:translate key="form.database:validationStats.column.perSession" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.element" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.message" /></th>
+                            <th class="text-end"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.hits" /></th>
+                            <th class="text-end"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.sessions" /></th>
+                            <th class="text-end"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.perSession" /></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -128,7 +128,7 @@
             </div>
 
             <f:if condition="{daily -> f:count()} > 1">
-                <h2><f:translate key="form.database:validationStats.daily" /></h2>
+                <h2><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.daily" /></h2>
                 <div class="table-fit">
                     <table class="table table-striped">
                         <tbody>
@@ -143,7 +143,7 @@
                                     <td class="text-end text-nowrap">
                                         {day.hits}
                                         <span class="text-body-secondary">
-                                            / {day.sessions} <f:translate key="form.database:validationStats.sessionsShort" />
+                                            / {day.sessions} <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.sessionsShort" />
                                         </span>
                                     </td>
                                 </tr>
@@ -154,17 +154,17 @@
             </f:if>
 
             <f:if condition="{busiest -> f:count()} > 0">
-                <h2><f:translate key="form.database:validationStats.busiest" /></h2>
-                <p class="text-body-secondary"><f:translate key="form.database:validationStats.busiest.hint" /></p>
+                <h2><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.busiest" /></h2>
+                <p class="text-body-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.busiest.hint" /></p>
                 <div class="table-fit">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th><f:translate key="form.database:validationStats.column.session" /></th>
-                                <th class="text-end"><f:translate key="form.database:validationStats.column.hits" /></th>
-                                <th class="text-end"><f:translate key="form.database:validationStats.column.span" /></th>
-                                <th class="text-end"><f:translate key="form.database:validationStats.column.cadence" /></th>
-                                <th><f:translate key="form.database:validationStats.column.window" /></th>
+                                <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.session" /></th>
+                                <th class="text-end"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.hits" /></th>
+                                <th class="text-end"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.span" /></th>
+                                <th class="text-end"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.cadence" /></th>
+                                <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.column.window" /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -191,8 +191,8 @@
         <f:else>
             <div class="callout callout-info">
                 <div class="callout-body">
-                    <p><f:translate key="form.database:validationStats.empty" /></p>
-                    <p class="mb-0"><f:translate key="form.database:validationStats.empty.hint" /></p>
+                    <p><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.empty" /></p>
+                    <p class="mb-0"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:validationStats.empty.hint" /></p>
                 </div>
             </div>
         </f:else>

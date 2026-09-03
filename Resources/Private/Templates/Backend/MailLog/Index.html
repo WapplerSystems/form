@@ -6,10 +6,10 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <h1><f:translate key="form.database:mailLog.headline" /></h1>
+    <h1><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.headline" /></h1>
 
     <p class="text-body-secondary">
-        <f:translate key="form.database:mailLog.intro" />
+        <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.intro" />
     </p>
 
     <f:comment>
@@ -37,15 +37,15 @@
         </f:for>
         <div class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label" for="mailLogFrom"><f:translate key="form.database:mailLog.filter.from" /></label>
+                <label class="form-label" for="mailLogFrom"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.from" /></label>
                 <input type="date" id="mailLogFrom" name="filter[from]" value="{filter.from}" class="form-control" />
             </div>
             <div class="col-auto">
-                <label class="form-label" for="mailLogTo"><f:translate key="form.database:mailLog.filter.to" /></label>
+                <label class="form-label" for="mailLogTo"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.to" /></label>
                 <input type="date" id="mailLogTo" name="filter[to]" value="{filter.to}" class="form-control" />
             </div>
             <div class="col-auto">
-                <label class="form-label" for="mailLogStatus"><f:translate key="form.database:mailLog.filter.status" /></label>
+                <label class="form-label" for="mailLogStatus"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.status" /></label>
                 <select id="mailLogStatus" name="filter[status]" class="form-select">
                     <f:for each="{statuses}" as="label" key="value">
                         <f:if condition="{filter.status} == {value}">
@@ -56,7 +56,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label" for="mailLogForm"><f:translate key="form.database:mailLog.filter.form" /></label>
+                <label class="form-label" for="mailLogForm"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.form" /></label>
                 <select id="mailLogForm" name="filter[formIdentifier]" class="form-select">
                     <f:for each="{formOptions}" as="label" key="value">
                         <f:if condition="{filter.formIdentifier} == {value}">
@@ -69,7 +69,7 @@
             <div class="col-auto">
                 <button type="submit" class="btn btn-default">
                     <core:icon identifier="actions-filter" size="small" />
-                    <f:translate key="form.database:mailLog.filter.apply" />
+                    <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.filter.apply" />
                 </button>
             </div>
         </div>
@@ -81,10 +81,10 @@
         many need a look.
     </f:comment>
     <div class="mb-3 d-flex gap-2 flex-wrap">
-        <span class="badge bg-success"><f:translate key="form.database:mailLog.status.sent" />: {counts.sent}</span>
-        <span class="badge bg-danger"><f:translate key="form.database:mailLog.status.failed" />: {counts.failed}</span>
-        <span class="badge bg-warning"><f:translate key="form.database:mailLog.count.open" />: {counts.open}</span>
-        <span class="badge bg-secondary"><f:translate key="form.database:mailLog.count.total" />: {counts.total}</span>
+        <span class="badge bg-success"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.status.sent" />: {counts.sent}</span>
+        <span class="badge bg-danger"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.status.failed" />: {counts.failed}</span>
+        <span class="badge bg-warning"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.count.open" />: {counts.open}</span>
+        <span class="badge bg-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.count.total" />: {counts.total}</span>
     </div>
 
     <f:if condition="{paginator.paginatedItems -> f:count()} > 0">
@@ -93,12 +93,12 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th><f:translate key="form.database:mailLog.column.time" /></th>
-                            <th><f:translate key="form.database:mailLog.column.status" /></th>
-                            <th><f:translate key="form.database:mailLog.column.form" /></th>
-                            <th><f:translate key="form.database:mailLog.column.finisher" /></th>
-                            <th><f:translate key="form.database:mailLog.column.recipients" /></th>
-                            <th><f:translate key="form.database:mailLog.column.detail" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.time" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.status" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.form" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.finisher" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.recipients" /></th>
+                            <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.detail" /></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -117,7 +117,7 @@
                                     <f:if condition="{entry.recipients}">
                                         <f:then>{entry.recipients}</f:then>
                                         <f:else>
-                                            <span class="text-body-secondary" title="{f:translate(key: 'form.database:mailLog.recipients.withheld')}">
+                                            <span class="text-body-secondary" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.recipients.withheld')}">
                                                 {entry.recipient_count} ×
                                             </span>
                                         </f:else>
@@ -134,7 +134,7 @@
                                     </f:if>
                                 </td>
                                 <td class="text-end">
-                                    <f:link.action action="show" arguments="{uid: entry.uid}" class="btn btn-default btn-sm" title="{f:translate(key: 'form.database:mailLog.column.detail')}">
+                                    <f:link.action action="show" arguments="{uid: entry.uid}" class="btn btn-default btn-sm" title="{f:translate(key: 'LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.column.detail')}">
                                         <core:icon identifier="actions-eye" size="small" />
                                     </f:link.action>
                                 </td>
@@ -149,8 +149,8 @@
         <f:else>
             <div class="callout callout-info">
                 <div class="callout-body">
-                    <p><f:translate key="form.database:mailLog.empty" /></p>
-                    <p class="mb-0"><f:translate key="form.database:mailLog.empty.hint" /></p>
+                    <p><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.empty" /></p>
+                    <p class="mb-0"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:mailLog.empty.hint" /></p>
                 </div>
             </div>
         </f:else>

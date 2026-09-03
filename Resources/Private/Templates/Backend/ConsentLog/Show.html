@@ -6,26 +6,26 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <h1><f:translate key="form.database:consentLog.detail.headline" /></h1>
+    <h1><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.detail.headline" /></h1>
 
     <div class="table-fit mb-4">
         <table class="table table-striped">
             <tbody>
                 <tr>
-                    <th style="width:25%"><f:translate key="form.database:consentLog.column.given" /></th>
+                    <th style="width:25%"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.given" /></th>
                     <td>
                         <f:if condition="{entry.given}">
-                            <f:then><span class="badge bg-success"><f:translate key="form.database:consentLog.given" /></span></f:then>
-                            <f:else><span class="badge bg-warning"><f:translate key="form.database:consentLog.withheld" /></span></f:else>
+                            <f:then><span class="badge bg-success"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.given" /></span></f:then>
+                            <f:else><span class="badge bg-warning"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.withheld" /></span></f:else>
                         </f:if>
                     </td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:consentLog.column.time" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.time" /></th>
                     <td><f:format.date format="d.m.Y H:i:s">@{entry.crdate}</f:format.date></td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:consentLog.column.subject" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.subject" /></th>
                     <td>
                         <f:if condition="{entry.subject}">
                             <f:then>
@@ -35,29 +35,29 @@
                                 </f:if>
                             </f:then>
                             <f:else>
-                                <span class="text-body-secondary"><f:translate key="form.database:consentLog.subject.none.hint" /></span>
+                                <span class="text-body-secondary"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.subject.none.hint" /></span>
                             </f:else>
                         </f:if>
                     </td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:consentLog.column.consent" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.consent" /></th>
                     <td><code>{entry.element_identifier}</code> <span class="text-body-secondary">({entry.consent_key})</span></td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:consentLog.column.form" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.form" /></th>
                     <td><code>{entry.form_identifier}</code></td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:consentLog.column.context" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.context" /></th>
                     <td>
-                        <f:translate key="form.database:consentLog.column.site" />: <code>{entry.site_identifier}</code> ·
-                        <f:translate key="form.database:consentLog.column.page" />: {entry.page_uid} ·
-                        <f:translate key="form.database:consentLog.column.language" />: {entry.language_uid}
+                        <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.site" />: <code>{entry.site_identifier}</code> ·
+                        <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.page" />: {entry.page_uid} ·
+                        <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.language" />: {entry.language_uid}
                     </td>
                 </tr>
                 <tr>
-                    <th><f:translate key="form.database:consentLog.column.submission" /></th>
+                    <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.submission" /></th>
                     <td>
                         <f:comment>
                             The same id is on the mail log row, so "consent
@@ -76,9 +76,9 @@
         later edit of the consent text writes a new hash and leaves this one
         untouched.
     </f:comment>
-    <h2><f:translate key="form.database:consentLog.text.headline" /></h2>
+    <h2><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.text.headline" /></h2>
     <p class="text-body-secondary">
-        <f:translate key="form.database:consentLog.text.hash" />: <code>{entry.text_hash}</code>
+        <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.text.hash" />: <code>{entry.text_hash}</code>
     </p>
     <f:if condition="{consentText}">
         <f:then>
@@ -94,29 +94,29 @@
                 </div>
             </div>
             <p class="text-body-secondary">
-                <f:translate key="form.database:consentLog.text.firstSeen" />:
+                <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.text.firstSeen" />:
                 <f:format.date format="d.m.Y">@{consentText.crdate}</f:format.date> ·
-                <f:translate key="form.database:consentLog.text.lastSeen" />:
+                <f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.text.lastSeen" />:
                 <f:format.date format="d.m.Y">@{consentText.last_seen}</f:format.date>
             </p>
         </f:then>
         <f:else>
             <div class="callout callout-warning">
                 <div class="callout-body">
-                    <p class="mb-0"><f:translate key="form.database:consentLog.text.missing" /></p>
+                    <p class="mb-0"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.text.missing" /></p>
                 </div>
             </div>
         </f:else>
     </f:if>
 
     <f:if condition="{siblings}">
-        <h2><f:translate key="form.database:consentLog.siblings.headline" /></h2>
+        <h2><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.siblings.headline" /></h2>
         <div class="table-fit">
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th><f:translate key="form.database:consentLog.column.given" /></th>
-                        <th><f:translate key="form.database:consentLog.column.consent" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.given" /></th>
+                        <th><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.column.consent" /></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -125,8 +125,8 @@
                         <tr>
                             <td>
                                 <f:if condition="{sibling.given}">
-                                    <f:then><span class="badge bg-success"><f:translate key="form.database:consentLog.given" /></span></f:then>
-                                    <f:else><span class="badge bg-warning"><f:translate key="form.database:consentLog.withheld" /></span></f:else>
+                                    <f:then><span class="badge bg-success"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.given" /></span></f:then>
+                                    <f:else><span class="badge bg-warning"><f:translate key="LLL:EXT:form/Resources/Private/Language/Database.xlf:consentLog.withheld" /></span></f:else>
                                 </f:if>
                             </td>
                             <td><code>{sibling.element_identifier}</code></td>
