@@ -1249,6 +1249,27 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
 
 **Fixed**
 
+- Backend module registration was still written for `release/v14`, in three places with one
+  cause — label *domains*, which 13.4 has no concept of. `'labels' => 'form.modules.form_log'`
+  matched neither of the two forms `BaseModule` accepts, so every module sat in the menu with
+  an empty title; `FormManagerController` and `FormEditorController` set their title through
+  `LanguageService::translate()`, a v14 method whose absence was a fatal Error at render time;
+  and `form_submissions` had no entry at all, so the SaveSubmission finisher could persist
+  submissions that nothing could display (`2da1fa91`).
+
+- The same mistake in its quiet form: the backend templates referenced labels as
+  `key="form.database:mailLog.headline"`. In an Extbase context that string goes to
+  `LocalizationUtility::translate()` whole, resolves to nothing and renders an **empty
+  string** — no exception, nothing logged. The form log showed statistics tiles reading
+  ": 4", an empty table header and no headline, while the same labels fetched from PHP were
+  fine, which made it look like a styling problem. 155 references across eight templates now
+  name their file (`3964dabe`).
+
+- The submission module's GET filter form dropped the request token, so clicking *Suchen*
+  rendered the whole backend inside the module frame. `buildFilterFormTarget()` moved from
+  `AbstractFormLogController` into `FilterFormTargetTrait` and the template submits to the
+  bare path with the query as hidden fields (`dcce39d0`).
+
 - `ProcessFileListActionsEventListener` called `ProcessFileListActionsEvent::removeAction()`,
   which 13.4's event does not have — the listener was carried over from `release/v14`
   unchanged. Since it runs from `FileList::render()`, the fatal Error took the whole module
