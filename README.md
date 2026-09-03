@@ -1249,6 +1249,14 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
 
 **Fixed**
 
+- `SaveSubmission` and `Webhook` finisher presets were never imported in
+  `Configuration/Form/Base/config.yaml`, so the prototype did not know them and using
+  either threw `FinisherPresetNotFoundException` on *render* — the page, not just the
+  submission. Everything else had shipped (classes, preset YAML, TCA and backend module for
+  `tx_form_submission`, cleanup task), which made the features read as
+  configured-but-unused rather than unreachable. `release/v13` only: neither feature exists
+  on `release/v14` (`a70b0371`).
+
 - Entropy spam filter: a submission whose every field was random salad with a digit or two
   dropped in — `ZYWVj7hyXv`, `AmJj19D9Y5`, `9KI0nB1YVM`, `JuT8l9hsQJ` — passed the check
   untouched on a live site. `gibberishShare()` cut its tokens at every non-letter, so each
