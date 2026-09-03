@@ -10,31 +10,45 @@
 
     <f:if condition="{forms}">
         <f:then>
-            <f:form action="index" method="get" class="mb-3">
+            <f:comment>Plain form, not f:form: the target has to be the bare path with the
+            query parameters as hidden fields, otherwise the GET submit drops the request
+            token and the module frame renders the whole backend. See
+            FilterFormTargetTrait.</f:comment>
+            <form method="get" action="{filterForm.uri}" class="mb-3">
+                <f:for each="{filterForm.hiddenFields}" as="value" key="name">
+                    <input type="hidden" name="{name}" value="{value}" />
+                </f:for>
                 <div class="row g-2 align-items-end">
                     <div class="col-auto">
                         <label class="form-label" for="form-select"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.filter.form">Form</f:translate></label>
-                        <f:form.select id="form-select" class="form-select" name="form" value="{selectedForm}"
-                            additionalAttributes="{data-global-event: 'change', data-action-submit: '$form'}"
-                            options="{selectOptions}" prependOptionLabel=" " />
+                        <select id="form-select" class="form-select" name="form"
+                            data-global-event="change" data-action-submit="$form">
+                            <option value=""></option>
+                            <f:for each="{selectOptions}" as="optionLabel" key="optionValue">
+                                <f:if condition="{optionValue} == {selectedForm}">
+                                    <f:then><option value="{optionValue}" selected="selected">{optionLabel}</option></f:then>
+                                    <f:else><option value="{optionValue}">{optionLabel}</option></f:else>
+                                </f:if>
+                            </f:for>
+                        </select>
                     </div>
                     <div class="col-auto">
                         <label class="form-label" for="date-from"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.filter.from">From</f:translate></label>
-                        <f:form.textfield type="date" id="date-from" class="form-control" name="dateFrom" value="{dateFrom}" />
+                        <input type="date" id="date-from" class="form-control" name="dateFrom" value="{dateFrom}" />
                     </div>
                     <div class="col-auto">
                         <label class="form-label" for="date-to"><f:translate id="LLL:EXT:form/Resources/Private/Language/locallang_submission.xlf:module.filter.to">To</f:translate></label>
-                        <f:form.textfield type="date" id="date-to" class="form-control" name="dateTo" value="{dateTo}" />
+                        <input type="date" id="date-to" class="form-control" name="dateTo" value="{dateTo}" />
                     </div>
                     <div class="col-auto">
                         <label class="form-label" for="search-term"><f:translate id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.label.searchString">Search</f:translate></label>
-                        <f:form.textfield type="search" id="search-term" class="form-control" name="searchTerm" value="{searchTerm}" />
+                        <input type="search" id="search-term" class="form-control" name="searchTerm" value="{searchTerm}" />
                     </div>
                     <div class="col-auto">
                         <button class="btn btn-primary" type="submit"><f:translate id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search">Apply</f:translate></button>
                     </div>
                 </div>
-            </f:form>
+            </form>
 
             <f:if condition="{selectedForm}">
                 <div class="mb-3 btn-group">

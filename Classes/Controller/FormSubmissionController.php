@@ -37,6 +37,10 @@ use TYPO3\CMS\Form\Service\SubmissionExportService;
 class FormSubmissionController extends ActionController
 {
     use AllowedMethodsTrait;
+    // A GET filter form drops the request token from its action's query string;
+    // without this the module frame renders the whole backend instead of the
+    // filtered list. Same helper the form log views use.
+    use FilterFormTargetTrait;
 
     private const TABLE_NAME = 'tx_form_submission';
     private const PAGINATION_MAX = 25;
@@ -75,6 +79,7 @@ class FormSubmissionController extends ActionController
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->assignMultiple([
             'forms' => $forms,
+            'filterForm' => $this->buildFilterFormTarget(),
             'selectOptions' => $selectOptions,
             'selectedForm' => $form,
             'columns' => $columns,
