@@ -408,8 +408,9 @@ A native `<input type="file" multiple>` replaces its whole `FileList` on every p
 offers no way to drop a single file again: choosing files twice silently loses the first
 selection, and a mis-picked file can only be corrected by re-picking everything.
 
-For a file upload with `properties.multiple`, `FileUpload.fluid.html` therefore emits a
-markup contract for `Resources/Public/JavaScript/frontend/file-upload.js`:
+For an upload with `properties.multiple`, `FileUpload.fluid.html` and
+`ImageUpload.fluid.html` therefore emit a markup contract for
+`Resources/Public/JavaScript/frontend/file-upload.js`:
 
 ```html
 <input type="file" multiple id="…" data-form-multi-upload data-remove-label="Remove"
@@ -426,6 +427,12 @@ re-picking an identical file does not add a duplicate.
 
 Script and `Resources/Public/Css/file-upload.css` are registered via `f:asset.*` and only
 for a multi-file field — a single upload keeps its plain markup and loads neither.
+
+`ImageUpload` uses the same script. Its server-rendered list keeps the thumbnails and their
+`form-element-imageupload-*` classes and carries `form-element-fileupload-list` in addition,
+because a *pending* entry is a file the browser has not uploaded yet — there is nothing to
+render a thumbnail from, so it is the same name-plus-remove chip as on a file upload and
+reuses that stylesheet unchanged.
 
 Promoted from `wapplersystems/form_extended`, with three defects fixed there: it matched
 every `input[multiple]` on the page (including selects), addressed its container by
