@@ -1220,6 +1220,18 @@ release tag. Everything before the fork point is TYPO3's own history — see the
 changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
 `WapplerSystems/form`.
 
+### 2026-09
+
+**Added**
+
+- An image upload with `properties.multiple` now collects picked files in the browser like
+  a file upload does: `ImageUpload.fluid.html` emits the markup contract for
+  `frontend/file-upload.js` and registers script and stylesheet, so a second pick appends
+  instead of replacing the first selection and a mis-picked photo can be dropped
+  individually before submitting. Server-side multi-upload support (ObjectStorage mapping,
+  thumbnails, `allowRemoval`) was already there — only the client side was missing
+  (`295f7f05`).
+
 ### 2026-08
 
 **Added**
