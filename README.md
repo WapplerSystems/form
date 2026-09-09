@@ -1232,6 +1232,18 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   thumbnails, `allowRemoval`) was already there — only the client side was missing
   (`295f7f05`).
 
+**Fixed**
+
+- A file upload with *multiple* no longer breaks the submission. Such an upload arrives as
+  an ObjectStorage, so `RenderFormValueViewHelper` reported the field as `isMultiValue`
+  while `FileUpload::processElementValue()` collapsed the storage into the single string of
+  `valueToString()` - and the field list in both e-mail templates iterates
+  `processedValue` when that flag is set. Every submission carrying a picked file therefore
+  ended in a 500 with "The argument \"each\" was registered with type \"array\", but is of
+  type \"string\"": no mail, no message for the visitor. The processed value is a list of
+  file names now, one row per file, and `isMultiValue` describes that value rather than the
+  raw submission (`bac713ae`).
+
 ### 2026-08
 
 **Added**

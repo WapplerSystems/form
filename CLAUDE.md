@@ -40,9 +40,23 @@ typo3DatabaseDriver=pdo_sqlite vendor/bin/phpunit -c Build/phpunit/FunctionalTes
 cd Build && npm install && npm run build
 ```
 
-**Functional tests need PHP 8.4.** On 8.5 the TYPO3 14.3 functional bootstrap fails every
-test with "did not close its own output buffers" — a PHP-version problem, not ours (the
-pre-existing `CountValidatorTest` fails identically). If the local PHP is 8.5, do not try
+**Functional tests need PHP 8.4 — and the ddev container has it.** The default `php` in
+the container is 8.5, where the TYPO3 14.3 functional bootstrap fails every test with "did
+not close its own output buffers". Call the 8.4 binary explicitly and the whole suite runs
+locally (456 tests, ~4 min):
+
+```bash
+ddev exec "cd packages/wapplersystems/form && \
+  typo3DatabaseDriver=pdo_sqlite php8.4 vendor/bin/phpunit -c Build/phpunit/FunctionalTests.xml"
+```
+
+One failure is pre-existing and unrelated:
+`DatabaseStorageAdapterFunctionalTest::readThrowsExceptionForInvalidJsonInDatabase`
+expects code 1767199423 and gets 1767199444. Verify a suspicious failure against a
+stashed tree before blaming your change.
+
+On a machine without a 8.4 binary the note below still applies. If the local PHP is 8.5
+only, do not try
 to interpret functional failures locally; push and read the CI job, which runs 8.4.
 
 After rebuilding JS, reload the backend with the cache bypassed — the backend serves ES
