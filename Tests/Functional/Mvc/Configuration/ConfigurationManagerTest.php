@@ -33,6 +33,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class ConfigurationManagerTest extends FunctionalTestCase
 {
+<<<<<<< HEAD
     use SetsUpAdminBackendUserTrait;
 
     protected function setUp(): void
@@ -40,6 +41,9 @@ final class ConfigurationManagerTest extends FunctionalTestCase
         parent::setUp();
         $this->setUpAdminBackendUser();
     }
+=======
+    protected bool $initializeDatabase = false;
+>>>>>>> 452aaf62 ([TASK] Skip database setup for more functional tests part 2)
 
     #[Test]
     #[IgnoreDeprecations]
