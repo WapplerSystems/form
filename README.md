@@ -1234,6 +1234,16 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Fixed**
 
+- A failed upload no longer takes the whole request with it.
+  `UploadedFileReferenceConverter::convertFrom()` passed `$e->getCode()` into
+  `Error::__construct()`, which is typed `int` - but `Throwable::getCode()` is an int only
+  by convention: PDOException reports an SQLSTATE string, AWS-based FAL drivers report
+  their own error keys. The error handling then died with "Argument #2 ($code) must be of
+  type int, string given", so the visitor saw an error page instead of a message on the
+  field and the original exception was lost with it - nothing about the real cause reached
+  the log. Numeric codes are kept, anything else falls back to a fixed code, and the
+  exception is logged before the error is built (`295779f8`).
+
 - A file upload with *multiple* no longer breaks the submission. Such an upload arrives as
   an ObjectStorage, so `RenderFormValueViewHelper` reported the field as `isMultiValue`
   while `FileUpload::processElementValue()` collapsed the storage into the single string of
