@@ -82,6 +82,12 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
      */
     public const CONFIGURATION_PRE_STORAGE_VALIDATORS = 6;
 
+    /**
+     * Error code used when an upload fails with an exception that does not
+     * carry a numeric code of its own. See convertFrom().
+     */
+    private const UPLOAD_FAILED_ERROR_CODE = 1789034400;
+
     protected string $defaultUploadFolder = '1:/user_upload/';
 
     /**
@@ -363,7 +369,23 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
         } catch (TypeConverterException $e) {
             return $e->getError();
         } catch (\Exception $e) {
-            return GeneralUtility::makeInstance(Error::class, $e->getMessage(), $e->getCode());
+            // `Throwable::getCode()` is an int only by convention. PDO returns
+            // an SQLSTATE string, AWS-based FAL drivers return their own error
+            // keys, and `Error::__construct()` insists on an int - so handing
+            // the code straight through turned a handled upload failure into a
+            // fatal TypeError. The visitor got an error page instead of a field
+            // message, and the original exception died with it: nothing about
+            // the actual cause ever reached the log.
+            $this->logger?->error(
+                'Uploaded file could not be imported: {reason}',
+                ['reason' => $e->getMessage(), 'exception' => $e]
+            );
+            $code = $e->getCode();
+            return GeneralUtility::makeInstance(
+                Error::class,
+                $e->getMessage(),
+                is_numeric($code) ? (int)$code : self::UPLOAD_FAILED_ERROR_CODE
+            );
         }
 
         $this->convertedResources[$source['tmp_name']] = $resource;
