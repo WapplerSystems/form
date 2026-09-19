@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Tests\Functional\Mvc\Property;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
@@ -95,7 +96,7 @@ final class PropertyMappingConfigurationTest extends FunctionalTestCase
         $resourceFactory = $this->createMock(ResourceFactory::class);
         $resourceFactory->method('getFolderObjectFromCombinedIdentifier')
             ->willThrowException(new InsufficientFolderAccessPermissionsException('Access denied', 1791380637));
-        $subject = new PropertyMappingConfiguration($resourceFactory);
+        $subject = new PropertyMappingConfiguration($resourceFactory, self::createStub(Features::class));
         $formDefinition = $this->buildFormDefinition(['saveToFileMount' => '1:/custom_uploads/']);
 
         $subject->afterFormStateInitialized($this->createFormRuntime($formDefinition));
@@ -111,7 +112,7 @@ final class PropertyMappingConfigurationTest extends FunctionalTestCase
     {
         $resourceFactory = $this->createMock(ResourceFactory::class);
         $resourceFactory->expects($this->never())->method('getFolderObjectFromCombinedIdentifier');
-        $subject = new PropertyMappingConfiguration($resourceFactory);
+        $subject = new PropertyMappingConfiguration($resourceFactory, self::createStub(Features::class));
         $formDefinition = $this->buildFormDefinition(['saveToFileMount' => '1:/custom_uploads/']);
         $formDefinition->setRenderingOption('previewMode', true);
 
