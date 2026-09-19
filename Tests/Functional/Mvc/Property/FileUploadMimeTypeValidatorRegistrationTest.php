@@ -18,7 +18,10 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Tests\Functional\Mvc\Property;
 
 use PHPUnit\Framework\Attributes\Test;
+<<<<<<< HEAD
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+=======
+>>>>>>> 2f4f911f ([SECURITY] Refuse form uploads with empty allowedMimeTypes)
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
