@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\Mvc\Property;
 
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Validation\ValidatorResolver;
@@ -129,7 +130,14 @@ class PropertyMappingConfiguration implements AfterFormStateInitializedInterface
         if (is_array($renderable->getProperties()['allowedMimeTypes'] ?? null)) {
             $allowedMimeTypes = array_filter($renderable->getProperties()['allowedMimeTypes']);
         }
-        if ($allowedMimeTypes === []) {
+
+        // An empty "allowedMimeTypes" list is treated as "no allowed mime type" and therefore rejects every upload.
+        // The insecure legacy behaviour can be restored globally via feature toggle.
+        // @todo: In TYPO3 v15 LTS, drop the check and feature toggle in favour of an explicit per-form opt-in via
+        //        'allowedMimeTypes' => ['*'] (requires wildcard support in MimeTypeValidator).
+        if ($allowedMimeTypes === []
+            && GeneralUtility::makeInstance(Features::class)->isFeatureEnabled('security.form.allowUnrestrictedFileUploadMimeTypes')
+        ) {
             return;
         }
 
