@@ -56,6 +56,7 @@ renderingOptions.honeypot.enable
 :aspect:`Description`
       Enable or disable the honeypot feature.
 
+<<<<<<< HEAD
 .. attention::
 
    If you want to use a (static) site caching - for example EXT:staticfilecache -
@@ -88,3 +89,8 @@ renderingOptions.honeypot.enable
 
    See forge issue `#83212 <https://forge.typo3.org/issues/83212>`_ for more
    information.
+=======
+    The name of the honeypot field is stored in the signed form state that is
+    rendered with the form. The honeypot therefore does not need a frontend
+    session and also works on cached pages and with static file caching.
+>>>>>>> 47d74bcc ([BUGFIX] Keep the honeypot name in the form state)
