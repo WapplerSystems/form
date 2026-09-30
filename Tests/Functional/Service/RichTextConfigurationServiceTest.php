@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Tests\Functional\Service;
 
+use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -34,7 +35,12 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * Note: RichTextConfigurationService is a final class, so we test only the public API.
  * Private methods are tested indirectly through the public resolveCkEditorConfiguration method.
  */
+<<<<<<< HEAD:Tests/Functional/Service/RichTextConfigurationServiceTest.php
 final class RichTextConfigurationServiceTest extends FunctionalTestCase
+=======
+#[BackupGlobals(true)]
+final class RichTextConfigurationServiceTest extends UnitTestCase
+>>>>>>> 560ec25c ([TASK] Limit global backup to stateful unit tests):Tests/Unit/Service/RichTextConfigurationServiceTest.php
 {
     protected array $coreExtensionsToLoad = ['form', 'rte_ckeditor'];
 

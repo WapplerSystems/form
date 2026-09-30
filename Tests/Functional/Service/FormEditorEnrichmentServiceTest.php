@@ -17,12 +17,18 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Tests\Functional\Service;
 
+use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Form\Service\FormEditorEnrichmentService;
 use TYPO3\CMS\Form\Service\RichTextConfigurationService;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
+<<<<<<< HEAD:Tests/Functional/Service/FormEditorEnrichmentServiceTest.php
 final class FormEditorEnrichmentServiceTest extends FunctionalTestCase
+=======
+#[BackupGlobals(true)]
+final class FormEditorEnrichmentServiceTest extends UnitTestCase
+>>>>>>> 560ec25c ([TASK] Limit global backup to stateful unit tests):Tests/Unit/Service/FormEditorEnrichmentServiceTest.php
 {
     protected array $coreExtensionsToLoad = ['form', 'rte_ckeditor'];
 
