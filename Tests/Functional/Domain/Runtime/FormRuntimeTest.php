@@ -277,6 +277,8 @@ final class FormRuntimeTest extends FunctionalTestCase
             ->withAttribute('extbase', new ExtbaseRequestParameters())
             ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE)
             ->withAttribute('frontend.user', $frontendUser)
+            // The form action URI is built by the Extbase UriBuilder, which needs a content object
+            ->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class))
             // Rendering resolves element labels through TranslationService, which
             // derives the locale from the request. A frontend request always has
             // a language; without it, rendering fails before reaching a template.
