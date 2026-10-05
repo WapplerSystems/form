@@ -1220,6 +1220,15 @@ release tag. Everything before the fork point is TYPO3's own history — see the
 changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
 `WapplerSystems/form`.
 
+### 2026-10
+
+**Fixed**
+
+- A form whose email finisher sends in the frontend language (`translation.language: ''`)
+  could no longer be saved once it had been opened in the form editor ("No hmac found for
+  property options.translation.language"). The editor now keeps the empty value instead of
+  rewriting it to `default`, which this fork no longer offers. `4775662`
+
 ### 2026-09
 
 **Added**
