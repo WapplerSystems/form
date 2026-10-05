@@ -513,4 +513,65 @@ final class FormDefinitionConversionServiceTest extends UnitTestCase
         // No phantom finisher invented out of the validators collection.
         self::assertArrayNotHasKey('finishers', $data);
     }
+
+    #[Test]
+    public function migrateFinisherConfigurationKeepsEmptyLanguageAndItsHmac(): void
+    {
+        $input = [
+            'finishers' => [
+                0 => [
+                    'identifier' => 'EmailToSender',
+                    'options' => [
+                        'translation' => [
+                            'language' => '',
+                            '_orig_language' => ['value' => '', 'hmac' => 'abc'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        self::assertSame($input, $this->createFormDefinitionConversionService()->migrateFinisherConfiguration($input));
+    }
+
+    #[Test]
+    public function migrateFinisherConfigurationNormalisesNullLanguageToEmptyString(): void
+    {
+        $input = [
+            'finishers' => [
+                0 => [
+                    'identifier' => 'EmailToSender',
+                    'options' => [
+                        'translation' => [
+                            'language' => null,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->createFormDefinitionConversionService()->migrateFinisherConfiguration($input);
+
+        self::assertSame('', $result['finishers'][0]['options']['translation']['language']);
+    }
+
+    #[Test]
+    public function migrateFinisherConfigurationLeavesPinnedLanguageUntouched(): void
+    {
+        $input = [
+            'finishers' => [
+                0 => [
+                    'identifier' => 'EmailToReceiver',
+                    'options' => [
+                        'translation' => [
+                            'language' => 'de',
+                            '_orig_language' => ['value' => 'de', 'hmac' => 'abc'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        self::assertSame($input, $this->createFormDefinitionConversionService()->migrateFinisherConfiguration($input));
+    }
 }

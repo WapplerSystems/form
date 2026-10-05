@@ -25,20 +25,27 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 class FinisherTranslationLanguageConverter extends AbstractConverter
 {
     /**
-     * If "finishers.x.options.translation.language" is empty then set the value to "default" and remove
+     * If "finishers.x.options.translation.language" is null then set the value to "" and remove
      * the hmac.
+     *
+     * WapplerSystems fork: upstream rewrites every empty value to "default". Here "" is a
+     * selectable option of its own ("frontend language", see
+     * InjectSiteLanguagesIntoEmailFinisherEditor) and "default" is no longer offered, so the
+     * rewritten value failed validation on save ("No hmac found for property
+     * options.translation.language") - and would have pinned the mail to the XLF source
+     * language. "" therefore stays as it is; only null is normalised.
      *
      * @param mixed $value
      */
     public function __invoke(string $key, $value): void
     {
-        if (!empty($value)) {
+        if ($value !== null) {
             return;
         }
 
         $formDefinition = $this->converterDto->getFormDefinition();
 
-        $formDefinition = ArrayUtility::setValueByPath($formDefinition, $key, 'default', '.');
+        $formDefinition = ArrayUtility::setValueByPath($formDefinition, $key, '', '.');
 
         $hmacPropertyPathParts = explode('.', $key);
         $lastKeySegment = array_pop($hmacPropertyPathParts);
