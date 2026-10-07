@@ -19,12 +19,15 @@ namespace TYPO3\CMS\Form\Tests\Unit\Domain\FormElements;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+<<<<<<< HEAD
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+=======
+>>>>>>> 2a816f1c ([SECURITY] Respect saveToFileMount of form uploads)
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration as ExtbasePropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Validation\Validator\NotEmptyValidator;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
@@ -109,74 +112,6 @@ final class FileUploadTest extends UnitTestCase
     }
 
     #[Test]
-    public function afterBuildingFinishedSetsUpStoragePathToPropertySaveToFileMountIfItExists(): void
-    {
-        $resourceFactory = $this->createMock(ResourceFactory::class);
-        GeneralUtility::setSingletonInstance(ResourceFactory::class, $resourceFactory);
-
-        // Don't add any validators for now
-        $this->processingRule
-            ->method('getValidators')
-            ->willReturn(new \SplObjectStorage());
-
-        // Set the file mount
-        $this->fileUpload
-            ->method('getProperties')
-            ->willReturn(['saveToFileMount' => '/tmp']);
-
-        // Expect the array to contain the /tmp upload directory
-        $this->extbasePropertyMappingConfiguration
-            ->expects($this->atLeastOnce())
-            ->method('setTypeConverterOptions')
-            ->willReturnCallback(function (string $typeConverter, array $options): ExtbasePropertyMappingConfiguration {
-                $this->assertArrayHasKey(UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER, $options);
-                $folder = $options[UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER];
-
-                $this->assertSame('/tmp', $folder);
-
-                return $this->extbasePropertyMappingConfiguration;
-            });
-
-        $this->fileUpload->initializeFormElement();
-    }
-
-    #[Test]
-    public function afterBuildingFinishedSetsUpStoragePathToToFormDefinitionPathIfSaveToFileMountIsNotDefinedAndFormWasNotAddedProgrammatically(): void
-    {
-        $resourceFactory = $this->createMock(ResourceFactory::class);
-        GeneralUtility::setSingletonInstance(ResourceFactory::class, $resourceFactory);
-
-        // Don't add any validators for now
-        $this->processingRule
-            ->method('getValidators')
-            ->willReturn(new \SplObjectStorage());
-
-        $this->rootForm
-            ->method('getPersistenceIdentifier')
-            ->willReturn('/tmp/somefile');
-
-        // Set the file mount
-        $this->fileUpload
-            ->method('getProperties')
-            ->willReturn(['saveToFileMount' => '']);
-
-        // Expect the array to contain the /tmp upload directory
-        $this->extbasePropertyMappingConfiguration
-            ->expects($this->atLeastOnce())
-            ->method('setTypeConverterOptions')
-            ->willReturnCallback(function (string $typeConverter, array $options): ExtbasePropertyMappingConfiguration {
-                $this->assertArrayHasKey(UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER, $options);
-                $folder = $options[UploadedFileReferenceConverter::CONFIGURATION_UPLOAD_FOLDER];
-
-                $this->assertSame('/tmp', $folder);
-
-                return $this->extbasePropertyMappingConfiguration;
-            });
-
-        $this->fileUpload->initializeFormElement();
-    }
-
-    #[Test]
     public function afterBuildingFinishedSetsStoragePathToUserUploadIfNeitherSaveToFileMountIsSetNorThereIsAFormDefinitionPath(): void
     {
         $this->processingRule
@@ -242,6 +177,7 @@ final class FileUploadTest extends UnitTestCase
 
         self::assertTrue($validators->offsetExists($notEmptyValidator));
     }
+<<<<<<< HEAD
 
     #[Test]
     public function initializeFormElementSkipsUploadFolderResolutionInPreviewMode(): void
@@ -404,4 +340,6 @@ final class FileUploadTest extends UnitTestCase
 
         return $fileReference;
     }
+=======
+>>>>>>> 2a816f1c ([SECURITY] Respect saveToFileMount of form uploads)
 }
