@@ -40,6 +40,80 @@ final class SpamCorpus
     }
 
     /**
+     * The same salad drawn from an alphabet that includes digits. Kept apart
+     * from botTokens() because these are the samples that defeated the
+     * letter-only tokenizer: a digit in the middle cut every one of them into
+     * fragments of four or five characters, which no length threshold worth
+     * having can judge.
+     *
+     * The first four are the fields of the submission that got through on a
+     * live cancellation form and prompted the check.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function mixedAlnumBotTokens(): array
+    {
+        return [
+            'reported name' => ['ZYWVj7hyXv'],
+            'reported first name' => ['AmJj19D9Y5'],
+            'reported phone' => ['9KI0nB1YVM'],
+            'reported contract designation' => ['JuT8l9hsQJ'],
+            'digit in the middle of camel salad' => ['aBcDeFgHiJ7kLmNoPqRsT'],
+            'alternating without case flip' => ['q1w2e3r4t5'],
+            'short mixed salad' => ['xk3Mp9Qz'],
+        ];
+    }
+
+    /**
+     * Letters-and-digits values a real visitor types, which MUST be accepted.
+     *
+     * This is the expensive direction of the alphanumeric check: a contract
+     * designation, a customer number, an IBAN or a course name with a year in
+     * it is as repetition-free as generated salad, and on a cancellation form a
+     * false positive costs the site owner a deadline rather than a spam mail.
+     *
+     * @return array<string, array{array<string, string>}>
+     */
+    public static function legitimateAlnumSubmissions(): array
+    {
+        return [
+            'contract number' => [['message' => 'Vertrag Nr. AS-2024-1234']],
+            'course with year' => [['message' => 'Examenskurs2026']],
+            'course with term' => [['message' => 'Assessorkurs 2026/1']],
+            'iban' => [['message' => 'DE89370400440532013000']],
+            'customer number' => [['message' => 'MITGLIEDSNR 4711']],
+            'abbreviation with digit' => [['message' => 'BGB-AT2']],
+            'product with digits' => [['message' => 'iPhone13']],
+            'years spanned' => [['message' => 'Vertrag2019bis2026']],
+            'inner capital and year' => [['message' => 'StudentIn2026']],
+            'phone number' => [['phone' => '0170 1234567']],
+            'phone number international' => [['phone' => '+49 (0)89 123456-78']],
+            'phone number bare' => [['phone' => '4194840183']],
+            'order number with suffix' => [['message' => 'Kurs-Nr 8823-A']],
+        ];
+    }
+
+    /**
+     * The reported submission in full: every field salad with a digit or two
+     * dropped in, the e-mail address the only value that looks real. Its
+     * combined free text has an entropy of 5.074 bits per character, i.e. inside
+     * the permitted band, so the per-token verdict is the only thing that can
+     * catch it.
+     *
+     * @return array<string, string>
+     */
+    public static function reportedDigitSeededSubmission(): array
+    {
+        return [
+            'text-1' => 'ZYWVj7hyXv',
+            'text-2' => 'AmJj19D9Y5',
+            'email-1' => 'qsdixon@yahoo.com',
+            'text-3' => '9KI0nB1YVM',
+            'text-4' => 'JuT8l9hsQJ',
+        ];
+    }
+
+    /**
      * Legitimate submissions that MUST be accepted — natural prose, names,
      * compound words, all-caps words and URLs that would otherwise look
      * high-entropy.
