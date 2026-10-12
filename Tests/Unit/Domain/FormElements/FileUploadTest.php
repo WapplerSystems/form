@@ -23,10 +23,13 @@ use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfiguration as ExtbasePropertyMappingConfiguration;
 use TYPO3\CMS\Extbase\Validation\Validator\NotEmptyValidator;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
+use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Mvc\ProcessingRule;
 use TYPO3\CMS\Form\Mvc\Property\TypeConverter\UploadedFileReferenceConverter;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
@@ -336,5 +339,69 @@ final class FileUploadTest extends UnitTestCase
             });
 
         $this->fileUpload->initializeFormElement();
+    }
+
+    #[Test]
+    public function processElementValueReturnsOneEntryPerFileForAMultipleUpload(): void
+    {
+        $files = new ObjectStorage();
+        $files->attach($this->mockFileReference('stand-vorne.jpg'));
+        $files->attach($this->mockFileReference('stand-hinten.png'));
+
+        $element = new FileUpload('upload-1', 'FileUpload');
+
+        self::assertSame(
+            ['stand-vorne.jpg', 'stand-hinten.png'],
+            $element->processElementValue($files, $this->createMock(FormRuntime::class))
+        );
+    }
+
+    #[Test]
+    public function processElementValueReturnsTheFileNameForASingleUpload(): void
+    {
+        $element = new FileUpload('upload-1', 'FileUpload');
+
+        self::assertSame(
+            'stand-vorne.jpg',
+            $element->processElementValue($this->mockFileReference('stand-vorne.jpg'), $this->createMock(FormRuntime::class))
+        );
+    }
+
+    #[Test]
+    public function processElementValuePassesThroughAValueThatIsNoUpload(): void
+    {
+        $element = new FileUpload('upload-1', 'FileUpload');
+
+        self::assertSame('', $element->processElementValue('', $this->createMock(FormRuntime::class)));
+        self::assertNull($element->processElementValue(null, $this->createMock(FormRuntime::class)));
+    }
+
+    #[Test]
+    public function valueToStringStillJoinsTheFileNamesOfAMultipleUpload(): void
+    {
+        $files = new ObjectStorage();
+        $files->attach($this->mockFileReference('stand-vorne.jpg'));
+        $files->attach($this->mockFileReference('stand-hinten.png'));
+
+        $element = new FileUpload('upload-1', 'FileUpload');
+
+        self::assertSame('stand-vorne.jpg, stand-hinten.png', $element->valueToString($files));
+    }
+
+    private function mockFileReference(string $fileName): FileReference&MockObject
+    {
+        $originalResource = $this->getMockBuilder(\TYPO3\CMS\Core\Resource\FileReference::class)
+            ->onlyMethods(['getName'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $originalResource->method('getName')->willReturn($fileName);
+
+        $fileReference = $this->getMockBuilder(FileReference::class)
+            ->onlyMethods(['getOriginalResource'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $fileReference->method('getOriginalResource')->willReturn($originalResource);
+
+        return $fileReference;
     }
 }

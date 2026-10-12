@@ -23,9 +23,12 @@ use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface as ExtbaseConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3\CMS\Form\Domain\Factory\ArrayFormFactory;
 use TYPO3\CMS\Form\Domain\Model\FormDefinition;
@@ -98,6 +101,55 @@ final class RenderFormValueViewHelperTest extends FunctionalTestCase
             '15.01.2025',
             $this->renderElement('date-1', '{var.processedValue}', new \DateTime('2025-01-15'))
         );
+    }
+
+    /**
+     * A multiple upload arrives as an ObjectStorage, so the ViewHelper reports
+     * the field as a multi-value one and a template iterates its processed
+     * value. FileUpload used to collapse that storage into a single string,
+     * which made the <f:for> below fail with "The argument \"each\" was
+     * registered with type \"array\", but is of type \"string\"" - and with it
+     * every submission of a form carrying a multiple upload.
+     */
+    #[Test]
+    public function renderListsEveryFileOfAMultipleUpload(): void
+    {
+        $files = new ObjectStorage();
+        $files->attach($this->mockFileReference('stand-vorne.jpg'));
+        $files->attach($this->mockFileReference('stand-hinten.png'));
+
+        self::assertSame(
+            '1|stand-vorne.jpg|stand-hinten.png|',
+            $this->renderElement(
+                'upload-1',
+                '{var.isMultiValue}|<f:for each="{var.processedValue}" as="fileName">{fileName}|</f:for>',
+                $files
+            )
+        );
+    }
+
+    #[Test]
+    public function renderReportsASingleUploadAsSingleValue(): void
+    {
+        self::assertSame(
+            '|stand-vorne.jpg',
+            $this->renderElement(
+                'upload-1',
+                '{var.isMultiValue}|{var.processedValue}',
+                $this->mockFileReference('stand-vorne.jpg')
+            )
+        );
+    }
+
+    private function mockFileReference(string $fileName): FileReference
+    {
+        $originalResource = $this->createMock(CoreFileReference::class);
+        $originalResource->method('getName')->willReturn($fileName);
+
+        $fileReference = $this->createMock(FileReference::class);
+        $fileReference->method('getOriginalResource')->willReturn($originalResource);
+
+        return $fileReference;
     }
 
     private function renderElement(string $identifier, string $body, mixed $value): string
@@ -175,6 +227,14 @@ final class RenderFormValueViewHelperTest extends FunctionalTestCase
                             'type' => 'Date',
                             'identifier' => 'date-1',
                             'label' => 'Date',
+                        ],
+                        [
+                            'type' => 'FileUpload',
+                            'identifier' => 'upload-1',
+                            'label' => 'Upload',
+                            'properties' => [
+                                'allowedMimeTypes' => ['image/jpeg', 'image/png'],
+                            ],
                         ],
                     ],
                 ],

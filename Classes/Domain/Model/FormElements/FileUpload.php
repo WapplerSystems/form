@@ -126,7 +126,25 @@ class FileUpload extends AbstractFormElement implements StringableFormElementInt
 
     public function processElementValue(mixed $value, FormRuntime $formRuntime): mixed
     {
-        if ($value instanceof ObjectStorage || $value instanceof FileReference) {
+        if ($value instanceof ObjectStorage) {
+            // A multiple upload is a multi-value field, so hand back one entry
+            // per file. RenderFormValueViewHelper reports such a field as
+            // `isMultiValue`, and the e-mail and summary templates then iterate
+            // the processed value with <f:for>. Returning the joined string of
+            // valueToString() here made that iteration run over a string:
+            // "The argument \"each\" was registered with type \"array\", but is
+            // of type \"string\"" - an exception during the finisher, so the
+            // submission ended in a 500 with no mail and no message for the
+            // person filling in the form.
+            $fileNames = [];
+            foreach ($value as $fileReference) {
+                if ($fileReference instanceof FileReference) {
+                    $fileNames[] = $fileReference->getOriginalResource()->getName();
+                }
+            }
+            return $fileNames;
+        }
+        if ($value instanceof FileReference) {
             return $this->valueToString($value);
         }
         return $value;

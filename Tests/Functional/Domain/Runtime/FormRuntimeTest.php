@@ -42,6 +42,7 @@ use TYPO3\CMS\Form\Event\AfterCurrentPageIsResolvedEvent;
 use TYPO3\CMS\Form\Event\BeforeRenderableIsValidatedEvent;
 use TYPO3\CMS\Form\Mvc\Configuration\ConfigurationManagerInterface as ExtFormConfigurationManagerInterface;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class FormRuntimeTest extends FunctionalTestCase
@@ -277,7 +278,10 @@ final class FormRuntimeTest extends FunctionalTestCase
             // Rendering resolves element labels through TranslationService, which
             // derives the locale from the request. A frontend request always has
             // a language; without it, rendering fails before reaching a template.
-            ->withAttribute('language', new SiteLanguage(0, 'en_US.UTF-8', new Uri('/'), []));
+            ->withAttribute('language', new SiteLanguage(0, 'en_US.UTF-8', new Uri('/'), []))
+            // The form ViewHelper builds its action URI through the Extbase UriBuilder,
+            // which requires a ContentObjectRenderer since TYPO3 14.3.8.
+            ->withAttribute('currentContentObject', $this->createStub(ContentObjectRenderer::class));
 
         $GLOBALS['TYPO3_REQUEST'] = $serverRequest;
 

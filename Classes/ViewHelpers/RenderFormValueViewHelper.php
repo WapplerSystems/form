@@ -74,11 +74,18 @@ final class RenderFormValueViewHelper extends AbstractViewHelper
                 ->getViewHelperVariableContainer()
                 ->get(RenderRenderableViewHelper::class, 'formRuntime');
             $value = $formRuntime[$element->getIdentifier()];
+            $processedValue = $this->formValueResolver->resolveDisplayValue($element, $value, $formRuntime);
             $data = [
                 'element' => $element,
                 'value' => $value,
-                'processedValue' => $this->formValueResolver->resolveDisplayValue($element, $value, $formRuntime),
-                'isMultiValue' => is_iterable($value),
+                'processedValue' => $processedValue,
+                // Derived from the processed value, not from the raw one: an
+                // element may collapse an iterable submission into a single
+                // display value (or expand a scalar into a list), and
+                // `isMultiValue` exists so a template knows whether it may
+                // iterate `processedValue`. Reading the raw value here let a
+                // template run <f:for> over a string.
+                'isMultiValue' => is_iterable($processedValue),
             ];
         }
         $variableProvider = new ScopedVariableProvider($this->renderingContext->getVariableProvider(), new StandardVariableProvider([$this->arguments['as'] => $data]));

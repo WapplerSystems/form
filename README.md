@@ -408,8 +408,9 @@ A native `<input type="file" multiple>` replaces its whole `FileList` on every p
 offers no way to drop a single file again: choosing files twice silently loses the first
 selection, and a mis-picked file can only be corrected by re-picking everything.
 
-For a file upload with `properties.multiple`, `FileUpload.fluid.html` therefore emits a
-markup contract for `Resources/Public/JavaScript/frontend/file-upload.js`:
+For an upload with `properties.multiple`, `FileUpload.fluid.html` and
+`ImageUpload.fluid.html` therefore emit a markup contract for
+`Resources/Public/JavaScript/frontend/file-upload.js`:
 
 ```html
 <input type="file" multiple id="…" data-form-multi-upload data-remove-label="Remove"
@@ -426,6 +427,12 @@ re-picking an identical file does not add a duplicate.
 
 Script and `Resources/Public/Css/file-upload.css` are registered via `f:asset.*` and only
 for a multi-file field — a single upload keeps its plain markup and loads neither.
+
+`ImageUpload` uses the same script. Its server-rendered list keeps the thumbnails and their
+`form-element-imageupload-*` classes and carries `form-element-fileupload-list` in addition,
+because a *pending* entry is a file the browser has not uploaded yet — there is nothing to
+render a thumbnail from, so it is the same name-plus-remove chip as on a file upload and
+reuses that stylesheet unchanged.
 
 Promoted from `wapplersystems/form_extended`, with three defects fixed there: it matched
 every `input[multiple]` on the page (including selects), addressed its container by
@@ -1213,9 +1220,14 @@ release tag. Everything before the fork point is TYPO3's own history — see the
 changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
 `WapplerSystems/form`.
 
-### 2026-09
+### 2026-10
 
 **Fixed**
+
+- A form whose email finisher sends in the frontend language (`translation.language: ''`)
+  could no longer be saved once it had been opened in the form editor ("No hmac found for
+  property options.translation.language"). The editor now keeps the empty value instead of
+  rewriting it to `default`, which this fork no longer offers. `4775662`
 
 - Entropy spam filter: a submission whose every field was random salad with a digit or two
   dropped in — `ZYWVj7hyXv`, `AmJj19D9Y5`, `9KI0nB1YVM`, `JuT8l9hsQJ` — passed the check
@@ -1231,7 +1243,41 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   drops from 12 to 8 in the same move, because a ten-letter random name was not even looked
   at: against the hunspell de_DE list the flag rate is 0.15% at eight versus 0.20% at
   twelve, so the precision was never coming from the length. Reproduce with
-  `Build/Scripts/measure-entropy-spam-false-positives.php` (`ac350d3e`).
+  `Build/Scripts/measure-entropy-spam-false-positives.php` (#28).
+
+### 2026-09
+
+**Added**
+
+- An image upload with `properties.multiple` now collects picked files in the browser like
+  a file upload does: `ImageUpload.fluid.html` emits the markup contract for
+  `frontend/file-upload.js` and registers script and stylesheet, so a second pick appends
+  instead of replacing the first selection and a mis-picked photo can be dropped
+  individually before submitting. Server-side multi-upload support (ObjectStorage mapping,
+  thumbnails, `allowRemoval`) was already there — only the client side was missing
+  (`295f7f05`).
+
+**Fixed**
+
+- A failed upload no longer takes the whole request with it.
+  `UploadedFileReferenceConverter::convertFrom()` passed `$e->getCode()` into
+  `Error::__construct()`, which is typed `int` - but `Throwable::getCode()` is an int only
+  by convention: PDOException reports an SQLSTATE string, AWS-based FAL drivers report
+  their own error keys. The error handling then died with "Argument #2 ($code) must be of
+  type int, string given", so the visitor saw an error page instead of a message on the
+  field and the original exception was lost with it - nothing about the real cause reached
+  the log. Numeric codes are kept, anything else falls back to a fixed code, and the
+  exception is logged before the error is built (`295779f8`).
+
+- A file upload with *multiple* no longer breaks the submission. Such an upload arrives as
+  an ObjectStorage, so `RenderFormValueViewHelper` reported the field as `isMultiValue`
+  while `FileUpload::processElementValue()` collapsed the storage into the single string of
+  `valueToString()` - and the field list in both e-mail templates iterates
+  `processedValue` when that flag is set. Every submission carrying a picked file therefore
+  ended in a 500 with "The argument \"each\" was registered with type \"array\", but is of
+  type \"string\"": no mail, no message for the visitor. The processed value is a list of
+  file names now, one row per file, and `isMultiValue` describes that value rather than the
+  raw submission (`bac713ae`).
 
 ### 2026-08
 

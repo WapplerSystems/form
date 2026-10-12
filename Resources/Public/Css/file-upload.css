@@ -3,9 +3,11 @@
  * server-rendered entries for already persisted files and the pending ones
  * added by frontend/file-upload.js.
  *
- * Drop this file into your site's CSS pipeline or let the FileUpload partial
- * include it. Everything is namespaced under `.form-element-fileupload-list`,
- * so it does not collide with the surrounding form layout.
+ * Drop this file into your site's CSS pipeline or let the FileUpload or
+ * ImageUpload partial include it. Everything is namespaced under
+ * `.form-element-fileupload-list`, so it does not collide with the surrounding
+ * form layout. An image upload's list carries that class in addition to its own:
+ * a pending entry has no thumbnail yet and is the same chip as on a file upload.
  *
  * Promoted from wapplersystems/form_extended into the fork.
  */
