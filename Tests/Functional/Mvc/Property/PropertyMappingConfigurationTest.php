@@ -46,7 +46,10 @@ final class PropertyMappingConfigurationTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $request = (new ServerRequest())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
+        // Fork: earlier tests leave a backend request in $GLOBALS['TYPO3_REQUEST'] without a
+        // BE_USER; StoragePermissionsAspect would then fail on folder lookups.
+        unset($GLOBALS['TYPO3_REQUEST']);
+        $request =(new ServerRequest())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
         $this->get(ExtbaseConfigurationManagerInterface::class)->setRequest($request);
 
         $this->subject = $this->get(PropertyMappingConfiguration::class);
