@@ -90,6 +90,9 @@ modules and caches them hard.
 - **Release tags are annotated and `v`-prefixed** (`v14.3.11`). In this repository the
   `v14.3.x` namespace belongs to *fork* releases; core tags are deliberately not pushed to
   `origin`. Tag on `release/v14`, push the tag, Packagist picks it up.
+- **Bump `'version'` in `ext_emconf.php` to the new tag before tagging**, in its own commit
+  on `release/v14`, and tag that commit. Composer mode ignores the file, but it is what the
+  extension manager and non-Composer installs show.
 
 ## Traps this codebase has already hit
 
