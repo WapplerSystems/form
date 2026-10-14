@@ -480,12 +480,20 @@
         <target state="final">Das Formular kann nicht gespeichert werden:</target>
       </trans-unit>
       <trans-unit id="formEditor.modals.validationErrors.dialogTitle" approved="yes">
-        <source>Alert</source>
-        <target state="final">Warnung</target>
+        <source>Form configuration needs attention</source>
+        <target state="final">Formularkonfiguration unvollständig</target>
       </trans-unit>
       <trans-unit id="formEditor.modals.validationErrors.dialogMessage" approved="yes">
-        <source>Some elements are not configured properly. Please check the following elements:</source>
-        <target state="final">Einige Elemente wurden nicht richtig konfiguriert. Bitte prüfen Sie die folgenden Elemente:</target>
+        <source>The following elements need to be configured. Select an element to open its settings:</source>
+        <target state="final">Folgende Elemente müssen noch konfiguriert werden. Wähle ein Element, um seine Einstellungen zu öffnen:</target>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.validationErrors.identifier" approved="yes">
+        <source>Identifier</source>
+        <target state="final">Identifier</target>
+      </trans-unit>
+      <trans-unit id="formEditor.modals.validationErrors.type" approved="yes">
+        <source>Type</source>
+        <target state="final">Typ</target>
       </trans-unit>
       <trans-unit id="formEditor.modals.validationErrors.confirmButton" approved="yes">
         <source>OK</source>

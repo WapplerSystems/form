@@ -269,7 +269,11 @@ function _validationErrorsModalSetup(
         );
         validationErrors?.replaceChildren();
         const validationErrorGroups = new Map<string, HTMLElement>();
-        validationResults[i].validationResults.forEach((propertyValidationResult) => {
+        // Fork: validateFormElement() reports every validated property, valid ones with an
+        // empty result list. List only the properties that actually failed.
+        validationResults[i].validationResults.filter((propertyValidationResult) =>
+          propertyValidationResult.validationResults?.length > 0
+        ).forEach((propertyValidationResult) => {
           const propertyLabel = _getPropertyLabelByPath(formElement, propertyValidationResult.propertyPath);
           const finisherIndex = _getFinisherIndexByPropertyPath(propertyValidationResult.propertyPath);
           const validatorIdentifier = _getValidatorIdentifierByPropertyPath(formElement, propertyValidationResult.propertyPath);
