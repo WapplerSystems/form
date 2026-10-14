@@ -1224,6 +1224,11 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Fixed**
 
+- Form editor: the validation error modal listed every validated property of an
+  affected element, valid ones included, as rows with a label and no message. It now
+  lists only the properties that failed, and its German texts match the reworked
+  modal. `ad8a3ff`
+
 - A form whose email finisher sends in the frontend language (`translation.language: ''`)
   could no longer be saved once it had been opened in the form editor ("No hmac found for
   property options.translation.language"). The editor now keeps the empty value instead of
