@@ -188,6 +188,7 @@ your TYPO3 database permanently. The great folks of Pagemachine created an
 `extension <https://github.com/pagemachine/typo3-formlog>`_ for this.
 
 
+<<<<<<< HEAD
 .. _faq-honeypt-session:
 
 The honeypot does not work with static site caching. What can I do?
@@ -199,6 +200,9 @@ honeypot. Read more :ref:`here<prototypes.prototypeIdentifier.formelementsdefini
 
 
 .. _faq-form-element-default-value:
+=======
+..  _faq-form-element-default-value:
+>>>>>>> 47d74bcc ([BUGFIX] Keep the honeypot name in the form state)
 
 How do I set a default value for my form element?
 =================================================
