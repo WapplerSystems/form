@@ -1231,7 +1231,7 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   value with a snapshot of the field labels; the module lists, searches, exports and
   deletes entries per form. Selectable in the form editor with its own inspector. A
   *Form: clean up submissions* scheduler task enforces a retention window — create it
-  deliberately, it deletes the submitted content itself.
+  deliberately, it deletes the submitted content itself. (#61)
 
 **Fixed**
 
