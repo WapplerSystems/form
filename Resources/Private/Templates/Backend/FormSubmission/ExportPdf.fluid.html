@@ -1,0 +1,37 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:spaceless>
+<style>
+    body { font-family: sans-serif; font-size: 9px; }
+    h1 { font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #999; padding: 3px 4px; text-align: left; vertical-align: top; }
+    th { background: #eee; }
+</style>
+<h1>{formIdentifier}</h1>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>date</th>
+            <f:for each="{columns}" as="label" key="identifier">
+                <th>{label}</th>
+            </f:for>
+        </tr>
+    </thead>
+    <tbody>
+        <f:for each="{rows}" as="row">
+            <tr>
+                <td>{row.uid}</td>
+                <td><f:format.date format="Y-m-d H:i">@{row.crdate}</f:format.date></td>
+                <f:for each="{columns}" as="label" key="identifier">
+                    <td>{row.cells.{identifier}}</td>
+                </f:for>
+            </tr>
+        </f:for>
+    </tbody>
+</table>
+</f:spaceless>
+</html>

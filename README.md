@@ -477,6 +477,7 @@ and `Default` stays in the dropdown.
 | `RedirectToUri` | `TYPO3\CMS\Form\Domain\Finishers\RedirectToUriFinisher` | Redirect to **any** URI (external too). Core's `Redirect` only handles TYPO3 pages via t3-page IDs. Options: `uri`, `statusCode` (default 303). |
 | `FeUser` | `TYPO3\CMS\Form\Domain\Finishers\FeUserFinisher` | Insert/update `fe_users` rows from form values. Built on core's `SaveToDatabase`. Per-element `hashPassword: true` runs the value through `PasswordHashFactory::getDefaultHashInstance('FE')`. Requires `pid` option for the storage page. |
 | `AttachUploadsToObject` | `TYPO3\CMS\Form\Domain\Finishers\AttachUploadsToObjectFinisher` | Attaches uploaded files to an arbitrary DB record via new `sys_file_reference` rows. Pair with `SaveToDatabase` and reference the inserted UID via `{SaveToDatabase.insertedUids.<index>}`. Rebuild of the legacy form_extended finisher: direct ConnectionPool inserts, no fake backend user, no `bypassAccessCheck` hack, supports multiple files per element. |
+| `SaveSubmission` | `TYPO3\CMS\Form\Domain\Finishers\SaveSubmissionFinisher` | Stores the complete submission in `tx_form_submission` (values as JSON plus a snapshot of the field labels, so exports keep their headers after the form changes). Reviewed, searched, exported (CSV; XLSX with `phpoffice/phpspreadsheet`, PDF with `mpdf/mpdf`) and deleted in the **Content → Form submissions** module. Options: `storagePid` (default: the page showing the form), `label`, `storeUploads` (default on), `storeIpHash` (sha256 only, default off). Opt-in per form; retention via the *Form: clean up submissions* scheduler task. |
 
 > **Conditional finishers via variants** (replaces the removed `CopyToSenderEmail`): any
 > finisher can carry a `variants` list inside its `options`, each entry being
@@ -1221,6 +1222,16 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 `WapplerSystems/form`.
 
 ### 2026-10
+
+**Added**
+
+- `SaveSubmission` finisher and the **Content → Form submissions** module, ported from
+  `release/v13`. Until now a v14 form that only sent mails kept nothing: when the
+  notification mail did not arrive, the submission was gone. The finisher stores every
+  value with a snapshot of the field labels; the module lists, searches, exports and
+  deletes entries per form. Selectable in the form editor with its own inspector. A
+  *Form: clean up submissions* scheduler task enforces a retention window — create it
+  deliberately, it deletes the submitted content itself.
 
 **Fixed**
 

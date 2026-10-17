@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="EXT:form/Resources/Private/Language/locallang_submission.xlf" date="2026-07-11T12:00:00Z" product-name="form">
+    <header/>
+    <body>
+      <trans-unit id="tx_form_submission">
+        <source>Form submission</source>
+        <target>Formular-Einsendung</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.crdate">
+        <source>Date</source>
+        <target>Datum</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.form_identifier">
+        <source>Form identifier</source>
+        <target>Formular-Kennung</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.form_label">
+        <source>Form</source>
+        <target>Formular</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.page_uid">
+        <source>Page</source>
+        <target>Seite</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.language_uid">
+        <source>Language</source>
+        <target>Sprache</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.content">
+        <source>Values (JSON)</source>
+        <target>Werte (JSON)</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.field_labels">
+        <source>Field labels (JSON)</source>
+        <target>Feldbezeichnungen (JSON)</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.ip_hash">
+        <source>IP hash</source>
+        <target>IP-Hash</target>
+      </trans-unit>
+      <trans-unit id="tx_form_submission.session_hash">
+        <source>Session hash</source>
+        <target>Sitzungs-Hash</target>
+      </trans-unit>
+      <trans-unit id="module.title">
+        <source>Form submissions</source>
+        <target>Formular-Einsendungen</target>
+      </trans-unit>
+      <trans-unit id="module.headline">
+        <source>Form submissions</source>
+        <target>Formular-Einsendungen</target>
+      </trans-unit>
+      <trans-unit id="module.filter.form">
+        <source>Form</source>
+        <target>Formular</target>
+      </trans-unit>
+      <trans-unit id="module.filter.from">
+        <source>From</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="module.filter.to">
+        <source>To</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="module.truncated">
+        <source>Only the most recent submissions are shown; narrow the filter or export for the full set.</source>
+        <target>Es werden nur die neuesten Einsendungen angezeigt; Filter eingrenzen oder exportieren für den vollständigen Satz.</target>
+      </trans-unit>
+      <trans-unit id="module.empty">
+        <source>No submissions found for this form.</source>
+        <target>Keine Einsendungen für dieses Formular gefunden.</target>
+      </trans-unit>
+      <trans-unit id="module.noForms">
+        <source>No stored submissions yet. Add the "Save submission" finisher to a form to start collecting entries.</source>
+        <target>Noch keine gespeicherten Einsendungen. Fügen Sie den Finisher „Einsendung speichern“ zu einem Formular hinzu, um Einträge zu sammeln.</target>
+      </trans-unit>
+      <trans-unit id="module.confirmDelete">
+        <source>Delete this submission permanently?</source>
+        <target>Diese Einsendung endgültig löschen?</target>
+      </trans-unit>
+      <trans-unit id="module.back">
+        <source>Back to list</source>
+        <target>Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="module.notFound">
+        <source>The requested submission no longer exists.</source>
+        <target>Die angeforderte Einsendung existiert nicht mehr.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

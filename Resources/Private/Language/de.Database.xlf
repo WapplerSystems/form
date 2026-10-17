@@ -2955,6 +2955,58 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Consent field (data protection)</source>
         <target state="final">Einwilligungsfeld (Datenschutz)</target>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.SaveSubmission.label" approved="yes">
+        <source>Save submission</source>
+        <target state="final">Einsendung speichern</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.header.label" approved="yes">
+        <source>Save submission</source>
+        <target state="final">Einsendung speichern</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.label" approved="yes">
+        <source>Storage page</source>
+        <target state="final">Speicherseite</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.buttonLabel" approved="yes">
+        <source>Page</source>
+        <target state="final">Seite</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.description" approved="yes">
+        <source>Page the submission is stored on. Empty stores it on the page that shows the form.</source>
+        <target state="final">Seite, auf der die Einsendung gespeichert wird. Leer: die Seite, auf der das Formular steht.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.label.label" approved="yes">
+        <source>Label in the submissions module</source>
+        <target state="final">Bezeichnung im Einsendungen-Modul</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.label.description" approved="yes">
+        <source>Empty uses the form's own label.</source>
+        <target state="final">Leer: die Bezeichnung des Formulars.</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storeUploads.label" approved="yes">
+        <source>Store references to uploaded files</source>
+        <target state="final">Verweise auf hochgeladene Dateien speichern</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storeIpHash.label" approved="yes">
+        <source>Store a hash of the visitor's IP address</source>
+        <target state="final">Prüfsumme der IP-Adresse speichern</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.label" approved="yes">
+        <source>Save submission</source>
+        <target state="final">Einsendung speichern</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.storagePid.label" approved="yes">
+        <source>Storage page</source>
+        <target state="final">Speicherseite</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.storeUploads.label" approved="yes">
+        <source>Store references to uploaded files</source>
+        <target state="final">Verweise auf hochgeladene Dateien speichern</target>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.storeIpHash.label" approved="yes">
+        <source>Store a hash of the visitor's IP address</source>
+        <target state="final">Prüfsumme der IP-Adresse speichern</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

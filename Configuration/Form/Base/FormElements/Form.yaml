@@ -55,6 +55,12 @@ prototypes:
                 60:
                   value: Confirmation
                   label: formEditor.elements.Form.editor.finishers.Confirmation.label
+                # WapplerSystems fork: persists the submission for the "Form
+                # submissions" module. Opt-in on purpose - storing personal data
+                # has to be a decision per form.
+                70:
+                  value: SaveSubmission
+                  label: formEditor.elements.Form.editor.finishers.SaveSubmission.label
             # WapplerSystems fork: form-wide (cross-field) validators. The form
             # root accepts a `validators` list exactly like any element does and
             # RunFormLevelValidators evaluates it after per-element validation -
@@ -937,6 +943,46 @@ prototypes:
                     templateName: Inspector-VariantsEditor
                     label: formEditor.elements.FormElement.editor.variants.label
                     propertyPath: options.variants
+                  9999:
+                    identifier: removeButton
+                    templateName: Inspector-RemoveElementEditor
+              # WapplerSystems fork: inspector for the SaveSubmission finisher.
+              90:
+                identifier: SaveSubmission
+                editors:
+                  100:
+                    identifier: header
+                    templateName: Inspector-CollectionElementHeaderEditor
+                    label: formEditor.elements.Form.finisher.SaveSubmission.editor.header.label
+                  200:
+                    identifier: storagePid
+                    templateName: Inspector-Typo3WinBrowserEditor
+                    label: formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.label
+                    buttonLabel: formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.buttonLabel
+                    browsableType: pages
+                    iconIdentifier: apps-pagetree-page-default
+                    propertyPath: options.storagePid
+                    description: formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.description
+                    propertyValidatorsMode: OR
+                    propertyValidators:
+                      10: IntegerOrEmpty
+                      20: FormElementIdentifierWithinCurlyBracesExclusive
+                  300:
+                    identifier: label
+                    templateName: Inspector-TextEditor
+                    label: formEditor.elements.Form.finisher.SaveSubmission.editor.label.label
+                    propertyPath: options.label
+                    description: formEditor.elements.Form.finisher.SaveSubmission.editor.label.description
+                  400:
+                    identifier: storeUploads
+                    templateName: Inspector-CheckboxEditor
+                    label: formEditor.elements.Form.finisher.SaveSubmission.editor.storeUploads.label
+                    propertyPath: options.storeUploads
+                  500:
+                    identifier: storeIpHash
+                    templateName: Inspector-CheckboxEditor
+                    label: formEditor.elements.Form.finisher.SaveSubmission.editor.storeIpHash.label
+                    propertyPath: options.storeIpHash
                   9999:
                     identifier: removeButton
                     templateName: Inspector-RemoveElementEditor

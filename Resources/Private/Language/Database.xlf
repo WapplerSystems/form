@@ -2204,6 +2204,45 @@ If you need higher values contact your administrator for help.
       <trans-unit id="formEditor.elements.Checkbox.editor.isConsentField.label">
         <source>Consent field (data protection)</source>
       </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.finishers.SaveSubmission.label">
+        <source>Save submission</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.header.label">
+        <source>Save submission</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.label">
+        <source>Storage page</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.buttonLabel">
+        <source>Page</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storagePid.description">
+        <source>Page the submission is stored on. Empty stores it on the page that shows the form.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.label.label">
+        <source>Label in the submissions module</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.label.description">
+        <source>Empty uses the form's own label.</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storeUploads.label">
+        <source>Store references to uploaded files</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.finisher.SaveSubmission.editor.storeIpHash.label">
+        <source>Store a hash of the visitor's IP address</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.label">
+        <source>Save submission</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.storagePid.label">
+        <source>Storage page</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.storeUploads.label">
+        <source>Store references to uploaded files</source>
+      </trans-unit>
+      <trans-unit id="tt_content.finishersDefinition.SaveSubmission.storeIpHash.label">
+        <source>Store a hash of the visitor's IP address</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>
