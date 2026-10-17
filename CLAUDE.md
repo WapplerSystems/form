@@ -101,7 +101,7 @@ Each of these cost a debugging session; the fix is in the code, the reason is he
 - **GET forms in backend modules lose the request token.** A GET submission replaces the
   action's query string, so the token is gone, `RouteDispatcher` throws
   `MissingRequestTokenException` and the login route renders the *whole backend* inside the
-  module frame. Use `AbstractFormLogController::buildFilterFormTarget()`: bare path as
+  module frame. Use `FilterFormTargetTrait::buildFilterFormTarget()`: bare path as
   action, every query parameter re-emitted as a hidden field.
 - **`selected="{f:if(condition: …)}"` always selects.** An empty attribute value still
   renders `selected=""`, which HTML treats as selected — so every option is selected and
