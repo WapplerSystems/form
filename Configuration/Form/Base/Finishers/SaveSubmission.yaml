@@ -1,0 +1,42 @@
+# WapplerSystems fork: persists the complete submission into tx_form_submission
+# for the "Form submissions" backend module. The inspector editors live in
+# FormElements/Form.yaml (propertyCollections.finishers), like those of every
+# other finisher.
+prototypes:
+  standard:
+    finishersDefinition:
+      SaveSubmission:
+        implementationClassName: TYPO3\CMS\Form\Domain\Finishers\SaveSubmissionFinisher
+        formEditor:
+          iconIdentifier: form-finisher
+          label: formEditor.elements.Form.finisher.SaveSubmission.editor.header.label
+          predefinedDefaults:
+            options:
+              storagePid: ''
+              storeUploads: true
+              storeIpHash: false
+              label: ''
+        FormEngine:
+          label: tt_content.finishersDefinition.SaveSubmission.label
+          elements:
+            storagePid:
+              label: tt_content.finishersDefinition.SaveSubmission.storagePid.label
+              config:
+                type: group
+                allowed: pages
+                size: 1
+                minitems: 0
+                maxitems: 1
+                fieldWizard:
+                  recordsOverview:
+                    disabled: 1
+            storeUploads:
+              label: tt_content.finishersDefinition.SaveSubmission.storeUploads.label
+              config:
+                type: check
+                default: 1
+            storeIpHash:
+              label: tt_content.finishersDefinition.SaveSubmission.storeIpHash.label
+              config:
+                type: check
+                default: 0

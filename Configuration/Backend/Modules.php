@@ -2,6 +2,7 @@
 
 use TYPO3\CMS\Form\Controller\FormEditorController;
 use TYPO3\CMS\Form\Controller\FormManagerController;
+use TYPO3\CMS\Form\Controller\FormSubmissionController;
 use TYPO3\CMS\Form\Controller\ConsentLogController;
 use TYPO3\CMS\Form\Controller\MailLogController;
 use TYPO3\CMS\Form\Controller\ValidationStatsController;
@@ -71,6 +72,26 @@ return [
             ],
             ConsentLogController::class => [
                 'index', 'show',
+            ],
+        ],
+    ],
+    // WapplerSystems fork: review UI for tx_form_submission, written by the
+    // SaveSubmission finisher. A second-level module of its own for the same
+    // reason as form_log: as a child of the form builder, BackendModuleValidator
+    // would turn it into the builder's landing page. It sits under "Content"
+    // because the people who process submissions are editors, not admins.
+    'form_submissions' => [
+        'parent' => 'content',
+        'position' => ['after' => 'web_FormFormbuilder'],
+        'access' => 'user',
+        'path' => '/module/form/submissions',
+        'iconIdentifier' => 'content-form',
+        'labels' => 'form.modules.form_submissions',
+        'inheritNavigationComponentFromMainModule' => false,
+        'extensionName' => 'Form',
+        'controllerActions' => [
+            FormSubmissionController::class => [
+                'index', 'show', 'delete', 'export',
             ],
         ],
     ],

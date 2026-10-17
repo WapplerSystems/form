@@ -1,0 +1,47 @@
+<f:if condition="{paginator.numberOfPages} > 1">
+    <nav class="pagination-wrap">
+        <ul class="pagination">
+            <f:if condition="{pagination.previousPageNumber} && {pagination.previousPageNumber} >= {pagination.firstPageNumber}">
+                <f:then>
+                    <li class="page-item">
+                        <f:link.action action="index" arguments="{page: 1, form: form, searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" class="page-link">
+                            <core:icon identifier="actions-view-paging-first" />
+                        </f:link.action>
+                    </li>
+                    <li class="page-item">
+                        <f:link.action action="index" arguments="{page: pagination.previousPageNumber, form: form, searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" class="page-link">
+                            <core:icon identifier="actions-view-paging-previous" />
+                        </f:link.action>
+                    </li>
+                </f:then>
+                <f:else>
+                    <li class="page-item disabled"><span class="page-link"><core:icon identifier="empty-empty"/></span></li>
+                    <li class="page-item disabled"><span class="page-link"><core:icon identifier="empty-empty"/></span></li>
+                </f:else>
+            </f:if>
+            <li class="page-item">
+                <span class="page-link">
+                    {pagination.startRecordNumber} - {pagination.endRecordNumber} / {paginator.totalAmountOfItems}
+                </span>
+            </li>
+            <f:if condition="{pagination.nextPageNumber} && {pagination.nextPageNumber} <= {pagination.lastPageNumber}">
+                <f:then>
+                    <li class="page-item">
+                        <f:link.action action="index" arguments="{page: pagination.nextPageNumber, form: form, searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" class="page-link">
+                            <core:icon identifier="actions-view-paging-next" />
+                        </f:link.action>
+                    </li>
+                    <li class="page-item">
+                        <f:link.action action="index" arguments="{page: pagination.lastPageNumber, form: form, searchTerm: searchTerm, dateFrom: dateFrom, dateTo: dateTo}" class="page-link">
+                            <core:icon identifier="actions-view-paging-last" />
+                        </f:link.action>
+                    </li>
+                </f:then>
+                <f:else>
+                    <li class="page-item disabled"><span class="page-link"><core:icon identifier="empty-empty"/></span></li>
+                    <li class="page-item disabled"><span class="page-link"><core:icon identifier="empty-empty"/></span></li>
+                </f:else>
+            </f:if>
+        </ul>
+    </nav>
+</f:if>
