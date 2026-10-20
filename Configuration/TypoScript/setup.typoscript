@@ -26,3 +26,15 @@ lib.tx_form.contentElementRendering {
     source.current = 1
     dontCheckPid = 1
 }
+
+# Fork: target page of a RedirectFinisher with a conversion tag
+# (?form_conversion=<tag>, see ConversionTagResolver). conversion.js turns the
+# parameter into a "form:conversion" DOM event. The confirmation output adds
+# the script itself; here it is only needed when the parameter is present.
+# The condition is part of the page cache identifier, and the parameter is
+# excluded from the cHash, so the target page is still served from cache.
+# Assumes the page object is called "page", like the TYPO3 default.
+[traverse(request.getQueryParams(), 'form_conversion') != '']
+page.includeJSFooter.formConversion = EXT:form/Resources/Public/JavaScript/frontend/conversion.js
+page.includeJSFooter.formConversion.defer = 1
+[end]

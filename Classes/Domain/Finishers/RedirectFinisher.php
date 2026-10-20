@@ -20,6 +20,7 @@ namespace TYPO3\CMS\Form\Domain\Finishers;
 use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Form\Service\ConversionTagResolver;
 
 /**
  * This finisher redirects to another Controller.
@@ -36,6 +37,9 @@ class RedirectFinisher extends AbstractFinisher
         'additionalParameters' => '',
         'statusCode' => 303,
         'fragment' => '',
+        // Fork: append the form's conversion tag as form_conversion parameter,
+        // see ConversionTagResolver. Set to false to redirect without it.
+        'appendConversionTag' => true,
     ];
 
     /**
@@ -49,11 +53,29 @@ class RedirectFinisher extends AbstractFinisher
         $additionalParameters = $this->parseOption('additionalParameters');
         $additionalParameters = is_string($additionalParameters) ? $additionalParameters : '';
         $additionalParameters = '&' . ltrim($additionalParameters, '&');
+        $additionalParameters .= $this->conversionTagParameter();
         $statusCode = (int)$this->parseOption('statusCode');
         $fragment = (string)$this->parseOption('fragment');
 
         $this->finisherContext->cancel();
         $this->redirect($pageUid, $additionalParameters, $fragment, $statusCode);
+    }
+
+    /**
+     * Fork: the form's conversion tag as additional query parameter, so the
+     * target page can announce the successful submission the way the
+     * confirmation output does with its data-form-conversion attribute.
+     * The parameter is excluded from the cHash in ext_localconf.php.
+     */
+    protected function conversionTagParameter(): string
+    {
+        $append = $this->parseOption('appendConversionTag');
+        if ($append === false || $append === 0 || $append === '0' || $append === 'false') {
+            return '';
+        }
+        $tag = GeneralUtility::makeInstance(ConversionTagResolver::class)
+            ->resolve($this->finisherContext->getFormRuntime());
+        return $tag === null ? '' : '&' . ConversionTagResolver::QUERY_PARAMETER . '=' . rawurlencode($tag);
     }
 
     /**

@@ -31,6 +31,13 @@ if (empty($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['form-content'])) {
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['form'] = FormDefinitionDataHandlerHook::class;
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['form'] = FormDefinitionDataHandlerHook::class;
 
+// Fork: the RedirectFinisher appends form_conversion=<tag> (ConversionTagResolver).
+// Only conversion.js reads it; without this exclusion a target page with
+// enforced cHash validation would answer 404.
+if (!in_array('form_conversion', $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['excludedParameters'] ?? [], true)) {
+    $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['excludedParameters'][] = 'form_conversion';
+}
+
 // FE file upload processing
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['afterFormStateInitialized'][1613296803] = PropertyMappingConfiguration::class;
 

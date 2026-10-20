@@ -25,6 +25,7 @@ use TYPO3\CMS\Fluid\View\FluidViewAdapter;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Form\Service\ConversionTagResolver;
 
 /**
  * A finisher that outputs a given text
@@ -122,6 +123,9 @@ class ConfirmationFinisher extends AbstractFinisher
             'finisherVariableProvider' => $this->finisherContext->getFinisherVariableProvider(),
             'message' => $message,
             'isPreparedMessage' => !empty($contentElementUid),
+            // Fork: stable name for analytics, rendered as data-form-conversion.
+            // Resolved via makeInstance so subclasses keep the upstream constructor.
+            'conversionTag' => GeneralUtility::makeInstance(ConversionTagResolver::class)->resolve($formRuntime),
         ]);
         return $view->render($options['templateName']);
     }
