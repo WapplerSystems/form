@@ -1289,6 +1289,13 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Added**
 
+- **Conversion tag** — `renderingOptions.conversionTag` (also in the form editor) names a
+  successful submission for analytics, independent of the content element uid in the
+  runtime identifier. The confirmation output carries it as `data-form-conversion`, the
+  `Redirect` finisher appends `form_conversion=…` to the target URL, and `conversion.js`
+  fires one `form:conversion` DOM event for both. `form_conversion` is excluded from the
+  cHash; `BeforeConversionTagRenderedEvent` replaces or suppresses the tag per submission.
+  (#63, 0190a425)
 - `SaveSubmission` finisher and the **Content → Form submissions** module, ported from
   `release/v13`. Until now a v14 form that only sent mails kept nothing: when the
   notification mail did not arrive, the submission was gone. The finisher stores every
