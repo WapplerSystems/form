@@ -643,6 +643,13 @@
       <trans-unit id="formEditor.elements.FileUploadMixin.validators.Count.editor.header.label">
         <source>Number of uploaded files</source>
       </trans-unit>
+      <!-- WapplerSystems fork: conversion tag -->
+      <trans-unit id="formEditor.elements.Form.editor.conversionTag.label">
+        <source>Conversion tag</source>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.conversionTag.description">
+        <source>Optional. After a successful submission the frontend receives a "form:conversion" event with this name, e.g. for a goal in Matomo. Letters, digits and _ . : - only, at most 64 characters.</source>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.submitButtonLabel.label">
         <source>Submit label</source>
       </trans-unit>

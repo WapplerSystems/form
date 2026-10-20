@@ -800,6 +800,15 @@
         <source>Number of uploaded files</source>
         <target state="final">Anzahl hochgeladener Dateien</target>
       </trans-unit>
+      <!-- WapplerSystems fork: conversion tag -->
+      <trans-unit id="formEditor.elements.Form.editor.conversionTag.label" approved="yes">
+        <source>Conversion tag</source>
+        <target state="final">Conversion-Tag</target>
+      </trans-unit>
+      <trans-unit id="formEditor.elements.Form.editor.conversionTag.description" approved="yes">
+        <source>Optional. After a successful submission the frontend receives a "form:conversion" event with this name, e.g. for a goal in Matomo. Letters, digits and _ . : - only, at most 64 characters.</source>
+        <target state="final">Optional. Nach erfolgreichem Absenden erhält das Frontend ein Ereignis „form:conversion“ mit diesem Namen, etwa für ein Ziel in Matomo. Nur Buchstaben, Ziffern und _ . : -, höchstens 64 Zeichen.</target>
+      </trans-unit>
       <trans-unit id="formEditor.elements.Form.editor.submitButtonLabel.label" approved="yes">
         <source>Submit label</source>
         <target state="final">Beschriftung des Absenden-Knopfes</target>

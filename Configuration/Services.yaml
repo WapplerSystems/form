@@ -18,6 +18,11 @@ services:
       - '@TYPO3\CMS\Form\DependencyInjection\FormYamlCollectorConfigurator'
       - 'configure'
 
+  # Fetched with makeInstance by the Confirmation and Redirect finishers, whose
+  # upstream constructors stay untouched.
+  TYPO3\CMS\Form\Service\ConversionTagResolver:
+    public: true
+
   TYPO3\CMS\Form\SoftReference\FormPersistenceIdentifierSoftReferenceParser:
     tags:
       - name: softreference.parser

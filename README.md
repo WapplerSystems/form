@@ -243,6 +243,13 @@ for database-stored forms too.
   and lists each pending file with a *Remove* button — see
   [Multi-file upload](#multi-file-upload-frontend).
 
+- **Conversion tag** — A form names its successful submission with
+  `renderingOptions.conversionTag` (also a field in the form editor). The confirmation
+  output carries it as `data-form-conversion`, a redirect target receives it as
+  `?form_conversion=…`, and `conversion.js` turns both into one `form:conversion` DOM
+  event for Matomo, a GTM `dataLayer` or anything else — see
+  [Conversion tag](#conversion-tag-analytics-hook).
+
 - **`StaticText` renders a paragraph, not an `h2`** — the header of a `StaticText` element
   is a `<p class="form-label">`. A form does not know the document outline of the page it
   is placed on, so a hard-coded `h2` competes with the page's own heading structure and
@@ -346,10 +353,67 @@ are distinct from the upstream ones, so the two sets never collide.
 | `AfterFileUploadedEvent` | `UploadedFileReferenceConverter::importUploadedResource()` | `File $file`, `array $uploadInfo` | Fires right after an uploaded file is stored in FAL (before the FileReference is built). Use for virus scanning, EXIF/metadata stripping, content policy. A listener that **throws** aborts property mapping and thereby rejects the upload. |
 | `AfterRenderableIsValidatedEvent` | `FormRuntime::mapAndValidatePage()` (per field) | `RenderableInterface`, `mixed $value`, `FormRuntime`, `RequestInterface`, `Result $validationResult` | Per-renderable companion to upstream `BeforeRenderableIsValidatedEvent`; fires after a field's processing rule ran. Inspect or add field-scoped errors via `$event->validationResult->addError(...)`. Fires only for renderables that have a processing rule. For the page aggregate use `AfterFormIsValidatedEvent`. |
 | `AfterFormRenderedEvent` | `FormRuntime::render()` | `FormRuntime`, **mutable** `string $renderedContent` | Fires after the renderer produced the form markup (page-render path only, not finisher output). Listeners may rewrite/wrap the markup — tracking pixel, JSON island for client-side logic, CSP nonces. FormRuntime returns the modified `$renderedContent`. |
+| `BeforeConversionTagRenderedEvent` | `ConversionTagResolver::resolve()` (Confirmation and Redirect finisher) | **mutable** `?string $conversionTag`, `FormRuntime` | Replace the configured conversion tag, e.g. derive it from a submitted value (`lead-b2b` vs `lead-b2c`), or set it to `null` to suppress the announcement. The result is validated like the configured tag. |
 
 The Before/After finisher events fire generically for every finisher inheriting
 `AbstractFinisher` — Email, Redirect, Confirmation, SaveToDatabase, FlashMessage,
 DeleteUploads, Closure and any custom finishers. No need to subclass per finisher type.
+
+### Conversion tag (analytics hook)
+
+Analytics wants to know that a form was **successfully** submitted, under a name that does
+not change between environments. Neither comes for free: the runtime identifier carries the
+content element uid (`upgradeAnfrage-13212` locally, `-12966` live), and a click listener on
+the submit button also counts submissions the server rejects.
+
+A form therefore names its conversion:
+
+```yaml
+renderingOptions:
+  conversionTag: upgrade-request
+```
+
+The tag is announced to the frontend in one of two ways, depending on the finisher that
+ends the submission:
+
+| Finisher | Announcement |
+| --- | --- |
+| `Confirmation` | Wrapper `<div … data-form-conversion="upgrade-request">`; the template adds `conversion.js` itself. The output exists only after a successful submission. |
+| `Redirect` | `&form_conversion=upgrade-request` is appended to the target URL (after `additionalParameters`). Switch off per finisher with `appendConversionTag: false`. |
+
+`Resources/Public/JavaScript/frontend/conversion.js` turns both into the same DOM event and
+removes the query parameter from the address bar with `history.replaceState`, so a reload or
+a shared link does not count twice:
+
+```js
+document.addEventListener('form:conversion', function (event) {
+  // event.detail = {tag: 'upgrade-request', source: 'confirmation' | 'redirect'}
+  window._paq = window._paq || [];
+  window._paq.push(['trackEvent', 'Form', 'submitted', event.detail.tag]);
+});
+```
+
+Register the listener inline anywhere on the page: the script is loaded with `defer` and
+runs after the document is parsed. Every announced tag is also kept in
+`window.formConversions` for code that starts later.
+
+Details:
+
+- **Accepted characters:** `A–Z a–z 0–9 _ . : -`, at most 64, not starting with a symbol
+  (`ConversionTagResolver::PATTERN`). The tag ends up in markup, a URL and third-party
+  analytics; anything else is dropped, not escaped.
+- **cHash:** `form_conversion` is added to `FE.cacheHash.excludedParameters` in
+  `ext_localconf.php`. Without it a target page with enforced cHash validation answers 404.
+  The target page keeps being served from the page cache.
+- **Script on the redirect target:** included by a TypoScript condition on the parameter in
+  `Configuration/TypoScript/setup.typoscript` (`page.includeJSFooter.formConversion`). It
+  assumes the page object is called `page`; a site with a different name includes the
+  script itself.
+- **Not tamper-proof:** anyone can open `/thank-you/?form_conversion=upgrade-request`. That
+  is no worse than a goal on a thank-you URL; signing the tag would not be worth the
+  complexity. Use the tag for counting, not for anything that grants something.
+- **Dynamic tags:** `BeforeConversionTagRenderedEvent` lets a listener replace or suppress
+  the tag per submission.
 
 ### Frontend live-conditions (same-page variants)
 
@@ -1225,6 +1289,13 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
 
 **Added**
 
+- **Conversion tag** — `renderingOptions.conversionTag` (also in the form editor) names a
+  successful submission for analytics, independent of the content element uid in the
+  runtime identifier. The confirmation output carries it as `data-form-conversion`, the
+  `Redirect` finisher appends `form_conversion=…` to the target URL, and `conversion.js`
+  fires one `form:conversion` DOM event for both. `form_conversion` is excluded from the
+  cHash; `BeforeConversionTagRenderedEvent` replaces or suppresses the tag per submission.
+  (#63, 0190a425)
 - `SaveSubmission` finisher and the **Content → Form submissions** module, ported from
   `release/v13`. Until now a v14 form that only sent mails kept nothing: when the
   notification mail did not arrive, the submission was gone. The finisher stores every

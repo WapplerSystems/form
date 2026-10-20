@@ -19,8 +19,10 @@ namespace TYPO3\CMS\Form\Tests\Unit\Domain\Finishers;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\EventDispatcher\NoopEventDispatcher;
 use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
@@ -29,6 +31,7 @@ use TYPO3\CMS\Form\Domain\Model\FormDefinition;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\FormElements\ProcessableValueFormElementInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
+use TYPO3\CMS\Form\Service\ConversionTagResolver;
 use TYPO3\CMS\Form\Service\FormValueResolver;
 use TYPO3\CMS\Form\Service\TranslationService;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -68,6 +71,7 @@ final class RedirectFinisherTest extends UnitTestCase
             'pageUid' => $pageUid,
         ]);
         $redirectFinisherMock->injectTranslationService($translationServiceMock);
+        GeneralUtility::addInstance(ConversionTagResolver::class, new ConversionTagResolver(new NoopEventDispatcher()));
         try {
             $redirectFinisherMock->execute($finisherContextMock);
             self::fail('RedirectFinisher did not throw expected exception.');
@@ -132,6 +136,7 @@ final class RedirectFinisherTest extends UnitTestCase
         ]);
         $redirectFinisherMock->injectTranslationService($translationServiceStub);
         $redirectFinisherMock->injectFormValueResolver(new FormValueResolver($translationServiceStub));
+        GeneralUtility::addInstance(ConversionTagResolver::class, new ConversionTagResolver(new NoopEventDispatcher()));
 
         try {
             $redirectFinisherMock->execute($finisherContextMock);
@@ -141,6 +146,79 @@ final class RedirectFinisherTest extends UnitTestCase
                 'https://site.test/?id=3&department=sales#sales',
                 $e->getResponse()->getHeader('Location')[0]
             );
+        }
+    }
+
+    public static function conversionTagIsAppendedDataProvider(): array
+    {
+        return [
+            'tag appended after existing parameters' => [
+                ['additionalParameters' => 'department=sales'],
+                'upgrade-anfrage',
+                'https://site.test/?id=3&department=sales&form_conversion=upgrade-anfrage',
+            ],
+            'tag appended without other parameters' => [
+                [],
+                'lead:form_v2.1',
+                'https://site.test/?id=3&&form_conversion=lead%3Aform_v2.1',
+            ],
+            'switched off per finisher' => [
+                ['appendConversionTag' => false],
+                'upgrade-anfrage',
+                'https://site.test/?id=3&',
+            ],
+            'form without tag' => [
+                [],
+                null,
+                'https://site.test/?id=3&',
+            ],
+            'invalid tag is dropped' => [
+                [],
+                'not valid',
+                'https://site.test/?id=3&',
+            ],
+        ];
+    }
+
+    #[DataProvider('conversionTagIsAppendedDataProvider')]
+    #[Test]
+    public function conversionTagIsAppended(array $options, ?string $conversionTag, string $expectedLocation): void
+    {
+        $contentObjectRendererStub = self::createStub(ContentObjectRenderer::class);
+        $contentObjectRendererStub->method('createUrl')->willReturnCallback(static function (array $conf): string {
+            return 'https://site.test/?id=' . $conf['parameter'] . $conf['additionalParams'];
+        });
+        $serverRequest = (new ServerRequest())
+            ->withAttribute('extbase', new ExtbaseRequestParameters())
+            ->withAttribute('currentContentObject', $contentObjectRendererStub);
+
+        $formDefinitionStub = self::createStub(FormDefinition::class);
+        $formDefinitionStub->method('getRenderingOptions')->willReturn(
+            $conversionTag === null ? [] : [ConversionTagResolver::RENDERING_OPTION => $conversionTag]
+        );
+        $formRuntimeStub = self::createStub(FormRuntime::class);
+        $formRuntimeStub->method('getFormDefinition')->willReturn($formDefinitionStub);
+
+        $finisherContextStub = self::createStub(FinisherContext::class);
+        $finisherContextStub->method('getRequest')->willReturn(new Request($serverRequest));
+        $finisherContextStub->method('getFormRuntime')->willReturn($formRuntimeStub);
+
+        $translationServiceStub = self::createStub(TranslationService::class);
+        $translationServiceStub->method('translateFinisherOption')->willReturnArgument(3);
+
+        $redirectFinisherMock = $this->getAccessibleMock(RedirectFinisher::class, null, [], '', false);
+        $redirectFinisherMock->_set('options', ['pageUid' => 3] + $options);
+        $redirectFinisherMock->injectTranslationService($translationServiceStub);
+        if (($options['appendConversionTag'] ?? true) !== false) {
+            // Switched off, the finisher must not even resolve the tag.
+            GeneralUtility::addInstance(ConversionTagResolver::class, new ConversionTagResolver(new NoopEventDispatcher()));
+        }
+
+        try {
+            $redirectFinisherMock->execute($finisherContextStub);
+            self::fail('RedirectFinisher did not throw expected exception.');
+        } /** @noinspection PhpRedundantCatchClauseInspection */ catch (PropagateResponseException $e) {
+            self::assertSame($expectedLocation, $e->getResponse()->getHeader('Location')[0]);
         }
     }
 

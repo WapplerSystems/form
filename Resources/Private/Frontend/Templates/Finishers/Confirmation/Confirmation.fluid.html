@@ -1,5 +1,22 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:formvh="http://typo3.org/ns/TYPO3/CMS/Form/ViewHelpers" data-namespace-typo3-fluid="true">
-<div id="{form.identifier}">
-    {message -> f:sanitize.html() -> f:transform.html()}
-</div>
+<f:comment>
+    Fork: with a conversion tag (renderingOptions.conversionTag, see
+    ConversionTagResolver) the wrapper carries data-form-conversion and
+    conversion.js announces it as "form:conversion" DOM event. This output only
+    exists after a successful submission, so the event never fires for a
+    rejected one.
+</f:comment>
+<f:if condition="{conversionTag}">
+    <f:then>
+        <div id="{form.identifier}" data-form-conversion="{conversionTag}">
+            {message -> f:sanitize.html() -> f:transform.html()}
+        </div>
+        <f:asset.script identifier="form-conversion" src="EXT:form/Resources/Public/JavaScript/frontend/conversion.js" defer="defer" />
+    </f:then>
+    <f:else>
+        <div id="{form.identifier}">
+            {message -> f:sanitize.html() -> f:transform.html()}
+        </div>
+    </f:else>
+</f:if>
 </html>

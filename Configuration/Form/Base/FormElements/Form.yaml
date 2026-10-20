@@ -32,6 +32,15 @@ prototypes:
               templateName: Inspector-TextEditor
               label: formEditor.elements.Form.editor.submitButtonLabel.label
               propertyPath: renderingOptions.submitButtonLabel
+            # Fork: stable name under which a successful submission is
+            # announced to the frontend (ConversionTagResolver).
+            310:
+              identifier: conversionTag
+              templateName: Inspector-TextEditor
+              label: formEditor.elements.Form.editor.conversionTag.label
+              description: formEditor.elements.Form.editor.conversionTag.description
+              propertyPath: renderingOptions.conversionTag
+              doNotSetIfPropertyValueIsEmpty: true
             900:
               identifier: finishers
               templateName: Inspector-FinishersEditor
