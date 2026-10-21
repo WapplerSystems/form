@@ -58,17 +58,23 @@ ExtensionUtility::configurePlugin(
 // win even when a downloaded "form" language pack (var/labels/de/form/...) is
 // present — the pack would otherwise win and the fork's added/changed labels
 // would fall back to English. Same pattern for all label files the fork extends.
-$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/Database.xlf'][]
+// release/v13: the key is SYS/locallangXMLOverride. LANG/resourceOverrides is
+// the v14 name; 13.4 never reads it, so these overrides were dead and every
+// fork-only label (form-level validator messages among them) showed in English
+// on any site with a downloaded "form" language pack.
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/Database.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.Database.xlf';
-$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang.xlf'][]
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/locallang.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.locallang.xlf';
-$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang_module.xlf'][]
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/locallang_module.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.locallang_module.xlf';
-$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang_formManager_javascript.xlf'][]
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/locallang_formManager_javascript.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.locallang_formManager_javascript.xlf';
-$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/locallang_formEditor_failSafeErrorHandling_javascript.xlf'][]
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/locallang_formEditor_failSafeErrorHandling_javascript.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.locallang_formEditor_failSafeErrorHandling_javascript.xlf';
 // The v14 per-module label files had no override registered at all, so German
 // module titles could not be overridden even where a de.* file existed.
-$GLOBALS['TYPO3_CONF_VARS']['LANG']['resourceOverrides']['de']['EXT:form/Resources/Private/Language/Modules/form_log.xlf'][]
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/Modules/form_log.xlf'][]
     = 'EXT:form/Resources/Private/Language/Modules/de.form_log.xlf';
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/locallang_submission.xlf'][]
+    = 'EXT:form/Resources/Private/Language/de.locallang_submission.xlf';
