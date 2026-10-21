@@ -26,7 +26,7 @@
         <f:variable name="multiUploadData" value="{}"/>
         <f:variable name="uploadedFileList" value=""/>
         <f:if condition="{element.properties.multiple}">
-            <f:variable name="uploadRemoveLabel"><f:translate key="upload.remove" domain="form" default="Remove"/></f:variable>
+            <f:variable name="uploadRemoveLabel"><f:translate key="LLL:EXT:form/Resources/Private/Language/locallang.xlf:upload.remove" default="Remove"/></f:variable>
             <f:variable name="multiUploadData" value="{form-multi-upload: '1', form-multi-upload-list: '{element.uniqueIdentifier}-preview', remove-label: '{uploadRemoveLabel}'}"/>
         </f:if>
 
@@ -66,7 +66,7 @@
                                                     fileReference="{file}"
                                                     fileIndex="{iterator.index}"
                                                 />
-                                                <f:translate key="upload.remove" domain="form" default="Remove" />
+                                                <f:translate key="LLL:EXT:form/Resources/Private/Language/locallang.xlf:upload.remove" default="Remove" />
                                                 <span class="visually-hidden">{file.originalResource.originalFile.name}</span>
                                             </label>
                                         </f:if>
@@ -84,7 +84,7 @@
                                             fileReference="{resource}"
                                             fileIndex="0"
                                         />
-                                        <f:translate key="upload.remove" domain="form" default="Remove" />
+                                        <f:translate key="LLL:EXT:form/Resources/Private/Language/locallang.xlf:upload.remove" default="Remove" />
                                         <span class="visually-hidden">{resource.originalResource.originalFile.name}</span>
                                     </label>
                                 </f:if>

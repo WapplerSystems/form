@@ -54,6 +54,46 @@ final class BackendTemplateLabelsTest extends UnitTestCase
         return $files;
     }
 
+    /**
+     * Every template, frontend included.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function allTemplateProvider(): array
+    {
+        $root = dirname(__DIR__, 3) . '/Resources/Private';
+        $files = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS),
+        );
+        foreach ($iterator as $file) {
+            if ($file->getExtension() === 'html') {
+                $files[substr($file->getPathname(), strlen($root) + 1)] = [$file->getPathname()];
+            }
+        }
+        ksort($files);
+        return $files;
+    }
+
+    /**
+     * The `domain` argument of f:translate is v14-only. Unlike a domain-style
+     * key, which degrades to an empty string, 13.4 rejects the unknown argument
+     * while parsing the template: "Undeclared arguments passed to ViewHelper
+     * TranslateViewHelper: domain" (#1773227091). The upload partials carried it
+     * over from release/v14, so every form with a FileUpload or ImageUpload
+     * element ended in an exception page.
+     */
+    #[Test]
+    #[DataProvider('allTemplateProvider')]
+    public function noTranslateCallPassesV14DomainArgument(string $path): void
+    {
+        self::assertDoesNotMatchRegularExpression(
+            '/<f:translate\b[^>]*\sdomain\s*=|f:translate\([^)]*\bdomain\s*:/',
+            (string)file_get_contents($path),
+            sprintf('%s passes "domain" to f:translate, which 13.4 does not accept.', basename($path)),
+        );
+    }
+
     #[Test]
     #[DataProvider('backendTemplateProvider')]
     public function noTemplateUsesV14LabelDomains(string $path): void

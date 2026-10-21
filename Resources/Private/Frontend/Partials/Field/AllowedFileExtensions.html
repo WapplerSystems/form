@@ -10,6 +10,6 @@
     MimeType validator actually accepts.
 </f:comment>
 <f:if condition="{allowedFileExtensions}">
-    <span id="{element.uniqueIdentifier}-allowed" class="{element.rootForm.renderingOptions.fieldProperties.descriptionClassAttribute} form-element-fileupload-allowed"><f:translate key="upload.allowedFileExtensions" domain="form" default="Allowed file extensions" />: {allowedFileExtensions -> f:join(separator: ', ')}</span>
+    <span id="{element.uniqueIdentifier}-allowed" class="{element.rootForm.renderingOptions.fieldProperties.descriptionClassAttribute} form-element-fileupload-allowed"><f:translate key="LLL:EXT:form/Resources/Private/Language/locallang.xlf:upload.allowedFileExtensions" default="Allowed file extensions" />: {allowedFileExtensions -> f:join(separator: ', ')}</span>
 </f:if>
 </html>
