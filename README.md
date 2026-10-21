@@ -1236,6 +1236,13 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
   editor.
 - FAL uploads cannot be exercised by functional tests here — 13.4's `ResourceStorage`
   requires `is_uploaded_file()` — so those cases are skipped, not failing.
+- Label overrides are registered under `SYS/locallangXMLOverride`; `LANG/resourceOverrides`
+  is the v14 key and 13.4 never reads it. Before this, a downloaded `form` language pack
+  shadowed the fork's own German labels, and the form-level validator messages showed in
+  English (`6eb38fa1`).
+- `f:translate` takes no `domain` argument on 13.4 and rejects it while parsing; the upload
+  partials used it and took down every form with a `FileUpload` or `ImageUpload` element.
+  A unit test now guards all templates against it (`ba413e47`).
 
 ### 2026-09
 
