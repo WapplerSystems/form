@@ -10,6 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
+<<<<<<< HEAD
 import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
 import formManagerLabels from '~labels/form.form_manager_javascript';
 export class DuplicateFormSubmissionService {
@@ -50,3 +51,6 @@ export class DuplicateFormSubmissionService {
         };
     }
 }
+=======
+import i from"@typo3/core/ajax/ajax-request.js";import r from"~labels/form.form_manager_javascript";class o{constructor(e,s){this.context=e,this.formPersistenceIdentifier=s}async execute(){const e=this.context.getDataStore(),s=this.context.formManager.getAjaxEndpoint("duplicate"),t=await(await new i(s).post({formName:e.settings.formName,storage:e.storage.typeIdentifier,storageLocation:e.settings.storageLocation,formPersistenceIdentifier:this.formPersistenceIdentifier})).resolve();return t?.status==="success"?{success:!0,finisher:{identifier:"redirect",module:"@typo3/backend/wizard/finisher/redirect-finisher.js",data:{url:t.url},labels:{successTitle:r.get("formManager.finisher.redirect.success.title"),successDescription:r.get("formManager.finisher.redirect.success.description")}}}:{success:!1,errors:[t?.message??""]}}}export{o as DuplicateFormSubmissionService};
+>>>>>>> 637d4a4e ([TASK] Make the form editor null-safe)
