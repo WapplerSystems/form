@@ -58,13 +58,7 @@ class FileUpload extends AbstractFormElement implements StringableFormElementInt
     public function valueToString($value): string
     {
         if ($value instanceof ObjectStorage) {
-            $fileNames = [];
-            foreach ($value as $fileReference) {
-                if ($fileReference instanceof FileReference) {
-                    $fileNames[] = $fileReference->getOriginalResource()->getName();
-                }
-            }
-            return implode(', ', $fileNames);
+            return implode(', ', $this->getFileNames($value));
         }
         if ($value instanceof FileReference) {
             return $value->getOriginalResource()->getName();
@@ -75,6 +69,7 @@ class FileUpload extends AbstractFormElement implements StringableFormElementInt
     public function processElementValue(mixed $value, FormRuntime $formRuntime): mixed
     {
         if ($value instanceof ObjectStorage) {
+<<<<<<< HEAD
             // A multiple upload is a multi-value field, so hand back one entry
             // per file. RenderFormValueViewHelper reports such a field as
             // `isMultiValue`, and the e-mail and summary templates then iterate
@@ -91,10 +86,27 @@ class FileUpload extends AbstractFormElement implements StringableFormElementInt
                 }
             }
             return $fileNames;
+=======
+            return $this->getFileNames($value);
+>>>>>>> f6c6389e ([BUGFIX] Render multiple file uploads in form email finishers)
         }
         if ($value instanceof FileReference) {
             return $this->valueToString($value);
         }
         return $value;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getFileNames(ObjectStorage $fileReferences): array
+    {
+        $fileNames = [];
+        foreach ($fileReferences as $fileReference) {
+            if ($fileReference instanceof FileReference) {
+                $fileNames[] = $fileReference->getOriginalResource()->getName();
+            }
+        }
+        return $fileNames;
     }
 }
