@@ -82,12 +82,6 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
      */
     public const CONFIGURATION_PRE_STORAGE_VALIDATORS = 6;
 
-    /**
-     * Error code used when an upload fails with an exception that does not
-     * carry a numeric code of its own. See convertFrom().
-     */
-    private const UPLOAD_FAILED_ERROR_CODE = 1789034400;
-
     protected string $defaultUploadFolder = '1:/user_upload/';
 
     /**
@@ -369,22 +363,25 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
         } catch (TypeConverterException $e) {
             return $e->getError();
         } catch (\Exception $e) {
-            // `Throwable::getCode()` is an int only by convention. PDO returns
-            // an SQLSTATE string, AWS-based FAL drivers return their own error
-            // keys, and `Error::__construct()` insists on an int - so handing
-            // the code straight through turned a handled upload failure into a
-            // fatal TypeError. The visitor got an error page instead of a field
-            // message, and the original exception died with it: nothing about
-            // the actual cause ever reached the log.
+            // The exception message stays in the log. It can carry storage
+            // paths, driver errors or SQL state, none of which belongs in a
+            // validation message shown to anonymous visitors
+            // (TYPO3-CORE-SA-2026-029). The fixed error code also keeps a
+            // non-int `getCode()` (PDO's SQLSTATE, AWS driver keys) away from
+            // `Error::__construct()`, which is typed int.
             $this->logger?->error(
                 'Uploaded file could not be imported: {reason}',
                 ['reason' => $e->getMessage(), 'exception' => $e]
             );
-            $code = $e->getCode();
             return GeneralUtility::makeInstance(
                 Error::class,
-                $e->getMessage(),
-                is_numeric($code) ? (int)$code : self::UPLOAD_FAILED_ERROR_CODE
+                // not going through ->getUploadErrorMessage() due to internal logging and its scope to \UPLOAD_ERR_* constants
+                GeneralUtility::makeInstance(TranslationService::class)->translate(
+                    'upload.error.150530348',
+                    null,
+                    'EXT:form/Resources/Private/Language/locallang.xlf'
+                ),
+                1793200460
             );
         }
 

@@ -43,6 +43,9 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * to `Error::__construct()`, which is typed `int`, replaced the handled upload
  * failure with a fatal TypeError - an error page instead of a field message,
  * and the original exception lost along with it.
+ *
+ * Since TYPO3-CORE-SA-2026-029 the error carries neither the exception's code
+ * nor its message: both go to the log, the visitor gets a generic message.
  */
 final class UploadedFileFailureTest extends FunctionalTestCase
 {
@@ -68,19 +71,18 @@ final class UploadedFileFailureTest extends FunctionalTestCase
 
     public static function exceptionCodeDataProvider(): \Generator
     {
-        yield 'int code is kept' => [1471715915, 1471715915];
+        yield 'int code' => [1471715915];
         // SQLSTATE, the way PDOException reports it.
-        yield 'numeric string code is kept' => ['23000', 23000];
+        yield 'numeric string code' => ['23000'];
         // The shapes that used to be fatal.
-        yield 'non-numeric string code falls back' => ['AccessDenied', 1789034400];
-        yield 'empty code falls back' => ['', 1789034400];
+        yield 'non-numeric string code' => ['AccessDenied'];
+        yield 'empty code' => [''];
     }
 
     #[DataProvider('exceptionCodeDataProvider')]
     #[Test]
     public function convertFromReturnsErrorWhateverCodeTheExceptionCarries(
         string|int $thrownCode,
-        int $expectedCode,
     ): void {
         $subject = $this->subjectFailingWith(self::failureWithCode($thrownCode));
 
@@ -89,7 +91,7 @@ final class UploadedFileFailureTest extends FunctionalTestCase
                 'error' => \UPLOAD_ERR_OK,
                 'name' => 'test.pdf',
                 'type' => 'application/pdf',
-                'tmp_name' => '/tmp/php-' . $expectedCode,
+                'tmp_name' => '/tmp/php-' . md5((string)$thrownCode),
                 'size' => 1024,
             ],
             FileReference::class,
@@ -98,8 +100,8 @@ final class UploadedFileFailureTest extends FunctionalTestCase
         );
 
         self::assertInstanceOf(Error::class, $result);
-        self::assertSame($expectedCode, $result->getCode());
-        self::assertSame('Storage rejected the file', $result->getMessage());
+        self::assertSame(1793200460, $result->getCode());
+        self::assertSame('Upload failed.', $result->getMessage());
     }
 
     /**
