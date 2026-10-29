@@ -363,6 +363,7 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
         } catch (TypeConverterException $e) {
             return $e->getError();
         } catch (\Exception $e) {
+<<<<<<< HEAD
             // The exception message stays in the log. It can carry storage
             // paths, driver errors or SQL state, none of which belongs in a
             // validation message shown to anonymous visitors
@@ -373,6 +374,11 @@ class UploadedFileReferenceConverter extends AbstractTypeConverter implements Lo
                 'Uploaded file could not be imported: {reason}',
                 ['reason' => $e->getMessage(), 'exception' => $e]
             );
+=======
+            $this->logger?->error('An unknown error has occurred when converting an uploaded file to a resource', [
+                'exception' => $e,
+            ]);
+>>>>>>> a5d10cad ([SECURITY] Hide sensitive exception information for uploaded files)
             return GeneralUtility::makeInstance(
                 Error::class,
                 // not going through ->getUploadErrorMessage() due to internal logging and its scope to \UPLOAD_ERR_* constants
