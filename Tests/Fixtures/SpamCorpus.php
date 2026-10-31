@@ -36,6 +36,10 @@ final class SpamCorpus
             'all upper consonants' => ['XQVBLMPKWZRNTCYHF'],
             'lowercase keyboard mash' => ['asdkjhqweuiozxcvbnm'],
             'random camel case' => ['aSdKjHqWeUiOzXcVbN'],
+            // Long enough to repeat letters by chance: normalized entropy 0.878
+            // and 0.840, below maximumEntropyRatio. Real submissions, 10/2026.
+            'long random mixed case' => ['ZSpBvrpPBHQxLCrtvTbJtJ'],
+            'long random mixed case 2' => ['TGxRftqyLZoIJqZZqLZls'],
         ];
     }
 
@@ -131,6 +135,10 @@ final class SpamCorpus
             'hyphenated name' => [[
                 'name' => 'Wolfgang Schmidt-Hubermann',
                 'message' => 'Ich interessiere mich fuer Ihr Angebot.',
+            ]],
+            'camel case product names' => [[
+                'company' => 'OpenStreetMap',
+                'message' => 'Wir nutzen XMLHttpRequest, SharePointOnline und eLearningPlattform.',
             ]],
             'german compound word' => [[
                 'message' => 'Donaudampfschifffahrtsgesellschaft',
