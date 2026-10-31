@@ -22,6 +22,8 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
+use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface as ExtbaseConfigurationManagerInterface;
@@ -105,6 +107,7 @@ final class RenderFormValueViewHelperTest extends FunctionalTestCase
         );
     }
 
+<<<<<<< HEAD
     /**
      * A multiple upload arrives as an ObjectStorage, so the ViewHelper reports
      * the field as a multi-value one and a template iterates its processed
@@ -125,12 +128,26 @@ final class RenderFormValueViewHelperTest extends FunctionalTestCase
             $this->renderElement(
                 'upload-1',
                 '{var.isMultiValue}|<f:for each="{var.processedValue}" as="fileName">{fileName}|</f:for>',
+=======
+    #[Test]
+    public function renderResolvesMultipleFileUploadToIterableFileNames(): void
+    {
+        $files = new ObjectStorage();
+        $files->attach($this->buildFileReference('a.pdf'));
+        $files->attach($this->buildFileReference('b.pdf'));
+        self::assertSame(
+            'a.pdf|b.pdf|',
+            $this->renderElement(
+                'file-1',
+                '<f:if condition="{var.isMultiValue}"><f:for each="{var.processedValue}" as="name">{name}|</f:for></f:if>',
+>>>>>>> f6c6389e ([BUGFIX] Render multiple file uploads in form email finishers)
                 $files
             )
         );
     }
 
     #[Test]
+<<<<<<< HEAD
     public function renderReportsASingleUploadAsSingleValue(): void
     {
         self::assertSame(
@@ -151,6 +168,23 @@ final class RenderFormValueViewHelperTest extends FunctionalTestCase
         $fileReference = $this->createMock(FileReference::class);
         $fileReference->method('getOriginalResource')->willReturn($originalResource);
 
+=======
+    public function renderResolvesSingleFileUploadToFileName(): void
+    {
+        self::assertSame(
+            'a.pdf',
+            $this->renderElement('file-1', '{var.processedValue}', $this->buildFileReference('a.pdf'))
+        );
+    }
+
+    private function buildFileReference(string $name): FileReference
+    {
+        $coreFileReference = self::createStub(CoreFileReference::class);
+        $coreFileReference->method('getName')->willReturn($name);
+        $coreFileReference->method('getOriginalFile')->willReturn(self::createStub(File::class));
+        $fileReference = new FileReference();
+        $fileReference->setOriginalResource($coreFileReference);
+>>>>>>> f6c6389e ([BUGFIX] Render multiple file uploads in form email finishers)
         return $fileReference;
     }
 
@@ -232,10 +266,17 @@ final class RenderFormValueViewHelperTest extends FunctionalTestCase
                         ],
                         [
                             'type' => 'FileUpload',
+<<<<<<< HEAD
                             'identifier' => 'upload-1',
                             'label' => 'Upload',
                             'properties' => [
                                 'allowedMimeTypes' => ['image/jpeg', 'image/png'],
+=======
+                            'identifier' => 'file-1',
+                            'label' => 'File upload',
+                            'properties' => [
+                                'multiple' => true,
+>>>>>>> f6c6389e ([BUGFIX] Render multiple file uploads in form email finishers)
                             ],
                         ],
                     ],
