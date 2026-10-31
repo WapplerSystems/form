@@ -112,6 +112,11 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
             'How often a mixed letters/digits token must switch between letters and digits to count as machine-generated without any case flip — the all-lowercase or all-uppercase variant of the same salad ("q1w2e3r4t5").',
             'integer',
         ],
+        'caseFlipsWithoutEntropy' => [
+            3,
+            'A letter-only token with at least this many lower-to-upper case flips skips the normalized-entropy test. Long random tokens repeat letters by chance and fall below maximumEntropyRatio, while three flips inside one token do not occur in words or in CamelCase names of up to three parts. The consonant-run gate still applies.',
+            'integer',
+        ],
         'minimumVowelRatio' => [
             0.3,
             'A high-entropy token is only treated as gibberish when it also shows mixed-case flips or a vowel ratio below this value.',
@@ -400,7 +405,17 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
         if (mb_strlen($token) < (int)$this->options['gibberishTokenLength']) {
             return false;
         }
-        if ($this->normalizedEntropy($token) < (float)$this->options['maximumEntropyRatio']) {
+        // The entropy ceiling is log2(length), which a random token can only
+        // reach while it is short: drawn from 52 mixed-case letters, a string
+        // of twenty-odd characters repeats letters by chance and scores around
+        // 0.85 — "ZSpBvrpPBHQxLCrtvTbJtJ" walked through at 0.878. Repeated
+        // lower-to-upper flips are evidence of generation in their own right
+        // (CamelCase names flip once per word part and stay syllabic, which the
+        // consonant-run gate below still requires), so they stand in for the
+        // entropy test instead of being forced to also pass it.
+        if ($this->mixedCaseFlips($token) < (int)$this->options['caseFlipsWithoutEntropy']
+            && $this->normalizedEntropy($token) < (float)$this->options['maximumEntropyRatio']
+        ) {
             return false;
         }
         // Syllable gate. Entropy and vowel ratio alone flag every third long
@@ -473,6 +488,14 @@ final class EntropySpamValidator extends AbstractFormAwareValidator
     private function hasMixedCaseFlip(string $token): bool
     {
         return (bool)preg_match('/\p{Ll}\p{Lu}/u', $token);
+    }
+
+    /**
+     * Number of lower-case letters immediately followed by an upper-case one.
+     */
+    private function mixedCaseFlips(string $token): int
+    {
+        return (int)preg_match_all('/\p{Ll}\p{Lu}/u', $token);
     }
 
     private function vowelRatio(string $token): float
