@@ -419,21 +419,21 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
                 }
             }
 
-            $elementsCount = count($this->currentPage->getElements());
-            $randomElementNumber = random_int(0, $elementsCount - 1);
             $honeypotName = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, random_int(5, 26));
-
-            $referenceElement = $this->currentPage->getElements()[$randomElementNumber];
+            // Keep it last: on reload, Firefox restores values by field index within the form, not by name
             $honeypotElement = $this->currentPage->createElement($honeypotName, $renderingOptions['honeypot']['formElementToUse']);
             $validator = $this->validatorResolver->createValidator(EmptyValidator::class, [], $this->request);
-
             $honeypotElement->addValidator($validator);
+<<<<<<< HEAD
             if (random_int(0, 1) === 1) {
                 $this->currentPage->moveElementAfter($honeypotElement, $referenceElement);
             } else {
                 $this->currentPage->moveElementBefore($honeypotElement, $referenceElement);
             }
             $this->setHoneypotNameInSession($this->currentPage, $honeypotName);
+=======
+            $this->formState->setHoneypotName($this->currentPage->getIndex(), $honeypotName);
+>>>>>>> 6cf8fbe1 ([BUGFIX] Render honeypot as last element of the form step)
         }
     }
 
