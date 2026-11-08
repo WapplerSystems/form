@@ -1423,7 +1423,7 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   would have kept mailing for anything posting straight at the action URI. Blocked forms
   render uncached and every rendered form tags its page, so turning the switch on flushes by
   tag instead of dropping the whole page cache and turning it off needs no flush at all
-  (`HEAD`).
+  (#74, 108d3625).
 
 ### 2026-10
 
