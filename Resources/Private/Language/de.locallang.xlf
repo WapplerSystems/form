@@ -182,6 +182,10 @@
         <source>Your submission could not be accepted. Please rephrase and try again.</source>
         <target state="final">Ihre Eingabe konnte nicht angenommen werden. Bitte formulieren Sie sie neu und versuchen Sie es erneut.</target>
       </trans-unit>
+      <trans-unit id="formKillSwitch.defaultMessage" resname="formKillSwitch.defaultMessage" approved="yes">
+        <source>This form is temporarily unavailable. Please try again later.</source>
+        <target state="final">Dieses Formular steht vorübergehend nicht zur Verfügung. Bitte versuchen Sie es später noch einmal.</target>
+      </trans-unit>
       <trans-unit id="finisher.email.formLanguage" resname="finisher.email.formLanguage" approved="yes">
         <source>Language of the submission</source>
         <target state="final">Sprache der Anfrage</target>

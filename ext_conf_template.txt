@@ -9,3 +9,6 @@ mailLogAllForms = 1
 
 # cat=Backend; type=boolean; label=Consent log: record one row per consent checkbox per submission (which consent, given or not, and a hash of the exact wording shown) so the consent can be demonstrated under Art. 7(1) GDPR independently of the notification mail. Needs a retention decision - see CleanupConsentLogTask.
 featureConsentLog = 0
+
+# cat=Backend; type=boolean; label=Automatic form shutdown: when a form is flooded, disable it by itself for a while instead of waiting for someone to notice. Off by default - it is an automation that takes a site feature away, so it should be a deliberate choice. Needs the validation log, which this flag switches on for every form (that log stores no submitted values). Threshold, window, duration and the notification address are set in the form log module.
+featureFormAutoDisable = 0

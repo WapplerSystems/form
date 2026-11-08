@@ -70,6 +70,38 @@ readonly class ValidationLogRepository
         ];
     }
 
+    /**
+     * Rejected validations for one form since a point in time — the signal the
+     * automatic shutdown decides on.
+     *
+     * Deliberately rows, not sessions: elsewhere in this class sessions are the
+     * better measure, because they answer "how many actors". Here the question
+     * is "how much is hitting this form right now", and a single bot hammering
+     * one endpoint is precisely the case the switch has to catch. Served
+     * straight out of the idx_form (form_identifier, crdate) index, so it stays
+     * cheap even when it runs on every rejected submission of a flood.
+     */
+    public function countFailuresSince(string $formIdentifier, int $since): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_NAME);
+
+        return (int)$queryBuilder
+            ->count('uid')
+            ->from(self::TABLE_NAME)
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'form_identifier',
+                    $queryBuilder->createNamedParameter($formIdentifier)
+                ),
+                $queryBuilder->expr()->gte(
+                    'crdate',
+                    $queryBuilder->createNamedParameter($since, ParameterType::INTEGER)
+                )
+            )
+            ->executeQuery()
+            ->fetchOne();
+    }
+
     public function countRows(ValidationStatsDemand $demand): int
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_NAME);

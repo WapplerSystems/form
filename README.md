@@ -53,6 +53,11 @@ to accept in a cookie banner.
 | 3 | **JavaScript challenge** — signed token, obfuscated in the markup, reversed by the browser | Clients without a JavaScript engine | requires JS | fork |
 | 4 | **Minimum fill-in time** — measured in the browser, corroborated against the render age | Submissions arriving faster than a human could type | none | fork |
 | + | **Validation logging** — every failure recorded, no submitted values | — | none | fork |
+| ! | **[Kill switch](#kill-switch-block-forms-without-a-deployment)** — block a form, a site or everything, by hand or automatically | Anything at all, while it is on | the form is gone | fork |
+
+The last row is not a filter and is not meant to be left on: it is the emergency stop for
+the case where the filters are losing, and the only layer that costs the visitor the form
+itself.
 
 Layers 2–4 combine freely and are configured per form, or prototype-wide to cover every
 form of a site at once. All four work on **fully cached pages**, which is where most
@@ -104,7 +109,8 @@ merely believe in.
 
 Technical detail: [Cross-field validators](#cross-field-form-level-validators),
 [JavaScript spam shield](#javascript-spam-shield-challengeresponse--minimum-fill-time),
-[Validation-failure logging](#validation-failure-logging-opt-in-per-form).
+[Validation-failure logging](#validation-failure-logging-opt-in-per-form),
+[Kill switch](#kill-switch-block-forms-without-a-deployment).
 
 ---
 
@@ -258,6 +264,12 @@ for database-stored forms too.
 
 ### Runtime
 
+- **Kill switch** — Block one form, every form of a site, or everything, from the backend
+  or with `bin/typo3 form:disable`, optionally for a limited time. Blocks the submission
+  and not only the markup, works on cached pages, and needs no deployment. An opt-in
+  automatic shutdown takes a flooded form offline for a while by itself — see
+  [Kill switch](#kill-switch-block-forms-without-a-deployment).
+
 - **Variant-capable finishers** — Any finisher can carry a `variants` list and be
   enabled/disabled (or otherwise overridden) by a condition on the submitted values
   (e.g. “send a copy to the sender only when the checkbox is ticked”). The dedicated
@@ -279,6 +291,8 @@ for database-stored forms too.
 - A multi-file upload that collects picked files instead of discarding the previous
   selection, and lets a single pending file be dropped again before submitting.
 - Opt-in site-sender feature and opt-in validation-failure logging.
+- A kill switch that blocks forms globally, per site or per form without a deployment,
+  with an opt-in automatic shutdown for flooded forms.
 - Live password-policy indicator on `Password` / `AdvancedPassword`, plus an
   optional reveal toggle and a policy-compliant password generator, backed by a
   password-policy JSON endpoint.
@@ -1159,6 +1173,117 @@ window follows from the purpose the consent was given for. "Keep forever" is not
 option it looks like either, because `subject` is personal data and Art. 5(1)(e) still
 applies.
 
+### Kill switch (block forms without a deployment)
+
+The emergency stop. A blocked form neither renders nor accepts anything; visitors get a
+short notice instead. Three levels, and a form is blocked as soon as **any** of them says
+so — globally, per site, per form identifier:
+
+```bash
+bin/typo3 form:disable contact                       # one form, until it is released
+bin/typo3 form:disable contact --for=2h              # ... and release it by itself
+bin/typo3 form:disable contact --message="Back at 14:00."   # own wording instead of the default
+bin/typo3 form:disable --site=camino --for=30m       # every form of one site
+bin/typo3 form:disable                               # everything
+bin/typo3 form:enable contact                        # same arguments as form:disable
+bin/typo3 form:status                                # exits 1 while anything is blocked
+```
+
+The argument is the **form identifier** (the `identifier` of the form definition, not the
+content element uid). Without an argument `--site` picks the level; without both, the whole
+installation is blocked. `--site` is ignored when a form identifier is given. `--for` takes
+`90m`, `2h`, `1d` or a plain number of minutes; without it the block stays until somebody
+lifts it. Short forms: `-s`, `-f`, `-m`. `form:enable` lifts exactly the level it is given —
+a form blocked globally *and* by name needs both lifted, which `form:status` shows.
+
+**In an incident** the sequence is short:
+
+1. *Administration → Form log → Validation statistics* shows which form is being hit.
+2. Block that form, with a `--for` if the attack is likely to pass on its own.
+3. Logged in to the backend, open the form in the frontend — you still see it working,
+   visitors see the notice.
+4. Lift the block (or let it lapse), then run `form:status` to confirm nothing is left
+   blocked.
+
+**Monitor it.** `form:status` exits 1 while any block is active and prints which ones, when
+they started, until when and who set them (`cli`, a backend user, or the automatic
+shutdown). Run it from your monitoring the way you run `form:maillog:check`: a form
+switched off during an incident and never switched back on is the failure this feature
+can cause, and it is silent — the site looks fine, it just stops receiving enquiries.
+
+Same switches in the backend under **Administration → Form log → Block forms**, next to the
+validation statistics that show the flood in the first place. The form list marks blocked
+forms with a badge, because a form that has vanished from the frontend looks perfectly
+healthy there otherwise and the first guess is always a broken template.
+
+**Why it is not extension configuration or a site setting.** An emergency stop must not be
+a deployment. State lives in `sys_registry` (namespace `tx_form`, key `killSwitch`), takes effect on the next request, and
+deliberately does not travel with the repository — a form switched off on production
+because of an attack there must not come back disabled on the next developer's machine.
+
+**It blocks the submission, not just the rendering.** This is the part that is easy to get
+wrong. `FormRuntime::render()` starts with
+
+```php
+if ($this->isAfterLastPage()) { return $this->invokeFinishers(); }
+```
+
+so on the final submit `AfterFormRenderedEvent` is never dispatched. A kill switch that only
+swaps the markup would therefore show a polite notice to every visitor while the finishers
+keep firing for anything that posts straight at the action URI. `BlockDisabledForms`
+enforces the switch on `AfterFormIsValidatedEvent` (validation fails, so the finishers are
+never reached), cancels the chain on `BeforeFinishersInvokedEvent` as a backstop, and only
+then replaces the markup on `AfterFormRenderedEvent`.
+
+**Caching is handled, not left to the operator.** Only the `perform` action is registered
+non-cacheable, so the first display of a form goes into the page cache. Every rendered form
+therefore tags its page (`tx_form`, plus `tx_form_<identifier>`) — including while the
+switch is off, because those are precisely the pages that have to be dropped when it is
+turned on, and flushing by tag keeps the emergency stop from becoming a second outage.
+While a form is blocked the request is marked uncacheable, which means the notice never
+enters the page cache — so releasing a form cannot leave a stale "unavailable" page behind,
+and a timed block simply lapses without anything having to run.
+
+**Logged-in backend users keep seeing the working form**, on the submit path too — otherwise
+there would be no way to check that a form works again before releasing it. That bypass is
+only safe together with the uncacheable marking above; without it the editor's render would
+be cached and served to everyone.
+
+**Wording.** Empty means the localized default from `locallang.xlf`, which is the only
+option that is correct in every site language. A text typed into the module or passed with
+`--message` wins over it and is necessarily single-language — it is written during an
+incident, not translated. Override the markup with a `FormDisabled.fluid.html` in your own
+`templateRootPaths.10`.
+
+Known limitation: forms are keyed by **form identifier**, so two forms sharing an identifier
+across storages are switched together.
+
+#### Automatic shutdown (opt-in, `featureFormAutoDisable`)
+
+Off by default. It is an automation that takes a site feature away from real visitors —
+the right trade during an attack, the wrong one as a surprise — so it has to be switched on
+knowingly. Threshold, window, block duration and a notification address are set in the same
+backend view; the defaults are 100 rejected validations within 5 minutes, blocking for 60
+minutes.
+
+Every block it sets is **time-limited**, and that is the design point rather than a detail:
+an automatic shutdown without an automatic release is strictly worse than the manual switch,
+because it fails closed on a Friday evening and the contact form is still dead on Monday.
+`FormKillSwitch` evaluates the expiry on read, so no scheduler has to be running for a form
+to come back; if the flood is still going when the block lapses, the next wave trips the
+threshold again within minutes.
+
+It only ever disables the **one** form being hit — never a site, never globally. An
+automatism that can take down every form of an installation is not a safety net, it is an
+amplifier. It never triggers for a logged-in backend user, it does not extend a block that
+is already running, and every trigger is written to the TYPO3 log as a `warning` whether or
+not a notification address is configured.
+
+The count comes from `tx_form_validation_log`, which is why the flag also switches that log
+on for forms that did not set `recordValidationFailures` — same argument as `mailLogAllForms`
+("the form nobody opted in for is the form nobody is watching"), and free of privacy cost
+here, because the validation log stores no submitted values at all.
+
 ---
 
 ## Fork maintenance
@@ -1284,6 +1409,21 @@ Fork-relevant changes only, newest first. The fork ships unversioned from `relea
 release tag. Everything before the fork point is TYPO3's own history — see the upstream
 changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
 `WapplerSystems/form`.
+
+### 2026-11
+
+**Added**
+
+- A kill switch for forms: block everything, one site or one form from the backend
+  (*Administration → Form log → Block forms*) or from the command line (`form:disable`,
+  `form:enable`, `form:status`), with an optional expiry and an optional automatic shutdown
+  when a form is flooded (`featureFormAutoDisable`, off by default). It blocks the
+  submission and not only the rendering — `FormRuntime::render()` hands off to
+  `invokeFinishers()` before it dispatches the rendering event, so a markup-only switch
+  would have kept mailing for anything posting straight at the action URI. Blocked forms
+  render uncached and every rendered form tags its page, so turning the switch on flushes by
+  tag instead of dropping the whole page cache and turning it off needs no flush at all
+  (#74, 108d3625).
 
 ### 2026-10
 

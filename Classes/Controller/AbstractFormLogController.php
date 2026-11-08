@@ -68,6 +68,16 @@ abstract class AbstractFormLogController extends ActionController
             'label' => 'consentLog.headline',
             'icon' => 'actions-check',
         ],
+        // Last on purpose: the three views before it observe, this one acts.
+        // During an incident the path is "the statistics show the flood" ->
+        // "block it", which is one step to the right rather than a different
+        // corner of the module menu.
+        [
+            'controller' => 'KillSwitch',
+            'action' => 'index',
+            'label' => 'killSwitch.headline',
+            'icon' => 'actions-ban',
+        ],
     ];
 
     public function __construct(

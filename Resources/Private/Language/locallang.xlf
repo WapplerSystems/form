@@ -168,6 +168,9 @@
       <trans-unit id="formLevelValidators.EntropySpam.errorMessage">
         <source>Your submission could not be accepted. Please rephrase and try again.</source>
       </trans-unit>
+      <trans-unit id="formKillSwitch.defaultMessage">
+        <source>This form is temporarily unavailable. Please try again later.</source>
+      </trans-unit>
       <trans-unit id="finisher.email.formLanguage">
         <source>Language of the submission</source>
       </trans-unit>

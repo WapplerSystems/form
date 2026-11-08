@@ -4,6 +4,7 @@ use TYPO3\CMS\Form\Controller\FormEditorController;
 use TYPO3\CMS\Form\Controller\FormManagerController;
 use TYPO3\CMS\Form\Controller\FormSubmissionController;
 use TYPO3\CMS\Form\Controller\ConsentLogController;
+use TYPO3\CMS\Form\Controller\KillSwitchController;
 use TYPO3\CMS\Form\Controller\MailLogController;
 use TYPO3\CMS\Form\Controller\ValidationStatsController;
 
@@ -72,6 +73,13 @@ return [
             ],
             ConsentLogController::class => [
                 'index', 'show',
+            ],
+            // The kill switch rides in this module rather than in the form
+            // builder: under an incident the sequence is "the statistics show
+            // the flood" -> "block it", and those two should be one step
+            // apart. See KillSwitchController for the full reasoning.
+            KillSwitchController::class => [
+                'index', 'update',
             ],
         ],
     ],

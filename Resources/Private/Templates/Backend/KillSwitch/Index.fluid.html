@@ -1,0 +1,291 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <h1><f:translate key="form.database:killSwitch.headline" /></h1>
+
+    <p class="text-body-secondary">
+        <f:translate key="form.database:killSwitch.intro" />
+    </p>
+
+    <f:comment>
+        Every switch on this page posts to the same action. POST rather than
+        GET: a backend route URI carries a request token that a GET form would
+        replace with its own fields, and a state change must not live behind a
+        URL a prefetcher or a bookmark can replay. The action URI's query
+        string is re-emitted as hidden fields — see buildFilterFormTarget().
+    </f:comment>
+
+    <f:comment>The global switch, deliberately first and visually loudest.</f:comment>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title mb-0"><f:translate key="form.database:killSwitch.global.headline" /></h2>
+        </div>
+        <div class="card-body">
+            <f:if condition="{state.global}">
+                <f:then>
+                    <div class="callout callout-danger">
+                        <div class="callout-body">
+                            <p class="mb-1"><strong><f:translate key="form.database:killSwitch.global.active" /></strong></p>
+                            <p class="mb-0 text-body-secondary">
+                                <f:render section="EntryMeta" arguments="{entry: state.global}" />
+                            </p>
+                        </div>
+                    </div>
+                    <form method="post" action="{actionTarget.uri}">
+                        <f:for each="{actionTarget.hiddenFields}" as="value" key="name">
+                            <input type="hidden" name="{name}" value="{value}" />
+                        </f:for>
+                        <input type="hidden" name="tx_form_form_log[scope]" value="global" />
+                        <input type="hidden" name="tx_form_form_log[operation]" value="enable" />
+                        <button type="submit" class="btn btn-primary">
+                            <f:translate key="form.database:killSwitch.action.enable.all" />
+                        </button>
+                    </form>
+                </f:then>
+                <f:else>
+                    <form method="post" action="{actionTarget.uri}" class="row g-2 align-items-end">
+                        <f:for each="{actionTarget.hiddenFields}" as="value" key="name">
+                            <input type="hidden" name="{name}" value="{value}" />
+                        </f:for>
+                        <input type="hidden" name="tx_form_form_log[scope]" value="global" />
+                        <input type="hidden" name="tx_form_form_log[operation]" value="disable" />
+                        <div class="col-md-5">
+                            <label class="form-label" for="killSwitchGlobalMessage">
+                                <f:translate key="form.database:killSwitch.field.message" />
+                            </label>
+                            <input type="text" class="form-control" id="killSwitchGlobalMessage"
+                                   name="tx_form_form_log[message]"
+                                   placeholder="{f:translate(key: 'form.database:killSwitch.field.message.placeholder')}" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="killSwitchGlobalDuration">
+                                <f:translate key="form.database:killSwitch.field.duration" />
+                            </label>
+                            <f:render section="DurationSelect" arguments="{id: 'killSwitchGlobalDuration', durations: durations}" />
+                        </div>
+                        <div class="col-md-auto">
+                            <button type="submit" class="btn btn-danger">
+                                <f:translate key="form.database:killSwitch.action.disable.all" />
+                            </button>
+                        </div>
+                    </form>
+                </f:else>
+            </f:if>
+        </div>
+    </div>
+
+    <f:comment>Per form — the level that actually gets used under a real attack.</f:comment>
+    <h2><f:translate key="form.database:killSwitch.forms.headline" /></h2>
+    <f:if condition="{forms}">
+        <f:then>
+            <div class="table-fit">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><f:translate key="form.database:killSwitch.column.form" /></th>
+                            <th><f:translate key="form.database:killSwitch.column.state" /></th>
+                            <th><f:translate key="form.database:killSwitch.column.action" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{forms}" as="form">
+                            <tr>
+                                <td>
+                                    <strong>{form.name}</strong><br />
+                                    <code>{form.identifier}</code>
+                                    <f:if condition="{form.orphaned}">
+                                        <span class="badge bg-warning text-dark ms-1">
+                                            <f:translate key="form.database:killSwitch.orphaned" />
+                                        </span>
+                                    </f:if>
+                                </td>
+                                <td>
+                                    <f:render section="State" arguments="{entry: form.entry}" />
+                                </td>
+                                <td>
+                                    <f:render section="RowForm" arguments="{
+                                        scope: 'forms',
+                                        identifier: form.identifier,
+                                        entry: form.entry,
+                                        durations: durations,
+                                        actionTarget: actionTarget
+                                    }" />
+                                </td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+            </div>
+        </f:then>
+        <f:else>
+            <p class="text-body-secondary"><f:translate key="form.database:killSwitch.forms.empty" /></p>
+        </f:else>
+    </f:if>
+
+    <f:comment>Per site — for the multi-site case where only one domain is hit.</f:comment>
+    <f:if condition="{sites}">
+        <h2 class="mt-4"><f:translate key="form.database:killSwitch.sites.headline" /></h2>
+        <div class="table-fit">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><f:translate key="form.database:killSwitch.column.site" /></th>
+                        <th><f:translate key="form.database:killSwitch.column.state" /></th>
+                        <th><f:translate key="form.database:killSwitch.column.action" /></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:for each="{sites}" as="site">
+                        <tr>
+                            <td>
+                                <strong>{site.name}</strong><br />
+                                <code>{site.identifier}</code>
+                            </td>
+                            <td><f:render section="State" arguments="{entry: site.entry}" /></td>
+                            <td>
+                                <f:render section="RowForm" arguments="{
+                                    scope: 'sites',
+                                    identifier: site.identifier,
+                                    entry: site.entry,
+                                    durations: durations,
+                                    actionTarget: actionTarget
+                                }" />
+                            </td>
+                        </tr>
+                    </f:for>
+                </tbody>
+            </table>
+        </div>
+    </f:if>
+
+    <f:comment>
+        The automation's settings. Shown even when the feature flag is off, with
+        a note saying so — a settings block that disappears leaves the reader
+        wondering whether the feature exists at all.
+    </f:comment>
+    <h2 class="mt-4"><f:translate key="form.database:killSwitch.auto.headline" /></h2>
+    <p class="text-body-secondary"><f:translate key="form.database:killSwitch.auto.intro" /></p>
+    <f:if condition="!{autoDisableAvailable}">
+        <div class="callout callout-info">
+            <div class="callout-body">
+                <p class="mb-0"><f:translate key="form.database:killSwitch.auto.disabled" /></p>
+            </div>
+        </div>
+    </f:if>
+    <form method="post" action="{actionTarget.uri}" class="row g-2 align-items-end">
+        <f:for each="{actionTarget.hiddenFields}" as="value" key="name">
+            <input type="hidden" name="{name}" value="{value}" />
+        </f:for>
+        <input type="hidden" name="tx_form_form_log[operation]" value="autoDisable" />
+        <div class="col-auto">
+            <label class="form-label" for="killSwitchAutoThreshold">
+                <f:translate key="form.database:killSwitch.auto.threshold" />
+            </label>
+            <input type="number" min="1" class="form-control" id="killSwitchAutoThreshold"
+                   name="tx_form_form_log[autoDisable][threshold]" value="{state.autoDisable.threshold}" />
+        </div>
+        <div class="col-auto">
+            <label class="form-label" for="killSwitchAutoWindow">
+                <f:translate key="form.database:killSwitch.auto.window" />
+            </label>
+            <input type="number" min="1" class="form-control" id="killSwitchAutoWindow"
+                   name="tx_form_form_log[autoDisable][windowMinutes]" value="{state.autoDisable.windowMinutes}" />
+        </div>
+        <div class="col-auto">
+            <label class="form-label" for="killSwitchAutoDuration">
+                <f:translate key="form.database:killSwitch.auto.duration" />
+            </label>
+            <input type="number" min="1" class="form-control" id="killSwitchAutoDuration"
+                   name="tx_form_form_log[autoDisable][durationMinutes]" value="{state.autoDisable.durationMinutes}" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="killSwitchAutoNotify">
+                <f:translate key="form.database:killSwitch.auto.notify" />
+            </label>
+            <input type="email" class="form-control" id="killSwitchAutoNotify"
+                   name="tx_form_form_log[autoDisable][notify]" value="{state.autoDisable.notify}" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-default"><f:translate key="form.database:killSwitch.auto.save" /></button>
+        </div>
+    </form>
+</f:section>
+
+<f:section name="State">
+    <f:if condition="{entry}">
+        <f:then>
+            <span class="badge bg-danger"><f:translate key="form.database:killSwitch.state.blocked" /></span>
+            <div class="text-body-secondary small mt-1">
+                <f:render section="EntryMeta" arguments="{entry: entry}" />
+            </div>
+        </f:then>
+        <f:else>
+            <span class="badge bg-success"><f:translate key="form.database:killSwitch.state.open" /></span>
+        </f:else>
+    </f:if>
+</f:section>
+
+<f:section name="EntryMeta">
+    <f:translate key="form.database:killSwitch.meta.since" />
+    <f:format.date format="d.m.Y H:i">{entry.since}</f:format.date>,
+    <f:translate key="form.database:killSwitch.meta.by" /> <code>{entry.by}</code>
+    <f:if condition="{entry.until}">
+        <f:then>
+            — <f:translate key="form.database:killSwitch.meta.until" />
+            <f:format.date format="d.m.Y H:i">{entry.until}</f:format.date>
+        </f:then>
+        <f:else>
+            — <f:translate key="form.database:killSwitch.meta.untilLifted" />
+        </f:else>
+    </f:if>
+    <f:if condition="{entry.message}">
+        <br /><f:translate key="form.database:killSwitch.meta.message" /> „{entry.message}"
+    </f:if>
+</f:section>
+
+<f:section name="RowForm">
+    <form method="post" action="{actionTarget.uri}" class="d-flex flex-wrap gap-2 align-items-center">
+        <f:for each="{actionTarget.hiddenFields}" as="value" key="name">
+            <input type="hidden" name="{name}" value="{value}" />
+        </f:for>
+        <input type="hidden" name="tx_form_form_log[scope]" value="{scope}" />
+        <input type="hidden" name="tx_form_form_log[identifier]" value="{identifier}" />
+        <f:if condition="{entry}">
+            <f:then>
+                <input type="hidden" name="tx_form_form_log[operation]" value="enable" />
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <f:translate key="form.database:killSwitch.action.enable" />
+                </button>
+            </f:then>
+            <f:else>
+                <input type="hidden" name="tx_form_form_log[operation]" value="disable" />
+                <input type="text" class="form-control form-control-sm" style="max-width: 18rem"
+                       name="tx_form_form_log[message]"
+                       placeholder="{f:translate(key: 'form.database:killSwitch.field.message.placeholder')}" />
+                <f:render section="DurationSelect" arguments="{id: '', durations: durations}" />
+                <button type="submit" class="btn btn-sm btn-danger">
+                    <f:translate key="form.database:killSwitch.action.disable" />
+                </button>
+            </f:else>
+        </f:if>
+    </form>
+</f:section>
+
+<f:section name="DurationSelect">
+    <f:comment>
+        No f:if inside the selected attribute: selected="" still counts as
+        selected in HTML, so every option would be picked and the browser would
+        show the last one. The first entry is the default anyway.
+    </f:comment>
+    <select class="form-select form-select-sm" style="max-width: 12rem"
+            name="tx_form_form_log[duration]"<f:if condition="{id}"> id="{id}"</f:if>>
+        <f:for each="{durations}" as="label" key="minutes">
+            <option value="{minutes}">{label}</option>
+        </f:for>
+    </select>
+</f:section>
+</html>
