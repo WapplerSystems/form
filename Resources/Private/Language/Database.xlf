@@ -2250,6 +2250,111 @@ If you need higher values contact your administrator for help.
       <trans-unit id="tt_content.finishersDefinition.SaveSubmission.storeIpHash.label">
         <source>Store a hash of the visitor's IP address</source>
       </trans-unit>
+      <trans-unit id="killSwitch.headline">
+        <source>Block forms</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.intro">
+        <source>The emergency stop. A blocked form neither renders nor accepts anything, and visitors are shown a short notice instead. Any level that is set blocks: globally, for one site, or for one form. Editors who are logged in to the backend keep seeing the working form, so a form can be verified before it is released again.</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.global.headline">
+        <source>All forms</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.global.active">
+        <source>Every form of this installation is blocked.</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.forms.headline">
+        <source>Individual forms</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.forms.empty">
+        <source>No forms found.</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.sites.headline">
+        <source>Sites</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.form">
+        <source>Form</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.site">
+        <source>Site</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.state">
+        <source>State</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.action">
+        <source>Action</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.state.blocked">
+        <source>Blocked</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.state.open">
+        <source>Accepting</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.orphaned">
+        <source>no longer exists</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.field.message">
+        <source>Message to visitors</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.field.message.placeholder">
+        <source>leave empty for the translated default text</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.field.duration">
+        <source>Block for</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.duration.untilLifted">
+        <source>until lifted</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.disable">
+        <source>Block</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.enable">
+        <source>Release</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.disable.all">
+        <source>Block every form</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.enable.all">
+        <source>Release every form</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.since">
+        <source>since</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.by">
+        <source>by</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.until">
+        <source>until</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.untilLifted">
+        <source>until lifted by hand</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.message">
+        <source>Message:</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.headline">
+        <source>Automatic shutdown</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.intro">
+        <source>Blocks a single form by itself when it is being flooded, and releases it again when the time is up. It never blocks a site or the whole installation, and it never triggers for a logged-in backend user. Every trigger is written to the TYPO3 log.</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.disabled">
+        <source>The automatic shutdown is switched off. Turn on "featureFormAutoDisable" in the extension configuration of EXT:form. The settings below can be prepared now and take effect as soon as the feature is on.</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.threshold">
+        <source>Rejected validations</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.window">
+        <source>within minutes</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.duration">
+        <source>block for minutes</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.notify">
+        <source>Notify by email</source>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.save">
+        <source>Save settings</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

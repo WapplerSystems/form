@@ -1,5 +1,6 @@
 <html
     xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:formvh="http://typo3.org/ns/TYPO3/CMS/Form/ViewHelpers"
     xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
@@ -106,6 +107,19 @@
                                     {form.storageLocation}
                                 </td>
                                 <td class="col-state">
+                                    <f:comment>
+                                        WapplerSystems fork: a form the kill
+                                        switch has stopped is gone from the
+                                        frontend but looks perfectly healthy
+                                        here. Without this badge the cause is
+                                        invisible, and the first guess is
+                                        always a broken template.
+                                    </f:comment>
+                                    <f:if condition="{formvh:formIsBlocked(identifier: form.identifier)}">
+                                        <span class="badge bg-danger" title="{f:translate(key: 'form.database:killSwitch.headline')}">
+                                            <f:translate key="form.database:killSwitch.state.blocked" />
+                                        </span>
+                                    </f:if>
                                     <f:if condition="{form.invalid}">
                                         <f:then>
                                             <span title="{f:translate(key: 'form.database:formManager.invalid')}">

@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Form\EventListener;
 
 use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Extbase\Error\Error;
@@ -57,13 +60,19 @@ final class RecordValidationFailures
 
     public function __construct(
         private readonly ConnectionPool $connectionPool,
+        private readonly ExtensionConfiguration $extensionConfiguration,
     ) {}
 
     public function __invoke(AfterFormIsValidatedEvent $event): void
     {
         $formDefinition = $event->formRuntime->getFormDefinition();
         $renderingOptions = $formDefinition->getRenderingOptions();
-        if (empty($renderingOptions['recordValidationFailures'])) {
+        // The automatic shutdown counts out of this very table, so switching
+        // that feature on has to switch logging on for every form — the form
+        // nobody opted in for is exactly the one nobody is watching. Same
+        // argument as mailLogAllForms, and free of privacy cost here, because
+        // the validation log stores no submitted values at all.
+        if (empty($renderingOptions['recordValidationFailures']) && !$this->autoDisableEnabled()) {
             return;
         }
 
@@ -138,5 +147,14 @@ final class RecordValidationFailures
             return $parts[0] ?? '';
         }
         return $propertyPath;
+    }
+
+    private function autoDisableEnabled(): bool
+    {
+        try {
+            return (bool)$this->extensionConfiguration->get('form', 'featureFormAutoDisable');
+        } catch (ExtensionConfigurationExtensionNotConfiguredException|ExtensionConfigurationPathDoesNotExistException) {
+            return false;
+        }
     }
 }

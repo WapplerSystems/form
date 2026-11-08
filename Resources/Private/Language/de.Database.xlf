@@ -3016,6 +3016,146 @@ Die maximale Dateigrösse ist beim Server auf {0} eingestellt. Bitte beachten Si
         <source>Store a hash of the visitor's IP address</source>
         <target state="final">Prüfsumme der IP-Adresse speichern</target>
       </trans-unit>
+      <trans-unit id="killSwitch.headline" resname="killSwitch.headline" approved="yes">
+        <source>Block forms</source>
+        <target state="final">Formulare sperren</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.intro" resname="killSwitch.intro" approved="yes">
+        <source>The emergency stop. A blocked form neither renders nor accepts anything, and visitors are shown a short notice instead. Any level that is set blocks: globally, for one site, or for one form. Editors who are logged in to the backend keep seeing the working form, so a form can be verified before it is released again.</source>
+        <target state="final">Der Notaus. Ein gesperrtes Formular wird weder angezeigt noch nimmt es etwas an; Besucher sehen stattdessen einen kurzen Hinweis. Es sperrt, sobald eine der Ebenen gesetzt ist: global, für eine Site oder für ein einzelnes Formular. Im Backend angemeldete Redakteure sehen weiterhin das funktionierende Formular und können es damit prüfen, bevor es wieder freigegeben wird.</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.global.headline" resname="killSwitch.global.headline" approved="yes">
+        <source>All forms</source>
+        <target state="final">Alle Formulare</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.global.active" resname="killSwitch.global.active" approved="yes">
+        <source>Every form of this installation is blocked.</source>
+        <target state="final">Sämtliche Formulare dieser Installation sind gesperrt.</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.forms.headline" resname="killSwitch.forms.headline" approved="yes">
+        <source>Individual forms</source>
+        <target state="final">Einzelne Formulare</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.forms.empty" resname="killSwitch.forms.empty" approved="yes">
+        <source>No forms found.</source>
+        <target state="final">Keine Formulare gefunden.</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.sites.headline" resname="killSwitch.sites.headline" approved="yes">
+        <source>Sites</source>
+        <target state="final">Sites</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.form" resname="killSwitch.column.form" approved="yes">
+        <source>Form</source>
+        <target state="final">Formular</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.site" resname="killSwitch.column.site" approved="yes">
+        <source>Site</source>
+        <target state="final">Site</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.state" resname="killSwitch.column.state" approved="yes">
+        <source>State</source>
+        <target state="final">Zustand</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.column.action" resname="killSwitch.column.action" approved="yes">
+        <source>Action</source>
+        <target state="final">Aktion</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.state.blocked" resname="killSwitch.state.blocked" approved="yes">
+        <source>Blocked</source>
+        <target state="final">Gesperrt</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.state.open" resname="killSwitch.state.open" approved="yes">
+        <source>Accepting</source>
+        <target state="final">Offen</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.orphaned" resname="killSwitch.orphaned" approved="yes">
+        <source>no longer exists</source>
+        <target state="final">existiert nicht mehr</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.field.message" resname="killSwitch.field.message" approved="yes">
+        <source>Message to visitors</source>
+        <target state="final">Hinweis für Besucher</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.field.message.placeholder" resname="killSwitch.field.message.placeholder" approved="yes">
+        <source>leave empty for the translated default text</source>
+        <target state="final">leer lassen für den übersetzten Standardtext</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.field.duration" resname="killSwitch.field.duration" approved="yes">
+        <source>Block for</source>
+        <target state="final">Sperren für</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.duration.untilLifted" resname="killSwitch.duration.untilLifted" approved="yes">
+        <source>until lifted</source>
+        <target state="final">bis zur Freigabe</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.disable" resname="killSwitch.action.disable" approved="yes">
+        <source>Block</source>
+        <target state="final">Sperren</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.enable" resname="killSwitch.action.enable" approved="yes">
+        <source>Release</source>
+        <target state="final">Freigeben</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.disable.all" resname="killSwitch.action.disable.all" approved="yes">
+        <source>Block every form</source>
+        <target state="final">Alle Formulare sperren</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.action.enable.all" resname="killSwitch.action.enable.all" approved="yes">
+        <source>Release every form</source>
+        <target state="final">Alle Formulare freigeben</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.since" resname="killSwitch.meta.since" approved="yes">
+        <source>since</source>
+        <target state="final">seit</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.by" resname="killSwitch.meta.by" approved="yes">
+        <source>by</source>
+        <target state="final">durch</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.until" resname="killSwitch.meta.until" approved="yes">
+        <source>until</source>
+        <target state="final">bis</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.untilLifted" resname="killSwitch.meta.untilLifted" approved="yes">
+        <source>until lifted by hand</source>
+        <target state="final">bis zur manuellen Freigabe</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.meta.message" resname="killSwitch.meta.message" approved="yes">
+        <source>Message:</source>
+        <target state="final">Hinweis:</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.headline" resname="killSwitch.auto.headline" approved="yes">
+        <source>Automatic shutdown</source>
+        <target state="final">Automatische Abschaltung</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.intro" resname="killSwitch.auto.intro" approved="yes">
+        <source>Blocks a single form by itself when it is being flooded, and releases it again when the time is up. It never blocks a site or the whole installation, and it never triggers for a logged-in backend user. Every trigger is written to the TYPO3 log.</source>
+        <target state="final">Sperrt ein einzelnes Formular von allein, wenn es geflutet wird, und gibt es nach Ablauf der Frist wieder frei. Sie sperrt nie eine Site und nie die ganze Installation, und sie löst nie für angemeldete Backend-User aus. Jede Auslösung steht im TYPO3-Log.</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.disabled" resname="killSwitch.auto.disabled" approved="yes">
+        <source>The automatic shutdown is switched off. Turn on "featureFormAutoDisable" in the extension configuration of EXT:form. The settings below can be prepared now and take effect as soon as the feature is on.</source>
+        <target state="final">Die automatische Abschaltung ist ausgeschaltet. „featureFormAutoDisable“ in der Extension-Konfiguration von EXT:form aktivieren. Die Einstellungen unten lassen sich schon jetzt vorbereiten und greifen, sobald das Feature an ist.</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.threshold" resname="killSwitch.auto.threshold" approved="yes">
+        <source>Rejected validations</source>
+        <target state="final">Abgewiesene Prüfungen</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.window" resname="killSwitch.auto.window" approved="yes">
+        <source>within minutes</source>
+        <target state="final">innerhalb von Minuten</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.duration" resname="killSwitch.auto.duration" approved="yes">
+        <source>block for minutes</source>
+        <target state="final">sperren für Minuten</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.notify" resname="killSwitch.auto.notify" approved="yes">
+        <source>Notify by email</source>
+        <target state="final">Benachrichtigung an</target>
+      </trans-unit>
+      <trans-unit id="killSwitch.auto.save" resname="killSwitch.auto.save" approved="yes">
+        <source>Save settings</source>
+        <target state="final">Einstellungen speichern</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,0 +1,16 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    Shown instead of a form whose kill switch is on. Self-contained on purpose:
+    layoutRootPaths.0 of this extension points at a directory that does not
+    exist, so an <f:layout> here would break the very page that is meant to
+    explain the outage.
+
+    role="status" rather than role="alert": the notice is present from the
+    moment the page loads, so it is a state, not an interruption — an alert
+    would make a screen reader announce it over whatever the visitor was
+    reading.
+</f:comment>
+<div class="form-disabled-notice" role="status" data-form-identifier="{formIdentifier}">
+    <p class="form-disabled-notice-message">{message -> f:format.htmlspecialchars()}</p>
+</div>
+</html>
