@@ -46,6 +46,7 @@ class ExtensionStorageAdapter extends AbstractFileStorageAdapter implements Stor
         protected readonly PersistenceConfigurationService $storageConfiguration,
         #[Autowire(service: 'cache.runtime')]
         protected readonly FrontendInterface $runtimeCache,
+        protected readonly FormDefinitionMetadataExtractor $metadataExtractor,
     ) {}
 
     public function getTypeIdentifier(): string
@@ -261,7 +262,7 @@ class ExtensionStorageAdapter extends AbstractFileStorageAdapter implements Stor
             if ($rawYamlContent === false) {
                 throw new NoSuchFileException(sprintf('YAML file "%s" could not be loaded', $persistenceIdentifier), 1524684462);
             }
-            $yaml = $this->extractMetaDataFromCouldBeFormDefinition($rawYamlContent);
+            $yaml = $this->metadataExtractor->extract($rawYamlContent);
             $this->generateErrorsIfFormDefinitionIsInvalidOrHasInvalidFileExtension($yaml, $persistenceIdentifier);
             return FormMetadata::createFromYaml(
                 $yaml,

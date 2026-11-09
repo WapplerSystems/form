@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Form\Domain\ValueObject\FormIdentifier;
 use TYPO3\CMS\Form\Mvc\Persistence\Exception\PersistenceManagerException;
 use TYPO3\CMS\Form\Storage\ExtensionStorageAdapter;
+use TYPO3\CMS\Form\Storage\FormDefinitionMetadataExtractor;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class ExtensionStorageAdapterFunctionalTest extends FunctionalTestCase
@@ -65,4 +66,67 @@ final class ExtensionStorageAdapterFunctionalTest extends FunctionalTestCase
         $formData = $subject->read(new FormIdentifier($identifier), $request);
         self::assertStringStartsWith('contact-form', $formData->identifier);
     }
+<<<<<<< HEAD
+=======
+
+    #[Test]
+    public function deleteRemovesFormDefinitionFromPrivateExtensionPath(): void
+    {
+        $deletableForm = GeneralUtility::getFileAbsFileName(self::DELETABLE_FORM);
+        copy(
+            GeneralUtility::getFileAbsFileName('EXT:form_storage_tests/Resources/Private/Forms/ContactForm.form.yaml'),
+            $deletableForm
+        );
+
+        $this->get(ExtensionStorageAdapter::class)->delete(new FormIdentifier(self::DELETABLE_FORM));
+
+        self::assertFileDoesNotExist($deletableForm);
+    }
+
+    #[Test]
+    public function retrieveYamlFilesFromExtensionFoldersSkipsFilesWithoutFormDefinitionFileExtension(): void
+    {
+        $subject = $this->getAccessibleMock(
+            ExtensionStorageAdapter::class,
+            null,
+            [
+                $this->get(YamlSource::class),
+                $this->get(ResourceFactory::class),
+                $this->get(PersistenceConfigurationService::class),
+                $this->get('cache.runtime'),
+                $this->get(FormDefinitionMetadataExtractor::class),
+            ],
+        );
+        self::assertSame(
+            ['EXT:form_storage_tests/Resources/Private/Forms/ContactForm.form.yaml'],
+            $subject->_call('retrieveYamlFilesFromExtensionFolders')
+        );
+    }
+
+    #[Test]
+    public function findAllOnlyListsFilesWithFormDefinitionFileExtension(): void
+    {
+        $subject = $this->get(ExtensionStorageAdapter::class);
+        $persistenceIdentifiers = array_map(
+            static fn($formMetadata): ?string => $formMetadata->persistenceIdentifier,
+            $subject->findAll(new SearchCriteria())
+        );
+        self::assertSame(['EXT:form_storage_tests/Resources/Private/Forms/ContactForm.form.yaml'], $persistenceIdentifiers);
+    }
+
+    public static function existsByFormIdentifierOnlyConsidersFilesWithFormDefinitionFileExtensionDataProvider(): iterable
+    {
+        yield 'form definition in *.form.yaml file' => ['contact-form', true];
+        yield 'form definition in *.yaml file' => ['contact-form-with-type', false];
+        yield 'yaml file without form type' => ['contact-form-without-type', false];
+    }
+
+    #[Test]
+    #[DataProvider('existsByFormIdentifierOnlyConsidersFilesWithFormDefinitionFileExtensionDataProvider')]
+    public function existsByFormIdentifierOnlyConsidersFilesWithFormDefinitionFileExtension(string $formIdentifier, bool $expected): void
+    {
+        $subject = $this->get(ExtensionStorageAdapter::class);
+        self::assertSame($expected, $subject->existsByFormIdentifier($formIdentifier));
+    }
+>>>>>>> 19da7b26 ([BUGFIX] Read form metadata as complete YAML values)
 }
