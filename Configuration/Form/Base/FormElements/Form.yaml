@@ -248,7 +248,7 @@ prototypes:
                     propertyPath: options.minimumLength
                     doNotSetIfPropertyValueIsEmpty: true
                     propertyValidators:
-                      10: Integer
+                      10: IntegerOrEmpty
                   500:
                     identifier: errorMessage
                     templateName: Inspector-TextEditor
