@@ -1,0 +1,51 @@
+/*
+ * release/v13 only. Loaded in every backend document via
+ * $GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets'] (see ext_localconf.php).
+ *
+ * 1. Form editor tree: the navigation component is shared with release/v14 and
+ *    renders without 13.4's `.tree > .navigation-tree-container > .tree-wrapper`
+ *    wrappers, so on 13.4 the tree element collapses to zero height.
+ * 2. Generic backend wizard (new/duplicate form): the rules below the marker are
+ *    copied unchanged from TYPO3 v14.3.11 backend.css (wizard and card radio
+ *    styles); 13.4 ships the components' markup via compat/ but not their CSS.
+ */
+typo3-backend-navigation-component-formeditortree {
+  flex-direction: column;
+}
+
+typo3-backend-navigation-component-formeditortree > typo3-backend-navigation-component-formeditor-tree {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* --- copied from TYPO3 v14.3.11 typo3/sysext/backend/Resources/Public/Css/backend.css --- */
+.form-check.form-check-type-card{--typo3-form-check-width:1.5em;--typo3-form-check-height:1.5em;--typo3-form-check-card-color:var(--typo3-text-color-base);--typo3-form-check-card-bg:var(--typo3-surface-container-low);--typo3-form-check-card-border-radius:var(--typo3-component-border-radius);--typo3-form-check-card-border-color:color-mix(in srgb,var(--typo3-form-check-card-bg),var(--typo3-form-check-card-color) var(--typo3-border-mix));--typo3-form-check-card-padding:1rem;background:var(--typo3-form-check-card-bg);border:1px solid var(--typo3-form-check-card-border-color);border-radius:var(--typo3-form-check-card-border-radius);box-shadow:var(--typo3-component-box-shadow);color:var(--typo3-form-check-card-color);margin-bottom:var(--typo3-spacing);padding:var(--typo3-form-check-card-padding);transition:var(--typo3-form-check-transition)}
+.form-check.form-check-type-card:focus,.form-check.form-check-type-card:hover{box-shadow:var(--typo3-component-box-shadow-strong)}
+.form-check.form-check-type-card:has(>.form-check-input:focus){--typo3-form-check-card-border-color:var(--typo3-form-check-focus-border-color);outline:var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb,var(--typo3-form-check-focus-border-color),transparent 25%)}
+.form-check.form-check-type-card:has(>.form-check-input:checked){--typo3-form-check-card-border-color:var(--typo3-form-check-checked-border-color)}
+.form-check.form-check-type-card .form-check-input{order:1}
+.form-check.form-check-type-card .form-check-input:focus{outline:none}
+.form-check.form-check-type-card .form-check-input:checked[type=radio]{--typo3-form-check-mask-image:var(--typo3-form-check-mask-image-check-checked)}
+.form-check.form-check-type-card .form-check-label{align-items:self-start;display:grid;flex-grow:1;gap:.5rem;-webkit-user-select:none;-moz-user-select:none;user-select:none}
+.form-check.form-check-type-card .form-check-label:has(>.form-check-label-body){grid-template-rows:-webkit-min-content auto;grid-template-rows:min-content auto}
+.form-check.form-check-type-card .form-check-label:after{border-radius:var(--typo3-form-check-card-border-radius);bottom:0;content:"";display:block;left:0;position:absolute;right:0;top:0}
+.form-check.form-check-type-card .form-check-label-header{align-items:center;display:flex;font-family:inherit;font-size:1rem;gap:.5rem;line-height:1.2}
+.form-check.form-check-type-card .form-check-label-header-inherit{font-size:inherit;line-height:inherit}
+.form-check.form-check-type-card .form-check-label-label-body{display:block}
+.form-check-card-container{--typo3-form-check-card-grid-gap:1rem;--typo3-form-check-card-min-size:200px;--typo3-form-check-card-max-size:1fr;display:grid;gap:var(--typo3-form-check-card-grid-gap);grid-template-columns:repeat(auto-fit,minmax(var(--typo3-form-check-card-min-size),var(--typo3-form-check-card-max-size)));margin-bottom:var(--typo3-spacing)}
+.form-check-card-container .form-check-type-card{margin-bottom:0}
+.wizard-content:has(typo3-backend-component-page-position-select){padding:0!important;--tree-toolbar-padding:calc(var(--wizard-padding)*0.75) var(--wizard-padding)}
+typo3-backend-wizard{--wizard-color:var(--typo3-component-color);--wizard-bg:var(--typo3-surface-container-low);--wizard-border-radius:var(--typo3-component-border-radius);--wizard-border-color:color-mix(in srgb,var(--wizard-bg),var(--wizard-color) 5%);--wizard-padding:1rem;--wizard-box-shadow:var(--typo3-component-box-shadow);--wizard-border-width:var(--typo3-component-border-width);--wizard-progress-bg:var(--typo3-surface-container-base);--wizard-progress-color:var(--typo3-text-color-base);--wizard-progress-border-color:color-mix(in srgb,var(--wizard-progress-bg),var(--wizard-progress-color) 10%)}
+typo3-backend-wizard .wizard{border:var(--wizard-border-width) solid var(--wizard-border-color);border-radius:var(--wizard-border-radius);box-shadow:var(--wizard-box-shadow);display:grid;grid-template-rows:1fr auto}
+typo3-backend-wizard .wizard:has(.wizard-progress){grid-template-rows:auto 1fr auto}
+typo3-backend-wizard .wizard-progress{background-color:var(--wizard-progress-bg);border-bottom:var(--wizard-border-width) solid var(--wizard-progress-border-color);color:var(--wizard-progress-color);padding:calc(var(--wizard-padding)*.75) var(--wizard-padding)}
+typo3-backend-wizard .wizard-progress typo3-backend-progress-tracker{margin:0}
+typo3-backend-wizard .wizard-loader{align-items:center;display:flex;flex-direction:column;gap:.5rem;height:100%;justify-content:center}
+typo3-backend-wizard .wizard-content{overflow-y:auto;padding:var(--wizard-padding)}
+typo3-backend-wizard .wizard-actions{border-top:var(--wizard-border-width) solid var(--wizard-border-color);display:flex;justify-content:space-between;padding:calc(var(--wizard-padding)/2) var(--wizard-padding);-webkit-user-select:none;-moz-user-select:none;user-select:none}
+.modal-header:has(+.modal-body typo3-backend-wizard){border-bottom:0}
+.modal-body typo3-backend-wizard{--wizard-padding:var(--typo3-modal-padding);--wizard-progress-bg:var(--typo3-modal-header-bg);--wizard-progress-color:var(--typo3-modal-header-color);--wizard-border-radius:0;--wizard-box-shadow:none;bottom:0;left:0;position:absolute;right:0;top:0}
+.modal-body typo3-backend-wizard .wizard{border:none;bottom:0;left:0;position:absolute;right:0;top:0}
+.modal-body typo3-backend-wizard .wizard-progress{padding-top:0}

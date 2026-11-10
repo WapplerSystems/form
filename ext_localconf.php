@@ -78,3 +78,8 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resou
     = 'EXT:form/Resources/Private/Language/Modules/de.form_log.xlf';
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['locallangXMLOverride']['de']['EXT:form/Resources/Private/Language/locallang_submission.xlf'][]
     = 'EXT:form/Resources/Private/Language/de.locallang_submission.xlf';
+
+// release/v13: layout for the form editor tree (navigation frame) and the CSS of
+// v14's generic backend wizard used by the new/duplicate form wizard. Registered
+// for every backend document because the tree lives in the top frame.
+$GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets']['form_v13_compat'] = 'EXT:form/Resources/Public/Css/Backend/v13-compat.css';
