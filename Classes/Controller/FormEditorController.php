@@ -715,7 +715,7 @@ class FormEditorController extends ActionController
                 ->setHref($closeUrl)
                 ->setDataAttributes(['identifier' => 'closeButton'])
                 ->setClasses('formeditor-element-close-form-button hidden btn btn-sm btn-default close')
-                ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.close'))
+                ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:rm.closeDoc'))
                 ->setIcon($this->iconFactory->getIcon('actions-close', IconSize::SMALL));
             $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($closeButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
             $saveButton = GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\Components\Buttons\InputButton::class)
