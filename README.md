@@ -1243,6 +1243,9 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
 - `f:translate` takes no `domain` argument on 13.4 and rejects it while parsing; the upload
   partials used it and took down every form with a `FileUpload` or `ImageUpload` element.
   A unit test now guards all templates against it (`ba413e47`).
+- The form editor's close button sets an icon. 13.4 rejects a `LinkButton` without one
+  ("Button … LinkButton is not valid"), so opening any form in the editor failed
+  (`88e0cbda`). On `release/v14` the button comes from `createCloseButton()`.
 
 ### 2026-09
 
