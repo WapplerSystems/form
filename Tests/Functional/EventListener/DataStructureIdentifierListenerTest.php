@@ -19,9 +19,15 @@ namespace TYPO3\CMS\Form\Tests\Functional\EventListener;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Configuration\Event\AfterFlexFormDataStructureIdentifierInitializedEvent;
 use TYPO3\CMS\Core\Configuration\Event\AfterFlexFormDataStructureParsedEvent;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+<<<<<<< HEAD
+=======
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+>>>>>>> e61cdcf6 ([BUGFIX] Preserve form finisher select values)
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface as ExtbaseConfigurationManagerInterface;
 use TYPO3\CMS\Form\Domain\Configuration\ConfigurationService;
 use TYPO3\CMS\Form\Domain\DTO\FormMetadata;
@@ -295,4 +301,189 @@ final class DataStructureIdentifierListenerTest extends FunctionalTestCase
         $subject->modifyDataStructure($event);
         self::assertEquals($expected, $event->getDataStructure());
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * Record->toArray() parses flex form data structures in the frontend as well, where
+     * $GLOBALS['LANG'] only exists while a backend user is logged in.
+     */
+    #[Test]
+    public function modifyDataStructureTranslatesInFrontendWithoutBackendUser(): void
+    {
+        unset($GLOBALS['LANG']);
+        $GLOBALS['TYPO3_REQUEST'] = (new ServerRequest('https://example.com/'))
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE)
+            ->withAttribute('language', new SiteLanguage(0, 'en_US.UTF-8', new Uri('/'), []));
+
+        $event = new AfterFlexFormDataStructureParsedEvent(
+            [
+                'sheets' => [
+                    'sDEF' => ['ROOT' => ['el' => ['settings.persistenceIdentifier' => ['config' => ['items' => []]]]]],
+                ],
+            ],
+            ['ext-form-persistenceIdentifier' => 'gone.form.yaml'],
+        );
+        $formPersistenceManagerMock = $this->createMock(FormPersistenceManagerInterface::class);
+        $formPersistenceManagerMock->expects($this->atLeastOnce())->method('listForms')->willReturn([]);
+        $subject = new DataStructureIdentifierListener(
+            $formPersistenceManagerMock,
+            self::createStub(ConfigurationService::class),
+            self::createStub(TranslationService::class),
+            self::createStub(FlashMessageService::class),
+            self::createStub(ExtbaseConfigurationManagerInterface::class),
+            self::createStub(ExtFormConfigurationManagerInterface::class),
+            $this->get(LanguageServiceFactory::class),
+        );
+
+        $subject->modifyDataStructure($event);
+
+        $items = $event->getDataStructure()['sheets']['sDEF']['ROOT']['el']['settings.persistenceIdentifier']['config']['items'];
+        self::assertSame('gone.form.yaml', $items[0]['value']);
+        self::assertStringContainsString('gone.form.yaml', $items[0]['label']);
+    }
+
+    /**
+     * The finisher override sheets are built by FinisherOptionGenerator, which labels each
+     * option with its default value. That label is translated without $GLOBALS['LANG'] as well.
+     */
+    #[Test]
+    public function modifyDataStructureTranslatesFinisherOverridesInFrontendWithoutBackendUser(): void
+    {
+        unset($GLOBALS['LANG']);
+        $GLOBALS['TYPO3_REQUEST'] = (new ServerRequest('https://example.com/'))
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE)
+            ->withAttribute('language', new SiteLanguage(0, 'en_US.UTF-8', new Uri('/'), []));
+
+        $persistenceIdentifier = 'EXT:form/Tests/Functional/myForm.form.yaml';
+        $event = new AfterFlexFormDataStructureParsedEvent(
+            ['sheets' => ['sDEF' => ['ROOT' => ['el' => []]]]],
+            [
+                'ext-form-persistenceIdentifier' => $persistenceIdentifier,
+                'ext-form-overrideFinishers' => 'enabled',
+            ],
+        );
+        $formPersistenceManagerStub = self::createStub(FormPersistenceManagerInterface::class);
+        $formPersistenceManagerStub->method('listForms')->willReturn([
+            new FormMetadata(
+                identifier: 'myForm',
+                type: 'Form',
+                name: 'My form',
+                prototypeName: 'standard',
+                persistenceIdentifier: $persistenceIdentifier,
+                storageType: 'extension',
+            ),
+        ]);
+        $formPersistenceManagerStub->method('load')->willReturn([
+            'identifier' => 'myForm',
+            'prototypeName' => 'standard',
+            'finishers' => [
+                ['identifier' => 'EmailToReceiver', 'options' => ['subject' => 'Hello']],
+            ],
+        ]);
+        $configurationServiceStub = self::createStub(ConfigurationService::class);
+        $configurationServiceStub->method('getPrototypeConfiguration')->willReturn([
+            'formEngine' => [
+                'translationFiles' => [],
+            ],
+            'finishersDefinition' => [
+                'EmailToReceiver' => [
+                    'FormEngine' => [
+                        'label' => 'Email to receiver',
+                        'elements' => [
+                            'subject' => ['label' => 'Subject', 'config' => ['type' => 'input']],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+        $translationServiceStub = self::createStub(TranslationService::class);
+        $translationServiceStub->method('translateSingleValue')->willReturnArgument(0);
+        $translationServiceStub->method('translateFormEngineFinisherOptions')->willReturnArgument(0);
+        $subject = new DataStructureIdentifierListener(
+            $formPersistenceManagerStub,
+            $configurationServiceStub,
+            $translationServiceStub,
+            self::createStub(FlashMessageService::class),
+            self::createStub(ExtbaseConfigurationManagerInterface::class),
+            self::createStub(ExtFormConfigurationManagerInterface::class),
+            $this->get(LanguageServiceFactory::class),
+        );
+
+        $subject->modifyDataStructure($event);
+
+        $sheetIdentifier = md5($persistenceIdentifier . 'standard' . 'myForm' . 'EmailToReceiver');
+        self::assertSame(
+            [
+                'label' => 'Subject (Default: "Hello")',
+                'config' => ['type' => 'input', 'default' => 'Hello'],
+            ],
+            $event->getDataStructure()['sheets'][$sheetIdentifier]['ROOT']['el']['settings.finishers.EmailToReceiver.subject']
+        );
+    }
+
+    #[Test]
+    public function modifyDataStructureTranslatesFinisherOverrideLabelsButKeepsSelectItemValues(): void
+    {
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->create('en');
+        $finisherConfiguration = Yaml::parseFile(
+            GeneralUtility::getFileAbsFileName('EXT:form/Configuration/Form/Base/Finishers/EmailToSender.yaml')
+        );
+        $persistenceIdentifier = '1:/form_definitions/contact.form.yaml';
+        $event = new AfterFlexFormDataStructureParsedEvent(
+            ['sheets' => ['sDEF' => ['ROOT' => ['el' => []]]]],
+            [
+                'ext-form-persistenceIdentifier' => $persistenceIdentifier,
+                'ext-form-overrideFinishers' => 'enabled',
+            ],
+        );
+        $formPersistenceManagerStub = self::createStub(FormPersistenceManagerInterface::class);
+        $formPersistenceManagerStub->method('listForms')->willReturn([
+            new FormMetadata(
+                identifier: 'contact',
+                type: 'Form',
+                name: 'Contact',
+                prototypeName: 'standard',
+                persistenceIdentifier: $persistenceIdentifier,
+                storageType: 'filemount',
+            ),
+        ]);
+        $formPersistenceManagerStub->method('load')->willReturn([
+            'identifier' => 'contact',
+            'prototypeName' => 'standard',
+            'finishers' => [
+                ['identifier' => 'EmailToSender'],
+            ],
+        ]);
+        $configurationServiceStub = self::createStub(ConfigurationService::class);
+        $configurationServiceStub->method('getPrototypeConfiguration')->willReturn([
+            'finishersDefinition' => $finisherConfiguration['prototypes']['standard']['finishersDefinition'],
+            'formEngine' => [
+                'translationFiles' => [
+                    10 => 'EXT:form/Resources/Private/Language/Database.xlf',
+                ],
+            ],
+        ]);
+        $subject = new DataStructureIdentifierListener(
+            $formPersistenceManagerStub,
+            $configurationServiceStub,
+            $this->get(TranslationService::class),
+            self::createStub(FlashMessageService::class),
+            self::createStub(ExtbaseConfigurationManagerInterface::class),
+            self::createStub(ExtFormConfigurationManagerInterface::class),
+            $this->get(LanguageServiceFactory::class),
+        );
+
+        $subject->modifyDataStructure($event);
+
+        $sheetIdentifier = md5($persistenceIdentifier . 'standard' . 'contact' . 'EmailToSender');
+        self::assertSame(
+            [
+                5 => ['label' => 'Auto', 'value' => ''],
+                10 => ['label' => 'EN', 'value' => 'default'],
+            ],
+            $event->getDataStructure()['sheets'][$sheetIdentifier]['ROOT']['el']['settings.finishers.EmailToSender.translation.language']['config']['items'],
+        );
+    }
+>>>>>>> e61cdcf6 ([BUGFIX] Preserve form finisher select values)
 }
