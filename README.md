@@ -1247,6 +1247,20 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
   is v14-only and resolved to an empty title). 13.4 rejects a `LinkButton` without either
   ("Button … LinkButton is not valid"), so opening any form in the editor failed
   (`88e0cbda`, `a35ca586`). On `release/v14` the button comes from `createCloseButton()`.
+- The backend scripts are v14's and import things 13.4 does not have. `~labels/<domain>`
+  resolves to shims in `Resources/Public/JavaScript/compat/labels/` that fetch the domain
+  from the `form_javascript_labels` AJAX route; v14's generic backend wizard (and
+  `@typo3/core/utility/top-window.js`) is copied unchanged from v14.3.11 into `compat/` and
+  mapped in `Configuration/JavaScriptModules.php`; the package is tagged
+  `backend.navigation-component` so the editor tree loads in the top frame; and
+  `Resources/Public/Css/Backend/v13-compat.css` adds the tree layout and the wizard CSS.
+  Before this the editor stayed blank and the new-form wizard did not open (`9663475f`).
+- EntropySpam's optional minimum length is checked with `IntegerOrEmpty`; with `Integer`
+  every form carrying the validator was unsavable (`33409e1b`, also open on `release/v14`).
+- The editor no longer runs upstream's `migrateFinisherConfiguration()`: it turned the
+  fork's "as the frontend" mail language (`""`) into `default`, which is not an option
+  here, and saving failed with "No hmac found for property options.translation.language"
+  (`774bb56e`, also open on `release/v14`).
 
 ### 2026-09
 
