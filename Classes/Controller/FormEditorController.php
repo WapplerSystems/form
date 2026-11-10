@@ -833,8 +833,15 @@ class FormEditorController extends ActionController
         }
 
         $formDefinition = $this->formDefinitionConversionService->sanitizeHtml($formDefinition, $rtePropertyPaths);
-        $formDefinition = $this->formDefinitionConversionService->addHmacData($formDefinition, $formPersistenceIdentifier);
-        return $this->formDefinitionConversionService->migrateFinisherConfiguration($formDefinition);
+        // WapplerSystems fork: no migrateFinisherConfiguration() here. Upstream
+        // rewrites an empty "translation.language" to "default" and drops its
+        // hmac, because upstream has no editor option for "". In this fork ""
+        // is the first option ("as the frontend", see
+        // InjectSiteLanguagesIntoEmailFinisherEditor) and "default" is not an
+        // option at all - so the rewrite pinned the mail language on save and,
+        // with neither an allowed value nor an hmac left, saveForm failed with
+        // "No hmac found for property options.translation.language" #1528591585.
+        return $this->formDefinitionConversionService->addHmacData($formDefinition, $formPersistenceIdentifier);
     }
 
     /**
