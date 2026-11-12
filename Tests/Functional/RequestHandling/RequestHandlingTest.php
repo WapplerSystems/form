@@ -29,6 +29,12 @@ use Symfony\Component\Mime\Part\File;
 use Symfony\Component\Mime\RawMessage;
 use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
+<<<<<<< HEAD
+=======
+use TYPO3\CMS\Core\Crypto\HashAlgo;
+use TYPO3\CMS\Core\Crypto\HashService;
+use TYPO3\CMS\Core\Error\Http\BadRequestException;
+>>>>>>> 533484b0 ([BUGFIX] Reject invalid form page index gracefully)
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Serializer\PolymorphicDeserializer;
@@ -513,4 +519,118 @@ final class RequestHandlingTest extends FunctionalTestCase
 
         self::assertNotEquals($honeypotIdFromRevisit, $honeypotId, 'honeypot differs from historical honeypot');
     }
+<<<<<<< HEAD
+=======
+
+    #[DataProvider('theHoneypotElementChangesWithEveryCallOfTheFirstFormStepDataProvider')]
+    #[Test]
+    public function theHoneypotElementIsRenderedAfterAllElementsOfTheFormStep(string $formIdentifier): void
+    {
+        $uri = static::ROOT_PAGE_BASE_URI . '/form';
+        $subject = new FormDataFactory();
+
+        for ($rendering = 1; $rendering <= 10; $rendering++) {
+            $internalRequest = (new InternalRequest($uri))->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+            $pageMarkup = (string)$this->executeFrontendSubRequest($internalRequest, null, true)->getBody();
+            $elementData = $subject->fromHtmlMarkupAndXpath($pageMarkup, '//form[@id="' . $formIdentifier . '"]')->toArray()['elementData'];
+
+            $positions = array_flip(array_keys($elementData));
+            $honeypotName = array_key_first(array_filter($elementData, static fn(array $element): bool => $element['__isHoneypot']));
+            $textElementName = array_key_first(array_filter($elementData, static fn(string $name): bool => str_ends_with($name, '[text-1]'), ARRAY_FILTER_USE_KEY));
+
+            self::assertNotNull($honeypotName, 'honeypot element exists');
+            self::assertNotNull($textElementName, 'text element exists');
+            self::assertGreaterThan($positions[$textElementName], $positions[$honeypotName], 'honeypot is rendered after "text-1" in rendering ' . $rendering);
+        }
+    }
+
+    #[DataProvider('theCachingBehavesTheSameForAllFormIntegrationVariantsDataProvider')]
+    #[Test]
+    public function theFormIsShownAgainIfTheHoneypotIsFilledWithoutFrontendSession(string $formIdentifier, string $formNamePrefix): void
+    {
+        $uri = static::ROOT_PAGE_BASE_URI . '/form';
+        $subject = new FormDataFactory();
+
+        $internalRequest = (new InternalRequest($uri))->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+        $pageMarkup = (string)$this->executeFrontendSubRequest($internalRequest, null, true)->getBody();
+        $formData = $subject->fromHtmlMarkupAndXpath($pageMarkup, '//form[@id="' . $formIdentifier . '"]');
+        $honeypotId = $formData->getHoneypotId();
+        self::assertNotEmpty($honeypotId, 'honeypot element exists');
+
+        // sub requests carry no frontend session cookie
+        $internalRequest = (new InternalRequest($uri))->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+        $formPostRequest = $formData->with('text-1', 'FOObarBAZ')->with($honeypotId, 'spam')->toPostRequest($internalRequest);
+        $pageMarkup = (string)$this->executeFrontendSubRequest($formPostRequest, null, true)->getBody();
+        $formData = $subject->fromHtmlMarkupAndXpath($pageMarkup, '//form[@id="' . $formIdentifier . '"]');
+
+        $this->assertFirstFormStepIsShownAgain($formData, $formNamePrefix . '[' . $formIdentifier . '][text-1]');
+    }
+
+    #[DataProvider('theCachingBehavesTheSameForAllFormIntegrationVariantsDataProvider')]
+    #[Test]
+    public function theFormIsShownAgainIfTheFormStateHasNoHoneypotName(string $formIdentifier, string $formNamePrefix): void
+    {
+        $uri = static::ROOT_PAGE_BASE_URI . '/form';
+        $subject = new FormDataFactory();
+
+        $internalRequest = (new InternalRequest($uri))->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+        $pageMarkup = (string)$this->executeFrontendSubRequest($internalRequest, null, true)->getBody();
+        $formData = $subject->fromHtmlMarkupAndXpath($pageMarkup, '//form[@id="' . $formIdentifier . '"]');
+
+        // a validly signed state as rendered before the honeypot name was stored in it
+        $formState = new FormState();
+        $formState->setLastDisplayedPageIndex(0);
+        $serializedFormState = $this->get(HashService::class)->appendHmac(
+            base64_encode(serialize($formState)),
+            HashScope::FormState->prefix(),
+            HashAlgo::SHA3_256
+        );
+
+        $internalRequest = (new InternalRequest($uri))->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+        $formPostRequest = $formData->with('text-1', 'FOObarBAZ')->with('__state', $serializedFormState)->toPostRequest($internalRequest);
+        $pageMarkup = (string)$this->executeFrontendSubRequest($formPostRequest, null, true)->getBody();
+        $formData = $subject->fromHtmlMarkupAndXpath($pageMarkup, '//form[@id="' . $formIdentifier . '"]');
+
+        $this->assertFirstFormStepIsShownAgain($formData, $formNamePrefix . '[' . $formIdentifier . '][text-1]');
+    }
+
+    private function assertFirstFormStepIsShownAgain(FormData $formData, string $textElementName): void
+    {
+        $formMarkup = $formData->getFormMarkup();
+        self::assertStringNotContainsString('Summary step', $formMarkup, 'the summary form step is not shown');
+        self::assertStringNotContainsString('Form is submitted', $formMarkup, 'the finisher text is not shown');
+        self::assertNotEmpty($formData->getHoneypotId(), 'the first form step with a honeypot is shown again');
+        self::assertEquals('FOObarBAZ', $formData->toArray()['elementData'][$textElementName]['value'] ?? null, 'the submitted value is shown again');
+        self::assertCount(0, $this->getMailSpoolMessages(), 'no mail is sent');
+    }
+
+    public static function invalidCurrentPageIndexIsRejectedDataProvider(): \Generator
+    {
+        yield 'SQL injection attempt' => ['-1 OR 5*5=25 -- '];
+        yield 'negative integer' => ['-1'];
+        yield 'non-numeric string' => ['foo'];
+        yield 'float' => ['1.5'];
+        yield 'empty string' => [''];
+    }
+
+    #[DataProvider('invalidCurrentPageIndexIsRejectedDataProvider')]
+    #[Test]
+    public function invalidCurrentPageIndexIsRejected(string $currentPageIndex): void
+    {
+        $uri = static::ROOT_PAGE_BASE_URI . '/form';
+        $formIdentifier = 'multistep-test-form-1001';
+        $subject = new FormDataFactory();
+
+        $internalRequest = (new InternalRequest($uri))->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+        $pageMarkup = (string)$this->executeFrontendSubRequest($internalRequest, null, true)->getBody();
+        $formData = $subject->fromHtmlMarkupAndXpath($pageMarkup, '//form[@id="' . $formIdentifier . '"]');
+
+        $internalRequest = (new InternalRequest($uri))->withAttribute('currentContentObject', $this->get(ContentObjectRenderer::class));
+        $formPostRequest = $formData->with('text-1', 'FOObarBAZ')->with('__currentPage', $currentPageIndex)->toPostRequest($internalRequest);
+
+        $this->expectException(BadRequestException::class);
+        $this->expectExceptionCode(1791791661);
+        $this->executeFrontendSubRequest($formPostRequest, null, true);
+    }
+>>>>>>> 533484b0 ([BUGFIX] Reject invalid form page index gracefully)
 }
