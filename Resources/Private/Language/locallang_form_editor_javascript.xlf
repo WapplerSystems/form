@@ -6,6 +6,15 @@
       <trans-unit id="formEditor.insert_elements">
         <source>Insert elements</source>
       </trans-unit>
+<<<<<<< HEAD
+=======
+      <trans-unit id="formEditor.stage.page.edit">
+        <source>Edit step</source>
+      </trans-unit>
+      <trans-unit id="formEditor.stage.toolbar.edit">
+        <source>Edit</source>
+      </trans-unit>
+>>>>>>> ec249474 ([BUGFIX] Make form editor stage elements accessible)
       <trans-unit id="formEditor.stage.toolbar.new_element">
         <source>Create new element</source>
       </trans-unit>
