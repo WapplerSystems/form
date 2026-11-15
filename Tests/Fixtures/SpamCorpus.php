@@ -40,6 +40,11 @@ final class SpamCorpus
             // and 0.840, below maximumEntropyRatio. Real submissions, 10/2026.
             'long random mixed case' => ['ZSpBvrpPBHQxLCrtvTbJtJ'],
             'long random mixed case 2' => ['TGxRftqyLZoIJqZZqLZls'],
+            // Enough vowels ("y" included) to keep every consonant run at four,
+            // so only the case flips (5 and 7) give them away. Real
+            // submissions, 11/2026.
+            'random mixed case with short consonant runs' => ['lCRRyywrOPYgKTeXYAzGy'],
+            'random mixed case with short consonant runs 2' => ['lwTehoSoWoWIJucUfHbOHPGF'],
         ];
     }
 
@@ -139,6 +144,12 @@ final class SpamCorpus
             'camel case product names' => [[
                 'company' => 'OpenStreetMap',
                 'message' => 'Wir nutzen XMLHttpRequest, SharePointOnline und eLearningPlattform.',
+            ]],
+            // Three flips each, one below caseFlipsWithoutSyllableGate: the
+            // reason the threshold is four.
+            'four-part camel case names' => [[
+                'company' => 'WhatsAppBusinessApi',
+                'message' => 'Unser iPhoneProMax meldet sich beim BürgerInnenServiceCenter nicht an.',
             ]],
             'german compound word' => [[
                 'message' => 'Donaudampfschifffahrtsgesellschaft',
