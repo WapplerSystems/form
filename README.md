@@ -1296,6 +1296,8 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   random 15–25-letter tokens rises from 72% to 93%; three-flip names such as `iPhoneProMax`
   or `BürgerInnenServiceCenter` stay accepted, and the hunspell de_DE flag rate is
   unchanged at 0.15%.
+- Checkbox partial: the developer note above the column wrap was an HTML comment and went
+  out to the browser once per checkbox. It is an `<f:comment>` now.
 
 ### 2026-10
 
