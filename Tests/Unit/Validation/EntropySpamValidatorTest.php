@@ -86,6 +86,11 @@ final class EntropySpamValidatorTest extends UnitTestCase
             // and 0.840, below maximumEntropyRatio. Real submissions, 10/2026.
             'long random mixed case' => ['ZSpBvrpPBHQxLCrtvTbJtJ'],
             'long random mixed case 2' => ['TGxRftqyLZoIJqZZqLZls'],
+            // Enough vowels ("y" included) to keep every consonant run at four,
+            // so only the case flips (5 and 7) give them away. Real
+            // submissions, 11/2026.
+            'random mixed case with short consonant runs' => ['lCRRyywrOPYgKTeXYAzGy'],
+            'random mixed case with short consonant runs 2' => ['lwTehoSoWoWIJucUfHbOHPGF'],
         ];
     }
 
@@ -117,6 +122,12 @@ final class EntropySpamValidatorTest extends UnitTestCase
             'camel case product names' => [[
                 'company' => 'OpenStreetMap',
                 'message' => 'Wir nutzen XMLHttpRequest, SharePointOnline und eLearningPlattform.',
+            ]],
+            // Three flips each, one below caseFlipsWithoutSyllableGate: the
+            // reason the threshold is four.
+            'four-part camel case names' => [[
+                'company' => 'WhatsAppBusinessApi',
+                'message' => 'Unser iPhoneProMax meldet sich beim BürgerInnenServiceCenter nicht an.',
             ]],
             'german compound word' => [[
                 'message' => 'Donaudampfschifffahrtsgesellschaft',
@@ -268,12 +279,15 @@ final class EntropySpamValidatorTest extends UnitTestCase
     public function raisingTheConsonantRunThresholdLetsGibberishThrough(): void
     {
         // Guards the default: the reported sample peaks at a run of six, so a
-        // threshold of six or more stops rejecting it.
+        // threshold of six or more stops rejecting it. Its six case flips would
+        // bypass the syllable gate altogether, so that bypass is switched off
+        // here to keep the test about the consonant run.
         $values = ['message' => 'goIuMokMxpTCeKnJfIq'];
+        $withoutFlipBypass = ['caseFlipsWithoutSyllableGate' => 99];
 
-        self::assertTrue($this->buildValidator()->validate($values)->hasErrors());
+        self::assertTrue($this->buildValidator($withoutFlipBypass)->validate($values)->hasErrors());
         self::assertFalse(
-            $this->buildValidator(['maximumConsonantRun' => 6])->validate($values)->hasErrors(),
+            $this->buildValidator($withoutFlipBypass + ['maximumConsonantRun' => 6])->validate($values)->hasErrors(),
         );
     }
 
@@ -426,6 +440,40 @@ final class EntropySpamValidatorTest extends UnitTestCase
         self::assertFalse(
             $this->buildValidator(['mixedAlnumTokenLength' => 11])->validate($values)->hasErrors(),
             'The reported sample is ten characters; a threshold above it must let it through.',
+        );
+    }
+
+    /**
+     * A submission from 11/2026 that the consonant-run gate let through. Name
+     * and message are random mixed-case salad, but with enough vowels that no
+     * consonant run exceeds four; the plausible-looking e-mail address, phone
+     * number and topic then kept the share of the one other suspicious token
+     * below gibberishShare.
+     */
+    #[Test]
+    public function mixedCaseSaladWithShortConsonantRunsIsRejected(): void
+    {
+        $values = [
+            'topic' => 'TYPO3',
+            'name' => 'lCRRyywrOPYgKTeXYAzGy',
+            'email' => 'lub.ah.uj.i.ri.34.6@gmail.com',
+            'phone' => '4457705392',
+            'message' => 'MPUjyeEejiAlzedeysqZbfo',
+        ];
+
+        self::assertTrue($this->buildValidator()->validate($values)->hasErrors());
+    }
+
+    #[Test]
+    public function caseFlipsWithoutSyllableGateIsConfigurable(): void
+    {
+        // Five flips, longest consonant run four.
+        $values = ['message' => 'lCRRyywrOPYgKTeXYAzGy'];
+
+        self::assertTrue($this->buildValidator()->validate($values)->hasErrors());
+        self::assertFalse(
+            $this->buildValidator(['caseFlipsWithoutSyllableGate' => 6])->validate($values)->hasErrors(),
+            'With the threshold above its five flips the syllable gate applies again and lets it through.',
         );
     }
 
