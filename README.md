@@ -1285,6 +1285,18 @@ release tag. Everything before the fork point is TYPO3's own history — see the
 changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull request in
 `WapplerSystems/form`.
 
+### 2026-11
+
+**Fixed**
+
+- Entropy spam filter: random mixed-case salad with enough vowels — `lCRRyywrOPYgKTeXYAzGy`,
+  `lwTehoSoWoWIJucUfHbOHPGF` — kept every consonant run at four and passed the syllable
+  gate on a live contact form. Tokens with at least `caseFlipsWithoutSyllableGate`
+  (default 4) lower-to-upper flips now count as gibberish without it. Detection of uniform
+  random 15–25-letter tokens rises from 72% to 93%; three-flip names such as `iPhoneProMax`
+  or `BürgerInnenServiceCenter` stay accepted, and the hunspell de_DE flag rate is
+  unchanged at 0.15%.
+
 ### 2026-10
 
 **Added**
@@ -1331,6 +1343,11 @@ changelog for that. Short SHAs are on `release/v14`; `#n` refers to a pull reque
   at: against the hunspell de_DE list the flag rate is 0.15% at eight versus 0.20% at
   twelve, so the precision was never coming from the length. Reproduce with
   `Build/Scripts/measure-entropy-spam-false-positives.php` (#28).
+
+- Entropy spam filter: long random mixed-case tokens (`ZSpBvrpPBHQxLCrtvTbJtJ`) repeat
+  letters by chance and fell below `maximumEntropyRatio`. Tokens with at least
+  `caseFlipsWithoutEntropy` (default 3) lower-to-upper flips now skip the entropy test.
+  `9d30ef7b`
 
 ### 2026-09
 
