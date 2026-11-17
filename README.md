@@ -1262,6 +1262,22 @@ cherry-picking from `release/v14`, so the entries below apply here too — the S
   here, and saving failed with "No hmac found for property options.translation.language"
   (`774bb56e`, also open on `release/v14`).
 
+### 2026-11
+
+**Security**
+
+- TYPO3-CORE-SA-2026-032 (CVE-2026-125163): a FileUpload / ImageUpload element with an
+  empty `allowedMimeTypes` list accepted any file except the PHP family, so anonymous
+  visitors could put `.html` or `.svg` into public storage. An empty list now refuses every
+  upload, and the form editor no longer saves an upload element without a MIME type.
+  **Hand-written form YAML without `allowedMimeTypes` rejects uploads from now on** — add a
+  list. `$GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['security.form.allowUnrestrictedFileUploadMimeTypes']`
+  restores the old behaviour as a stopgap. 582cb397
+- TYPO3-CORE-SA-2026-029 (CVE-2026-125160): an upload failing with an exception showed
+  the exception message — storage paths, driver errors — to the visitor as a validation
+  error. The visitor now gets "Upload failed." (code 1793200460); the message stays in the
+  log. 9ebe829f
+
 ### 2026-09
 
 **Added**
