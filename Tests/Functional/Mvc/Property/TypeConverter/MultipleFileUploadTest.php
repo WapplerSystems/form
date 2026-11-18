@@ -1270,8 +1270,13 @@ final class MultipleFileUploadTest extends FunctionalTestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('error')->with(
+<<<<<<< HEAD
             'Uploaded file could not be imported: {reason}',
             ['reason' => 'Could not write to /var/www/html/secret/path', 'exception' => $exception],
+=======
+            'An unknown error has occurred when converting an uploaded file to a resource',
+            ['exception' => $exception],
+>>>>>>> a5d10cad ([SECURITY] Hide sensitive exception information for uploaded files)
         );
         $subject = $this->get(UploadedFileReferenceConverter::class);
         $subject->setLogger($logger);
