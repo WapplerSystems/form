@@ -24,8 +24,16 @@ Properties
 .. _prototypes.prototypeIdentifier.formelementsdefinition.honeypot.properties.elementerrorclassattribute:
 .. include:: Honeypot/properties/elementErrorClassAttribute.rst.txt
 
+<<<<<<< HEAD
 .. _prototypes.prototypeIdentifier.formelementsdefinition.honeypot.properties.renderashiddenfield:
 .. include:: Honeypot/properties/renderAsHiddenField.rst.txt
+=======
+..  _prototypes.prototypeIdentifier.formelementsdefinition.honeypot.properties.fluidadditionalattributes:
+..  include:: Honeypot/properties/fluidAdditionalAttributes.rst.txt
+
+..  _prototypes.prototypeIdentifier.formelementsdefinition.honeypot.properties.renderashiddenfield:
+..  include:: Honeypot/properties/renderAsHiddenField.rst.txt
+>>>>>>> af58faff ([BUGFIX] Let the honeypot render its own attributes)
 
 .. _prototypes.prototypeIdentifier.formelementsdefinition.honeypot.properties.styleattribute:
 .. include:: Honeypot/properties/styleAttribute.rst.txt
