@@ -53,6 +53,7 @@ class FileMountStorageAdapter extends AbstractFileStorageAdapter implements Stor
         protected readonly ResourceFactory $resourceFactory,
         protected readonly PersistenceConfigurationService $storageConfiguration,
         protected readonly FilePersistenceSlot $filePersistenceSlot,
+        protected readonly FormDefinitionMetadataExtractor $metadataExtractor,
     ) {}
 
     public function getTypeIdentifier(): string
@@ -334,7 +335,7 @@ class FileMountStorageAdapter extends AbstractFileStorageAdapter implements Stor
         }
 
         try {
-            $yaml = $this->extractMetaDataFromCouldBeFormDefinition($rawYamlContent);
+            $yaml = $this->metadataExtractor->extract($rawYamlContent);
             $this->generateErrorsIfFormDefinitionIsInvalidOrHasInvalidFileExtension($yaml, $persistenceIdentifier);
             return FormMetadata::createFromYaml(
                 $yaml,
