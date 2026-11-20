@@ -10,6 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
+<<<<<<< HEAD
 import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
 import formManagerLabels from '~labels/form.form_manager_javascript';
 export class CreateFormSubmissionService {
@@ -50,3 +51,6 @@ export class CreateFormSubmissionService {
         };
     }
 }
+=======
+import o from"@typo3/core/ajax/ajax-request.js";import s from"~labels/form.form_manager_javascript";class a{constructor(e){this.context=e}async execute(){const e=this.context.getDataStore(),r=this.context.formManager.getAjaxEndpoint("create"),t=await(await new o(r).post({formName:e.settings.formName,templatePath:e.settings.template,prototypeName:e.settings.prototype,storage:e.storage.typeIdentifier,storageLocation:e.settings.storageLocation})).resolve();return t?.status==="success"?{success:!0,finisher:{identifier:"redirect",module:"@typo3/backend/wizard/finisher/redirect-finisher.js",data:{url:t.url},labels:{successTitle:s.get("formManager.finisher.redirect.success.title"),successDescription:s.get("formManager.finisher.redirect.success.description")}}}:{success:!1,errors:[t?.message??""]}}}export{a as CreateFormSubmissionService};
+>>>>>>> 637d4a4e ([TASK] Make the form editor null-safe)
