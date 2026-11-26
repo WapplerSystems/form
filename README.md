@@ -1188,6 +1188,12 @@ own pull request** — never a branch merge.
   `bugfix` / `security` / `breaking-change` derived from the subject tag.
 - **Conflicts are not dropped** — the conflicted state is committed as-is, the PR opens as
   a **draft** labelled `needs-conflict-resolution`, to be resolved by hand.
+  **Exception: `composer.json`.** Packagist reads it from every branch and mails
+  "failed to update, invalid composer.json data" for any branch with conflict markers.
+  The fork's file always differs from upstream's (name, authors, indentation), so on a
+  conflict there the branch keeps the fork version and the PR body carries the upstream
+  diff, to be ported by hand. A branch whose `composer.json` is not valid JSON is never
+  pushed.
 - **Never proposed twice** — the PR body carries a
   `<!-- DO NOT EDIT — upstream-sha:<sha> -->` marker, and the script reads those markers
   from all `upstream-sync`-labelled PRs in *any* state. Closing a PR unmerged is therefore

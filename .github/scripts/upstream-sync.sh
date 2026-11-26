@@ -101,17 +101,38 @@ for sha in "${pending[@]}"; do
   git checkout -B "$branch" "origin/$BASE" --
 
   conflict=0
+  composer_kept_ours=0
   if git cherry-pick -x "$sha"; then
     echo "Clean cherry-pick."
   else
     conflict=1
     echo "::warning::Cherry-pick had conflicts — committing WIP state for manual resolution."
+    # Packagist reads composer.json from EVERY branch of this repo and mails
+    # "failed to update, invalid composer.json data" for each branch carrying
+    # conflict markers. The fork's composer.json differs from upstream in name,
+    # description, authors and indentation, so upstream dependency bumps
+    # always conflict here. Keep the fork's file on the branch and show the
+    # upstream change in the PR body so it gets ported by hand.
+    if git diff --name-only --diff-filter=U | grep -qx 'composer.json'; then
+      git checkout --ours -- composer.json
+      composer_kept_ours=1
+      echo "::warning::composer.json conflicted — kept fork version, upstream diff goes into the PR body."
+    fi
     git add -A
     msg=$(printf '%s\n\n(cherry picked from commit %s)\n\n[CONFLICT — manual resolution required]\n' \
           "$(git log -1 --format='%B' "$sha")" "$sha")
     git -c commit.gpgsign=false commit --no-verify --allow-empty -m "$msg"
     git_dir=$(git rev-parse --git-dir)
     rm -f "$git_dir/CHERRY_PICK_HEAD" "$git_dir/MERGE_MSG" 2>/dev/null || true
+  fi
+
+  # Never push a branch whose composer.json Packagist cannot parse.
+  if ! jq -e . composer.json >/dev/null 2>&1; then
+    echo "::error::composer.json on $branch is not valid JSON — not pushing $short."
+    git checkout --detach >/dev/null 2>&1 || true
+    git branch -D "$branch" >/dev/null 2>&1 || true
+    echo "::endgroup::"
+    continue
   fi
 
   # Build label set
@@ -138,6 +159,13 @@ for sha in "${pending[@]}"; do
     if (( conflict )); then
       printf '> **⚠ Conflict detected** — diese PR enthält Konfliktmarker und ist als Draft markiert.\n'
       printf '> Bitte lokal auschecken, manuell auflösen, dann das Label `needs-conflict-resolution` entfernen und die PR aus dem Draft-Status nehmen.\n\n'
+    fi
+    if (( composer_kept_ours )); then
+      printf '> **composer.json nicht übernommen** — der Branch enthält die Fork-Version (Konfliktmarker würden Packagist brechen).\n'
+      printf '> Die Upstream-Änderung unten bitte von Hand in unsere `composer.json` portieren.\n\n'
+      printf '<details><summary>Upstream-Diff von composer.json</summary>\n\n```diff\n'
+      git show --format= "$sha" -- composer.json
+      printf '```\n\n</details>\n\n'
     fi
     printf '## Upstream-Commit\n\n'
     # bash 5.2 printf builtin (on github-runners) rejects `--`. Pass the
